@@ -1,0 +1,29 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Runtime output: keep directory guidance only
+runtime/*
+!runtime/README.md
+
+# Common caches and temporary artifacts (language-neutral baseline)
+*.log
+*.tmp
+*.temp
+*.cache
+.cache/
+tmp/
+temp/
+coverage/
+
