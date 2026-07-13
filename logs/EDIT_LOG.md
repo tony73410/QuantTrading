@@ -273,3 +273,81 @@
 ### Approval
 
 用户明确授权初始化 Git、创建首次提交、设置项目级身份并提供远程仓库地址。未执行未授权的 push、pull 或历史修改。
+
+## EDIT-20260713-004
+
+### Date
+
+2026-07-13 11:48:05 -07:00
+
+### Request
+
+将内容上传到 GitHub 仓库 `tony73410/QuantTrading`。
+
+### Scope
+
+将已经验证的项目治理基线发布到远程 `origin`，而不是创建无用途的随机文件。包含只读远程检查、本条编辑记录提交、普通首次 push 和上游分支配置；不包含强制推送、远程历史覆盖、业务代码或交易功能。
+
+### Pre-change state
+
+本地 `main` 工作区干净，包含首次治理基线提交 `9831308`；`origin` 已配置，但 `main` 没有上游分支，且此前未执行 fetch、pull 或 push。
+
+### Files changed
+
+- Added: None.
+- Modified:
+  - `logs/EDIT_LOG.md`
+- Deleted: None.
+- Renamed: None.
+
+### Implementation
+
+执行只读 `git ls-remote --heads origin` 检查远程分支；远程没有返回任何 heads，因此无需合并，也不存在需要覆盖的已知远程分支。记录本次发布操作后，准备以非强制方式推送本地 `main` 并设置 `origin/main` 为上游。
+
+### Reason
+
+用户的目标是让远程仓库拥有项目内容。上传已有且有实际用途的治理基线，比创建随意占位文件更符合目标，并保持仓库整洁和可追踪。
+
+### Behavior impact
+
+无程序或交易行为变化。版本控制内容将从仅本地状态变为可在指定 GitHub 仓库访问。
+
+### Interface impact
+
+无公共程序接口变化。
+
+### Dependency impact
+
+无依赖变化。
+
+### Configuration or data impact
+
+无应用配置或数据格式变化。成功推送后，本地 `main` 将跟踪 `origin/main`。
+
+### Validation
+
+- 检查本地工作区、当前分支、提交历史、远程 URL 和上游状态。
+- 运行 `git ls-remote --heads origin`，确认远程没有现有分支。
+- 提交本记录后运行非强制首次 push。
+- push 后检查本地工作区、上游关系、本地/远程提交一致性。
+
+### Results
+
+推送前检查通过：本地工作区干净，分支为 `main`，远程 heads 为空。最终 push 和远程一致性结果将在本条写入后的任务验证及最终报告中说明。
+
+### Documentation
+
+仅追加本编辑记录；项目功能和架构文档无需变化。
+
+### Rollback
+
+本记录不得删除或重写。若未来需要撤销已发布内容，应先确认远程使用情况，再通过新的提交或经明确批准的远程操作处理；不得擅自 force push 或删除远程分支。
+
+### Open issues
+
+- 推送前尚未验证 GitHub 的网页展示；以 push 后的远程引用检查为准。
+- 技术栈和交易业务能力仍未决定。
+
+### Approval
+
+用户明确要求向该远程仓库上传内容，构成对本次普通非强制 push 的授权。未授权且不会执行远程历史覆盖。
