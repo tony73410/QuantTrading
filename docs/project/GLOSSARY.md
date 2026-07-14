@@ -10,8 +10,15 @@
 - **Execution environment / 执行环境**：未来订单执行所针对的隔离环境；当前默认标识为 Alpaca Paper，Alpaca Live 关闭。环境标识不代表执行模块已经实现。
 - **Manual confirmation / 人工确认**：任何未来订单提交前必须由用户明确检查和确认；当前默认要求开启。
 - **Bar / K线数据点**：某个固定时间粒度内的开盘、最高、最低、收盘、成交量及可选 VWAP/成交笔数汇总，不是逐笔成交。
-- **Timeframe / 时间粒度**：每根 Bar 聚合的时间长度；当前为 1 Day、1 Week 或 1 Month。
+- **Timeframe / 时间粒度**：每根 Bar 聚合的时间长度；当前行情浏览器支持 10 Minute、30 Minute、1 Hour、1 Day、1 Week 和 1 Month。
 - **Adjustment / 价格调整（复权）**：针对拆股、分红等公司行动调整历史价格的口径；不同口径不得混用。
 - **Feed / 数据源线路**：Alpaca 提供的行情来源，例如 IEX 或 SIP；不同 Feed 的覆盖和权限可能不同。
 - **Coverage / 本地覆盖区间**：已成功完整请求并写入的 `[start, end)` 时间范围；周末/假日没有 Bar 不代表 Coverage 损坏。
 - **Force Refresh / 强制刷新**：不先删除旧数据，重新请求所选范围并在验证成功后 upsert；失败保留旧数据。
+- **Factor / 因子**：截至指定时间、只描述单一资产量化特征的版本化结果；它不是买卖建议。
+- **FactorSnapshot / 因子快照**：记录股票、as-of时间、粒度、因子名称/版本/参数/状态和数据范围的稳定合同，是Factor层与Decision层之间唯一通信边界。
+- **TradeIntent / 交易意图**：Decision层输出的可追溯建议方向；不是订单、风险批准、已提交交易或成交。
+- **RiskDecision / 风险裁决**：Risk层对一个不可变TradeIntent给出的可追溯批准、降低、延迟、人工审查或阻止结果；不是订单或成交。
+- **RiskApprovedTradeIntent / 已通过风险审查的交易意图**：供未来Order Construction识别风险门已通过的类型合同；仍需人工确认和后续安全检查，不是执行授权。
+- **Risk authority / 风险权限**：安全否决和降低风险的权限；不代表Risk可以扩大交易、生成Alpha、修改Factor/Decision或直接下单。
+- **Look-ahead bias / 前视偏差**：计算历史时使用了当时尚不可获得的信息。Factor输入必须显式记录Bar何时完成并可用。

@@ -1712,3 +1712,771 @@ GUI 针对性测试 11 passed；完整测试 91 passed，保留 1 个上游 `web
 ### Approval
 
 用户明确要求上传当前版本，因此已授权本次 commit 和 push。未执行 pull、merge、rebase、reset、force push 或历史改写。
+
+## EDIT-20260714-020
+
+### Date
+
+2026-07-14 10:38:37 -07:00
+
+### Request
+
+建立根目录 `PROJECT_COMPASS.md`，为未来 AI 和开发者提供项目中心思想、当前语义、用户意图追踪、歧义处理、架构防漂移及实施前后自我审查机制。
+
+### Scope
+
+基于实际代码、配置、Accepted ADR、测试、项目状态和已知问题建立唯一中心语义入口；将 Compass 阅读和前后审查接入仓库工作规则、开发流程和文档索引；记录该长期治理决策。本次不修改程序代码、依赖、配置、SQLite、行情、策略、回测、账户、订单或交易行为，也不实施尚待批准的本地数据清理规则。
+
+### Pre-change state
+
+仓库已有 `AGENTS.md`、PROJECT_STATE、架构/模块文档、ADR、Edit/Bug Log 和需求解释协议，但没有一个同时区分稳定用户意图与动态事实、维护 Active Intent/Assumption/Open Decision，并要求 AI 在重要任务前后审查的中心入口。开始时 `main` 与 `origin/main` 同步于 `4fe358e88e1843cffc4e477ca873c17c183c277b`，工作区干净。
+
+### Files changed
+
+- Added:
+  - `PROJECT_COMPASS.md`
+  - `docs/decisions/ADR-0003-project-compass.md`
+- Modified:
+  - `AGENTS.md`
+  - `README.md`
+  - `docs/INDEX.md`
+  - `docs/decisions/README.md`
+  - `docs/development/WORKFLOW.md`
+  - `docs/development/DOCUMENTATION_STANDARDS.md`
+  - `docs/project/PROJECT_STATE.md`
+  - `CHANGELOG.md`
+  - `logs/EDIT_LOG.md`
+- Deleted: None.
+- Renamed: None.
+
+### Implementation
+
+创建 Compass version 1，分为仅经用户批准可改的 Stable Core 和基于证据演进的 Project State。Stable Core覆盖项目目的、用户/AI权责、可控性、模块化、安全、证据和用户理解原则。动态部分记录实际产品定义、模块、外部服务、代码默认值、已批准/明确不存在能力、Open Decisions、Assumption Register、需求解释/歧义等级、Active Intent Ledger、冲突优先级、前后审查、漂移检测、风险、下一方向和更新/Stable Core变更协议。新增Accepted ADR-0003记录采用这一长期治理机制；AGENTS和WORKFLOW强制重要任务读取Compass并在最终报告提供有依据的Compass audit。
+
+### Reason
+
+用户长期依赖AI开发，需要一个不依赖单次对话记忆、不会把AI建议冒充用户决定、也不会仅凭现有代码合理化项目漂移的持久语义来源。现有详细文档各有职责，Compass以摘要和链接连接它们，避免建立第二套完整历史。
+
+### Behavior impact
+
+无运行时或金融行为变化。未来AI工作流新增强制的Compass实施前/后审查和漂移标记；普通用户启动、行情查询、图表、缓存和日志行为不变。
+
+### Interface impact
+
+无程序公共接口变化。新增仓库级治理入口及报告要求；Stable Core未来修改必须走Compass Change Proposal和明确用户批准。
+
+### Dependency impact
+
+无依赖增删升级。
+
+### Configuration or data impact
+
+无环境变量、默认配置、SQLite schema、缓存数据或运行日志格式变化。自动数据清理仍为Compass DEC-001 / INTENT-005中的`Proposed, not approved`，没有删除任何本地数据。
+
+### Validation
+
+- 阅读 `AGENTS.md`、README、PROJECT_STATE、架构概览/模块图、ADR-0001/0002、KNOWN_ISSUES、最近EDIT_LOG、实际角色设置、Market History配置和项目依赖。
+- 检查代码/文档中的 Alpaca、Fidelity、Paper、Live、自动提交、未实现能力和测试状态语义。
+- 完整 `pytest -q`：109 passed，1个上游 `websockets.legacy` 弃用警告。
+- `compileall -q src tests`：通过。
+- `pip check`：`No broken requirements found`。
+- Markdown相对链接检查：PASS。
+- 必需章节/AGENTS集成关键词检查：PASS。
+- `git diff --check`：通过，仅有既有Windows LF/CRLF提示。
+- 首次将多项验证放在同一工具会话时只返回部分pytest进度且未返回退出码，因此未将其计为成功；随后分别重新执行并取得上述完整结果。
+
+### Results
+
+根目录Compass、Stable Core、动态事实、Active Intent、Assumption Register、Open Decisions、冲突优先级、前后审查、漂移检测和更新协议均已建立并链接到现有权威文档。109项现有程序测试继续通过，证明本次纯治理修改未破坏当前代码基线。
+
+### Documentation
+
+新增Compass和ADR-0003；更新AGENTS、README入口、文档索引、工作流、文档职责标准、PROJECT_STATE、CHANGELOG、ADR索引及本记录。
+
+### Rollback
+
+移除 `PROJECT_COMPASS.md` 与ADR-0003，并撤销上述文档中的Compass入口、审查和状态条目即可恢复此前治理结构。无代码、配置或数据迁移需要回滚。工作区修改不得通过reset或强制checkout丢弃。
+
+### Open issues
+
+- `paper_trading_enabled=true`仍可能被非专业读者误解；Compass已明确它只是计划环境标签，执行模块不存在。当前不改代码命名以避免未批准的公共语义变化。
+- 本地存储增长控制仍需用户批准具体保留期限、不可逆删除和SQLite/Coverage方案；未静默实施。
+- KI-0004至KI-0007保持不变。
+
+### Approval
+
+用户明确授权创建Compass、修改治理入口并建立审查机制。未执行commit、push、pull、merge、rebase、reset或Git历史修改；未启用Paper/Live订单能力。
+
+## EDIT-20260714-021
+
+### Date
+
+2026-07-14 11:00:20 -07:00
+
+### Request
+
+检查 QuantTrade 的实际代码与现有架构文档，建立并长期维护一个唯一主要架构来源，明确模块职责、依赖、数据流、架构不变量、影响范围、扩展规则和漂移检查，并让未来 AI 在修改前执行架构审查。
+
+### Scope
+
+选择并扩充现有 `docs/architecture/OVERVIEW.md`，不创建重复的 `SYSTEM_ARCHITECTURE.md`；基于实际 Python 包、入口、import、配置、测试和外部集成状态记录当前架构；增加低风险、无新依赖的 import 边界回归测试；同步 Compass、AGENTS、索引、状态、ADR和 Changelog。本次不改变运行代码、公共接口、配置、SQLite、第三方依赖、行情行为或任何交易语义，也不实施大范围重构。
+
+### Pre-change state
+
+仓库已有 `OVERVIEW.md`、`MODULE_MAP.md` 和 `DEPENDENCY_RULES.md`，其中 Overview 最接近总体架构来源，但三者没有明确唯一主从关系；Overview 只有简要数据流和外部服务边界，缺少完整模块目录、依赖矩阵、变更影响范围、架构不变量、漂移风险和自动检查。开始本任务时，Compass治理改动仍未提交，已作为用户工作区内容保留。
+
+### Files changed
+
+- Added:
+  - `docs/decisions/ADR-0004-canonical-system-architecture.md`
+  - `tests/architecture/test_dependency_boundaries.py`
+- Modified:
+  - `PROJECT_COMPASS.md`
+  - `AGENTS.md`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `docs/INDEX.md`
+  - `docs/architecture/OVERVIEW.md`
+  - `docs/architecture/MODULE_MAP.md`
+  - `docs/architecture/DEPENDENCY_RULES.md`
+  - `docs/decisions/README.md`
+  - `docs/project/PROJECT_STATE.md`
+  - `logs/EDIT_LOG.md`
+- Deleted: None.
+- Renamed: None.
+
+### Implementation
+
+将现有 Overview 扩展为 version 1 的 canonical system architecture，按实际代码记录 composition root、UI、Controller、Service、领域契约、Alpaca Market Data Adapter、SQLite Store、Plotly Chart Adapter、配置、安全角色、可观测性与诊断的职责/非职责、接口、输入输出、依赖、副作用、配置和测试。补充依赖矩阵、启动/加载/错误数据流、外部服务边界、共享模型、配置/测试边界、12项架构不变量、新模块与公共接口规则、blast radius 模板、更新规则及当前漂移风险。增加4项标准库AST测试，检查循环import、非法跨层import、production导入tests/archive及唯一具体组装入口。ADR-0004记录沿用现有Overview而非创建重复文件的长期决定；AGENTS要求重要任务先读该文件并报告影响范围；Compass更新为version 2并增加INTENT-006。
+
+### Reason
+
+单一、基于实际代码且可部分自动验证的架构来源可以防止多个文档互相冲突，也能让局部改动在实施前识别职责归属和连锁影响。复用现有 Overview 比新增相近文件更符合最小变更和文档去重原则。
+
+### Behavior impact
+
+无程序运行行为或用户金融行为变化。未来开发流程新增架构所有权、依赖和 blast-radius 审查；架构测试会在违反当前依赖边界时失败。
+
+### Interface impact
+
+无 Python 公共接口变化。仓库治理接口明确 `docs/architecture/OVERVIEW.md` 为唯一主要架构来源。
+
+### Dependency impact
+
+无第三方依赖增删升级。架构测试只使用 Python 标准库 `ast` 和 `pathlib`。
+
+### Configuration or data impact
+
+无环境变量、默认值、凭据、SQLite schema、缓存数据或运行日志格式变化。Live、自动提交和所有订单能力保持关闭/未实现。
+
+### Validation
+
+- 实际检查 `src/quant_trading` 包、入口、GUI、Controller、Service、Provider、Store、Chart、配置、错误/日志、诊断及测试 import。
+- `python -m pytest tests/architecture -q`：4 passed。
+- 完整 `python -m pytest`：113 passed，1个上游 `websockets.legacy` 弃用警告。
+- `python -m compileall -q src tests`：通过。
+- `python -m pip check`：`No broken requirements found`。
+- 新增文档/测试关键路径 `Test-Path`：全部存在。
+- `git diff --check`：通过；仅显示 Windows 工作区 LF/CRLF 转换提示。
+
+### Results
+
+项目只有一个明确的主要架构文件。4项架构回归测试与109项既有测试全部通过；未发现循环import、GUI直接依赖Alpaca/SQLite、Provider依赖Store、production依赖tests/archive或多个具体组装入口。
+
+### Documentation
+
+更新主要架构、Compass version 2、AGENTS、README/文档索引、模块图/通用依赖说明、PROJECT_STATE、CHANGELOG、ADR索引，并新增Accepted ADR-0004及本记录。
+
+### Rollback
+
+撤销本条列出的文档修改并删除ADR-0004和架构测试即可恢复此前结构。无代码、依赖、配置或数据迁移需要回滚；不得使用reset或强制checkout丢弃其他未提交工作。
+
+### Open issues
+
+- `ui/history_panel.py` 当前文件较大，但仍遵守外部边界；只有后续职责继续增长时才建议提出局部拆分方案。
+- `diagnostics.py` 直接了解SQLite预期表名并构造具体Market Data Provider进行可选只读检查；schema/Provider构造变化时必须同步诊断测试。
+- Controller当前依赖具体Service/Chart Builder类型；在没有第二实现前不提前增加抽象。
+- 既有KI-0004至KI-0007与Compass DEC-001保持不变。
+
+### Approval
+
+用户明确授权完善主要架构文件、更新AGENTS/状态/索引、增加低风险架构测试并记录漂移。未执行commit、push、pull、merge、rebase、reset或历史修改；未增加或启用交易功能。
+
+## EDIT-20260714-022
+
+### Date
+
+2026-07-14 11:49:45 -07:00
+
+### Request
+
+创建并强制维护“已发现错误”文档：开发编辑过程中发现的任何可信错误或潜在缺陷都应记录，能够安全确认和修复时修复，暂时无法修复时透明保留记录。
+
+### Scope
+
+复用并升级已有 `logs/BUG_LOG.md`，避免创建第二个相同用途的文件；定义候选问题的记录门槛、状态、必填证据、修复/延期原则和任务结束审查；接入AGENTS、开发/Debug流程、文档索引、Compass和项目状态。本次不修改正式程序代码、公共接口、依赖、配置、SQLite或任何交易行为，也不把纯理论担忧和功能建议伪装成Bug。
+
+### Pre-change state
+
+仓库已有只追加的 `logs/BUG_LOG.md` 和8条历史Bug，但文件只声明记录“已确认缺陷”，没有要求尚未确认但具有具体失败机制的候选问题先记录，也没有强制未来每次任务报告Bug discovery audit。`KNOWN_ISSUES.md`、运行日志、Bug历史和Edit历史已有区分，但关系尚不完整。
+
+### Files changed
+
+- Added: None.
+- Modified:
+  - `PROJECT_COMPASS.md`
+  - `AGENTS.md`
+  - `CHANGELOG.md`
+  - `KNOWN_ISSUES.md`
+  - `docs/INDEX.md`
+  - `docs/development/DEBUGGING.md`
+  - `docs/development/DOCUMENTATION_STANDARDS.md`
+  - `docs/development/WORKFLOW.md`
+  - `docs/project/PROJECT_STATE.md`
+  - `logs/BUG_LOG.md`
+  - `logs/EDIT_LOG.md`
+- Deleted: None.
+- Renamed: None.
+
+### Implementation
+
+将 `BUG_LOG.md` 明确为确认错误与可信潜在缺陷的唯一开发历史，保留全部既有条目并增加强制流程：Discover、Record first、honest classification、safe fix、transparent defer、verify、report。增加 `Suspected`、`Investigating`、`Open`、`Fixed`、`Cannot reproduce`、`Deferred`、`Rejected` 状态定义和统一必填字段。AGENTS与WORKFLOW要求重要任务读取Bug Log、发现后先分配ID、能安全局部修复则加回归测试、否则记录规避/验证/审批需求，并在最终报告提供Bug discovery audit。明确Bug Log、KNOWN_ISSUES、runtime logs和EDIT_LOG各自职责。Compass升级为version 3并增加INTENT-007。
+
+### Reason
+
+只记录已修复问题会让未复现、等待批准或暂时无法安全处理的风险丢失。统一记录和诚实状态能够保留调查上下文，同时避免为了“修复”而猜测性改代码或扩大任务范围。
+
+### Behavior impact
+
+无应用运行或金融行为变化。未来开发流程会强制记录可信候选缺陷，并要求每次任务说明发现、修复或延期情况。
+
+### Interface impact
+
+无程序公共接口变化。仓库治理约定新增Bug discovery audit和扩展后的Bug状态语义。
+
+### Dependency impact
+
+无依赖增删升级。
+
+### Configuration or data impact
+
+无配置、凭据、SQLite schema、缓存或运行数据变化；没有删除任何历史Bug、运行日志或调试证据。
+
+### Validation
+
+- 检查既有 `logs/BUG_LOG.md` 的8条历史、`KNOWN_ISSUES.md`、DEBUGGING、WORKFLOW、DOCUMENTATION_STANDARDS、Compass、Project State和Git状态。
+- 完整 `python -m pytest`：113 passed，1个上游 `websockets.legacy` 弃用警告。
+- `python -m compileall -q src tests`：通过。
+- `python -m pip check`：`No broken requirements found`。
+- 必需治理关键词和文档入口检查：通过。
+- `git diff --check`：通过；仅有Windows工作区LF/CRLF转换提示。
+
+### Results
+
+没有创建重复文件；现有Bug Log已成为唯一发现错误文档，既能保存未确认候选，也能约束Fixed必须有证据。现有113项测试保持通过。本任务文档审查未发现新的可信程序缺陷，因此没有编造新的Bug ID。
+
+### Documentation
+
+更新Bug Log规则、AGENTS、开发/Debug流程、文档标准与索引、KNOWN_ISSUES关系、Compass version 3、PROJECT_STATE、CHANGELOG和本记录。
+
+### Rollback
+
+撤销本条列出的治理文字和Compass/状态条目即可恢复此前“仅确认Bug”的规则。既有8条Bug历史不应删除或改写；无代码、配置、依赖或数据迁移需要回滚。
+
+### Open issues
+
+既有BUG-20260713-005/KNOWN_ISSUES KI-0006仍为Deferred；KI-0004、KI-0005、KI-0007继续保留。本任务未发现新的可信缺陷。
+
+### Approval
+
+用户明确要求建立并维护已发现错误记录及修复/延期规则。未执行commit、push、pull、merge、rebase、reset或历史修改；未启用Paper/Live订单能力。
+
+## EDIT-20260714-023
+
+### Date
+
+2026-07-14 13:07:19 -07:00
+
+### Request
+
+建立彼此解耦、可独立开发和测试的Single-Asset Factor Engine与Trading Decision Engine，以版本化FactorSnapshot单向通信；同时建立无算法的编排边界、测试和文档，不自行发明因子公式、买卖规则、仓位、风险或订单行为。
+
+### Scope
+
+新增`quant_trading.factors`、`quant_trading.decision`和最小`quant_trading.orchestration`正式模块，以及对应公开合同、注册器、无公式/无规则引擎、Fake测试、架构依赖检查、模块文档和ADR。Factor输入显式记录Bar完成/可用时间以阻止前视数据；Decision输出仅为TradeIntent。现有Market History GUI/Service不接入该流水线；不新增配置格式、持久化、外部依赖、账户、Risk、Execution或券商调用。
+
+### Pre-change state
+
+项目只有历史行情、SQLite缓存、GUI/图表、配置和Debug模块。源码/测试搜索未发现factor、indicator、signal、strategy、decision、portfolio、risk、execution或order业务实现；`ALPACA_PAPER`只是安全标签。主要架构明确策略、风险和执行均未实现。开始时Compass、主要架构和Bug治理改动仍未提交，均被保留。
+
+### Files changed
+
+- Added:
+  - `src/quant_trading/factors/__init__.py`
+  - `src/quant_trading/factors/errors.py`
+  - `src/quant_trading/factors/models.py`
+  - `src/quant_trading/factors/interfaces.py`
+  - `src/quant_trading/factors/registry.py`
+  - `src/quant_trading/factors/engine.py`
+  - `src/quant_trading/decision/__init__.py`
+  - `src/quant_trading/decision/errors.py`
+  - `src/quant_trading/decision/models.py`
+  - `src/quant_trading/decision/interfaces.py`
+  - `src/quant_trading/decision/registry.py`
+  - `src/quant_trading/decision/engine.py`
+  - `src/quant_trading/orchestration/__init__.py`
+  - `src/quant_trading/orchestration/analysis_decision_pipeline.py`
+  - `tests/unit/factors/test_factor_engine.py`
+  - `tests/unit/decision/test_decision_engine.py`
+  - `tests/integration/test_analysis_decision_pipeline.py`
+  - `docs/modules/factors.md`
+  - `docs/modules/trading-decision.md`
+  - `docs/modules/analysis-decision-pipeline.md`
+  - `docs/decisions/ADR-0005-two-stage-algorithm-architecture.md`
+- Modified:
+  - `PROJECT_COMPASS.md`
+  - `AGENTS.md`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `docs/INDEX.md`
+  - `docs/architecture/OVERVIEW.md`
+  - `docs/architecture/MODULE_MAP.md`
+  - `docs/decisions/README.md`
+  - `docs/modules/README.md`
+  - `docs/project/GLOSSARY.md`
+  - `docs/project/PROJECT_STATE.md`
+  - `tests/architecture/test_dependency_boundaries.py`
+  - `logs/BUG_LOG.md`
+  - `logs/EDIT_LOG.md`
+- Deleted: None.
+- Renamed: None.
+
+### Implementation
+
+Factor层定义`MarketDataObservation/Window`、`FactorContext/Parameter`、六种FactorStatus、FactorResult/Snapshot/Collection、FactorCalculator Protocol、显式Registry和SingleAssetFactorEngine。每个Calculator必须声明名称、版本、最小输入、单位和缺失处理；Window拒绝未完成、as-of后才可用、混合维度、乱序及非法数值的Bar。Decision层定义独立参数上下文、最小无持仓语义PortfolioSnapshot、DecisionInput/Result、TradeIntent、Policy Protocol/Registry和TradingDecisionEngine；显式STALE/非VALID Factor会阻止Policy，Intent不含订单/券商/执行字段。Orchestration只执行Factor→Snapshot→Decision并返回两侧结果。架构测试禁止反向依赖、具体Factor实现依赖、Market History/SQLite/Alpaca/Execution依赖和循环import。未创建production implementations目录、公式或Policy。
+
+### Reason
+
+将“描述资产特征”和“根据特征形成交易意图”分开，能够让用户逐步批准公式和规则，也能独立替换/测试每层而不让Market Data、策略、风险和券商耦合。显式availability时间和版本追踪为未来防前视、复现和审计提供合同基础。
+
+### Behavior impact
+
+新增可由Python调用的合同级Factor/Decision/Orchestration API，但现有GUI、行情下载、缓存和图表行为完全不变。没有正式算法注册，应用启动不会自动运行这些层，也不会产生任何交易意图或订单。
+
+### Interface impact
+
+新增公开接口；未修改任何既有接口。Factor与Decision只能通过`FactorSnapshotCollection`通信。未来修改字段、状态或含义属于公共接口变更，必须重新审批和迁移调用方。
+
+### Dependency impact
+
+无第三方依赖增删升级。Factors只依赖stdlib和公开MarketBar/dimension模型；Decision只依赖Factor公开models/interfaces；Orchestration依赖两侧公开engine/models。架构测试验证禁止方向。
+
+### Configuration or data impact
+
+无配置文件/环境变量、SQLite schema或运行数据变化。Factor/Decision参数使用两个独立的不可变typed context；FactorSnapshot和DecisionResult持久化未实现。Live和自动订单提交保持关闭。
+
+### Validation
+
+- 搜索实际源码、测试和文档中的factor/indicator/signal/strategy/decision/portfolio/risk/execution/order，确认无既有等效业务模块。
+- 针对性Factor/Decision/Pipeline/Architecture测试：24 passed。
+- 完整`python -m pytest`：133 passed，1个上游`websockets.legacy`弃用警告。
+- `python -m compileall -q src tests`：通过。
+- `python -m pip check`：`No broken requirements found`。
+- 禁止依赖/敏感调用源码搜索：Factors无Decision/Alpaca/SQLite/订单依赖；Decision无Factor engine/Market History/Alpaca/SQLite依赖。
+- `git diff --check`：通过；仅有Windows LF/CRLF提示。
+
+### Results
+
+两层可分别用Fake输入运行；替换Factor实现不修改Decision Policy，替换Decision Policy不修改Factor层。Factor结果具有版本、as-of、参数、状态、质量和来源范围；Decision结果引用Factor Snapshot与Policy版本，且不表示成交。没有Risk/Execution直连路径。
+
+### Documentation
+
+新增三份模块文档和Accepted ADR-0005；更新Compass version 4/INTENT-008/DEC-005/006、主要架构version 2、模块图、AGENTS不变量、README、索引、Glossary、PROJECT_STATE、CHANGELOG、ADR/模块索引、Bug Log和本记录。
+
+### Rollback
+
+删除三个新源码包、三组新测试、三份模块文档和ADR-0005，撤销本条列出的架构/Compass/索引/状态/日志文字，即可恢复历史浏览器状态。没有配置、数据库或运行数据迁移需要回滚；不得reset或强制checkout覆盖其他未提交工作。
+
+### Open issues
+
+- Market History Bar到`available_at_utc`的粒度/交易日历语义未批准，因此流水线未接入现有Service；见Compass DEC-005。
+- 复权历史是否满足未来point-in-time Factor/回测语义未批准；见Compass DEC-006。
+- Portfolio holdings/exposure、Factor/Decision持久化、正式公式/Policy、Risk和Execution均未实现。
+- 既有KI-0004至KI-0007保持不变。
+
+### Approval
+
+用户明确批准建立两层算法架构、接口、模型、测试边界、文档和必要编排。未执行commit、push、pull、merge、rebase、reset或Git历史修改；未连接账户、访问交易API或启用Paper/Live订单。
+
+## EDIT-20260714-024
+
+### Date
+
+2026-07-14 13:56:08 -07:00
+
+### Request
+
+在Single-Asset Factor和Trading Decision之后建立独立Risk Control层；Risk可批准、否决、缩减、延迟、人工审查或暂停，但不得增加风险、修改上游算法或直接下单。建立合同、保守优先级、三层编排、Execution类型门、测试、架构约束和文档，不选择具体风险数值。
+
+### Scope
+
+包含Risk公共模型/Protocol/Registry/Engine、Factor → Decision → Risk接口级Pipeline、结构化原因和审计日志、Fake独立/优先级/架构/集成测试及治理文档同步。明确不包含数值Risk Policy、账户/持仓连接、持久化、GUI、Order Construction、Paper/Live执行、自动平仓或任何策略。
+
+### Pre-change state
+
+项目已有独立Factor和Decision合同及两层Pipeline；Risk与Execution均为文档中的Not implemented边界。没有风险规则散落在GUI/Decision/Provider，也没有任何执行模块或绕过风险的下单路径。修改前完整测试133 passed，1个上游弃用警告。工作区包含用户此前尚未提交的Compass/架构/两层算法治理改动，本次保留且未覆盖。
+
+### Files changed
+
+- Added:
+  - `src/quant_trading/risk/__init__.py`
+  - `src/quant_trading/risk/errors.py`
+  - `src/quant_trading/risk/interfaces.py`
+  - `src/quant_trading/risk/models.py`
+  - `src/quant_trading/risk/registry.py`
+  - `src/quant_trading/risk/engine.py`
+  - `src/quant_trading/orchestration/trading_evaluation_pipeline.py`
+  - `tests/unit/risk/test_risk_engine.py`
+  - `docs/modules/risk-control.md`
+  - `docs/decisions/ADR-0006-independent-risk-control-gate.md`
+- Modified:
+  - `src/quant_trading/orchestration/__init__.py`
+  - `tests/architecture/test_dependency_boundaries.py`
+  - `tests/integration/test_analysis_decision_pipeline.py`
+  - `AGENTS.md`
+  - `PROJECT_COMPASS.md`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `docs/INDEX.md`
+  - `docs/architecture/OVERVIEW.md`
+  - `docs/architecture/MODULE_MAP.md`
+  - `docs/architecture/DEPENDENCY_RULES.md`
+  - `docs/decisions/README.md`
+  - `docs/modules/README.md`
+  - `docs/modules/factors.md`
+  - `docs/modules/trading-decision.md`
+  - `docs/modules/analysis-decision-pipeline.md`
+  - `docs/project/GLOSSARY.md`
+  - `docs/project/PROJECT_STATE.md`
+  - `logs/BUG_LOG.md`
+  - `logs/EDIT_LOG.md`
+- Deleted: none.
+- Renamed: none.
+
+### Implementation
+
+- 建立不可变Risk上下文、Account/OpenOrders中性快照、SystemRiskState、RiskRuleResult、RiskDecision和`RiskApprovedTradeIntent`类型门。
+- 定义`RiskPolicy`及账户/组合/未完成订单的Planned Provider Protocol；没有具体外部连接。
+- Risk Engine在Policy前拦截系统/股票暂停、Live、自动提交、Intent/Factor不一致及过期/不完整数据；没有规则时要求人工审查。
+- 保守合并优先级；多个缩减取最严格值。任何扩大、反转、发明目标或无动作进入Order Construction的尝试失败关闭。
+- 每次裁决记录Decision/Intent ID、原始/批准值、原因、Policy/配置版本和Paper环境；不记录Secret。
+- 新增TradingEvaluationPipeline，输出Factor、Decision、Risk结果后停止；不存在OrderRequest或ExecutionResult。
+- 添加AST依赖边界和未来Execution Gate测试；Factors/Decision不反向依赖Risk，Risk不依赖具体实现/Alpaca/SQLite/GUI/Execution。
+
+### Reason
+
+独立安全门可以否决或降低交易算法的建议而不污染Factor或Decision职责。将“通过风险审查”与普通TradeIntent分为不同类型，并把不增加风险写入公共合同和测试，可防止未来Execution误接原始建议。
+
+### Behavior impact
+
+新增可调用但未接入GUI的合同级Risk评估能力。现有历史数据浏览器、缓存、图表、Factor和Decision行为不变。没有账户、订单、Paper或Live运行行为。
+
+### Interface impact
+
+新增Risk公共接口和TradingEvaluationPipeline；现有Factor/Decision/AnalysisDecision接口未删除或改变。`orchestration.__init__`只增加兼容性导出。未来Execution的强制输入边界被定义为Risk-approved对象，不是普通TradeIntent。
+
+### Dependency impact
+
+新增单向依赖：Risk → public Factor/Decision models；Orchestration → Risk。Factors/Decision不依赖Risk；Risk不依赖Execution、Alpaca、Market History具体实现、SQLite或GUI。没有新增第三方依赖和循环依赖。
+
+### Configuration or data impact
+
+无配置格式、环境变量、SQLite schema、持久化或迁移变化。RiskContext只记录显式配置版本和安全环境状态；金额、比例、Loss/Drawdown、杠杆、保证金值均未选择。Live和自动提交保持关闭，人工确认默认开启。
+
+### Validation
+
+- 修改前完整`python -m pytest`：133 passed，1个上游`websockets.legacy`弃用警告。
+- 目标Risk/Architecture/Pipeline测试：24 passed；增加审计测试后Risk单元15 passed。
+- 修改后完整`python -m pytest`：151 passed，1个相同上游弃用警告。
+- `python -m compileall -q src tests`：通过。
+- `python -m pip check`：`No broken requirements found`。
+- `git diff --check`：通过，仅Windows LF/CRLF提示。
+- 禁止依赖搜索：Risk/Orchestration无Alpaca、SQLite、GUI或订单调用；Factor/Decision无Risk import。
+
+### Results
+
+Risk可使用Fake Intent/Factor/Portfolio/Account独立测试；支持Approve/Reject/Reduce/Defer/Manual/Symbol Pause/System Pause。Reject和System Pause按保守优先级生效，多个缩减取40而非60，100→150的错误Rule失败关闭。三层Pipeline不访问网络、不提交订单并在RiskDecision停止。
+
+### Documentation
+
+新增Risk模块文档和Accepted ADR-0006；Compass升级version 5并记录INTENT-009/ASM-008/DEC-007；主要架构升级version 3；同步AGENTS、模块图/边界、README、索引、Glossary、PROJECT_STATE、CHANGELOG、BUG_LOG和本记录。
+
+### Rollback
+
+删除新Risk包、TradingEvaluationPipeline、Risk测试/文档/ADR-0006，撤销本条列出的Risk相关导出、架构测试和文档段落即可恢复Factor → Decision停止状态。没有数据库、配置或运行数据迁移。不得使用reset或强制checkout覆盖其他未提交工作。
+
+### Open issues
+
+- 数值Risk Policy及最大仓位/订单、现金、Buying Power、Daily Loss、Drawdown、集中度、杠杆、保证金值均待用户批准，见Compass DEC-007。
+- Account/Portfolio/OpenOrders Provider只有Protocol；没有账户数据连接或持久化。
+- Risk结果尚未接入GUI或持久化；Order Construction和Execution未实现。
+- Emergency de-risking当前只暂停新Intent；自动降仓/平仓Not implemented。
+- 既有DEC-001/005/006及KI-0004至KI-0007不变。
+
+### Approval
+
+用户明确批准新Risk主要模块、三层依赖方向、权限边界、接口、测试和文档。本次未选择具体风险数值，未新增配置/数据库/依赖，未连接任何账户或交易API，未提交Paper/Live订单，未执行commit、push、pull、merge、rebase、reset或Git历史修改。
+
+## EDIT-20260714-025
+
+### Date
+
+2026-07-14 14:35:14 -07:00
+
+### Request
+
+创建独立算法控制中心GUI，统一管理Factor、Trading Decision和Risk组件的注册元数据、参数、依赖、配置版本、安全预览、Pipeline Dry Run和审计，同时严格禁止GUI承载算法/风险/执行逻辑或提交订单。
+
+### Scope
+
+包含新的`quant_trading.algorithm_control`管理面、独立启动入口、通用ParameterSchema、Draft/Saved/Active生命周期、原子JSON控制状态、依赖/安全验证、后台NO EXECUTION预览、GUI六个页面、审计、错误代码、测试和架构/Compass/模块文档同步。明确不包含正式Factor公式、Decision Policy、数值Risk规则、行情下载、账户连接、订单构建、Paper/Live执行或任何自动交易。
+
+### Pre-change state
+
+项目已有独立Factor/Decision/Risk合同、Registry、Engine和接口级Pipeline，但无正式算法、无执行模块、无算法管理GUI、无通用参数架构或配置版本存储。历史数据浏览器是唯一桌面GUI。修改前完整测试为151 passed和1项上游弃用警告；工作区包含用户此前未提交的治理与三层算法改动，本次全部保留。
+
+### Files changed
+
+- Added:
+  - `src/quant_trading/algorithm_control/__init__.py`
+  - `src/quant_trading/algorithm_control/__main__.py`
+  - `src/quant_trading/algorithm_control/app.py`
+  - `src/quant_trading/algorithm_control/audit_service.py`
+  - `src/quant_trading/algorithm_control/configuration_service.py`
+  - `src/quant_trading/algorithm_control/controller.py`
+  - `src/quant_trading/algorithm_control/errors.py`
+  - `src/quant_trading/algorithm_control/interfaces.py`
+  - `src/quant_trading/algorithm_control/models.py`
+  - `src/quant_trading/algorithm_control/preview_service.py`
+  - `src/quant_trading/algorithm_control/registry.py`
+  - `src/quant_trading/algorithm_control/storage.py`
+  - `src/quant_trading/algorithm_control/system_components.py`
+  - `src/quant_trading/algorithm_control/ui/__init__.py`
+  - `src/quant_trading/algorithm_control/ui/component_panel.py`
+  - `src/quant_trading/algorithm_control/ui/main_panel.py`
+  - `src/quant_trading/algorithm_control/ui/parameter_editor.py`
+  - `src/quant_trading/algorithm_control/ui/workers.py`
+  - `src/quant_trading/algorithm_control/validation_service.py`
+  - `tests/unit/algorithm_control/test_configuration_service.py`
+  - `tests/unit/algorithm_control/test_parameter_editor.py`
+  - `tests/unit/algorithm_control/test_preview_and_controller.py`
+  - `tests/unit/algorithm_control/test_registry_and_validation.py`
+  - `tests/architecture/test_algorithm_control_boundaries.py`
+  - `docs/modules/algorithm-control-gui.md`
+  - `docs/decisions/ADR-0007-algorithm-control-plane.md`
+- Modified:
+  - `src/quant_trading/error_codes.py`
+  - `pyproject.toml`
+  - `AGENTS.md`
+  - `PROJECT_COMPASS.md`
+  - `README.md`
+  - `CHANGELOG.md`
+  - `docs/INDEX.md`
+  - `docs/architecture/OVERVIEW.md`
+  - `docs/architecture/MODULE_MAP.md`
+  - `docs/architecture/DEPENDENCY_RULES.md`
+  - `docs/decisions/README.md`
+  - `docs/modules/README.md`
+  - `docs/project/PROJECT_STATE.md`
+  - `logs/EDIT_LOG.md`
+- Deleted: none.
+- Renamed: none.
+
+### Implementation
+
+- 建立Registry驱动的完整ComponentMetadata和ParameterSchema，通用编辑器支持integer/decimal/boolean/string/enum/date/percentage/money/duration/list；GUI没有按算法名称分支。
+- Draft仅存在当前会话；Save创建SAVED版本但不激活；Apply创建新的ACTIVE版本；Restore从旧记录创建新的SAVED版本。所有持久记录和Audit只追加，不覆盖历史。
+- 使用`runtime/algorithm_control/control_state.json`原子临时文件替换，和行情SQLite分开且被Git忽略；未读写Secret。
+- 建立类型/范围/枚举/必填/依赖和Locked验证；四项真实项目安全不变量默认Active且GUI不可停用。
+- 建立六页PySide6控制中心：Overview、Factor、Decision、Risk、Pipeline和Audit。Factor/Decision没有正式组件时如实显示为空；Risk只显示四个Locked系统安全项。
+- Preview通过QThreadPool后台执行并强制`no_execution=True`；没有注册正式Preview时返回Not implemented。Pipeline缺Factor/Decision时验证失败并禁用Dry Run。
+- 新增QT-ALG-COMPONENT/DEPENDENCY/CONFIG/PREVIEW/STORAGE错误代码，接入现有轮转日志和全局异常Hook；预览错误包含请求编号且不显示技术堆栈给普通用户。
+
+### Reason
+
+将“管理算法组件和配置”与“运行算法、处理行情、执行订单”分开，可以让未来组件通过稳定元数据出现而不污染GUI，也可以让用户明确区分编辑草稿、保存版本、应用版本和只读预览。空的生产Registry避免将示例公式或风险数值误当成用户批准的交易逻辑。
+
+### Behavior impact
+
+用户可单独启动算法控制中心，查看当前三层注册状态、四项安全不变量、版本历史、验证和审计。当前不会产生Factor值、TradeIntent、RiskDecision或订单；历史数据浏览器行为不变。所有预览均不可执行，Live和自动提交保持关闭。
+
+### Interface impact
+
+新增Algorithm Control公共模型、Protocol、Registry、Service、Controller、Panel和`quant-algorithm-control`入口；未删除或修改现有Market History、Factor、Decision、Risk或Orchestration公共接口。
+
+### Dependency impact
+
+复用现有PySide6和标准库，无第三方依赖增删升级。Algorithm Control只依赖公开Factor/Decision/Risk结果合同、应用安全设置和PySide6；架构测试禁止具体Alpaca、历史SQLite、Execution和tests依赖。
+
+### Configuration or data impact
+
+新增独立schema version 1的运行时JSON控制状态，不修改SQLite schema、环境变量或持久化行情。首次启动只写入四个Locked安全配置及对应Audit，不写凭据。Save/Apply/Restore均产生新版本；没有数据迁移。
+
+### Validation
+
+- 修改前完整`python -m pytest`：151 passed，1项上游`websockets.legacy`弃用警告。
+- 目标Algorithm Control与架构测试：23 passed。
+- 修改后完整`python -m pytest`：174 passed，1项相同上游弃用警告。
+- `python -m compileall -q src tests`：通过。
+- `python -m pip check`：`No broken requirements found`。
+- `git diff --check`：通过；只有Windows LF/CRLF提示。
+- 禁止依赖/敏感调用搜索：Algorithm Control源码无TradingClient、submit_order、具体Alpaca Provider、SQLite Store或Execution Provider引用。
+- Offscreen PySide6烟雾测试实例化六页控制中心，验证Factor/Decision为空、Risk四项Locked、Live/自动提交关闭、Pipeline不可运行。
+
+### Results
+
+完整测试174项通过。通用配置生命周期、重启持久化、原子写入、依赖缺失、Locked安全、版本比较/恢复、Preview不可执行、审计、GUI和架构边界均有回归证据。没有访问真实网络、账户或任何订单接口。
+
+### Documentation
+
+新增Algorithm Control模块文档和Accepted ADR-0007；Compass升级version 6并增加INTENT-010/ASM-009；主要架构升级version 4；同步AGENTS、README、模块图、依赖规则、文档/ADR索引、PROJECT_STATE、CHANGELOG及本记录。
+
+### Rollback
+
+删除`src/quant_trading/algorithm_control`、对应测试、模块文档和ADR-0007；撤销`pyproject.toml`入口、错误代码及本条列出的文档增量；必要时手动删除被Git忽略的`runtime/algorithm_control/control_state.json`。历史行情SQLite、Factor/Decision/Risk合同均无需迁移。不得用reset或强制checkout覆盖其他未提交工作。
+
+### Open issues
+
+- 生产Factor、Decision和数值Risk算法均Not implemented，因此生产Preview和Pipeline Dry Run不可运行；这是安全边界，不是伪装成完成的功能。
+- 实际物理显示器人工视觉验收未执行；offscreen GUI烟雾测试通过。
+- 配置历史与Audit的长期保留/清理仍受Compass DEC-001约束，未擅自引入不可逆删除规则。
+- 原有KI-0004至KI-0007保持不变。
+
+### Approval
+
+用户明确授权创建Algorithm Control主要模块、GUI、配置/审计持久化、测试和文档。本次未新增算法公式、决策规则、风险数值、账户或执行能力；未访问外部交易服务；未提交Paper/Live订单；未执行commit、push、pull、merge、rebase、reset或Git历史修改。
+
+## EDIT-20260714-026
+
+### Date
+2026-07-14 15:11:01 -07:00。
+
+### Request
+建立统一的新思想准入、架构归属、能力权限、公共合同、冲突检测、默认关闭、Pipeline运行前验证、GUI Conflict Center、迁移/回滚/废弃和审计机制。
+
+### Scope
+本次扩展现有Algorithm Control和治理文档；不包含Factor公式、Decision规则、数值Risk规则、Order/Execution、账户连接、Paper订单或Live能力。
+
+### Pre-change state
+已有Compass、主要架构、ADR、模块边界、Risk Gate、组件Registry、Draft/Saved/Active配置和架构import测试；但没有Proposal准入模板、统一Owner/Capability/Contract声明、独立功能生命周期、注册冲突状态、Pipeline Admission或GUI Conflict Center。修改前完整测试为174 passed、1项上游弃用警告。
+
+### Files changed
+- Added: `src/quant_trading/algorithm_control/admission_models.py`, `admission_service.py`, `capabilities.py`, `contracts.py`, `proposal_registry.py`, `tests/unit/algorithm_control/test_change_admission.py`, `docs/proposals/README.md`, `docs/proposals/PROPOSAL_TEMPLATE.md`, `docs/decisions/ADR-0008-change-admission-and-conflict-prevention.md`.
+- Modified: `AGENTS.md`, `PROJECT_COMPASS.md`, `README.md`, `CHANGELOG.md`, `docs/INDEX.md`, `docs/architecture/OVERVIEW.md`, `docs/architecture/MODULE_MAP.md`, `docs/architecture/DEPENDENCY_RULES.md`, `docs/decisions/README.md`, `docs/modules/algorithm-control-gui.md`, `docs/project/PROJECT_STATE.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`, `src/quant_trading/algorithm_control/__init__.py`, `configuration_service.py`, `controller.py`, `models.py`, `registry.py`, `storage.py`, `system_components.py`, `ui/component_panel.py`, `ui/main_panel.py`, `validation_service.py`, `tests/architecture/test_algorithm_control_boundaries.py`, `tests/unit/algorithm_control/test_configuration_service.py`, `test_parameter_editor.py`, `test_preview_and_controller.py`, `test_registry_and_validation.py`.
+- Deleted: none.
+- Renamed: none.
+
+### Implementation
+- 建立Proposal状态、OwnerLayer、Responsibility、Capability、FeatureState、Conflict Assessment、Blast Radius、ActivationEvidence和Change Impact类型；AI建议不能伪装为用户批准。
+- 建立唯一职责Owner矩阵和每层Capability白名单；组件注册拒绝重复ID、错误Owner、越权能力、未知合同、非Execution执行权限和未授权Live能力，失败组件状态为INVALID且不可运行。
+- 建立版本化公共合同声明和兼容性检查；主要合同登记为Implemented或Planned，major变化要求Migration、类型变化要求Adapter。
+- 将实现/配置/激活分离：新组件默认REGISTERED/disabled，Preview、Dry Run、Paper、Live资格与Active需要逐级证据；Locked系统安全保持Active。
+- Pipeline Admission在运行前检查Factor/Decision/Risk完整性、Locked安全、多个Decision/Execution Primary、未决Proposal和Live/自动提交；阻断冲突返回Conflict ID、严重度、影响组件、原因、建议和批准要求。
+- GUI增加只读Conflict Center；Dry Run只在Admission允许时启用。多个Decision不会平均/投票/随机选择；多个Risk仍由现有Risk Engine采用最严格结果。
+- Proposal文档规定Idea至Activation、迁移对比、回滚和废弃流程；Accepted ADR-0008记录长期架构决定。
+
+### Reason
+将“代码已经写好”与“用户已经批准运行或交易”严格分开，并在新思想进入运行路径前自动发现职责、权限、合同、配置、并行组件和安全冲突。
+
+### Behavior impact
+算法控制GUI新增Conflict Center。当前因没有生产Factor/Decision/数值Risk组件而明确显示Pipeline BLOCKED；没有既有可执行行为被移除，因为执行模块仍不存在。历史数据浏览器不变。
+
+### Interface impact
+扩展`ComponentMetadata`和配置记录，新增Admission/Capability/Contract/Proposal公共类型；未修改Market History、FactorSnapshot、TradeIntent或RiskDecision字段语义。旧控制JSON缺少新字段时通过兼容默认读取。
+
+### Dependency impact
+无第三方依赖增删升级。新代码只使用Python标准库、现有应用设置和Algorithm Control公共模型；未引入Alpaca Trading、SQLite或Execution依赖。
+
+### Configuration or data impact
+Algorithm Control JSON仍使用schema version 1并兼容旧字段；新保存记录包含FeatureState和ActivationEvidence。没有SQLite schema、环境变量、凭据、Market Bar或账户数据变化；没有数据迁移。
+
+### Validation
+- 修改前完整`python -m pytest -q`：174 passed，1项既有`websockets.legacy`弃用警告。
+- 中间完整测试：179 passed、1 failed；失败为旧字符串扫描把Capability元数据`submit_orders`误判成执行调用，已改成AST import检查。
+- 中间完整`python -m pytest -q`：180 passed，1项相同上游弃用警告；补充启用证据与Conflict Center断言后执行最终验证。
+- `python -m compileall -q src tests`、`python -m pip check`、`git diff --check`在最终验证阶段执行，结果见Results。
+- 所有自动测试使用Fake/临时目录；未访问真实网络、账户或订单接口。
+
+### Results
+最终完整`python -m pytest -q`：183 passed，1项既有`websockets.legacy`弃用警告；Admission/Architecture针对性测试39 passed；`python -m compileall -q src tests`通过；`python -m pip check`返回`No broken requirements found`；`git diff --check`通过并仅报告Windows LF/CRLF转换提示。没有访问网络、Alpaca/Fidelity账户或任何订单端点。
+
+### Documentation
+Compass升级version 7并增加INTENT-011/ASM-010；主要架构升级version 5并增加Admission、Ownership Matrix、Capability优先级和迁移规则；新增Proposal指南/模板及ADR-0008；同步AGENTS、README、索引、依赖、模块、项目状态和CHANGELOG。
+
+### Rollback
+撤销本记录Files changed中的Admission增量、Conflict Center、Proposal/ADR-0008和文档更新；恢复旧Algorithm Control模型/配置读取。保留其他未提交工作，不使用reset或强制checkout。现有Market SQLite无需迁移；控制JSON可恢复旧读取器，但将失去实现/激活分离保护。
+
+### Open issues
+- 当前没有生产Factor、Decision或数值Risk组件，因此Pipeline保持BLOCKED；这是真实安全状态。
+- Proposal持久历史以Markdown为准；运行时ProposalRegistry是内存索引，GUI不编辑或批准Proposal。
+- 物理显示器人工视觉验收尚未执行；offscreen GUI自动测试覆盖7个页签和Conflict ID。
+- 既有KI-0004至KI-0007以及数据清理开放决定不变。
+
+### Approval
+用户明确授权本次Change Admission主要治理扩展、Proposal目录、Capability/Contract/Feature State、Conflict Center和测试。本次未添加交易语义或执行能力，Live与自动提交保持关闭；未commit、push、pull、merge、rebase、reset或修改Git历史。
+
+## EDIT-20260714-027
+
+### Date
+2026-07-14 15:25:34 -07:00。
+
+### Request
+为所有未来任务增加FAST、STANDARD、DEEP执行模式，要求采用最低安全模式，并禁止局部任务自动扩展为全项目审计。
+
+### Scope
+仅修改仓库工作流程说明和Proposal准入说明；不修改代码、配置、公共合同、数据库、GUI、交易语义或安全默认值。
+
+### Pre-change state
+现有流程要求所有重要任务读取完整Compass/架构并进行较广审查，但没有根据任务规模区分检查、测试和文档更新强度。
+
+### Files changed
+- Added: none.
+- Modified: `AGENTS.md`, `docs/development/WORKFLOW.md`, `docs/proposals/README.md`, `logs/EDIT_LOG.md`.
+- Deleted: none.
+- Renamed: none.
+
+### Implementation
+新增FAST、STANDARD、DEEP的适用范围、必读内容、测试强度和文档更新边界；要求实施前报告Task mode、Primary module、Expected files、Tests和Documents；要求FAST/STANDARD发现严重架构、权限、合同、迁移、金融语义或交易安全冲突时停止并建议升级DEEP，而不是静默扩大任务。
+
+### Reason
+让小型修改保持快速、局部和可预测，同时确保真正高影响变更仍接受完整架构与安全审查。
+
+### Behavior impact
+仅改变未来AI/开发者的任务执行流程；程序运行、行情、算法合同、风险和交易行为不变。
+
+### Interface impact
+无公共代码接口变化。
+
+### Dependency impact
+无依赖变化。
+
+### Configuration or data impact
+无配置、数据库或运行数据变化。
+
+### Validation
+检查三个文档均包含模式分类和升级规则；执行`git diff --check`。
+
+### Results
+文档一致性检查通过；`git diff --check`结果见本任务最终报告。未运行pytest，因为没有程序行为或代码变化。
+
+### Documentation
+更新仓库指令、开发流程和重要Proposal与任务模式的关系；按照本任务规则未更新Compass、主要架构、ADR、PROJECT_STATE或CHANGELOG。
+
+### Rollback
+撤销上述三个工作流程文档中的Task Mode段落和本条Edit记录对应增量；不要改写或删除旧日志。
+
+### Open issues
+无。未来任务仍需根据实际影响选择最低安全模式，不能只根据用户使用的标签机械分类。
+
+### Approval
+用户明确提供并要求采用本任务模式协议；未执行commit、push或Git历史修改。

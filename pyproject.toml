@@ -21,6 +21,7 @@ dev = ["pytest>=8,<10"]
 [project.scripts]
 quant-history = "quant_trading.market_history.app:main"
 quant-diagnostics = "quant_trading.diagnostics:main"
+quant-algorithm-control = "quant_trading.algorithm_control.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

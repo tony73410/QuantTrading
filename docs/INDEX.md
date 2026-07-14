@@ -1,18 +1,29 @@
 # Documentation Index
 
+- [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
+- [Proposal template](proposals/PROPOSAL_TEMPLATE.md) — required identity, ownership, capability, contract, financial/safety and impact fields.
+
 | Area | Entry | Purpose |
 |---|---|---|
+| Project compass | `../PROJECT_COMPASS.md` | AI 项目方向、当前语义、安全不变量、意图/假设和前后自审中心入口 |
 | Current project | `project/PROJECT_STATE.md` | 当前阶段、能力、决策与限制 |
 | Direction | `project/ROADMAP.md` | 仅记录已批准或明确待决的阶段 |
 | Terms | `project/GLOSSARY.md` | 项目统一术语 |
-| Architecture | `architecture/OVERVIEW.md` | 当前架构边界与目录角色 |
-| Module map | `architecture/MODULE_MAP.md` | 实际模块及接口概览 |
-| Dependencies | `architecture/DEPENDENCY_RULES.md` | 依赖方向和禁止关系 |
+| Canonical architecture | `architecture/OVERVIEW.md` | 唯一主要架构来源：模块职责、依赖方向、数据流、不变量与扩展规则 |
+| Module map | `architecture/MODULE_MAP.md` | 实际模块与文档的简要索引；不替代主要架构文件 |
+| Dependencies | `architecture/DEPENDENCY_RULES.md` | 仓库级通用依赖原则；具体矩阵以主要架构文件为准 |
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
 | Market history | `modules/market-history.md` | 股票历史数据浏览器、缓存、GUI、配置与测试 |
+| Single-asset factors | `modules/factors.md` | 策略中立Factor合同、时间安全、注册器、无公式引擎与边界 |
+| Trading decision | `modules/trading-decision.md` | 只消费FactorSnapshot的非执行决策合同、注册器、无规则引擎与边界 |
+| Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同、优先级和无数值规则引擎 |
+| Analysis/decision/risk pipeline | `modules/analysis-decision-pipeline.md` | Factor → Decision以及Factor → Decision → Risk单向编排和Execution停止边界 |
+| Algorithm control GUI | `modules/algorithm-control-gui.md` | Registry驱动的组件、参数、版本配置、依赖验证、NO EXECUTION预览和审计管理面 |
 | Workflow | `development/WORKFLOW.md` | 每次任务的执行流程 |
 | Debugging | `development/DEBUGGING.md` | 错误编号、日志、诊断命令和标准排查流程 |
+| Discovered bugs | `../logs/BUG_LOG.md` | 编辑、测试、审查和运行中发现的确认错误与可信潜在缺陷历史 |
+| Current known issues | `../KNOWN_ISSUES.md` | 当前仍影响用户的问题、证据和临时规避方法摘要 |
 | Requirement interpretation | `development/REQUIREMENT_INTERPRETATION.md` | 将日常表达转为准确、安全、可验证的需求 |
 | Code | `development/CODING_STANDARDS.md` | 技术栈无关编码标准 |
 | Tests | `development/TESTING_STANDARDS.md` | 行为验证要求 |

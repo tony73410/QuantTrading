@@ -6,12 +6,20 @@
 
 ### Added
 
+- Added proposal-first Change Admission, typed component ownership/capability/public-contract declarations, disabled-by-default activation stages, fail-closed Pipeline validation, and a GUI Conflict Center. This adds no trading algorithm or order capability.
+
+- 增加独立算法控制中心：通过Registry和通用ParameterSchema展示Factor/Decision/Risk组件，管理Draft/Saved/Active不可变配置版本、依赖验证、锁定安全不变量和审计记录；所有后台预览均为NO EXECUTION，未添加正式算法或订单功能。
+- 在TradeIntent与未来Order Construction之间建立独立Risk Control层：支持可解释的批准、拒绝、缩减、延迟、人工审查和股票/系统暂停合同，保守合并多个Fake规则并从类型上阻止原始TradeIntent直接进入未来执行；未加入任何具体风险数值或订单路径。
+- 建立相互独立的单资产Factor层与非执行Trading Decision层：通过版本化FactorSnapshot单向通信，提供注册器、合同级引擎、Fake编排和依赖测试；没有加入任何正式公式、交易规则或订单路径。
+- 将 `logs/BUG_LOG.md` 扩展为已发现错误与可信潜在缺陷的唯一只追加记录，并建立“先记录、验证、能安全修复则修复、否则透明延期”的强制开发流程。
+- 将 `docs/architecture/OVERVIEW.md` 建立为唯一主要架构来源，记录实际模块职责、依赖矩阵、数据流、架构不变量、变更影响范围和漂移风险，并增加无第三方依赖的架构边界测试。
+- 增加根目录 `PROJECT_COMPASS.md`，将用户控制权、稳定项目原则、当前语义、意图/假设/开放决定、漂移检测和 AI 实施前后自审建立为长期治理机制。
 - 将 Alpaca 明确为主要行情数据提供商和计划主要券商，默认目标环境为 Paper Trading；GUI 显示 Live/自动提交关闭且需要人工确认。
 - 实现本地优先的股票历史数据桌面浏览器，支持 Alpaca 日/周/月 Bar、SQLite 增量缓存和 Plotly 交互图表。
 - 增加 10 分钟、30 分钟和从 09:30 起聚合的 1 小时历史图；分钟/小时默认限于常规交易时段，并按粒度限制单次范围以控制数据量。
 - 增加 PySide6 后台加载控制面板、无凭据离线启动、普通刷新、尾部更新、强制刷新和可选自动更新。
 - 将股票代码本地前缀自动补全扩展为覆盖 11 个 GICS 大类行业的 110 个常见美股代码，不访问网络且不限制手动输入。
-- 增加 109 项默认不访问真实网络的单元与集成测试，以及 Python 项目依赖清单和安全环境变量示例；真实网络只保留为用户主动运行的只读诊断或明确的只读验收。
+- 增加 174 项默认不访问真实网络的单元、集成与架构测试，以及 Python 项目依赖清单和安全环境变量示例；真实网络只保留为用户主动运行的只读诊断或明确的只读验收。
 - 增加统一 Error Code、Session/Request ID、Secret 脱敏轮转日志、全局异常记录、BUG_LOG、Debug 流程和只读诊断命令。
 - 建立语言无关的仓库治理、文档入口、变更追踪和安全边界。
 - 建立需求解释协议，要求区分用户目标与建议方法，并按行为和交易风险处理歧义。
