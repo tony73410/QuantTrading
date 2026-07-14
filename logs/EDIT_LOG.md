@@ -1635,3 +1635,80 @@ GUI 针对性测试 11 passed；完整测试 91 passed，保留 1 个上游 `web
 ### Approval
 
 用户明确同意按推荐方案增加 10 分钟、30 分钟、1 小时及常规时段/范围保护。未执行 commit、push、merge、rebase 或任何 Git 历史操作；未启用 Paper/Live 订单提交。
+
+## EDIT-20260713-019
+
+### Date
+
+2026-07-13 18:00:42 -07:00
+
+### Request
+
+将当前完整版本上传到 GitHub 仓库 `tony73410/QuantTrading`。
+
+### Scope
+
+检查当前 `main` 分支、远程地址、工作区、忽略文件和敏感信息；将现有完整项目版本提交并推送到 `origin/main`；记录实际发布结果。不修改程序行为、配置格式、数据库、凭据或交易安全设置。
+
+### Pre-change state
+
+本地 `main` 与 `origin/main` 基于提交 `b2b21f3`，工作区包含此前已完成但尚未提交的行情浏览器、SQLite 缓存、GUI、Debug 基础设施、分钟/小时数据、测试和同步文档。`runtime/data/`、`runtime/logs/` 被 Git 忽略。
+
+### Files changed
+
+- Added: None.
+- Modified: `logs/EDIT_LOG.md`（本发布记录）。
+- Deleted: None.
+- Renamed: None.
+
+### Implementation
+
+确认远程 `origin` 为 `https://github.com/tony73410/QuantTrading.git`，分支为 `main`。检查 `.env.example` 只有空凭据占位符；扫描仓库中的 Key、Secret、Authorization Header 和私钥模式；确认真实 `.env`、SQLite 文件及运行日志未进入暂存。随后创建主版本提交 `c9a0d8c`（`feat(market-history): publish local-first data browser`）并成功推送到 `origin/main`。
+
+### Reason
+
+用户明确要求把当前可运行版本保存到 GitHub；单一主版本提交便于追踪、回滚和在其他电脑恢复项目。本条后续日志提交只记录已经发生的发布事实。
+
+### Behavior impact
+
+无程序行为变化。GitHub `main` 现在包含当前股票历史数据浏览器版本。
+
+### Interface impact
+
+无额外公共接口变化；接口变化均已记录在此前对应编辑记录中。
+
+### Dependency impact
+
+无新增、移除或升级依赖。
+
+### Configuration or data impact
+
+无配置或数据库变化。真实 Alpaca 凭据、本地 SQLite 缓存和运行日志未上传。
+
+### Validation
+
+- 发布前完整测试基线：109 passed，1 个上游弃用警告。
+- `git diff --cached --check`：通过；修正 4 个文件末尾多余空行后重新检查。
+- 敏感信息检查：`.env.example` 的 Key/Secret 值为空；Authorization 命中仅为日志脱敏自动测试中的假数据。
+- 忽略文件检查：`runtime/data/`、`runtime/logs/` 未进入提交。
+- 主版本 push：`b2b21f3..c9a0d8c  main -> main`，成功。
+
+### Results
+
+主版本提交 `c9a0d8c` 已上传到 GitHub。未泄露凭据，未上传本地行情数据库或运行日志。
+
+### Documentation
+
+仅追加本条 `EDIT_LOG` 发布记录；未修改其他文档。
+
+### Rollback
+
+若需要撤销远程版本，应在用户明确批准后使用新的 `git revert c9a0d8c` 提交并推送；不得 reset、force push 或改写历史。本地运行数据库不受 Git 回滚影响。
+
+### Open issues
+
+无本次发布新增问题。既有 KI-0004 至 KI-0007 保持不变。
+
+### Approval
+
+用户明确要求上传当前版本，因此已授权本次 commit 和 push。未执行 pull、merge、rebase、reset、force push 或历史改写。
