@@ -1,6 +1,5 @@
 # Tests
 
-本目录存放与正式行为对应的测试。当前没有业务行为或测试工具，因此不创建空测试套件。
+本目录存放与正式行为对应的 pytest 测试。当前包含 `unit/market_history` 与 `integration/market_history`。
 
-未来测试结构由实际需求逐步形成，并遵循 `docs/development/TESTING_STANDARDS.md`。自动化测试不得访问真实券商账户、使用真实凭据或提交真实订单。
-
+所有行情 Provider 测试使用 Fake/Mock 或替换 SDK 底层 HTTP；不得访问真实 Alpaca、真实券商账户或提交订单。运行：`.\.venv\Scripts\python.exe -m pytest -q`。

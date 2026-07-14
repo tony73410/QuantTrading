@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quant-trading"
+version = "0.1.0"
+description = "Local-first quantitative trading research tools"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "alpaca-py>=0.40,<1",
+    "pandas>=2.2,<4",
+    "plotly>=6,<7",
+    "PySide6>=6.8,<7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+quant-history = "quant_trading.market_history.app:main"
+quant-diagnostics = "quant_trading.diagnostics:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+pythonpath = ["src"]

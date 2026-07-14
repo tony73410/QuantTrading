@@ -10,7 +10,9 @@
 | Dependencies | `architecture/DEPENDENCY_RULES.md` | 依赖方向和禁止关系 |
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
+| Market history | `modules/market-history.md` | 股票历史数据浏览器、缓存、GUI、配置与测试 |
 | Workflow | `development/WORKFLOW.md` | 每次任务的执行流程 |
+| Debugging | `development/DEBUGGING.md` | 错误编号、日志、诊断命令和标准排查流程 |
 | Requirement interpretation | `development/REQUIREMENT_INTERPRETATION.md` | 将日常表达转为准确、安全、可验证的需求 |
 | Code | `development/CODING_STANDARDS.md` | 技术栈无关编码标准 |
 | Tests | `development/TESTING_STANDARDS.md` | 行为验证要求 |

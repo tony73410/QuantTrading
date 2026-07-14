@@ -6,7 +6,8 @@
 
 - 用户决定产品、市场、资产、数据、策略、信号、仓位、风险、订单和实盘启用方式。
 - 实现只覆盖用户当前明确要求；不得发明或调整交易功能、公式、参数或语义。
-- 默认运行边界为 **DEVELOPMENT / BACKTEST / PAPER-TRADING ONLY**。没有明确授权，不得使用真实凭据、连接实盘账户或操作真实订单。
+- 默认执行环境标识为 **ALPACA PAPER**，但当前执行功能尚未实现；自动订单提交和 Alpaca Live Trading 必须关闭，任何未来订单都要求人工确认。配置 Alpaca Key 不等于获得订单或实盘授权。
+- Alpaca Market Data 与未来 Alpaca Execution 必须保持独立模块边界。没有明确批准、独立 Live 配置和完整风险保护，不得连接实盘账户或操作真实资金订单。
 - 不因顺手清理或追求整洁而扩大范围；无关问题记录到 `KNOWN_ISSUES.md`。
 
 ## Required workflow
@@ -68,5 +69,6 @@
 - 不假设工作区干净，不覆盖或丢弃用户未提交修改。
 - 未经明确要求，不 commit、push、pull、merge、rebase、reset、强制 checkout、force push、删分支或改写历史。
 - 不提交密钥、账户、密码、token、私钥、真实账户信息或敏感日志；未来示例只写变量名和安全说明。
+- Paper 与 Live 凭据、endpoint、状态和日志不得混用；运行日志必须明确环境，且不得包含 Secret 或完整授权头。
 - `logs/EDIT_LOG.md` 只追加逻辑变更记录，不重写历史；所有改动文件必须列入对应记录。
 - `CHANGELOG.md` 只记用户可见或版本重要变化；`docs/project/PROJECT_STATE.md` 只描述当前真实状态。
