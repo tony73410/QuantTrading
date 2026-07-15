@@ -4,17 +4,17 @@
 document: PROJECT_COMPASS
 purpose: AI project direction and self-audit source of truth
 status: active
-version: 7
-last_updated_utc: 2026-07-14T22:11:01Z
+version: 12
+last_updated_utc: 2026-07-15T00:43:27Z
 last_updated_by: Codex
 project_owner: User
-current_project_phase: Historical market-data browser, three-layer algorithm contracts, and Algorithm Control Center; no production algorithms or execution
+current_project_phase: Historical market-data browser, safe versioned Factor authoring, three-layer algorithm contracts, Algorithm Control Center, and empty Paper/Live execution boundaries; no active production Decision/Risk algorithm or execution behavior
 current_default_environment: ALPACA_PAPER label; execution is not implemented
 current_market_data_provider: Alpaca Market Data
 current_brokerage: Alpaca (planned primary brokerage; not connected)
 live_trading_status: Disabled
 automatic_order_submission_status: Disabled
-last_verified_commit_or_working_tree_state: Base commit 4fe358e88e1843cffc4e477ca873c17c183c277b; governance and three-layer algorithm-contract changes are uncommitted
+last_verified_commit_or_working_tree_state: Checkpoint commit containing docs/project/VERSION_HISTORY.md CHECKPOINT-20260714-001; parent 7b5bd7f; 216 tests passed; Live and automatic submission disabled
 ```
 
 ## How to use this document
@@ -112,6 +112,8 @@ This part may be updated from verified code/configuration and explicit user deci
 
 ## B1. Current Product Definition
 
+Scheme A Factor authoring is implemented and verified: the Algorithm Control GUI saves restricted-expression `FactorDefinition` objects as immutable versions, registers each version disabled by default, and lets versioned Decision configuration select exact Factor component IDs. This is configuration/authoring capability only. No authored Factor is automatically active, no production Decision Policy exists, and no TradeIntent or order is created.
+
 QuantTrade is currently a runnable, local-first desktop stock-history browser with project governance and debugging infrastructure.
 
 | Capability | Current status | Evidence |
@@ -120,6 +122,7 @@ QuantTrade is currently a runnable, local-first desktop stock-history browser wi
 | Plotly candlestick/line/OHLC charts | Implemented and verified | `charts/plotly_chart_builder.py`, chart and WebEngine tests |
 | Alpaca historical Market Data | Implemented and read-only verified | `providers/alpaca_provider.py`, Provider tests, EDIT-20260713-018 |
 | SQLite Bar/Coverage/Fetch History cache | Implemented and verified | `storage/sqlite_store.py`, Store and integration tests |
+| Central SQLite Factor history | Implemented and verified but inactive without a production Factor Pipeline | `quant_trading.persistence`, temporary-SQLite migration/dedup/transaction tests, ADR-0009 |
 | 10/30-minute, 1-hour, daily, weekly, monthly views | Implemented and verified | `models.py`, Provider/GUI/cache tests |
 | Error codes, contextual logs, diagnostics | Implemented and verified | `error_codes.py`, `observability.py`, `diagnostics.py`, tests |
 | Single-Asset Factor contracts/registry/engine | Partially implemented and verified | `quant_trading.factors`, Fake/unit/architecture tests; no production formula |
@@ -129,13 +132,16 @@ QuantTrade is currently a runnable, local-first desktop stock-history browser wi
 | Factor → Decision → Risk orchestration | Implemented and verified at contract level | `TradingEvaluationPipeline`; stops before Order Construction |
 | Algorithm Control Center GUI | Implemented and verified | `quant_trading.algorithm_control`, generic GUI/config/audit/architecture tests; no production algorithm or execution |
 | Change admission and Conflict Center | Implemented and verified | typed ownership/capability/contract declarations, disabled-by-default lifecycle, pre-run admission and regression tests; proposal files remain human-reviewed |
-| Paper account/order execution | Not implemented | no execution module, order model, account client, or Trading SDK import |
+| Paper/Live execution package boundaries | Implemented and verified as empty namespaces | `quant_trading.execution.paper` and `.live`; no interfaces, clients, accounts or orders |
+| Paper account/order execution | Not implemented | namespace exists but no order model, account client, Provider, Trading SDK import or runtime path |
 | Production factors, strategies, signals, backtests and numerical risk management | Not implemented | no calculator/decision/risk policy implementations or approved values |
 | Alpaca Live trading | Not implemented and disabled | `application_settings.py`, safety tests |
 
-The complete automated suite was rerun after the Change Admission change on 2026-07-14: **183 passed with one upstream deprecation warning**.
+The complete automated suite was rerun after implementing Scheme A Factor authoring on 2026-07-14: **216 passed with one upstream deprecation warning**.
 
 ## B2. Current Architecture
+
+`quant_trading.factors` owns the public definition contract, restricted expression-language validation and calculation. `quant_trading.algorithm_control` owns the editor, local definition catalog and Decision selection UI; it does not evaluate Factor values. Definitions persist at `runtime/algorithm_control/factor_definitions.json`, while calculated Factor history remains owned by the independently injected central SQLite Factor Store.
 
 | Component | Responsibility | Explicit non-responsibility | Status / detail |
 |---|---|---|---|
@@ -144,6 +150,7 @@ The complete automated suite was rerun after the Change Admission change on 2026
 | `HistoricalDataService` | local-first coverage, missing intervals, refresh, offline fallback | GUI and Provider-specific response parsing | Active |
 | `AlpacaHistoricalMarketDataProvider` | Alpaca historical stock Bar requests and model conversion | SQLite, cache policy, accounts, orders | Active Market Data only |
 | `SQLiteHistoricalDataStore` | Bar, Coverage, Fetch History persistence | external API and GUI | Active |
+| `quant_trading.persistence` | shared SQLite schema plus immutable Factor snapshot/result and calculation-run storage | formulas, availability policy, Decision/Risk, GUI, broker/execution | Implemented; Factor adapter inactive without explicit Pipeline injection |
 | `PlotlyChartBuilder` | turn standardized Bar data into figures | network, database, strategy | Active |
 | `quant_trading.observability` | Error Code context, redaction, rotating runtime logs | business/financial behavior | Active |
 | `quant_trading.diagnostics` | local read-only checks and optional explicit Market Data check | auto-repair, accounts, orders | Active |
@@ -153,7 +160,9 @@ The complete automated suite was rerun after the Change Admission change on 2026
 | `quant_trading.orchestration` | call Factor → Decision and optionally Risk, return all results | data loading, formula, policy/rule logic, order/execution | Interface-level pipelines verified; not wired to GUI |
 | `quant_trading.algorithm_control` | registry-driven metadata, typed parameter UI, versioned configuration, validation, safe preview and audit | formulas, rules, Market Data/API/SQLite, broker execution | Implemented and verified; production algorithm registry is empty |
 | `quant_trading.algorithm_control` admission | reject invalid ownership/authority/contracts, stage activation, validate assembled Pipeline, expose conflicts | approve user intent, select algorithms, resolve high-risk conflicts, grant trading authority | Implemented and verified; current production Pipeline is intentionally BLOCKED |
-| Execution/strategy modules | future separately approved responsibilities | — | Not implemented |
+| `quant_trading.execution.paper` | reserve a future simulated-execution namespace | account/order behavior, broker client, activation | Implemented as an empty, disabled boundary; behavior Not implemented |
+| `quant_trading.execution.live` | reserve a separately protected future real-money namespace | account/order behavior, credentials, activation | Implemented as an empty, disabled boundary; Live remains disabled |
+| Execution behavior / strategy modules | future separately approved responsibilities | — | Not implemented |
 
 Required flow: `GUI → Controller → Service → Store / Market Data Provider`; `Controller → Chart Builder`. [`docs/architecture/OVERVIEW.md`](docs/architecture/OVERVIEW.md) is the canonical architecture source for complete responsibilities, dependency directions, flows, invariants, blast-radius review, and drift risks. [`MODULE_MAP.md`](docs/architecture/MODULE_MAP.md) is only a concise index.
 
@@ -162,8 +171,8 @@ Required flow: `GUI → Controller → Service → Store / Market Data Provider`
 | Service | Role | Environment / authentication | Current status | Allowed now | Not allowed now |
 |---|---|---|---|---|---|
 | Alpaca Market Data | primary historical market-data provider | REST; `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` from environment | Implemented; read-only request verified | fetch approved stock historical Bars | accounts, positions, orders, Trading API, credential logging |
-| Alpaca Paper Trading | planned primary execution environment | separate execution authorization would be required | Not implemented; not connected | nothing through this application | account access and Paper order submission |
-| Alpaca Live Trading | possible future execution environment | no Live configuration or client | Disabled; Not implemented | nothing | any real-money account or order action |
+| Alpaca Paper Trading | planned primary execution environment | separate execution authorization would be required | Empty namespace only; not connected | nothing through this application | account access and Paper order submission |
+| Alpaca Live Trading | possible future execution environment | no Live configuration or client | Empty namespace only; Disabled; Not implemented | nothing | any real-money account or order action |
 | Fidelity | optional manual compatibility concept | no credentials accepted | inactive, not connected, not primary | user may independently use Fidelity outside the app | login, synchronization, scraping, browser automation, automated orders |
 
 ## B4. Current Defaults
@@ -187,11 +196,14 @@ These values come from `ApplicationRoleSettings`, `AppSettings`, and tested star
 
 ## B5. Approved Capabilities
 
+- The user-approved Scheme A for Factor authoring: use a restricted expression language, immutable disabled-by-default Factor versions, and exact Factor-version selection in Decision configuration; never execute arbitrary GUI-entered Python.
+
 - Repository governance, ADRs, append-only Edit/Bug history, testing and documentation rules.
 - The desktop historical Market Data browser and its current controls.
 - Alpaca Market Data as the primary data source.
 - Alpaca as planned primary brokerage with `ALPACA_PAPER` as the safe target label.
 - SQLite local-first cache, incremental updates, offline fallback, and standardized data models.
+- The user-approved central SQLite persistence boundary: retain meaningful versioned Factor history and every calculation run while deduplicating exact repeated results; no automatic deletion.
 - Interactive Plotly display and responsive GUI behavior.
 - Error codes, contextual/redacted rotating logs, diagnostics, and regression tests.
 - `PROJECT_COMPASS.md` as the central intent and self-audit mechanism (this user-approved governance change).
@@ -200,6 +212,7 @@ These values come from `ApplicationRoleSettings`, `AppSettings`, and tested star
 - The user-approved two-stage algorithm architecture: one strategy-neutral Single-Asset Factor layer followed by an independent non-executing Trading Decision layer, connected only by versioned Factor snapshots.
 - The user-approved independent Risk Control gate: every future executable Intent must pass Risk; Risk may approve, reject, reduce, defer or pause but may never increase/reverse exposure, create alpha, or call execution.
 - The user-approved Change Admission mechanism: significant ideas must declare one owner, responsibilities/non-responsibilities, contracts, dependencies, capabilities, safety effects and rollback before implementation; new components are disabled by default, and conflicts block activation.
+- The user-approved sibling Execution environment boundaries: Paper and Live exist only as separate, empty, disabled namespaces; future validation is intended to start in Paper, while neither namespace has account/order authority.
 
 ## B6. Explicit Non-Capabilities
 
@@ -222,7 +235,7 @@ The current application does not:
 | Decision ID | Question | Why it matters | Options | Recommendation | Status |
 |---|---|---|---|---|---|
 | DEC-001 | What local-data retention and automatic cleanup rules should apply? | deletion is irreversible and Coverage must remain correct | manual only; size/LRU; timeframe retention | retain daily/weekly/monthly indefinitely; conservative 10/30-minute/hour cutoffs; preserve failure/debug evidence | User goal stated; exact deletion/schema policy awaiting explicit approval |
-| DEC-002 | Should an Alpaca Paper execution module be designed? | introduces accounts, orders, confirmation and risk semantics | no execution; manual proposals; isolated Paper execution | define orders, confirmation and risk boundaries before implementation | Not approved for implementation |
+| DEC-002 | Which Alpaca Paper account/order contracts and behaviors should eventually be designed? | the Paper namespace now exists, but behavior introduces accounts, orders, confirmation and risk semantics | keep empty; manual proposals; separately approved isolated Paper execution | define orders, confirmation and risk boundaries before adding behavior | Boundary approved; behavior Not approved |
 | DEC-003 | Should Live ever be supported? | real-money and safety risk | never; future restricted Live | defer until Paper is understood and independently verified | Future only; not approved |
 | DEC-004 | Should a trading-calendar dependency be added for early-close sessions? | current fixed 09:30–16:00 filter can include post-close data on early-close days | document limitation; custom calendar; approved library | keep documented limitation until dependency/source is approved | Open; see KI-0007 |
 | DEC-005 | How should stored Market Bars be converted into Factor `available_at_utc` for each timeframe/session? | wrong availability can introduce look-ahead bias | explicit caller timestamps; approved calendar adapter; fixed approximations | keep explicit availability contract and do not wire Market History automatically until semantics are approved | Open; Factor layer safely isolated |
@@ -235,7 +248,7 @@ An AI recommendation is not a user decision. Update status only after explicit u
 
 | Assumption ID | Description | Reason | Confidence | Impact | How to verify | Status |
 |---|---|---|---|---|---|---|
-| ASM-001 | `ALPACA_PAPER` is a safe target label, not implemented execution | no execution module/client/order model; docs and tests agree | high | prevents false claims of connection or order capability | inspect source tree and execution tests when added | Active, verified |
+| ASM-001 | `ALPACA_PAPER` is a safe target label, not implemented execution behavior | only empty Paper/Live namespaces exist; no client, account, order model or runtime path | high | prevents false claims of connection or order capability | inspect execution packages and safety tests when behavior is proposed | Active, verified |
 | ASM-002 | Alpaca credentials currently authorize Market Data use only in this app | only Market Data client consumes them | high | credentials cannot enable orders | inspect startup composition and imports | Active, verified |
 | ASM-003 | User wants AI to make low-risk engineering decisions but retain product/financial authority | explicit requirement-interpretation protocol | high | controls when AI proceeds vs asks | user correction or Compass change proposal | Active, user-stated |
 | ASM-004 | Fixed 09:30–16:00 New York filtering is acceptable except known early-close limitation | approved intraday implementation; limitation documented | high | affects special-session Bar meaning | approve calendar source/dependency or inspect affected dates | Active limitation |
@@ -245,6 +258,10 @@ An AI recommendation is not a user decision. Update status only after explicit u
 | ASM-008 | Risk authority means safety veto/reduction, not authority to create or enlarge trades | explicitly stated by the user | high | protects Decision ownership and prevents Risk becoming another strategy | architecture tests plus reduction-contract tests | Active, user-stated |
 | ASM-009 | Control-center Save and Apply are separate actions; both create immutable versions, while Draft remains session-local | preserves an auditable and reversible lifecycle without silently changing runtime state | high | configuration changes are explicit and recoverable | lifecycle and persistence tests | Active, implementation interpretation |
 | ASM-010 | Component implementation, registration, configuration activation and trading authority are separate states | prevents code existence or credentials from silently granting runtime/financial authority | high | new components remain disabled and Pipeline admission fails closed | admission lifecycle, capability and Pipeline tests | Active, user-approved governance interpretation |
+| ASM-011 | “All historical Factors” means meaningful versioned results plus every run record, not duplicate copies of identical result payloads | user approved Scheme A including deduplication and Debug trace retention | high | exact repeats reuse one snapshot while separate runs remain auditable | SQLite count/dedup/run-history tests | Active, user-approved |
+| ASM-012 | The user may not remember every earlier implementation or decision, so verified related work should be surfaced before materially overlapping changes | explicitly stated by the user; repository evidence is more reliable than conversation memory | high | reduces duplicate systems and accidental replacement while preserving user authority | inspect relevant code/docs/history and confirm the desired relationship with the user | Active, user-stated |
+| ASM-013 | A Paper or Live package existing in source does not mean either environment is connected, configured, enabled, or permitted to submit orders | user approved structure only and explicitly requested no contents | high | prevents empty architecture from being mistaken for trading capability | architecture content/import tests plus future admission review | Active, user-stated |
+| ASM-014 | “Edit Factor logic/code in the GUI” means a restricted deterministic expression contract, not arbitrary Python execution | user approved recommended Scheme A after its safety and versioning consequences were explained | high | preserves user control without granting filesystem/network/process or trading authority | expression rejection tests, immutable-version tests and ADR-0011 | Active, user-approved |
 
 ## B9. Requirement Interpretation Protocol
 
@@ -258,6 +275,17 @@ Before implementation, extract and state:
 6. **Recommended implementation** — the smallest safe, testable, reversible approach.
 
 Separate the desired result from the user's guessed implementation. If the user does not insist on a method, preserve the goal instead of mechanically spreading an inaccurate term or unsafe method. This does not authorize AI to invent strategies, risk parameters, financial judgments, or product scope.
+
+### Existing-Work Reminder Protocol
+
+When a request appears materially similar to existing code, configuration, a module responsibility, Active Intent, Proposal, ADR, or approved behavior, inspect the relevant repository evidence before changing it. Tell the user, in neutral and plain language:
+
+- what related work already exists and where;
+- whether it is implemented, verified, inactive, planned, deprecated, or only an earlier AI proposal;
+- what overlaps and what differs from the new request;
+- the smallest recommended reuse or extension path.
+
+If the new request would modify the existing idea, ask whether the user wants to extend it, replace/supersede it, keep an explicitly coordinated parallel alternative, or leave it unchanged. Do not imply criticism if the user did not remember prior work. Do not interrupt trivial internal engineering choices, and never convert an earlier AI recommendation into user approval.
 
 ## B10. Ambiguity Levels
 
@@ -288,6 +316,10 @@ Examples: buy/sell direction, order quantity/type, position size, leverage, shor
 | INTENT-009 | Add an independent, higher-authority safety gate after TradeIntent and before any order/execution | immutable source Intent; structured RiskDecision; conservative policy merge; no risk increase; type-distinct approved output; Fake tests; no values/orders | `risk`, `orchestration`, architecture tests/docs | ASM-008; account/portfolio providers remain neutral Protocols | Implemented and verified at contract level; numerical Risk rules and Execution Not implemented | ADR-0006; `docs/modules/risk-control.md`; EDIT-20260714-024 |
 | INTENT-010 | Manage Factor/Decision/Risk components through an independent, explainable GUI without embedding algorithms or execution | registry metadata; generic schemas; Draft/Saved/Active lifecycle; version history; locked invariants; background NO EXECUTION previews; audit | `algorithm_control`, architecture tests/docs | ASM-009; no production component is invented | Implemented and verified; production previews Not implemented | ADR-0007; `docs/modules/algorithm-control-gui.md`; EDIT-20260714-025 |
 | INTENT-011 | Prevent new ideas from creating ownership, permission, contract, activation or Risk-bypass conflicts | proposal-first admission; typed component metadata/capabilities/contracts; disabled-by-default lifecycle; pre-run validation; Conflict Center; migration/rollback/deprecation rules | `algorithm_control`, governance/architecture docs and tests | ASM-010; proposals require user approval; no algorithm is activated | Implemented and verified; current production Pipeline BLOCKED by missing approved stages | ADR-0008; `docs/proposals/README.md`; `docs/modules/algorithm-control-gui.md`; EDIT-20260714-026 |
+| INTENT-012 | Keep each stock's meaningful historical Factor results and all calculation attempts in one central local database | reuse existing SQLite path; independent Store Protocols; typed immutable results; exact-result dedup; append-preserving run audit | `persistence`, Factor Store Protocol, optional Orchestration injection | ASM-011; no production Factor exists; no automatic deletion | Implemented and verified at storage/integration level; inactive in ordinary flows | PROPOSAL-001; ADR-0009; `docs/modules/central-persistence.md`; EDIT-20260714-028 |
+| INTENT-013 | Proactively remind the user when a request overlaps verified prior work, then confirm whether to extend, replace, coordinate in parallel, or leave it unchanged | repository evidence and status are summarized; overlap/difference and recommended reuse are explained; material changes wait for the user's choice | governance and requirement-interpretation workflow | ASM-012; reminders apply to meaningful overlap, not trivial internals | Implemented as a repository workflow rule; no product behavior changed | `AGENTS.md`; `docs/development/REQUIREMENT_INTERPRETATION.md`; EDIT-20260714-029 |
+| INTENT-014 | Reserve two sibling Execution layers so future testing can occur primarily in simulation without mixing Paper and Live code | `quant_trading.execution.paper` and `.live` exist at the same level, contain no behavior/imports, remain disabled, and grant no authority | `execution` boundary plus architecture tests/docs | ASM-013; no contracts, accounts, orders, Provider or activation | Implemented and verified as empty structural boundaries; all execution behavior Not implemented | PROPOSAL-002; ADR-0010; `docs/modules/execution-environments.md`; EDIT-20260714-030 |
+| INTENT-015 | Create/modify/save Factor calculation behavior in the GUI and let Decision configuration choose Factor inputs | restricted expression definitions, immutable versions, disabled registration, exact Factor component selection; no arbitrary Python, policy, activation or orders | `factors`, `algorithm_control`, Decision configuration contract | ASM-014; Market availability semantics remain open | Implemented and verified as authoring/configuration; runtime Market-to-Factor and production Decision behavior Not implemented | PROPOSAL-003; ADR-0011; `docs/modules/factor-authoring.md`; EDIT-20260714-031 |
 
 Keep only active, behavior-shaping, or recently completed intents that still need observation. Move detailed history to Edit Log, Bug Log, and ADRs.
 
@@ -375,6 +407,11 @@ Do not respond with an unapproved broad rewrite. Identify the location and impac
 See [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) for evidence, workarounds, and status. This summary must not become an independent issue history.
 
 ## B17. Next Approved Direction
+
+- Scheme A Factor authoring and Decision Factor selection are approved and implemented. Activating authored Factors, connecting cached Market History to Factor availability, or implementing a Decision policy remains separate future work requiring explicit semantics and validation.
+
+- Central SQLite Factor-history persistence is approved and implemented, but no production Factor calculation has been approved or activated.
+- Paper and Live Execution namespaces are approved and implemented as empty sibling boundaries; adding any contents or activation remains separate, unapproved work.
 
 - The approved Factor/Decision/Risk contract foundation is complete; no production algorithm, numerical Risk policy, Order Construction or execution phase is approved.
 - Storage retention remains **Proposed, not approved** pending DEC-001 parameters and persistent-deletion approval.

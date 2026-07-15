@@ -2,13 +2,13 @@
 
 本仓库包含项目治理基础和一个本地优先的桌面股票历史数据浏览器。浏览器使用 Alpaca Market Data 获取 10 分钟、30 分钟、1 小时、日、周、月 Bar，保存到本地 SQLite，并通过 Plotly 交互图表展示。分钟和小时图默认只显示纽约时间 09:30–16:00 的常规交易时段。
 
-安全默认值为 **Alpaca Paper / Automatic submission: OFF / Live trading: OFF / Manual confirmation: REQUIRED**。当前尚未实现执行模块，因此程序不会提交模拟或真实订单。
+安全默认值为 **Alpaca Paper / Automatic submission: OFF / Live trading: OFF / Manual confirmation: REQUIRED**。项目现在仅预留了彼此分离的 Paper 与 Live 空白执行边界，没有账户、订单或券商客户端，因此程序不会提交模拟或真实订单。
 
 ## Data and brokerage setup / 行情与券商设置
 
 Alpaca is the project's primary market-data provider and planned primary brokerage. The default execution environment is Alpaca Paper Trading. Order execution is not implemented, automatic submission is disabled, and Alpaca Live Trading remains disabled.
 
-本项目主要使用 Alpaca。Alpaca 负责向程序提供股票行情，并计划作为模拟交易及未来经批准的自动交易券商。当前默认环境是 Alpaca Paper Trading，但执行模块尚未实现，所以程序既不会提交模拟订单，也不会提交真实资金订单。
+本项目主要使用 Alpaca。Alpaca 负责向程序提供股票行情，并计划作为模拟交易及未来经批准的自动交易券商。当前默认环境是 Alpaca Paper Trading；`execution.paper`与`execution.live`目前只是同级空白边界，没有执行行为，所以程序既不会提交模拟订单，也不会提交真实资金订单。
 
 真实交易默认关闭，不能因为配置了 `APCA_API_KEY_ID` 和 `APCA_API_SECRET_KEY` 就自动启用。当前代码只将这些变量用于 Market Data；未来 Paper Execution 必须经过独立实现和批准。Fidelity 被保留为可选的手动方式，非默认、未连接且未启用，项目不接受 Fidelity 登录凭据。
 
@@ -41,6 +41,8 @@ python -m venv .venv
 
 详细行为、数据库和测试说明见 `docs/modules/market-history.md`。
 
+现有 `runtime/data/market_history.sqlite3` 也是程序的中央本地数据库：除行情缓存外，Schema 已支持保存版本化因子快照、具体因子结果和每次计算记录。完全相同的重复计算不会复制结果，但运行记录仍会保留用于追踪。当前没有正式因子公式，因此普通GUI使用暂时不会产生因子记录。详见 `docs/modules/central-persistence.md`。
+
 ## Algorithm architecture status / 算法架构状态
 
 项目已建立三个单向、可以用Fake分别测试的算法合同层：
@@ -56,9 +58,15 @@ python -m venv .venv
 → 停止：订单构建和执行尚未实现
 ```
 
-目前没有正式因子公式、技术指标、买卖条件、仓位规则、Decision Policy或数值Risk Policy；三层也没有接入GUI、算法结果持久化或券商执行。Factor不知道Decision/Risk，Decision不知道Risk，Risk不能扩大原始意图或调用券商。Live和自动提交仍关闭。详细边界见 `docs/modules/factors.md`、`docs/modules/trading-decision.md` 和 `docs/modules/risk-control.md`。
+目前没有正式因子公式、技术指标、买卖条件、仓位规则、Decision Policy或数值Risk Policy；三层没有接入GUI或券商执行。Factor结果持久化合同已经实现，但只有显式注入Store的未来算法Pipeline才会写入。Factor不知道Decision/Risk，Decision不知道Risk，Risk不能扩大原始意图或调用券商。Live和自动提交仍关闭。详细边界见 `docs/modules/factors.md`、`docs/modules/trading-decision.md` 和 `docs/modules/risk-control.md`。
 
 ## Algorithm Control Center / 算法控制中心
+
+在“因子层”页面可以使用**受限表达式**创建或修改Factor。每次保存都会创建不可变新版本，并且默认不启用。它不是任意Python代码编辑器：只能使用界面列出的行情字段、数值参数、算术和聚合函数，不能访问文件、网络、数据库或券商。
+
+在“交易决策层”页面，已经注册的Decision组件可以选择所需的精确Factor版本。选择Factor只是保存输入配置，不会自动产生买卖规则、TradeIntent或订单。当前还没有正式Decision Policy，因此普通初始界面不会伪造一个可交易的Decision组件。
+
+Factor定义保存在忽略Git的 `runtime/algorithm_control/factor_definitions.json`；计算出的Factor历史（未来在明确Pipeline运行时）仍由中央SQLite Store负责。详细说明见 [`docs/modules/factor-authoring.md`](docs/modules/factor-authoring.md)。
 
 独立启动组件与配置管理窗口：
 

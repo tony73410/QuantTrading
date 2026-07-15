@@ -33,7 +33,15 @@ class DiagnosticResult:
 
 
 _DEPENDENCIES = ("PySide6", "plotly", "pandas", "alpaca-py")
-_EXPECTED_TABLES = {"market_bars", "data_coverage", "fetch_history"}
+_EXPECTED_TABLES = {
+    "schema_migrations",
+    "market_bars",
+    "data_coverage",
+    "fetch_history",
+    "factor_snapshots",
+    "factor_results",
+    "factor_calculation_runs",
+}
 
 
 def _dependency_checks() -> list[DiagnosticResult]:
@@ -99,7 +107,7 @@ def _database_checks(path: Path) -> list[DiagnosticResult]:
         DiagnosticResult(
             "sqlite_schema",
             DiagnosticStatus.FAIL if missing else DiagnosticStatus.PASS,
-            f"missing tables: {sorted(missing)}" if missing else "market_history_v1",
+            f"missing tables: {sorted(missing)}" if missing else "central_sqlite_v1",
         ),
         DiagnosticResult(
             "sqlite_integrity",

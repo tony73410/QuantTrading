@@ -60,6 +60,8 @@ The engine does not invent a staleness duration. Only explicit Factor status is 
 
 ## Configuration
 
+Algorithm Control configuration can now store `selected_factor_ids`, each identifying an exact registered Factor version. Selection is an input declaration only: it does not calculate the Factor, define a Decision Policy, activate a component, or create a TradeIntent. Unknown/non-Factor IDs are rejected; an enabled Decision also requires selected Factors to be active.
+
 No Decision configuration file or production policy parameters exist. Immutable `DecisionParameter` values are separate from `FactorParameter`; the Decision layer cannot modify Factor parameters.
 
 ## Tests

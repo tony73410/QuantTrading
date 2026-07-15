@@ -27,6 +27,7 @@ from ..controller import AlgorithmControlController
 from ..admission_models import PipelineReadiness
 from ..models import ComponentType, PreviewKind, PreviewRequest
 from .component_panel import ComponentPanel
+from .factor_authoring_panel import FactorManagementPanel
 from .workers import TaskWorker
 
 
@@ -43,7 +44,10 @@ class AlgorithmControlPanel(QMainWindow):
         self._active_task: str | None = None
         self.tabs = QTabWidget()
         self.overview = self._overview_page()
-        self.factor_page = ComponentPanel(controller, ComponentType.FACTOR)
+        self.factor_page = FactorManagementPanel(
+            controller,
+            ComponentPanel(controller, ComponentType.FACTOR),
+        )
         self.decision_page = ComponentPanel(controller, ComponentType.DECISION)
         self.risk_page = ComponentPanel(controller, ComponentType.RISK)
         self.pipeline = self._pipeline_page()
@@ -59,6 +63,7 @@ class AlgorithmControlPanel(QMainWindow):
         for page in (self.factor_page, self.decision_page, self.risk_page):
             page.preview_requested.connect(self._component_preview)
             page.state_changed.connect(self.refresh)
+        self.factor_page.state_changed.connect(self._factor_catalog_changed)
         self.dry_run_button.clicked.connect(self._dry_run)
         self.refresh()
 
@@ -154,6 +159,10 @@ class AlgorithmControlPanel(QMainWindow):
             values = (record.timestamp_utc.isoformat(), record.action.value, record.component_id or "—", record.previous_configuration_version or "—", record.new_configuration_version or "—", record.application_result, record.change_reason)
             for column, value in enumerate(values):
                 self.audit_table.setItem(row, column, QTableWidgetItem(str(value)))
+
+    def _factor_catalog_changed(self) -> None:
+        self.factor_page.reload()
+        self.decision_page.reload()
 
     def _component_preview(self, component_id: str) -> None:
         component = self.controller.registry.get(component_id)

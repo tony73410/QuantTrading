@@ -1,5 +1,14 @@
 # Change Proposals
 
+Current proposals:
+
+- [`PROPOSAL-004`](PROPOSAL-004-factor-lifecycle-decision-authoring-and-execution-control.md) — draft six-phase plan for Factor lifecycle, evidence-based preview, Decision Policy authoring, Risk-gated dry run and a separate disabled Execution control surface; implementation and trading semantics are not approved.
+
+- [`PROPOSAL-003`](PROPOSAL-003-safe-factor-authoring-and-decision-selection.md) — implemented-disabled restricted Factor authoring and exact Decision Factor-version selection; no arbitrary Python, policy, activation or order behavior.
+
+- [`PROPOSAL-002`](PROPOSAL-002-paper-live-execution-boundaries.md) — implemented-disabled Paper/Live sibling namespaces; no contracts, clients, accounts, orders or activation.
+- [`PROPOSAL-001`](PROPOSAL-001-central-sqlite-factor-history.md) — approved central SQLite Factor history; implementation remains inactive until a production Factor Pipeline is separately approved.
+
 This directory is the canonical **pre-implementation admission record** for significant new ideas. ADRs record accepted long-term decisions; proposals classify and test an idea before it becomes an approved decision. A proposal is required for a new major component, public contract, authority, external integration, financial meaning, activation default, cross-layer change, or system-wide change.
 
 ## Admission workflow
@@ -39,6 +48,8 @@ Do not rewrite an accepted proposal to hide history. Record material reversals i
 Every proposal must have one primary classification and owner: Market Data, Storage, Factor, Trading Decision, Portfolio, Risk, Execution, GUI, Configuration, Logging, Infrastructure, or Cross-cutting. Cross-cutting is not permission to mix financial responsibilities; list each affected owner and keep one canonical owner per responsibility.
 
 If ownership is unclear, stop implementation and recommend a classification. If a responsibility already has an owner, extend or replace that owner through a compatible public contract; do not silently create a second source of truth.
+
+If a proposed idea materially resembles an existing component, Proposal, ADR, Active Intent, configuration, or approved behavior, link that evidence and report its status, overlap and differences to the user. Before replacement, supersession, or a parallel implementation, obtain the user's choice to extend the existing owner, replace it through a documented migration, coordinate an explicitly compatible alternative, or leave the existing work unchanged. An older AI recommendation is not approval and must be labeled as such.
 
 ## Required assessments
 

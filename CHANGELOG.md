@@ -6,6 +6,12 @@
 
 ### Added
 
+- Added safe GUI Factor authoring with a restricted numeric expression language, immutable disabled-by-default definition versions, and exact Factor-version selection in Decision configuration. This does not add a production Decision rule, activate a Factor, or enable any order path.
+
+- Added empty, disabled `execution.paper` and `execution.live` sibling package boundaries so future simulation work can remain isolated from real-money execution. No account, order, broker client, Paper submission or Live capability was added.
+
+- Added a versioned central SQLite schema and independent Factor-history Store. Meaningful Factor snapshots/results are preserved, exact repeats are deduplicated, and every calculation run remains auditable. No Factor formula or trading behavior was added.
+
 - Added proposal-first Change Admission, typed component ownership/capability/public-contract declarations, disabled-by-default activation stages, fail-closed Pipeline validation, and a GUI Conflict Center. This adds no trading algorithm or order capability.
 
 - 增加独立算法控制中心：通过Registry和通用ParameterSchema展示Factor/Decision/Risk组件，管理Draft/Saved/Active不可变配置版本、依赖验证、锁定安全不变量和审计记录；所有后台预览均为NO EXECUTION，未添加正式算法或订单功能。

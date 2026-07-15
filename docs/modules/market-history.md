@@ -147,6 +147,8 @@ QUANT_TRADE_LOG_LEVEL                   default INFO
 
 ## Database design
 
+The existing `runtime/data/market_history.sqlite3` file is now the application's central physical SQLite database. Market History still owns only Bar/Coverage/Fetch History queries; the independent `quant_trading.persistence` adapter owns Factor-history SQL. Sharing one file does not permit either feature to call the other's private storage implementation. Schema version 1 adds `schema_migrations`, `factor_snapshots`, `factor_results`, and `factor_calculation_runs` without moving or rewriting existing Market rows.
+
 默认路径：`runtime/data/market_history.sqlite3`，已被 `.gitignore` 排除。
 
 ### market_bars

@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
+    QListWidgetItem,
     QMessageBox,
     QPushButton,
     QSplitter,
@@ -46,6 +47,8 @@ class ComponentPanel(QWidget):
         self.feature_state = QLabel("功能状态：—")
         self.enabled = QCheckBox("启用此组件")
         self.parameters = ParameterEditor()
+        self.factor_choices = QListWidget()
+        self.factor_choices.setVisible(component_type is ComponentType.DECISION)
         self.history = QTableWidget(0, 4)
         self.history.setHorizontalHeaderLabels(("版本", "状态", "时间", "配置编号"))
         self.reason = QTextEdit()
@@ -60,7 +63,14 @@ class ComponentPanel(QWidget):
             buttons.addWidget(button)
         detail = QWidget()
         detail_layout = QVBoxLayout(detail)
-        for widget in (self.title, self.description, self.status, self.feature_state, self.enabled, self.parameters, self.history, self.reason):
+        for widget in (self.title, self.description, self.status, self.feature_state, self.enabled, self.parameters):
+            detail_layout.addWidget(widget)
+        if component_type is ComponentType.DECISION:
+            factor_label = QLabel("选择此Decision使用的Factor版本（选择本身不会生成买卖规则）：")
+            factor_label.setWordWrap(True)
+            detail_layout.addWidget(factor_label)
+            detail_layout.addWidget(self.factor_choices)
+        for widget in (self.history, self.reason):
             detail_layout.addWidget(widget)
         detail_layout.addLayout(buttons)
         splitter = QSplitter()
@@ -112,6 +122,8 @@ class ComponentPanel(QWidget):
         self.enabled.setChecked(self._draft.enabled)
         self.enabled.setEnabled(not component.locked)
         self.parameters.set_schema(component.parameter_schema, {item.name: item.value for item in self._draft.parameter_values})
+        if self.component_type is ComponentType.DECISION:
+            self._load_factor_choices(self._draft.selected_factor_ids)
         history = self.controller.history(component.component_id)
         self.history.setRowCount(len(history))
         for row_index, record in enumerate(history):
@@ -125,7 +137,12 @@ class ComponentPanel(QWidget):
         if self._draft is None or not self._require_reason():
             return
         try:
-            self._draft = self.controller.update_draft(self._draft.draft_id, self.parameters.values(), self.enabled.isChecked())
+            self._draft = self.controller.update_draft(
+                self._draft.draft_id,
+                self.parameters.values(),
+                self.enabled.isChecked(),
+                self._selected_factor_ids() if self.component_type is ComponentType.DECISION else None,
+            )
             validation = self.controller.validate_draft(self._draft.draft_id)
             if not validation.valid:
                 QMessageBox.warning(self, "配置未通过验证", "\n".join(item.message for item in validation.issues))
@@ -183,6 +200,22 @@ class ComponentPanel(QWidget):
         self.description.setText("项目尚未包含此类正式算法。控制中心不会自动发明算法或参数。")
         for button in (self.save_button, self.apply_button, self.restore_button, self.preview_button):
             button.setEnabled(False)
+
+    def _load_factor_choices(self, selected: tuple[str, ...]) -> None:
+        self.factor_choices.clear()
+        for factor in self.controller.components(ComponentType.FACTOR):
+            item = QListWidgetItem(f"{factor.display_name} · {factor.component_id}")
+            item.setData(Qt.ItemDataRole.UserRole, factor.component_id)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if factor.component_id in selected else Qt.CheckState.Unchecked)
+            self.factor_choices.addItem(item)
+
+    def _selected_factor_ids(self) -> tuple[str, ...]:
+        return tuple(
+            str(self.factor_choices.item(row).data(Qt.ItemDataRole.UserRole))
+            for row in range(self.factor_choices.count())
+            if self.factor_choices.item(row).checkState() == Qt.CheckState.Checked
+        )
 
     def _show_error(self, exc: Exception) -> None:
         request_id = f"ALG-{UUID(int=id(exc)).hex[:12].upper()}"

@@ -143,6 +143,7 @@ class JsonControlPlaneStore:
             enabled=bool(item["enabled"]),
             feature_state=FeatureState(feature_state),
             activation_evidence=ActivationEvidence(**item.get("activation_evidence", {})),
+            selected_factor_ids=tuple(item.get("selected_factor_ids", ())),
         )
 
     @staticmethod

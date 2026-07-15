@@ -1068,3 +1068,139 @@ Not needed after fix。
 
 ### Approval needs
 无需额外审批；修复属于用户明确要求的“实现状态与激活状态分离”和默认关闭安全边界。
+
+## BUG-20260714-008
+
+### Title
+Concrete Factor SQLite adapter initially crossed the pure Factor-layer boundary.
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Architecture / Database
+
+### Environment
+Windows 11; Python 3.14.5; pytest 9.1.1.
+
+### Reproduction steps
+1. Place the concrete `sqlite3` Factor Store under `quant_trading.factors.storage`.
+2. Run `python -m pytest tests/architecture -q`.
+
+### Expected behavior
+The strategy-neutral Factor package must not import or contain concrete SQLite infrastructure; it should expose only a public Store Protocol.
+
+### Actual behavior
+The first implementation placed `sqlite_store.py` inside the Factor package, and the architecture test reported `quant_trading.factors.storage.sqlite_store imports forbidden sqlite3`.
+
+### Error message
+Architecture test assertion listing the forbidden `sqlite3` import.
+
+### Technical exception
+`AssertionError` from `test_documented_layer_boundaries_are_not_crossed`.
+
+### Location
+Initial task implementation in `src/quant_trading/factors/storage/sqlite_store.py`.
+
+### Root cause
+The public Factor Store contract and its concrete infrastructure adapter were initially treated as one package responsibility.
+
+### Fix
+Kept `FactorSnapshotStore` and typed calculation-run records in the Factor public contract, moved the concrete adapter to `quant_trading.persistence.factor_sqlite_store`, and added persistence-layer forbidden dependency checks.
+
+### Files changed
+- `src/quant_trading/factors/interfaces.py`
+- `src/quant_trading/persistence/factor_sqlite_store.py`
+- `tests/architecture/test_dependency_boundaries.py`
+
+### Validation
+The previously failing architecture suite passed after the move; the final complete result is recorded in EDIT-20260714-028.
+
+### Regression test
+`test_documented_layer_boundaries_are_not_crossed`
+
+### Risk
+Low after correction. The infrastructure adapter may depend on public Factor models, but Factor calculation cannot depend back on persistence.
+
+### Workaround
+Not needed after fix.
+
+### Rollback
+Do not move the adapter back into `quant_trading.factors`; disable optional Store injection if Factor persistence must be rolled back.
+
+### Related logs
+Development-time architecture test output; no runtime user data or secret involved.
+
+### Approval needs
+No additional approval; this is the minimal correction required to preserve the approved module boundary.
+
+## BUG-20260714-009
+
+### Title
+Factor management wrapper initially removed an existing GUI inspection surface.
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+GUI / Compatibility
+
+### Environment
+Windows 11; Python 3.14.5; PySide6 6.x; pytest 9.1.1; offscreen Qt platform.
+
+### Reproduction steps
+1. Wrap the existing Factor `ComponentPanel` in the new authoring tab container.
+2. Run `python -m pytest tests/unit/algorithm_control/test_parameter_editor.py -q`.
+3. The existing smoke test accesses `panel.factor_page.list`.
+
+### Expected behavior
+Adding the authoring tab should preserve the existing Factor component-list inspection surface used by smoke diagnostics and tests.
+
+### Actual behavior
+The initial wrapper exposed the nested panel only as `components`, so `factor_page.list` raised `AttributeError`.
+
+### Error message
+`AttributeError: 'FactorManagementPanel' object has no attribute 'list'`
+
+### Technical exception
+`AttributeError` in `test_control_panel_shows_empty_algorithm_layers_and_locked_risk_invariants`.
+
+### Location
+`src/quant_trading/algorithm_control/ui/factor_authoring_panel.py`, `FactorManagementPanel.__init__`.
+
+### Root cause
+The new two-tab wrapper did not forward the small pre-existing list surface when replacing the page object.
+
+### Fix
+Expose `FactorManagementPanel.list` as the contained component panel's list widget. No algorithm, configuration or trading behavior changed.
+
+### Files changed
+- `src/quant_trading/algorithm_control/ui/factor_authoring_panel.py`
+- `tests/unit/algorithm_control/test_parameter_editor.py`
+
+### Validation
+The originally failing Algorithm Control test passed, targeted tests passed, and the complete suite passed 216 tests.
+
+### Regression test
+`test_control_panel_shows_empty_algorithm_layers_and_locked_risk_invariants`
+
+### Risk
+Low. The alias is read-only structural compatibility for inspection; GUI state remains owned by the contained panel.
+
+### Workaround
+Not needed after fix.
+
+### Rollback
+If the wrapper is removed, restore the original `ComponentPanel` as `factor_page`. Do not remove the alias while the wrapper remains unless callers are migrated through an approved interface change.
+
+### Related logs
+Development-time pytest failure only; no runtime request, credential, network or order activity.
+
+### Approval needs
+No additional approval; this is a minimal regression fix within the approved GUI extension.

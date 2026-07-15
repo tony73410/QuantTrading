@@ -13,6 +13,8 @@ from quant_trading.observability import configure_logging, install_exception_hoo
 
 from .audit_service import AuditService
 from .configuration_service import ConfigurationService
+from .factor_definition_service import FactorDefinitionService
+from .factor_definition_store import JsonFactorDefinitionStore
 from .controller import AlgorithmControlController
 from .preview_service import PreviewService
 from .registry import AlgorithmComponentRegistry
@@ -28,6 +30,10 @@ logger = logging.getLogger(__name__)
 def build_controller(project_root: Path | None = None, *, session_id: str | None = None) -> AlgorithmControlController:
     root = (project_root or Path.cwd()).resolve()
     registry = AlgorithmComponentRegistry(locked_safety_components())
+    factor_definitions = FactorDefinitionService(
+        JsonFactorDefinitionStore(root / "runtime" / "algorithm_control" / "factor_definitions.json"),
+        registry,
+    )
     validator = ConfigurationValidator(registry)
     store = JsonControlPlaneStore(root / "runtime" / "algorithm_control" / "control_state.json")
     configurations = ConfigurationService(
@@ -41,6 +47,7 @@ def build_controller(project_root: Path | None = None, *, session_id: str | None
         configurations,
         validator,
         PreviewService(),
+        factor_definitions=factor_definitions,
     )
 
 

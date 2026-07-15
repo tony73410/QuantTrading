@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Provide a separate PySide6 management application for registered Factor, Trading Decision, and Risk components. It exposes metadata, versioned configuration, dependency validation, safe previews, and an audit trail without owning algorithm formulas or order execution.
+Provide a separate PySide6 management application for registered Factor, Trading Decision, and Risk components. It exposes restricted Factor-definition authoring, exact Decision Factor-version selection, metadata, versioned configuration, dependency validation, safe previews, and an audit trail without evaluating Factors or owning Decision/Risk/order behavior.
 
 ## Responsibilities
 
@@ -17,10 +17,12 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - Validate fields, types, ranges, dependencies, and locked safety invariants.
 - Run previews on a background Qt worker and label every result **NO EXECUTION**.
 - Display append-only configuration and preview audit records.
+- Create immutable restricted-expression Factor definitions and register every version disabled by default.
+- Persist exact selected Factor component IDs in versioned Decision configuration.
 
 ## Non-responsibilities
 
-- Factor formulas, indicators, strategy or decision rules.
+- Arbitrary Python/source execution, Factor value calculation, strategy or decision rules.
 - Numerical risk limits or risk-policy selection.
 - Market-data downloads, SQLite history queries, account access, order construction, or execution.
 - Paper or Live order submission and secret storage.
@@ -31,7 +33,7 @@ Provide a separate PySide6 management application for registered Factor, Trading
 
 ## Inputs
 
-Registered metadata, user configuration edits/reasons, and safe preview requests. No production Factor, Decision, or numerical Risk implementation is currently registered.
+Registered metadata, restricted Factor definitions, user configuration edits/Factor selections/reasons, and safe preview requests. User-authored Factors may be registered but remain disabled; no production Decision or numerical Risk implementation is registered.
 
 ## Outputs
 
@@ -43,7 +45,7 @@ May depend on public Factor/Decision/Risk result contracts, application safety s
 
 ## Side effects
 
-Persists state atomically at `runtime/algorithm_control/control_state.json`. This ignored file is separate from `runtime/data/market_history.sqlite3` and contains no credentials.
+Persists state atomically at `runtime/algorithm_control/control_state.json` and definitions at `runtime/algorithm_control/factor_definitions.json`. These ignored files are separate from `runtime/data/market_history.sqlite3` and contain no credentials.
 
 ## Failure modes
 
@@ -77,8 +79,9 @@ Tests use temporary state and Fake preview executors; they access no network or 
 ## Known limitations
 
 - The Conflict Center is read-only; it does not automatically resolve high-risk conflicts or approve proposals.
-- Proposal authoring remains file-based under `docs/proposals/`; the GUI displays admission conflicts but is not a source-code editor or approval authority.
+- Proposal authoring remains file-based under `docs/proposals/`; the GUI displays admission conflicts but is not an arbitrary Python/source-code editor or approval authority.
 
-- No production Factor, Decision, or numerical Risk implementation is registered.
+- No Factor is active automatically and no production Decision or numerical Risk implementation is registered.
+- Expression validation does not fetch Market Data; real calculation preview remains Not implemented.
 - Production previews report Not implemented; Pipeline Dry Run is disabled until compatible approved components exist.
 - No execution, account connection, order construction, or order submission exists.

@@ -8,7 +8,7 @@
 
 - 用户决定产品、市场、资产、数据、策略、信号、仓位、风险、订单和实盘启用方式。
 - 实现只覆盖用户当前明确要求；不得发明或调整交易功能、公式、参数或语义。
-- 默认执行环境标识为 **ALPACA PAPER**，但当前执行功能尚未实现；自动订单提交和 Alpaca Live Trading 必须关闭，任何未来订单都要求人工确认。配置 Alpaca Key 不等于获得订单或实盘授权。
+- 默认执行环境标识为 **ALPACA PAPER**，但当前只有空白的 `execution.paper` / `execution.live` 同级边界，没有执行功能；自动订单提交和 Alpaca Live Trading 必须关闭，任何未来订单都要求人工确认。配置 Alpaca Key 不等于获得订单或实盘授权。
 - Alpaca Market Data 与未来 Alpaca Execution 必须保持独立模块边界。没有明确批准、独立 Live 配置和完整风险保护，不得连接实盘账户或操作真实资金订单。
 - 不因顺手清理或追求整洁而扩大范围。编辑、测试或审查中发现的错误和可信潜在缺陷必须先写入 `logs/BUG_LOG.md`；当前仍影响用户的问题同时摘要到 `KNOWN_ISSUES.md`。
 
@@ -54,6 +54,8 @@ Before implementing any significant new Factor, Decision policy, Risk rule, Prov
 
 The pre-implementation report must answer: What is the user's actual goal? Which layer owns the feature? Does an existing component already own the responsibility? Which versioned public contracts and capabilities are required? Does it cross an authority boundary, bypass Risk, conflict with an active component, change financial meaning/defaults, or require migration? What is the default disabled state, test evidence, rollback path, and approval status?
 
+Before materially implementing an idea that appears similar to existing code, configuration, documentation, an Active Intent, Proposal, ADR, or previously approved behavior, inspect the relevant evidence and remind the user in plain language. State what already exists, its verified status, where it overlaps, how the new request differs, and the smallest recommended reuse path. If the new request would extend, replace, supersede, or run in parallel with that existing work, ask which outcome the user wants before changing the established behavior. Do not treat similarity as permission to alter existing behavior, and do not treat an earlier AI suggestion as a user decision. This reminder is required for meaningful product/module overlap, not for trivial private implementation details.
+
 Every important change must include a `Change Impact Report`: Primary/Secondary modules, public contracts, configuration, database, GUI, tests, documentation, permissions, trading semantics, safety behavior, migration, rollback, and blast radius (`LOCAL`, `LIMITED`, `MULTI_MODULE`, `SYSTEM_WIDE`). `SYSTEM_WIDE`, architecture, permission, or safety conflicts stop before implementation until explicitly approved.
 
 Implementation does not grant runtime or trading authority. AI recommendations are never approval. New components default `REGISTERED`/`DISABLED`, `execution_allowed=false`, and `live_allowed=false`; they may advance only with required evidence and explicit approval. Pipeline admission must fail closed for invalid metadata, incompatible contracts, excess capability, multiple disallowed Primary components, missing Risk review, unresolved blocking conflicts, or unsafe Live/automatic-submission state.
@@ -65,6 +67,7 @@ Implementation does not grant runtime or trading authority. AI recommendations a
 - Level C 的产品行为歧义必须说明选项、推荐及实际后果；不得把假设隐藏在实现中。
 - Level D 的资金、交易或安全歧义不得静默选择，必须解释后等待用户明确决定。
 - 普通内部工程细节可自主判断，但不得借此新增交易规则、依赖、公共接口、模块职责或其他需审批事项。
+- 如果当前需求与代码、配置、模块文档、Active Intent、Proposal、ADR 或已批准行为存在实质相似项，先用通俗语言提醒用户已有内容、当前状态、重合点和差异；涉及扩展、替换、并行运行或改变现有语义时，先询问用户希望如何处理。
 - 面向用户使用通俗语言；代码、接口和文档使用准确、一致的专业名称。
 
 完整规则见 `docs/development/REQUIREMENT_INTERPRETATION.md`。
@@ -93,8 +96,9 @@ Implementation does not grant runtime or trading authority. AI recommendations a
 - 不创建无边界的 `utils` 垃圾桶；共享结构应明确，避免长期传递字段不明的任意字典。
 - 三层算法不变量：`factors`不得导入或知道`decision`/`risk`；`decision`只能依赖公开Factor模型/接口，不得依赖具体Factor实现、原始行情、SQLite、`risk`或券商；`risk`只能依赖公开Factor/Decision合同和抽象状态接口，不得依赖具体Provider、Store、GUI或Execution。
 - `TradeIntent`只是建议意图，不是订单、风险批准或成交。所有未来可执行意图必须经过独立Risk层；Risk可否决、延迟、暂停或降低风险，但不得扩大/反转原始意图、产生Alpha或直接下单。未来Execution只能接受类型明确的Risk-approved对象，不能接受普通`TradeIntent`。
+- `execution.paper`与`execution.live`是同一Execution所有者下的同级边界，当前必须保持空白、禁用、互不导入。任何内容、合同、Provider、账户/订单访问或激活都属于新的审批任务；Live不得从Paper继承权限、凭据、endpoint或状态。
 - Risk配置必须与Factor/Decision配置分离并具有版本；未获用户批准不得填写金额、比例、亏损、回撤、杠杆或保证金限制。Live与自动提交仍关闭，Emergency automatic liquidation尚未实现。
-- 算法控制中心只管理Registry元数据、`ParameterSchema`、Draft/Saved/Active版本、验证、NO EXECUTION预览和审计；GUI不得包含公式、Decision/Risk规则、行情/API/SQL或执行逻辑，也不得按组件名称写分支。
+- 算法控制中心管理Registry元数据、受限Factor定义编辑、Decision对精确Factor版本的选择、`ParameterSchema`、Draft/Saved/Active版本、验证、NO EXECUTION预览和审计。GUI不得执行任意Python、计算Factor、包含Decision/Risk规则、访问行情/API/SQL或执行逻辑，也不得按组件名称写分支；受限表达式的验证/计算合同归Factor层。
 - 控制中心的Save、Apply和Restore必须留下不可变版本及原因；Locked安全不变量不能停用。凭据、配置激活或Preview/Dry Run均不得成为订单授权。
 
 主要架构来源为 `docs/architecture/OVERVIEW.md`；通用约束与模块模板见 `docs/architecture/DEPENDENCY_RULES.md`、`docs/modules/README.md`。只有确有模块特殊规则时才建议添加嵌套 `AGENTS.md`。

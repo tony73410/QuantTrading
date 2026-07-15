@@ -142,3 +142,34 @@ Acceptance criteria:
 - 尚未实现的内容；
 - 用户下一步需要决定的事项。
 
+## 11. Existing-work reminder
+
+用户可能不记得以前已经讨论、批准或实现的内容。发现当前需求与现有代码、配置、模块职责、`PROJECT_COMPASS.md` Active Intent、Proposal、ADR 或已批准行为实质相似时，不应静默重复实现，也不应直接假定用户要替换旧内容。
+
+先检查实际证据，并用中性、通俗的方式说明：
+
+```text
+Existing related work:
+已有的相关功能、决定或提案，以及所在位置。
+
+Current status:
+Implemented and verified / Implemented but inactive / Planned / Deprecated / AI proposal only。
+
+Overlap:
+与新需求相同的部分。
+
+Difference:
+新需求新增、改变或冲突的部分。
+
+Recommendation:
+最小、可撤销的复用或扩展方式。
+```
+
+如果新需求会实质修改已有行为或职责，询问用户希望：
+
+- 在原有基础上扩展；
+- 替换或正式 supersede 原方案；
+- 保留为并行方案（必须先明确共存、冲突和启用规则）；
+- 暂不改变现有内容。
+
+提醒不是拒绝用户的新想法，也不是批评用户遗忘。普通私有函数、内部命名和其他低风险实现细节无需反复询问。旧对话或AI建议只能作为线索，不能替代当前代码证据或用户批准。

@@ -2,6 +2,8 @@
 
 ## Status
 
+The restricted-expression definition/calculator extension is implemented and verified. Authored definitions are disabled by default; no default or automatically active production formula exists.
+
 **Partially implemented and verified.** Contracts, registry, strategy-neutral engine, time-safety validation, and Fake-driven tests exist. No production factor formula or implementation is registered.
 
 ## Purpose
@@ -23,12 +25,16 @@ The layer does not decide buy/sell/increase/decrease, read portfolio/account sta
 
 ## Public interfaces
 
+- `FactorDefinition`, `FactorDefinitionParameter`, `FactorDefinitionStore`
+- `parse_and_validate_expression`, `SafeExpressionFactorCalculator`
+
 - `FactorCalculator` Protocol
 - `SingleAssetFactorEngine`
 - `FactorRegistry`
 - `MarketDataObservation`, `MarketDataWindow`, `FactorContext`
 - `FactorResult`, `FactorSnapshot`, `FactorSnapshotCollection`
 - `FactorStatus`, `FactorParameter`
+- `FactorSnapshotStore` Protocol and typed `FactorCalculationRun` audit records
 
 Each calculator must declare a unique `factor_name`, `factor_version`, `minimum_observations`, `output_unit`, and `missing_input_policy`.
 
@@ -52,7 +58,7 @@ Forbidden: `quant_trading.decision`, `quant_trading.risk`, orchestration, execut
 
 ## Side effects
 
-No network, database, GUI, account, or order side effects. The engine logs calculator exceptions and converts that calculator's result to `CALCULATION_ERROR` without inventing a value.
+The Factor Engine has no network, database, GUI, account, or order side effects. An independently injected infrastructure Store may persist its returned snapshot; the concrete SQLite adapter is not imported by this layer. The engine logs calculator exceptions and converts that calculator's result to `CALCULATION_ERROR` without inventing a value.
 
 ## Failure modes
 
@@ -62,6 +68,8 @@ No network, database, GUI, account, or order side effects. The engine logs calcu
 - no calculators registered: `FactorRegistryError`.
 
 ## Configuration
+
+Scheme A definitions are immutable versions created through Algorithm Control and persisted at `runtime/algorithm_control/factor_definitions.json`. Only the explicit `return_missing_status` policy is currently supported. The Factor layer owns validation/evaluation; the GUI never evaluates Factor values. See [`factor-authoring.md`](factor-authoring.md).
 
 No configuration file or global factor dictionary exists. Factor parameters are immutable `FactorParameter` values in `FactorContext`, separate from Decision parameters. No defaults encode a formula.
 
@@ -73,6 +81,6 @@ No configuration file or global factor dictionary exists. Factor parameters are 
 
 - No approved factor formulas or production calculator implementations.
 - No automatic Market History-to-`MarketDataWindow` adapter.
-- No FactorSnapshot persistence; future storage must remain independent and requires schema approval.
+- FactorSnapshot persistence is implemented behind an independent Protocol, but it is not active in ordinary flows because no production Factor calculator is registered.
 - Bar availability and trading-calendar semantics remain an explicit caller responsibility.
 - Adjustment identity is preserved, but the contract does not decide whether current split/dividend-adjusted history is point-in-time safe for a future backtest. That financial meaning requires explicit approval before a production factor uses adjusted data.

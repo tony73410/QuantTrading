@@ -8,6 +8,8 @@ from uuid import UUID
 from quant_trading.application_settings import ApplicationRoleSettings
 
 from .configuration_service import ConfigurationService
+from .factor_definition_service import FactorDefinitionService
+from quant_trading.factors.definitions import FactorDefinition, FactorDefinitionParameter
 from .models import (
     AlgorithmOverview,
     AuditAction,
@@ -41,6 +43,7 @@ class AlgorithmControlController:
         previews: PreviewService,
         roles: ApplicationRoleSettings = ApplicationRoleSettings(),
         proposals: ChangeProposalRegistry | None = None,
+        factor_definitions: FactorDefinitionService | None = None,
     ) -> None:
         self.registry = registry
         self.configurations = configurations
@@ -48,6 +51,7 @@ class AlgorithmControlController:
         self.previews = previews
         self.roles = roles
         self.proposals = proposals or ChangeProposalRegistry()
+        self.factor_definitions = factor_definitions
 
     def snapshot(self) -> ControlSnapshot:
         state = self.configurations.state()
@@ -81,8 +85,16 @@ class AlgorithmControlController:
     def create_draft(self, component_id: str) -> DraftConfiguration:
         return self.configurations.create_draft(component_id)
 
-    def update_draft(self, draft_id: UUID, values: dict[str, ParameterValue], enabled: bool) -> DraftConfiguration:
-        return self.configurations.update_draft(draft_id, values, enabled)
+    def update_draft(self, draft_id: UUID, values: dict[str, ParameterValue], enabled: bool, selected_factor_ids: tuple[str, ...] | None = None) -> DraftConfiguration:
+        return self.configurations.update_draft(draft_id, values, enabled, selected_factor_ids=selected_factor_ids)
+
+    def factor_definition_history(self, factor_id: str | None = None) -> tuple[FactorDefinition, ...]:
+        return () if self.factor_definitions is None else self.factor_definitions.list_definitions(factor_id)
+
+    def save_factor_definition(self, **values: object) -> FactorDefinition:
+        if self.factor_definitions is None:
+            raise RuntimeError("Factor authoring is not configured")
+        return self.factor_definitions.save(**values)
 
     def set_feature_state(
         self,

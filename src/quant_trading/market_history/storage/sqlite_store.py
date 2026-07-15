@@ -12,6 +12,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from quant_trading.error_codes import ErrorCode
+from quant_trading.persistence import CentralSQLiteDatabase
 
 from ..errors import StorageError
 from ..models import (
@@ -28,73 +29,6 @@ from ..models import (
 logger = logging.getLogger(__name__)
 
 
-_SCHEMA = """
-PRAGMA journal_mode = WAL;
-PRAGMA synchronous = NORMAL;
-
-CREATE TABLE IF NOT EXISTS market_bars (
-    symbol TEXT NOT NULL,
-    timestamp_utc TEXT NOT NULL,
-    timeframe TEXT NOT NULL,
-    adjustment TEXT NOT NULL,
-    feed TEXT NOT NULL,
-    open TEXT NOT NULL,
-    high TEXT NOT NULL,
-    low TEXT NOT NULL,
-    close TEXT NOT NULL,
-    volume INTEGER NOT NULL CHECK (volume >= 0),
-    vwap TEXT,
-    trade_count INTEGER CHECK (trade_count IS NULL OR trade_count >= 0),
-    source TEXT NOT NULL,
-    fetched_at_utc TEXT NOT NULL,
-    PRIMARY KEY (symbol, timestamp_utc, timeframe, adjustment, feed)
-);
-
-CREATE INDEX IF NOT EXISTS idx_market_bars_lookup
-ON market_bars (symbol, timeframe, adjustment, feed, timestamp_utc);
-
-CREATE TABLE IF NOT EXISTS data_coverage (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    symbol TEXT NOT NULL,
-    timeframe TEXT NOT NULL,
-    adjustment TEXT NOT NULL,
-    feed TEXT NOT NULL,
-    coverage_start_utc TEXT NOT NULL,
-    coverage_end_utc TEXT NOT NULL,
-    last_successful_fetch_utc TEXT NOT NULL,
-    CHECK (coverage_start_utc < coverage_end_utc),
-    UNIQUE (
-        symbol, timeframe, adjustment, feed,
-        coverage_start_utc, coverage_end_utc
-    )
-);
-
-CREATE INDEX IF NOT EXISTS idx_data_coverage_lookup
-ON data_coverage (
-    symbol, timeframe, adjustment, feed,
-    coverage_start_utc, coverage_end_utc
-);
-
-CREATE TABLE IF NOT EXISTS fetch_history (
-    request_id TEXT PRIMARY KEY,
-    symbol TEXT NOT NULL,
-    requested_start_utc TEXT NOT NULL,
-    requested_end_utc TEXT NOT NULL,
-    timeframe TEXT NOT NULL,
-    adjustment TEXT NOT NULL,
-    feed TEXT NOT NULL,
-    started_at_utc TEXT NOT NULL,
-    completed_at_utc TEXT,
-    status TEXT NOT NULL,
-    rows_received INTEGER NOT NULL DEFAULT 0,
-    error_summary TEXT
-);
-
-CREATE INDEX IF NOT EXISTS idx_fetch_history_lookup
-ON fetch_history (symbol, timeframe, adjustment, feed, started_at_utc);
-"""
-
-
 def _to_iso(value: datetime) -> str:
     return value.astimezone(UTC).isoformat(timespec="microseconds")
 
@@ -109,20 +43,15 @@ class SQLiteHistoricalDataStore:
 
     def __init__(self, database_path: Path | str) -> None:
         self.database_path = Path(database_path)
+        self._database = CentralSQLiteDatabase(self.database_path)
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.database_path, timeout=30.0)
-        connection.row_factory = sqlite3.Row
-        connection.execute("PRAGMA foreign_keys = ON")
-        connection.execute("PRAGMA busy_timeout = 30000")
-        return connection
+        return self._database.connect()
 
     def initialize(self) -> None:
         try:
             self.database_path.parent.mkdir(parents=True, exist_ok=True)
-            with closing(self._connect()) as connection:
-                connection.executescript(_SCHEMA)
-                connection.commit()
+            self._database.initialize()
             logger.info(
                 "SQLite store initialized",
                 extra={"operation": "database_initialize"},

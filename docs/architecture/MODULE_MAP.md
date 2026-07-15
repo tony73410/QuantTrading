@@ -6,11 +6,13 @@
 
 | Module | Responsibility | Public entry points | Direct dependencies | Used by | Documentation |
 |---|---|---|---|---|---|
+| `quant_trading.persistence` | Shared local SQLite connection/schema versioning plus immutable Factor snapshot/result and calculation-run storage | `CentralSQLiteDatabase`, `SQLiteFactorSnapshotStore` implementing `FactorSnapshotStore` | stdlib sqlite3, public Market/Factor models | Market Store initialization; optional Orchestration injection | `docs/modules/central-persistence.md` |
 | `quant_trading.market_history` | 10/30 分钟、1 小时及日/周/月历史股票 Bar 获取、本地缓存、增量更新和桌面展示 | `HistoricalDataRequest`, `MarketBar`, `HistoricalDataService`, `HistoryController`, `python -m quant_trading.market_history` | Python stdlib, alpaca-py, pandas, Plotly, PySide6 | Desktop user | `docs/modules/market-history.md` |
 | `quant_trading.factors` | 将单资产、截至as-of可用的完整行情转换为版本化、策略中立FactorSnapshot；无正式公式 | `FactorCalculator`, `SingleAssetFactorEngine`, `FactorSnapshot` | stdlib, public MarketBar/dimension models | Orchestration or independent research caller | `docs/modules/factors.md` |
 | `quant_trading.decision` | 消费公开FactorSnapshot并调用注入Policy，输出非执行DecisionResult/TradeIntent；无正式规则 | `TradingDecisionPolicy`, `TradingDecisionEngine`, `DecisionResult`, `TradeIntent` | stdlib, Factor public models/interfaces | Orchestration or independent decision caller | `docs/modules/trading-decision.md` |
 | `quant_trading.risk` | 对TradeIntent执行独立、保守、可解释的执行前风险裁决；无具体数值规则 | `RiskPolicy`, `RiskEngine`, `RiskDecision`, `RiskApprovedTradeIntent` | stdlib, application role enum, public Factor/Decision models | Orchestration or independent risk caller | `docs/modules/risk-control.md` |
 | `quant_trading.orchestration` | 仅组织Factor → Decision以及可选的Factor → Decision → Risk调用和上下文传递 | `AnalysisDecisionPipeline`, `TradingEvaluationPipeline` | public Factor/Decision/Risk engines/models | Future approved application service | `docs/modules/analysis-decision-pipeline.md` |
+| `quant_trading.execution.paper` / `.live` | 两个同级、空白且禁用的未来执行环境边界 | None | None | None；尚无运行调用方 | `docs/modules/execution-environments.md` |
 | `quant_trading.algorithm_control` | 通过Registry和ParameterSchema管理组件、版本配置、依赖验证、安全预览和审计 | `AlgorithmControlController`, `AlgorithmControlPanel`, `python -m quant_trading.algorithm_control` | stdlib, PySide6, public Factor/Decision/Risk result contracts | Desktop user / future composition root | `docs/modules/algorithm-control-gui.md` |
 | `quant_trading.observability` / `quant_trading.diagnostics` | Error Code 上下文、脱敏轮转日志、异常 Hook 与只读安装诊断 | `configure_logging`, `request_context`, `python -m quant_trading.diagnostics` | Python stdlib；诊断只读复用 market-history 配置/Provider | Application / developer / user support | `docs/development/DEBUGGING.md` |
 
@@ -18,15 +20,17 @@
 
 算法依赖方向：`MarketDataWindow → factors → FactorSnapshot → decision → TradeIntent → risk → RiskDecision`；`orchestration`只能按此顺序调用。Factors不知道Decision/Risk；Decision不知道Risk；Risk只使用公开上游合同，不导入具体Factor/Decision实现、Market History、SQLite、GUI、Alpaca或Execution。
 
-`RiskApprovedTradeIntent`只是未来Order Construction的类型门，仍不是订单或执行授权。当前不存在Execution模块，Live与自动提交保持关闭。
+`RiskApprovedTradeIntent`只是未来Order Construction的类型门，仍不是订单或执行授权。Paper/Live Execution仅存在空命名空间，没有接口或行为；Live与自动提交保持关闭。
 
 算法控制中心是独立管理面，不在执行数据路径中；它不依赖具体Alpaca/SQLite/Execution实现，所有Preview均为NO EXECUTION。
 
 应用级 `quant_trading.application_settings` 只声明角色与安全默认值：Alpaca 是 Market Data Provider 和 Primary Brokerage，默认目标环境为 `ALPACA_PAPER`，自动下单与 Live 均关闭，人工确认开启。它不连接账户、不提交订单，也不构成 execution 模块。
 
-未来经批准的行情 Provider 可替换 `HistoricalMarketDataProvider`，无需改变券商角色；未来经批准的 Alpaca execution 模块必须独立于 `market_history`，不得反向依赖具体行情 Provider 或直接操作 SQLite 历史数据库。Fidelity/`MANUAL_FIDELITY` 仅为非默认兼容选项。
+未来经批准的行情 Provider 可替换 `HistoricalMarketDataProvider`，无需改变券商角色；未来经批准的 Alpaca execution 内容必须放入正确的Paper或Live边界、独立于 `market_history`，且不得反向依赖具体行情 Provider 或直接操作 SQLite 历史数据库。Fidelity/`MANUAL_FIDELITY` 仅为非默认兼容选项。
 
 Admission subcomponents: `quant_trading.algorithm_control.admission_models`, `admission_service`, `capabilities`, and `contracts` own component identity, unique responsibility ownership, layer capability policy, versioned contract declarations, staged activation, and fail-closed Pipeline conflict checks. They contain no algorithm or execution behavior.
+
+Scheme A extension: `quant_trading.factors.definitions` and `expression_language` own the public immutable Factor-definition and restricted-language contracts; `expression` owns calculation. `quant_trading.algorithm_control.factor_definition_service` and its GUI own editing, atomic definition persistence, disabled component registration, and exact Decision Factor-version selection. Algorithm Control does not calculate Factor values, and selection does not create a Decision rule or trading authority. See `docs/modules/factor-authoring.md` and ADR-0011.
 
 ## How to update
 

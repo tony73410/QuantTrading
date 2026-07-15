@@ -78,6 +78,7 @@ class ConfigurationService:
             updated_at_utc=datetime.now(UTC),
             feature_state=component.default_feature_state if active is None else active.feature_state,
             activation_evidence=ActivationEvidence(),
+            selected_factor_ids=() if active is None else active.selected_factor_ids,
         )
         self._drafts[draft.draft_id] = draft
         return draft
@@ -88,6 +89,7 @@ class ConfigurationService:
         values: dict[str, ParameterValue],
         enabled: bool,
         feature_state: FeatureState | None = None,
+        selected_factor_ids: tuple[str, ...] | None = None,
     ) -> DraftConfiguration:
         current = self._get_draft(draft_id)
         component = self._registry.get(current.component_id)
@@ -113,6 +115,7 @@ class ConfigurationService:
             updated_at_utc=datetime.now(UTC),
             feature_state=state,
             activation_evidence=current.activation_evidence,
+            selected_factor_ids=current.selected_factor_ids if selected_factor_ids is None else tuple(sorted(selected_factor_ids)),
         )
         self._drafts[draft_id] = updated
         return updated
@@ -140,6 +143,7 @@ class ConfigurationService:
             updated_at_utc=datetime.now(UTC),
             feature_state=feature_state,
             activation_evidence=evidence,
+            selected_factor_ids=current.selected_factor_ids,
         )
         self._drafts[draft_id] = updated
         return updated
@@ -153,6 +157,7 @@ class ConfigurationService:
             self.active_records(),
             draft.feature_state,
             draft.activation_evidence,
+            draft.selected_factor_ids,
         )
 
     def discard_draft(self, draft_id: UUID) -> None:
@@ -183,6 +188,7 @@ class ConfigurationService:
                 enabled=draft.enabled,
                 feature_state=draft.feature_state,
                 activation_evidence=draft.activation_evidence,
+                selected_factor_ids=draft.selected_factor_ids,
             )
             audit = self._audit.create(
                 action=AuditAction.SAVE_CONFIGURATION,
@@ -212,6 +218,7 @@ class ConfigurationService:
                 self.active_records(),
                 source.feature_state,
                 source.activation_evidence,
+                source.selected_factor_ids,
             )
             if not validation.valid:
                 raise AlgorithmControlError("cannot activate an invalid configuration")
@@ -230,6 +237,7 @@ class ConfigurationService:
                 enabled=source.enabled,
                 feature_state=source.feature_state,
                 activation_evidence=source.activation_evidence,
+                selected_factor_ids=source.selected_factor_ids,
             )
             mapping = dict(state.active_configurations)
             mapping[source.component_id] = active.configuration_id
@@ -260,6 +268,7 @@ class ConfigurationService:
             dict((item.name, item.value) for item in source.parameter_values),
             source.enabled,
             source.feature_state,
+            source.selected_factor_ids,
         )
         self._drafts[draft.draft_id] = DraftConfiguration(
             draft_id=draft.draft_id,
@@ -271,6 +280,7 @@ class ConfigurationService:
             updated_at_utc=draft.updated_at_utc,
             feature_state=draft.feature_state,
             activation_evidence=source.activation_evidence,
+            selected_factor_ids=source.selected_factor_ids,
         )
         restored = self.save_draft(draft.draft_id, reason=reason, actor=actor)
         current = self.state()
@@ -296,7 +306,20 @@ class ConfigurationService:
             raise AlgorithmControlError("configurations cannot be compared")
         left = dict((item.name, item.value) for item in before.parameter_values)
         right = dict((item.name, item.value) for item in after.parameter_values)
-        return tuple(ConfigurationDiff(name, left.get(name), right.get(name)) for name in sorted(set(left) | set(right)) if left.get(name) != right.get(name))
+        differences = [
+            ConfigurationDiff(name, left.get(name), right.get(name))
+            for name in sorted(set(left) | set(right))
+            if left.get(name) != right.get(name)
+        ]
+        if before.selected_factor_ids != after.selected_factor_ids:
+            differences.append(
+                ConfigurationDiff(
+                    "selected_factor_ids",
+                    ",".join(before.selected_factor_ids),
+                    ",".join(after.selected_factor_ids),
+                )
+            )
+        return tuple(differences)
 
     def record_preview(self, action: AuditAction, component_id: str | None, result: str) -> None:
         """Append a preview audit without changing any configuration state."""
@@ -343,6 +366,7 @@ class ConfigurationService:
                         paper_validated=True,
                         manual_approval=True,
                     ),
+                    selected_factor_ids=(),
                 )
                 configurations.append(record)
                 mapping[component.component_id] = record.configuration_id

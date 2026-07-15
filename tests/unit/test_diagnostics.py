@@ -17,7 +17,7 @@ def test_diagnostics_are_read_only_safe_and_skip_network_by_default(
     by_name = {result.name: result for result in results}
 
     assert by_name["sqlite_connection"].status is DiagnosticStatus.PASS
-    assert by_name["sqlite_schema"].message == "market_history_v1"
+    assert by_name["sqlite_schema"].message == "central_sqlite_v1"
     assert by_name["sqlite_integrity"].status is DiagnosticStatus.PASS
     assert by_name["alpaca_market_data_credentials"].status is DiagnosticStatus.WARNING
     assert by_name["alpaca_market_data_connection"].status is DiagnosticStatus.SKIPPED

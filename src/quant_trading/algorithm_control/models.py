@@ -274,12 +274,15 @@ class DraftConfiguration:
     updated_at_utc: datetime
     feature_state: FeatureState = FeatureState.DISABLED
     activation_evidence: ActivationEvidence = ActivationEvidence()
+    selected_factor_ids: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "component_id", _required(self.component_id, "component_id"))
         object.__setattr__(self, "updated_at_utc", _utc(self.updated_at_utc, "draft time"))
         if not isinstance(self.feature_state, FeatureState):
             raise AlgorithmControlError("draft feature_state must use FeatureState")
+        if len(self.selected_factor_ids) != len(set(self.selected_factor_ids)) or any(not item.strip() for item in self.selected_factor_ids):
+            raise AlgorithmControlError("selected Factor IDs must be unique and non-empty")
 
 
 @dataclass(frozen=True, slots=True)
@@ -297,6 +300,7 @@ class ConfigurationRecord:
     enabled: bool
     feature_state: FeatureState = FeatureState.DISABLED
     activation_evidence: ActivationEvidence = ActivationEvidence()
+    selected_factor_ids: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if self.configuration_version < 1:
@@ -310,6 +314,8 @@ class ConfigurationRecord:
             raise AlgorithmControlError("status must use ConfigurationStatus")
         if not isinstance(self.feature_state, FeatureState):
             raise AlgorithmControlError("configuration feature_state must use FeatureState")
+        if len(self.selected_factor_ids) != len(set(self.selected_factor_ids)) or any(not item.strip() for item in self.selected_factor_ids):
+            raise AlgorithmControlError("selected Factor IDs must be unique and non-empty")
 
 
 @dataclass(frozen=True, slots=True)

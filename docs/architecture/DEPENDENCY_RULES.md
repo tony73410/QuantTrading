@@ -4,11 +4,17 @@
 
 ## Required
 
+- Restricted Factor definitions, syntax validation and evaluation belong to `quant_trading.factors`. Algorithm Control may use the public definition/expression-language contracts for editing and validation, but must not import the concrete calculator or evaluate market values.
+- Decision configuration may reference exact registered Factor component IDs only. Selection does not activate a Factor, define Decision logic or bypass Risk.
+
+- `quant_trading.persistence` may implement public Store Protocols and use public Market/Factor models, but it must not own formulas, Decision/Risk logic, GUI, Providers or execution. Pure Factor code must not import the concrete SQLite adapter.
+
 - 模块通过明确公共接口通信，共享数据结构必须有明确字段或类型约定。
 - 依赖方向应可被 `MODULE_MAP.md` 和模块文档解释，并保持无环。
 - 编排层只组织流程，不隐藏策略、风险、仓位或订单规则。
 - 算法依赖保持 `factors → public FactorSnapshot → decision → immutable TradeIntent → risk → RiskDecision`；上游层不得反向依赖下游层。
 - Risk只能保持、降低、延迟或阻止上游意图，不能扩大/反转风险、直接下单或修改Factor/Decision；未来Execution不得接受未经Risk批准的普通`TradeIntent`。
+- `execution.paper`与`execution.live`是同一Execution所有者下的同级环境边界，当前必须保持无接口、无副作用、无相互导入和默认禁用；目录存在不代表任何订单权限。
 - 能归入现有职责的需求优先扩展现有模块；新增模块需先审批。
 - `algorithm_control`只管理公开元数据、配置版本、验证、安全预览和审计；不得依赖具体Alpaca Provider、历史SQLite Store或未来Execution Provider。
 - 算法参数界面必须由`ParameterSchema`生成；不得按算法名称写`if/elif`并把公式或交易规则藏入GUI。
@@ -24,6 +30,9 @@
 
 ## Prohibited
 
+- Executing arbitrary Python, imports, attributes, filesystem/network/process access or broker calls from GUI-authored Factor text.
+- Silently overwriting an authored Factor version or letting a Decision selection float to a later Factor version.
+
 - 调用其他模块的私有实现或建立循环依赖。
 - 在配置层、脚本目录或测试代码中藏入正式业务逻辑。
 - 让正式代码依赖 `tests/`、`runtime/` 或 `archive/`。
@@ -31,6 +40,7 @@
 - 长期跨模块传递字段不明确的任意字典或隐式全局状态。
 - 静默改变公共接口、模块职责或依赖方向。
 - 让Decision批准自己的交易、Risk调用具体券商/SQLite/GUI、或Execution绕过`RiskApprovedTradeIntent`类型门。
+- 让Paper与Live实现、配置、凭据、endpoint或运行状态相互导入或静默共用；Live不得因Paper测试或包存在而获得资格。
 - 让控制中心Preview/Dry Run获得订单执行资格，或让Save/Apply因凭据存在而触发交易。
 
 新增依赖前应说明必要性、方向、接口、失败方式、兼容影响和测试覆盖；第三方依赖的增删升级必须先获批准。

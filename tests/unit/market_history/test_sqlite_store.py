@@ -41,7 +41,15 @@ def test_schema_contains_required_tables_and_query_indexes(store):
                 "SELECT name FROM sqlite_master WHERE type = 'index'"
             )
         }
-    assert {"market_bars", "data_coverage", "fetch_history"} <= tables
+    assert {
+        "schema_migrations",
+        "market_bars",
+        "data_coverage",
+        "fetch_history",
+        "factor_snapshots",
+        "factor_results",
+        "factor_calculation_runs",
+    } <= tables
     assert {
         "idx_market_bars_lookup",
         "idx_data_coverage_lookup",

@@ -31,8 +31,23 @@ class ConfigurationValidator:
         active_records: tuple[ConfigurationRecord, ...] = (),
         feature_state: FeatureState = FeatureState.DISABLED,
         activation_evidence: ActivationEvidence = ActivationEvidence(),
+        selected_factor_ids: tuple[str, ...] = (),
     ) -> ValidationResult:
         issues: list[ValidationIssue] = []
+        if selected_factor_ids and component.component_type is not ComponentType.DECISION:
+            issues.append(ValidationIssue("FACTOR_SELECTION_OWNER", "只有交易决策组件可以选择Factor。", "selected_factor_ids"))
+        selected = set(selected_factor_ids)
+        for factor_id in sorted(selected):
+            try:
+                factor = self._registry.get(factor_id)
+            except Exception:
+                issues.append(ValidationIssue("UNKNOWN_FACTOR", f"所选Factor不存在：{factor_id}", "selected_factor_ids"))
+                continue
+            if factor.component_type is not ComponentType.FACTOR:
+                issues.append(ValidationIssue("NOT_A_FACTOR", f"所选组件不是Factor：{factor_id}", "selected_factor_ids"))
+        for required in component.required_factors:
+            if component.component_type is ComponentType.DECISION and required not in selected:
+                issues.append(ValidationIssue("REQUIRED_FACTOR_NOT_SELECTED", f"必须选择依赖Factor：{required}", "selected_factor_ids"))
         supplied = {setting.name: setting.value for setting in values}
         schema_names = {schema.name for schema in component.parameter_schema}
         for unknown in sorted(set(supplied) - schema_names):
@@ -82,6 +97,10 @@ class ConfigurationValidator:
             for required in component.required_factors:
                 if required not in active:
                     issues.append(ValidationIssue("MISSING_DEPENDENCY", f"缺少已启用的依赖因子：{required}"))
+            if component.component_type is ComponentType.DECISION:
+                for factor_id in selected:
+                    if factor_id not in active:
+                        issues.append(ValidationIssue("SELECTED_FACTOR_NOT_ACTIVE", f"所选Factor尚未启用：{factor_id}", "selected_factor_ids"))
             if component.component_type in {ComponentType.DECISION, ComponentType.EXECUTION}:
                 competing = tuple(
                     record for record in active_records

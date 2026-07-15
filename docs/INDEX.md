@@ -1,12 +1,16 @@
 # Documentation Index
 
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical database, independent Store contracts, Factor history and calculation-run audit.
+
 - [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
 - [Proposal template](proposals/PROPOSAL_TEMPLATE.md) — required identity, ownership, capability, contract, financial/safety and impact fields.
 
 | Area | Entry | Purpose |
 |---|---|---|
+| Safe Factor authoring | `modules/factor-authoring.md` | Restricted expressions, immutable disabled Factor versions, and exact Decision Factor-version selection |
 | Project compass | `../PROJECT_COMPASS.md` | AI 项目方向、当前语义、安全不变量、意图/假设和前后自审中心入口 |
 | Current project | `project/PROJECT_STATE.md` | 当前阶段、能力、决策与限制 |
+| Version checkpoints | `project/VERSION_HISTORY.md` | 已发布版本的行为、编辑目的、验证证据、当前关注目标与回滚摘要 |
 | Direction | `project/ROADMAP.md` | 仅记录已批准或明确待决的阶段 |
 | Terms | `project/GLOSSARY.md` | 项目统一术语 |
 | Canonical architecture | `architecture/OVERVIEW.md` | 唯一主要架构来源：模块职责、依赖方向、数据流、不变量与扩展规则 |
@@ -19,6 +23,7 @@
 | Trading decision | `modules/trading-decision.md` | 只消费FactorSnapshot的非执行决策合同、注册器、无规则引擎与边界 |
 | Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同、优先级和无数值规则引擎 |
 | Analysis/decision/risk pipeline | `modules/analysis-decision-pipeline.md` | Factor → Decision以及Factor → Decision → Risk单向编排和Execution停止边界 |
+| Execution environments | `modules/execution-environments.md` | Paper与Live两个同级、空白、禁用的未来执行环境边界 |
 | Algorithm control GUI | `modules/algorithm-control-gui.md` | Registry驱动的组件、参数、版本配置、依赖验证、NO EXECUTION预览和审计管理面 |
 | Workflow | `development/WORKFLOW.md` | 每次任务的执行流程 |
 | Debugging | `development/DEBUGGING.md` | 错误编号、日志、诊断命令和标准排查流程 |

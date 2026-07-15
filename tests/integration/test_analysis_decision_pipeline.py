@@ -27,6 +27,7 @@ from quant_trading.factors import (
 from quant_trading.market_history.models import Adjustment, DataFeed, MarketBar, Timeframe
 from quant_trading.orchestration import AnalysisDecisionPipeline, AnalysisDecisionRequest
 from quant_trading.orchestration import TradingEvaluationPipeline, TradingEvaluationRequest
+from quant_trading.persistence.factor_sqlite_store import SQLiteFactorSnapshotStore
 from quant_trading.risk import (
     AccountSnapshot,
     MarketRiskContext,
@@ -206,6 +207,46 @@ def test_factor_then_decision_pipeline_uses_only_public_contracts() -> None:
     assert result.factor_snapshot.results[0].value == Decimal("100.50")
     assert result.decision_result.factor_snapshot_ids == (FACTOR_ID,)
     assert result.decision_result.intents[0].action is DecisionAction.NO_DECISION
+
+
+def test_pipeline_persists_factor_snapshot_before_decision(tmp_path) -> None:
+    store = SQLiteFactorSnapshotStore(tmp_path / "market_history.sqlite3")
+    store.initialize()
+    factor_engine = SingleAssetFactorEngine(
+        (FakeFactor(),),
+        clock=lambda: CREATED_AT,
+        id_factory=lambda: FACTOR_ID,
+    )
+    pipeline = AnalysisDecisionPipeline(
+        factor_engine,
+        TradingDecisionEngine(
+            (FakePolicy(),),
+            clock=lambda: CREATED_AT,
+            id_factory=lambda: DECISION_ID,
+        ),
+        factor_store=store,
+        collection_id_factory=lambda: COLLECTION_ID,
+    )
+    result = pipeline.run(
+        AnalysisDecisionRequest(
+            market_data=_window(),
+            factor_context=FactorContext(AS_OF),
+            portfolio=PortfolioSnapshot(PORTFOLIO_ID, AS_OF),
+            decision_context=DecisionContext(AS_OF),
+            policy_name="pipeline_test_policy",
+            correlation_id="REQ-PIPELINE",
+        )
+    )
+
+    stored = store.query_snapshots(
+        symbol="AAPL",
+        start_time=AS_OF.replace(day=12),
+        end_time=AS_OF.replace(day=14),
+    )
+    assert stored == [result.factor_snapshot]
+    assert result.decision_result.factor_snapshot_ids == (
+        result.factor_snapshot.snapshot_id,
+    )
 
 
 def test_pipeline_public_annotations_are_resolvable() -> None:

@@ -15,3 +15,11 @@ class FactorContractError(FactorError):
 
 class FactorRegistryError(FactorError):
     """A calculator name is missing, duplicated, or unavailable."""
+
+
+class FactorStorageError(FactorError):
+    """A factor snapshot or calculation-run persistence operation failed."""
+
+
+class FactorDefinitionError(FactorError, ValueError):
+    """A user-authored factor definition or expression is invalid."""

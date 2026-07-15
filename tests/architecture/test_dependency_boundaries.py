@@ -166,6 +166,20 @@ def test_documented_layer_boundaries_are_not_crossed() -> None:
             "alpaca",
             "sqlite3",
         ),
+        "quant_trading.persistence": (
+            "quant_trading.market_history.ui",
+            "quant_trading.market_history.controller",
+            "quant_trading.market_history.service",
+            "quant_trading.market_history.providers",
+            "quant_trading.market_history.charts",
+            "quant_trading.decision",
+            "quant_trading.risk",
+            "quant_trading.orchestration",
+            "quant_trading.execution",
+            "alpaca",
+            "plotly",
+            "PySide6",
+        ),
     }
     violations: list[str] = []
     for module, targets in imports.items():
@@ -248,6 +262,45 @@ def test_production_does_not_import_tests_or_archive() -> None:
         if _matches(target, "tests") or _matches(target, "archive")
     ]
     assert not violations, "\n".join(sorted(violations))
+
+
+def test_algorithm_control_uses_only_public_factor_authoring_contracts() -> None:
+    allowed = {
+        "quant_trading.factors.definitions",
+        "quant_trading.factors.errors",
+        "quant_trading.factors.expression_language",
+        "quant_trading.factors.interfaces",
+        "quant_trading.factors.models",
+    }
+    violations = [
+        f"{module} imports non-contract Factor module {target}"
+        for module, targets in _production_imports().items()
+        if _matches(module, "quant_trading.algorithm_control")
+        for target in targets
+        if _matches(target, "quant_trading.factors") and target not in allowed
+    ]
+    assert not violations, "\n".join(sorted(violations))
+
+
+def test_factor_authoring_path_never_calls_dynamic_python_execution() -> None:
+    roots = (
+        PACKAGE_ROOT / "factors" / "expression_language.py",
+        PACKAGE_ROOT / "factors" / "expression.py",
+        PACKAGE_ROOT / "algorithm_control" / "factor_definition_service.py",
+        PACKAGE_ROOT / "algorithm_control" / "ui" / "factor_authoring_panel.py",
+    )
+    forbidden = {"eval", "exec", "compile", "__import__"}
+    violations: list[str] = []
+    for path in roots:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id in forbidden
+            ):
+                violations.append(f"{path.name} calls {node.func.id}")
+    assert not violations, "\n".join(violations)
 
 
 def test_market_history_app_is_the_only_concrete_composition_root() -> None:

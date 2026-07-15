@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 5
-last_updated_utc: 2026-07-14T21:22:29Z
+version: 8
+last_updated_utc: 2026-07-14T23:21:08Z
 ```
 
 ## Purpose
@@ -29,7 +29,7 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - rotating, redacted runtime logs and read-only diagnostics.
 - independent Single-Asset Factor and Trading Decision contracts, registries, engines, and Fake-tested orchestration, with no production algorithm registered.
 
-The following are **not implemented**: production factor formulas, strategies, decision policies, numerical risk policies/limits, signals, backtests, portfolio/account semantics, orders, Paper order execution, and Live execution. Risk contracts and conservative composition exist, but they do not constitute an approved risk policy. `ALPACA_PAPER` is a safe configuration label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
+The following are **not implemented**: production factor formulas, strategies, decision policies, numerical risk policies/limits, signals, backtests, portfolio/account semantics, orders, Paper order execution, and Live execution. Empty `quant_trading.execution.paper` and `.live` namespace boundaries now exist, but they contain no interfaces or behavior and do not change this capability status. Risk contracts and conservative composition exist, but they do not constitute an approved risk policy. `ALPACA_PAPER` is a safe configuration label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
 
 ## Architecture Overview
 
@@ -76,7 +76,7 @@ AlgorithmControlPanel -> AlgorithmControlController
 
 This plane reads public contracts and metadata. It must not own formulas, decision/risk rules, Market Data, historical SQLite access, or broker execution.
 
-The composition root may know concrete implementations so it can wire them together. Feature code below that root should depend inward on public interfaces and models. There is no execution layer today; any future execution module must be separately approved, remain independent from Market Data/historical storage, and accept only a type-distinct Risk-reviewed object rather than raw `TradeIntent`.
+The composition root may know concrete implementations so it can wire them together. Feature code below that root should depend inward on public interfaces and models. Declaration-only Paper and Live execution namespaces exist, but there is no execution behavior today. Any future content must be separately approved, remain independent from Market Data/historical storage, and accept only a type-distinct Risk-reviewed object rather than raw `TradeIntent`.
 
 ## Module Catalog
 
@@ -242,6 +242,22 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Side effects / configuration | Writes rotating logs; diagnostics creates temporary writability probes and optionally performs an explicit read-only network request. |
 | Tests / documentation | Observability/diagnostics tests; [`DEBUGGING.md`](../development/DEBUGGING.md). |
 
+### Central SQLite persistence
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
+| Status | Implemented and verified; Factor persistence inactive without an injected production Pipeline |
+| Purpose | Share one physical local SQLite database while keeping Market and Factor persistence contracts independent. |
+| Responsibilities | Connections, schema versioning, additive initialization, concrete Factor snapshot/result/run persistence and exact-result deduplication. |
+| Non-responsibilities | Market Data download, Factor calculation, availability semantics, Decision/Risk, GUI, cleanup deletion, broker or execution. |
+| Public interfaces | `CentralSQLiteDatabase`, concrete `SQLiteFactorSnapshotStore`; implements public `FactorSnapshotStore`. |
+| Inputs / outputs | database path plus public Market/Factor contracts / persisted Market tables, canonical Factor snapshots and calculation-run audit. |
+| Allowed dependencies | Python stdlib `sqlite3`, public Market/Factor models and Factor Store Protocol. |
+| Forbidden dependencies | UI, Controller, Service, Provider, charts, Decision, Risk, Orchestration, Alpaca and Execution. |
+| Side effects / configuration | Additive schema version 1 in the existing ignored `runtime/data/market_history.sqlite3`; no new configuration or credential. |
+| Tests / documentation | temporary-SQLite migration/transaction/dedup tests and architecture tests; [`central-persistence.md`](../modules/central-persistence.md), ADR-0009. |
+
 ### Single-Asset Factor layer
 
 | Field | Definition |
@@ -255,7 +271,7 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Inputs / outputs | completed `MarketDataObservation` values plus Factor context / versioned Factor snapshot. |
 | Allowed dependencies | Standard library and standardized `market_history.models` Bar/dimension types. |
 | Forbidden dependencies | Decision/orchestration/execution, GUI, Service, Provider, Store, Alpaca, SQLite. |
-| Side effects / configuration | No external side effects; calculator exceptions are logged. Separate immutable Factor parameters; no formula defaults. |
+| Side effects / configuration | Engine has no external side effects; an optional public Store may be injected by Orchestration. Separate immutable Factor parameters; no formula defaults. |
 | Tests / documentation | `tests/unit/factors/`, architecture tests; [`factors.md`](../modules/factors.md). |
 
 ### Trading Decision layer
@@ -297,14 +313,30 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Module / path | `quant_trading.orchestration` / `src/quant_trading/orchestration/` |
 | Status | Implemented and verified at interface level; not connected to GUI/Market History Service |
 | Purpose | Enforce one-way Factor-then-Decision and optional Risk invocation while leaving all engines independently usable. |
-| Responsibilities | Shared `as_of` validation, call order, snapshot wrapping, return Factor/Decision/Risk trace results. |
+| Responsibilities | Shared `as_of` validation, call order, optional Factor Store audit/persistence through its Protocol, snapshot wrapping, return Factor/Decision/Risk trace results. |
 | Non-responsibilities | Market Data loading, formulas, policies/rules, SQL, order conversion, broker access or execution. |
 | Public interfaces | `AnalysisDecisionPipeline`, `TradingEvaluationPipeline` and request/result contracts. |
 | Inputs / outputs | injected engines and standardized request / Factor snapshot, Decision result and optional Risk decisions. |
-| Allowed dependencies | Public Factor/Decision/Risk engines and models. |
-| Forbidden dependencies | Concrete calculators/policies/rules, Provider, Store, Alpaca, GUI and execution. |
-| Side effects / configuration | None beyond injected calculator/policy behavior; no configuration namespace. |
+| Allowed dependencies | Public Factor/Decision/Risk engines/models and public Factor Store Protocol. |
+| Forbidden dependencies | Concrete calculators/policies/rules, concrete SQLite adapter, Provider, Alpaca, GUI and execution. |
+| Side effects / configuration | Optional injected Factor persistence; no direct SQL or configuration namespace. |
 | Tests / documentation | Fake integration and architecture tests; [`analysis-decision-pipeline.md`](../modules/analysis-decision-pipeline.md). |
+
+### Paper and Live Execution boundaries
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.execution.paper`, `quant_trading.execution.live` / `src/quant_trading/execution/` |
+| Status | Implemented and verified as empty, disabled sibling namespaces; all execution behavior Not implemented |
+| Purpose | Reserve isolated ownership boundaries for future simulated and real-money execution work. |
+| Responsibilities | Package identity and Paper/Live separation only. |
+| Non-responsibilities | Interfaces, accounts, positions, orders, fills, broker clients, credentials, endpoints, Risk, GUI, configuration or activation. |
+| Public interfaces | None. |
+| Inputs / outputs | None / none. |
+| Allowed dependencies | None at this stage. |
+| Forbidden dependencies | each other; raw `TradeIntent`; Market Data/SQLite/GUI; Alpaca Trading SDK; all broker/network clients. |
+| Side effects / configuration | None; both are disabled and neither reads configuration or credentials. |
+| Tests / documentation | declaration-content and sibling-boundary architecture tests; [`execution-environments.md`](../modules/execution-environments.md), ADR-0010. |
 
 ### Tests and future layers
 
@@ -313,18 +345,18 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.algorithm_control` / `src/quant_trading/algorithm_control/` |
-| Status | Implemented and verified; no production algorithm registered |
-| Purpose | Manage metadata, generic parameter schemas, configuration versions, dependency validation, safe previews, and audit history. |
-| Responsibilities | Registry discovery; Draft/Saved/Active lifecycle; append-only versions; locked safety state; background NO EXECUTION preview. |
-| Non-responsibilities | Formulas, trading/risk rules, Market Data, history SQL, accounts, orders, broker execution. |
-| Public interfaces | Registry, typed control models, configuration/validation/preview services, Controller, Panel, `build_controller()`. |
+| Status | Implemented and verified; authored Factors remain disabled and no production Decision/Risk policy is registered |
+| Purpose | Manage metadata, restricted Factor authoring, Decision Factor-version selection, generic parameter schemas, configuration versions, dependency validation, safe previews, and audit history. |
+| Responsibilities | Immutable Factor definition versions; registry discovery; exact Decision input selection; Draft/Saved/Active lifecycle; locked safety state; background NO EXECUTION preview. |
+| Non-responsibilities | Arbitrary Python execution, Factor calculation, Decision/risk rules, Market Data, history SQL, accounts, orders, broker execution. |
+| Public interfaces | Registry, `FactorDefinitionService`, typed control models, configuration/validation/preview services, Controller, Panel, `build_controller()`. |
 | Inputs / outputs | Registered metadata and user configuration intent / versioned state, validation, audit and preview results. |
-| Allowed dependencies | application safety settings, public Factor/Decision/Risk result contracts, PySide6, stdlib. |
+| Allowed dependencies | application safety settings, public Factor definition/expression-language and Factor/Decision/Risk result contracts, PySide6, stdlib. |
 | Forbidden dependencies | concrete Alpaca provider/client, market-history SQLite store, broker/execution provider, tests. |
-| Side effects / configuration | Atomic ignored JSON at `runtime/algorithm_control/control_state.json`; no credentials. |
-| Tests / documentation | `tests/unit/algorithm_control`, architecture tests; [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md). |
+| Side effects / configuration | Atomic ignored JSON at `runtime/algorithm_control/control_state.json` and `factor_definitions.json`; no credentials. |
+| Tests / documentation | `tests/unit/algorithm_control`, safe-expression and architecture tests; [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md), [`factor-authoring.md`](../modules/factor-authoring.md). |
 
-`tests/` is verification infrastructure, not a runtime module, and production code must never import it. Production factor/decision/risk implementations, backtest, portfolio/account semantics, Order Construction and execution are **Not implemented**. They are future approval boundaries, never implied by the contracts.
+`tests/` is verification infrastructure, not a runtime module, and production code must never import it. Production factor/decision/risk implementations, backtest, portfolio/account semantics, Order Construction and execution behavior are **Not implemented**. Empty Execution namespaces never imply those capabilities.
 
 ## Dependency Direction
 
@@ -338,6 +370,7 @@ Concrete Provider/Store -> public models and errors
 Cross-cutting code <- called for logging/error context without taking feature ownership
 
 Standardized MarketDataWindow -> Factor Engine -> FactorSnapshot contract
+                              -> optional FactorSnapshotStore Protocol -> central SQLite Factor history
 FactorSnapshot contract -> Decision Engine -> TradeIntent (not an order)
 TradeIntent -> Risk Engine -> RiskDecision (not an order)
 Orchestration -> Factor Engine then Decision Engine, optionally then Risk Engine
@@ -351,26 +384,42 @@ Orchestration -> Factor Engine then Decision Engine, optionally then Risk Engine
 | Service | Provider/Store Protocols, models/errors | UI, concrete Provider/Store, Plotly, execution |
 | Alpaca Market Data Provider | Alpaca data SDK, models/errors | Alpaca Trading SDK, GUI, SQLite Store |
 | SQLite Store | `sqlite3`, models/errors | GUI, Alpaca SDK/Provider, Chart Builder |
+| Central persistence | `sqlite3`, public Market/Factor models and Store Protocol | GUI, Provider, Decision, Risk, Orchestration, Alpaca, execution |
 | Chart Builder | models, pandas, Plotly | API, database, UI widgets, execution |
 | Settings | standard library and typed config models | business logic, network clients, database mutation |
 | Observability | standard library, error types/context | product/financial decisions |
 | Diagnostics | public settings/models; concrete adapters only for explicit read-only checks | mutation, GUI ownership, accounts/orders |
-| Factor layer | Market Bar/dimension models, Factor contracts | Decision, Risk, execution, accounts, GUI, Provider/Store |
+| Factor layer | Market Bar/dimension models, Factor contracts, restricted expression-language validation/evaluation | concrete persistence, Decision, Risk, execution, accounts, GUI, Provider/Store |
 | Decision layer | Factor public models/interfaces, Decision contracts | Factor implementations/engine, Risk, raw Market Data, Store, broker/execution |
 | Risk layer | application environment enum, public Factor/Decision models, Risk contracts | Factor/Decision implementations, GUI, Provider/Store, Alpaca, execution |
-| Algorithm Control | public Factor/Decision/Risk result contracts, application settings, PySide6 | concrete Market Data/SQLite/broker/execution, algorithm implementations |
-| Orchestration | Factor, Decision and Risk public engines/models | formulas, policies/rules, Provider/Store, execution |
-| Planned Order Construction / execution | Risk-approved contracts and approved execution interfaces/models | raw TradeIntent, GUI, historical Store, Market Data cache logic |
+| Algorithm Control | public Factor definition/expression-language and Factor/Decision/Risk result contracts, application settings, PySide6 | concrete Factor calculator internals, Market Data/SQLite/broker/execution, Decision/Risk implementations |
+| Orchestration | Factor, Decision and Risk public engines/models; Factor Store Protocol | formulas, policies/rules, concrete persistence/Provider, execution |
+| Paper Execution boundary | none at this stage | Live boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client |
+| Live Execution boundary | none at this stage | Paper boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client; all runtime use while Live is disabled |
+| Planned Order Construction / execution behavior | Risk-approved contracts and approved execution interfaces/models | raw TradeIntent, GUI, historical Store, Market Data cache logic |
 
 Forbidden globally: circular imports, private cross-module calls, implicit mutable globals, production imports from `tests/` or `archive/`, runtime dependence on `scripts/`, and unrecorded changes to public contracts.
 
 ## Data Flow
 
+### Factor authoring and Decision input selection
+
+```text
+User edits restricted Factor expression in Algorithm Control GUI
+ -> public Factor expression-language validation
+ -> FactorDefinitionService creates immutable version
+ -> ignored factor_definitions.json atomic save
+ -> version-specific Factor ComponentMetadata registered as disabled
+ -> Decision GUI selects exact Factor component IDs
+ -> selected_factor_ids saved in immutable Decision configuration
+ -> no Factor calculation, TradeIntent, RiskDecision or order is triggered
+```
+
 ### Application startup
 
 ```text
 Environment -> AppSettings -> logging/exception hooks
-            -> SQLite initialization
+            -> central SQLite schema initialization
             -> concrete dependency wiring
             -> HistoryPanel -> Qt event loop
 ```
@@ -426,10 +475,10 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Integration | Status | Allowed | Forbidden |
 |---|---|---|---|
 | Alpaca Market Data | Implemented and read-only verified | historical Bar requests using Market Data client and injected credentials | accounts, positions, orders, Trading client |
-| Alpaca Paper Trading | Not implemented; default target label only | configuration/status description | claiming connection or submitting orders |
-| Alpaca Live Trading | Not implemented and disabled | future proposal only after separate approval/protections | connection, credential use, order submission |
+| Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
+| Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented local persistence | historical Bars/Coverage/Fetch History and read-only diagnostics | strategy/risk decisions or external-service access |
+| SQLite | Implemented central local persistence | historical Bars/Coverage/Fetch History, immutable Factor snapshots/results, calculation-run audit and read-only diagnostics | formulas, Decision/Risk logic, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -457,17 +506,21 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. FactorSnapshot and DecisionResult persistence are **Not implemented**; any future stores must remain separate, reference snapshots by ID, and require schema approval.
+Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. FactorSnapshot persistence is implemented through an independent Store Protocol and concrete infrastructure adapter; DecisionResult persistence remains **Not implemented**.
 
 ## Testing Boundaries
 
 - Models, Controller, Service/cache decisions, Provider conversion/retry, Store transactions, Chart Builder, UI behavior, Factor/Decision/Risk contracts and engines, observability, and diagnostics have focused unit tests.
 - Integration tests use temporary SQLite databases and Fake/Mock Providers to exercise the full local-first flow.
 - GUI/WebEngine tests may run offscreen and must not use a real network.
-- Architecture tests parse production imports to detect forbidden cross-layer imports, Factor/Decision/Risk reverse or implementation dependencies, execution-gate bypass, cycles, and imports from `tests`/`archive`.
+- Architecture tests parse production imports to detect forbidden cross-layer imports, Factor/Decision/Risk reverse or implementation dependencies, execution-gate bypass, cycles, imports from `tests`/`archive`, and any premature content or cross-import in the empty Paper/Live boundaries.
 - Automated tests must not use real credentials or submit Paper/Live orders. Optional network diagnostics are explicit, read-only, and outside the normal test suite.
 
 ## Architecture Invariants
+
+- GUI-authored Factor logic must use the approved restricted expression contract; arbitrary Python/source execution is forbidden.
+- Factor evaluation remains in `quant_trading.factors`; Algorithm Control may validate and persist definitions but must not calculate values.
+- Every saved Factor definition version is immutable and disabled by default; a Decision selection references exact versioned component IDs and grants no activation or trading authority.
 
 1. GUI does not call external Market Data or trading APIs directly.
 2. GUI does not execute SQL or change database schema.

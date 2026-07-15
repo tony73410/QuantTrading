@@ -131,3 +131,80 @@ def test_compare_reports_changed_parameters_without_overwriting_versions():
     diff = service.compare(first.configuration_id, second.configuration_id)
     assert [(item.name, item.before, item.after) for item in diff] == [("lookback", 5, 12)]
     assert len(service.history("test.factor.metadata")) == 2
+
+
+def _decision_metadata() -> ComponentMetadata:
+    return ComponentMetadata(
+        component_id="test.decision.selection",
+        display_name="Test decision selection",
+        component_type=ComponentType.DECISION,
+        version="1",
+        description="Test-only Decision metadata; no trading rule.",
+        status=ComponentStatus.NOT_IMPLEMENTED,
+        parameter_schema=(),
+        input_contract="FactorSnapshot",
+        output_contract="TradeIntent",
+        minimum_data_requirements="One selected FactorSnapshot",
+        enabled_by_default=False,
+        implementation_path="Not implemented",
+        documentation_path="tests only",
+        owner_layer=OwnerLayer.DECISION,
+        owner_module="tests.decision",
+        responsibilities=(Responsibility.CREATE_TRADE_INTENTS,),
+        non_responsibilities=("Does not calculate factors or submit orders.",),
+        required_capabilities=(
+            Capability.READ_FACTOR_SNAPSHOT,
+            Capability.CREATE_TRADE_INTENT,
+        ),
+    )
+
+
+def test_decision_factor_selection_is_versioned_and_compared(tmp_path: Path):
+    controller = build_controller(tmp_path)
+    factor = controller.save_factor_definition(
+        factor_id="user.selection_input",
+        display_name="Selection input",
+        description="Restricted Factor used only for a selection test.",
+        expression='latest("close")',
+        minimum_observations=1,
+        output_unit="USD",
+        missing_input_policy="return_missing_status",
+        parameters=(),
+        change_reason="Test Decision selection persistence",
+    )
+    controller.registry.register(_decision_metadata())
+    first_draft = controller.create_draft("test.decision.selection")
+    first = controller.save_draft(first_draft.draft_id, "No Factor selected yet")
+    second_draft = controller.create_draft("test.decision.selection")
+    controller.update_draft(
+        second_draft.draft_id,
+        {},
+        False,
+        selected_factor_ids=(factor.component_id,),
+    )
+    second = controller.save_draft(
+        second_draft.draft_id, "Select exact Factor version"
+    )
+
+    assert second.selected_factor_ids == (factor.component_id,)
+    assert [
+        (item.name, item.before, item.after)
+        for item in controller.compare(first.configuration_id, second.configuration_id)
+    ] == [("selected_factor_ids", "", factor.component_id)]
+
+
+def test_decision_cannot_select_an_unknown_factor(tmp_path: Path):
+    controller = build_controller(tmp_path)
+    controller.registry.register(_decision_metadata())
+    draft = controller.create_draft("test.decision.selection")
+    controller.update_draft(
+        draft.draft_id,
+        {},
+        False,
+        selected_factor_ids=("missing.factor",),
+    )
+
+    result = controller.validate_draft(draft.draft_id)
+
+    assert not result.valid
+    assert "UNKNOWN_FACTOR" in {item.code for item in result.issues}
