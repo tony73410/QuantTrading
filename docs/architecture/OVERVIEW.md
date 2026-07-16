@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 8
-last_updated_utc: 2026-07-14T23:21:08Z
+version: 16
+last_updated_utc: 2026-07-16T20:17:23Z
 ```
 
 ## Purpose
@@ -27,13 +27,23 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - standardized requests, bars, results, configuration, errors, and diagnostics;
 - 10/30-minute, one-hour, daily, weekly, and monthly views;
 - rotating, redacted runtime logs and read-only diagnostics.
-- independent Single-Asset Factor and Trading Decision contracts, registries, engines, and Fake-tested orchestration, with no production algorithm registered.
+- independent Single-Asset Factor, Trading Decision and Risk contracts plus a local-only GUI workbench: immutable definitions, non-destructive Factor lifecycle, restricted Decision rules and Risk-gated dry run, all disabled from production/execution;
+- a disabled, in-memory Portfolio Accounting scaffold with separate append-only Trading Ledger, state derivation, reconciliation-reporting, and read-only query boundaries.
+- a shared validation-result and fail-closed system-health foundation; business validation rules remain owned by their modules.
 
-The following are **not implemented**: production factor formulas, strategies, decision policies, numerical risk policies/limits, signals, backtests, portfolio/account semantics, orders, Paper order execution, and Live execution. Empty `quant_trading.execution.paper` and `.live` namespace boundaries now exist, but they contain no interfaces or behavior and do not change this capability status. Risk contracts and conservative composition exist, but they do not constitute an approved risk policy. `ALPACA_PAPER` is a safe configuration label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
+The following are **not implemented**: production activation, production portfolio construction/position sizing, production-grade cost basis/P&L/accounting, numerical risk policies/limits, orders, Paper order execution, and Live execution. Research-only Decision notional sizing and isolated historical Backtesting are implemented, but grant no production authority. The Portfolio Accounting scaffold only replays explicit cash effects and long filled quantities in memory; advanced conventions remain Open Decisions. Restricted user-authored Factor and Decision rules exist only as disabled definitions and local previews. Empty `quant_trading.execution.paper` and `.live` namespace boundaries contain no interfaces or behavior. `ALPACA_PAPER` is a safe label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
 
 ## Architecture Overview
 
 ```text
+Primary desktop entry
+  quant_trading.launcher
+    -> detached market_history GUI process
+    -> detached algorithm_control GUI process
+       -> optional reviewed --page ID selects an existing tab only
+    -> detached backtesting research GUI process
+  (catalog/launch only; no feature or trading logic)
+
 Composition root
   market_history.app
         |
@@ -64,6 +74,10 @@ Separately approved algorithm path (not wired to GUI or execution):
     -> RiskApprovedTradeIntent (future Order Construction input only)
     -> Order Construction (Planned / Not implemented)
     -> Execution (Planned / Not implemented)
+    -> future OrderEvent / confirmed TradeFill
+    -> Trading Ledger (append-only facts)
+    -> Portfolio Accounting (derived snapshots)
+    -> Risk and GUI read-only consumers
 ```
 
 Independent management plane, outside the execution data path:
@@ -72,9 +86,14 @@ Independent management plane, outside the execution data path:
 AlgorithmControlPanel -> AlgorithmControlController
   -> Component Registry / Configuration / Validation / Preview / Audit
   -> runtime/algorithm_control/control_state.json
+AlgorithmControlPanel -> IdeaNotebookPanel -> IdeaNotebookService
+  -> runtime/algorithm_control/idea_notes.json
+  (passive text only; no Registry, Pipeline, Backtest, accounting or execution output)
 ```
 
-This plane reads public contracts and metadata. It must not own formulas, decision/risk rules, Market Data, historical SQLite access, or broker execution.
+This plane reads public contracts and metadata. It must not own formulas, decision/risk rules, Market Data, historical SQLite access, or broker execution. The Idea Notebook branch is an isolated presentation/local-storage branch: its text is never consumed by algorithm, simulation, accounting, risk, or execution modules.
+
+The primary launcher may pass an optional static `--page` value from its reviewed core-shortcut catalog. `AlgorithmControlPanel.select_page()` changes only the selected existing tab; it never invokes that page's actions. The launcher continues to depend on module-name/argument strings rather than importing feature modules.
 
 The composition root may know concrete implementations so it can wire them together. Feature code below that root should depend inward on public interfaces and models. Declaration-only Paper and Live execution namespaces exist, but there is no execution behavior today. Any future content must be separately approved, remain independent from Market Data/historical storage, and accept only a type-distinct Risk-reviewed object rather than raw `TradeIntent`.
 
@@ -335,10 +354,37 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Inputs / outputs | None / none. |
 | Allowed dependencies | None at this stage. |
 | Forbidden dependencies | each other; raw `TradeIntent`; Market Data/SQLite/GUI; Alpaca Trading SDK; all broker/network clients. |
+
+### Portfolio Accounting Layer
+
+| Item | Contract |
+|---|---|
+| Status | Architecture scaffold implemented and verified; in-memory only, disabled from execution |
+| Purpose | Keep one Portfolio domain with separate recorded-fact, derived-state, reconciliation, and query responsibilities. |
+| Responsibilities | `ledger`: append typed order/fill/cash facts with idempotency; `accounting`: deterministically replay confirmed financial facts; `reconciliation`: report local/external differences; `queries`: return immutable read models. |
+| Non-responsibilities | signals, Decision, Risk approval, order construction/submission, broker access, history overwrite, full cost basis/P&L, margin, tax, corporate actions, or automatic correction. |
+| Public interfaces | `LedgerRepository`, `PortfolioAccountingService`, `AccountSnapshot`, `PositionSnapshot`, `PortfolioSnapshot`, `DailyPnLSnapshot`, `ReconciliationService`, `PortfolioAccountingQueryService`. |
+| Inputs / outputs | typed `OrderLifecycleEvent`/`TradeFill`/`CashMovement` facts / immutable account, position, portfolio and reconciliation snapshots. |
+| Allowed dependencies | stdlib and internal public contracts; composition roots may inject in-memory adapters. |
+| Forbidden dependencies | concrete Execution/Broker/Alpaca, GUI, Market History Provider/Store, Decision/Risk implementations, or SQL from the current scaffold. |
+
+The Ledger is the source of recorded facts; accounting state is derived; broker state is an external reconciliation reference. Order intentions and submitted/rejected/unfilled orders never change financial state. Historical facts cannot be overwritten, and reconciliation cannot silently repair them.
 | Side effects / configuration | None; both are disabled and neither reads configuration or credentials. |
 | Tests / documentation | declaration-content and sibling-boundary architecture tests; [`execution-environments.md`](../modules/execution-environments.md), ADR-0010. |
 
 ### Tests and future layers
+
+### Validation and system health
+
+| Item | Contract |
+|---|---|
+| Status | Implemented and verified as a shared result/aggregation foundation |
+| Purpose | Standardize validation severity/status/issues, centralized codes, validator execution, and system health without centralizing business rules. |
+| Responsibilities | Immutable validation results, Secret-safe issue fields, registered-check aggregation, exception-to-CRITICAL fail-closed conversion, diagnostics health summary. |
+| Non-responsibilities | Market/Factor/Decision/Risk rules, SQL, broker/API calls, GUI logic, order approval or execution. |
+| Public interfaces | `ValidationIssue`, `ValidationResult`, `ValidationRegistry`, `HealthCheckResult`, `HealthStatus`, `InvariantViolation`. |
+| Allowed dependencies | stdlib, centralized `ErrorCode`, observability logging/redaction. |
+| Forbidden dependencies | business modules, PySide6, Alpaca, SQLite and Execution. |
 
 ### Algorithm Control Center
 
@@ -346,19 +392,31 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 |---|---|
 | Module / path | `quant_trading.algorithm_control` / `src/quant_trading/algorithm_control/` |
 | Status | Implemented and verified; authored Factors remain disabled and no production Decision/Risk policy is registered |
-| Purpose | Manage metadata, restricted Factor authoring, Decision Factor-version selection, generic parameter schemas, configuration versions, dependency validation, safe previews, and audit history. |
-| Responsibilities | Immutable Factor definition versions; registry discovery; exact Decision input selection; Draft/Saved/Active lifecycle; locked safety state; background NO EXECUTION preview. |
+| Purpose | Manage metadata, restricted Factor authoring, Decision Factor-version selection, generic parameter schemas, configuration versions, dependency validation, safe previews, audit history, and an isolated passive Idea Notebook. |
+| Responsibilities | Immutable Factor definition versions; registry discovery; exact Decision input selection; Draft/Saved/Active lifecycle; locked safety state; background NO EXECUTION preview; passive local note editing. |
 | Non-responsibilities | Arbitrary Python execution, Factor calculation, Decision/risk rules, Market Data, history SQL, accounts, orders, broker execution. |
-| Public interfaces | Registry, `FactorDefinitionService`, typed control models, configuration/validation/preview services, Controller, Panel, `build_controller()`. |
+| Public interfaces | Registry, `FactorDefinitionService`, typed control models, configuration/validation/preview services, Controller, Panel, `IdeaNote`, `IdeaNotebookService`, `build_controller()`. |
 | Inputs / outputs | Registered metadata and user configuration intent / versioned state, validation, audit and preview results. |
 | Allowed dependencies | application safety settings, public Factor definition/expression-language and Factor/Decision/Risk result contracts, PySide6, stdlib. |
 | Forbidden dependencies | concrete Alpaca provider/client, market-history SQLite store, broker/execution provider, tests. |
-| Side effects / configuration | Atomic ignored JSON at `runtime/algorithm_control/control_state.json` and `factor_definitions.json`; no credentials. |
-| Tests / documentation | `tests/unit/algorithm_control`, safe-expression and architecture tests; [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md), [`factor-authoring.md`](../modules/factor-authoring.md). |
+| Side effects / configuration | Atomic ignored JSON at `runtime/algorithm_control/control_state.json`, `factor_definitions.json`, and isolated `idea_notes.json`; no credentials. |
+| Tests / documentation | `tests/unit/algorithm_control`, safe-expression and architecture tests; [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md), [`idea-notebook.md`](../modules/idea-notebook.md), [`factor-authoring.md`](../modules/factor-authoring.md). |
 
-`tests/` is verification infrastructure, not a runtime module, and production code must never import it. Production factor/decision/risk implementations, backtest, portfolio/account semantics, Order Construction and execution behavior are **Not implemented**. Empty Execution namespaces never imply those capabilities.
+`tests/` is verification infrastructure, not a runtime module, and production code must never import it. Production Factor/Decision/Risk activation, production-grade portfolio accounting semantics, Order Construction and execution behavior are **Not implemented**. Isolated historical Backtesting is implemented as research-only and remains outside operational accounting. The in-memory Portfolio Accounting scaffold is partial by design. Empty Execution namespaces never imply those capabilities.
 
 ## Dependency Direction
+
+Approved context flow: `Market Bars → Asset Factor → Market Factor → Decision` and `Portfolio Accounting read snapshots → Decision Sizing Context → Decision → Risk`.
+
+Asset Factor remains single-symbol. Market Factor may read public exact Asset Factor results but cannot read accounts. Account cash/positions are typed read-only context, never Factors. Decision proposes USD notional; Risk may preserve/reduce/reject/defer and cannot increase it. Simulation may consume the research request; Paper/Live remain absent.
+
+Historical simulation is a separate research boundary:
+
+`Market History public store → Backtesting → isolated simulation result repository → Backtesting GUI`
+
+`Backtesting` must not import broker clients or `execution.paper` / `execution.live`. Operational accounting and execution must not read `runtime/simulations/`. The approved baseline emits research-only simulated records; it grants no Paper/Live authority.
+
+Simulation Strategy definitions are control-plane compositions: Algorithm Control saves a user name plus exact buy/sell Decision component IDs; Decision definitions retain exact Factor references. Backtesting resolves the public immutable definitions and replays them through `DefinitionSignalProvider`. Strategy configuration never becomes execution approval.
 
 Allowed production flow:
 
@@ -391,7 +449,9 @@ Orchestration -> Factor Engine then Decision Engine, optionally then Risk Engine
 | Diagnostics | public settings/models; concrete adapters only for explicit read-only checks | mutation, GUI ownership, accounts/orders |
 | Factor layer | Market Bar/dimension models, Factor contracts, restricted expression-language validation/evaluation | concrete persistence, Decision, Risk, execution, accounts, GUI, Provider/Store |
 | Decision layer | Factor public models/interfaces, Decision contracts | Factor implementations/engine, Risk, raw Market Data, Store, broker/execution |
-| Risk layer | application environment enum, public Factor/Decision models, Risk contracts | Factor/Decision implementations, GUI, Provider/Store, Alpaca, execution |
+| Risk layer | application environment enum, public Factor/Decision models, public Portfolio Accounting snapshot-provider contracts, Risk contracts | Factor/Decision implementations, GUI, Provider/Store, Alpaca, execution, Ledger/Accounting mutation services |
+| Portfolio Accounting | stdlib and its own typed public contracts | concrete broker/execution, GUI, Market History Provider/Store, Factor/Decision/Risk implementations, Alpaca |
+| Validation/health | stdlib, centralized ErrorCode and observability | all business-rule implementations, GUI, Alpaca, SQLite, Execution |
 | Algorithm Control | public Factor definition/expression-language and Factor/Decision/Risk result contracts, application settings, PySide6 | concrete Factor calculator internals, Market Data/SQLite/broker/execution, Decision/Risk implementations |
 | Orchestration | Factor, Decision and Risk public engines/models; Factor Store Protocol | formulas, policies/rules, concrete persistence/Provider, execution |
 | Paper Execution boundary | none at this stage | Live boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client |
@@ -456,6 +516,20 @@ Explicitly completed, available MarketDataWindow
 ```
 
 The current GUI and Market History Service do not invoke this pipeline. Factor can run without Decision/Risk; Decision can run from Fake/public Factor snapshots; Risk can run from a Fake/public TradeIntent and neutral context without Provider, SQLite or broker. Orchestration owns only call order and does not provide a temporary execution path.
+
+### Future execution-to-accounting fact flow
+
+```text
+RiskApprovedTradeIntent
+ -> future OrderRequest / Execution Provider (Not implemented)
+ -> OrderLifecycleEvent and confirmed TradeFill
+ -> append-only Trading Ledger
+ -> Portfolio Accounting replay
+ -> AccountSnapshot / PortfolioSnapshot
+ -> Risk read-only providers and GUI Query Service
+```
+
+An order lifecycle event records activity but has no cash/holding effect. A confirmed fill or valid signed cash movement is required for financial state. Broker snapshots enter only through ReconciliationResult and cannot overwrite Ledger history.
 
 ## Error and Logging Flow
 
@@ -545,6 +619,11 @@ Factor and Decision parameters are separate immutable typed contexts (`FactorPar
 21. System pause outranks ordinary trading decisions; emergency automatic liquidation remains Not implemented.
 22. Future Execution may accept only a Risk-approved type and must not accept raw TradeIntent.
 23. Risk configuration is versioned and separate; numerical values require explicit user approval. Live and automatic submission remain disabled.
+24. Trading Ledger facts are append-only; corrections and reversals are new traceable entries, never updates or deletes.
+25. TradeIntent, OrderRequest, and OrderLifecycleEvent are not fills. Submitted, rejected, cancelled, expired, and otherwise unfilled orders cannot change cash or holdings.
+26. Portfolio Accounting derives state only from standardized Ledger financial facts and market-price contracts; Execution, Risk, GUI, and broker reconciliation cannot directly mutate it.
+27. Broker reconciliation reports differences and never silently overwrites local history. Risk and GUI are read-only snapshot/query consumers.
+28. Business modules own their validation rules; shared validation only standardizes results and health. Validator failure becomes CRITICAL, and BLOCKED/CRITICAL/UNKNOWN health cannot authorize automatic execution.
 24. Algorithm Control is a management plane, not an algorithm or execution path; it remains registry/schema-driven and every preview is NO EXECUTION.
 25. Draft edits do not silently become Active; Save, Apply and Restore create traceable immutable versions, and locked safety invariants cannot be disabled.
 
@@ -623,6 +702,10 @@ Before changing a public interface: identify all callers; explain compatibility;
 ### External Provider or future feature rule
 
 New providers implement existing interfaces and are wired at the composition root. Replacing Market Data must not require GUI, Store, or Chart rewrites. Any strategy, risk, order, or execution work first requires user-approved semantics, its own module boundary and documentation, and safety tests. Alpaca execution must not be added to `AlpacaHistoricalMarketDataProvider`.
+
+## Isolated simulation evidence flow
+
+`Historical Bars → Asset/Market Factor evaluation → Decision evaluation → Simulation sizing/fill → BacktestResult/DecisionJournalEntry` is owned entirely by `quant_trading.backtesting`. The journal contains one evaluation per valid Daily bar and symbol and is not the operational Trading Ledger. Its JSON repository is run-scoped; Portfolio Accounting and Paper/Live Execution must not import or read it. GUI reads immutable result contracts and contains no calculation rules.
 
 ## Known Architecture Risks and Drift Assessment
 

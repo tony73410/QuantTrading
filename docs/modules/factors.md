@@ -1,5 +1,7 @@
 # Single-Asset Factor Engine
 
+This is explicitly the **Asset Factor Layer / 单只股票因子**. It calculates one symbol at a time from `MarketDataWindow`. Cross-symbol aggregation is owned by the separate [Market Factor Layer](market-factors.md); account cash and holdings are not Factors.
+
 ## Status
 
 The restricted-expression definition/calculator extension is implemented and verified. Authored definitions are disabled by default; no default or automatically active production formula exists.

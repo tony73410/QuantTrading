@@ -4,6 +4,27 @@
 
 ## Unreleased
 
+- Added a compact **核心功能直达** directory to the primary GUI. It opens all eleven existing Algorithm Control pages directly through trusted static page IDs while keeping feature logic in the owning window and trading authority unchanged.
+
+- Added an isolated **算法 Idea 笔记** page to Algorithm Control for local plain-text ideas, tags, archive and restore. Notes cannot register or invoke Factors, Decisions, Simulation, accounting, Paper, Live, or automatic submission.
+
+- Corrected isolated simulation state and audit accuracy: partial sells now preserve remaining shares, requested notional is distinct from whole-share executed gross, Market Factor inputs reject duplicates/mixed timestamps, and saved-strategy Market Factor traces retain exact versions without cross-run cache leakage.
+
+- Added a detailed **Daily Decision Journal** to Backtesting & Simulation. Every valid trading day and symbol now retains market data, Factor values, Decision-condition results, sizing evidence, non-trade reasons and simulated before/after state; the GUI provides filtering and a read-only inspector separate from the fill table.
+
+- Split Factor authoring into explicit single-stock Asset Factor and Market/Macro Factor pages, and added traceable Decision sizing modes with percentage sliders and read-only account/position references. All new behavior remains disabled/research-only.
+
+- Added user-named, locally saved and versioned Simulation Strategies. Backtesting can select an exact saved strategy before entering dates and simulated starting cash; saved strategies remain research-only and cannot submit orders.
+
+- Added a user-visible **Backtesting & Simulation** launcher entry and isolated research GUI/CLI for the approved SMA20/50 historical baseline. Simulation never connects to broker accounts or submits Paper/Live orders.
+
+- Stabilized validation and GUI error handling: future-dated Market Bars are blocked before caching/downstream use, Decision condition buttons no longer pass Qt checked state as domain data, and local diagnostics now report a unified fail-closed system health status. No trading capability or accounting completion was added.
+
+- Added a read-only `Portfolio & Ledger` tab and an implemented-disabled in-memory Portfolio Accounting architecture scaffold: typed append-only ledger facts, deterministic cash/net-long-quantity replay, immutable account/position contracts, and report-only reconciliation. No broker connection, order submission, Live capability, or production-grade cost/P&L convention was added.
+
+- Added a simple primary QuantTrade desktop launcher with buttons for the historical-data browser and Algorithm Control Center. Each feature opens independently; the launcher contains no market, algorithm, account or order logic.
+- Implemented the approved six-phase algorithm workbench as disabled, local-only behavior: non-destructive Factor lifecycle, cached-data Factor preview with optional central-SQLite history, immutable restricted Decision rules, Risk-gated dry run, and read-only Paper/Live execution status. No order path, production activation, numerical Risk limit, or Live capability was added.
+
 ### Added
 
 - Added safe GUI Factor authoring with a restricted numeric expression language, immutable disabled-by-default definition versions, and exact Factor-version selection in Decision configuration. This does not add a production Decision rule, activate a Factor, or enable any order path.

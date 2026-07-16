@@ -27,6 +27,20 @@ def test_insert_and_read_bars(store):
     assert store.query_bars(request) == [bar]
 
 
+def test_list_symbols_returns_distinct_cached_symbols_in_case_insensitive_order(store):
+    for symbol in ("MSFT", "AAPL", "msft"):
+        request = make_request(symbol=symbol)
+        save_interval(
+            store,
+            request,
+            request.start_time,
+            request.end_time,
+            [make_bar(datetime(2024, 1, 2, tzinfo=UTC), request=request)],
+        )
+
+    assert store.list_symbols() == ["AAPL", "MSFT"]
+
+
 def test_schema_contains_required_tables_and_query_indexes(store):
     with sqlite3.connect(store.database_path) as connection:
         tables = {

@@ -241,6 +241,7 @@ class RiskRuleResult:
     approved_quantity: Decimal | None = None
     warnings: tuple[str, ...] = ()
     earliest_execution_utc: datetime | None = None
+    approved_notional: Decimal | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "rule_name", _required_text(self.rule_name, "rule_name"))
@@ -255,10 +256,12 @@ class RiskRuleResult:
             raise RiskContractError("risk rule requires structured reason codes")
         _finite(self.approved_target, "approved_target")
         _finite(self.approved_quantity, "approved_quantity")
+        approved_notional=_finite(self.approved_notional,"approved_notional")
+        if approved_notional is not None and approved_notional<=0: raise RiskContractError("approved_notional must be positive")
         if self.decision is RiskRuleDecision.REDUCE:
-            if self.approved_target is None and self.approved_quantity is None:
+            if self.approved_target is None and self.approved_quantity is None and self.approved_notional is None:
                 raise RiskContractError("a reduction must specify an approved limit")
-        elif self.approved_target is not None or self.approved_quantity is not None:
+        elif self.approved_target is not None or self.approved_quantity is not None or self.approved_notional is not None:
             raise RiskContractError("only a reduction may alter approved values")
         if self.earliest_execution_utc is not None:
             object.__setattr__(
@@ -295,6 +298,8 @@ class RiskDecision:
     account_snapshot_id: UUID
     environment: ExecutionEnvironment
     earliest_execution_utc: datetime | None = None
+    original_notional: Decimal | None = None
+    approved_notional: Decimal | None = None
 
     def __post_init__(self) -> None:
         symbol = self.symbol.strip().upper()
@@ -316,21 +321,23 @@ class RiskDecision:
         approved_target = _finite(self.approved_target, "approved_target")
         original_quantity = _finite(self.original_quantity, "original_quantity")
         approved_quantity = _finite(self.approved_quantity, "approved_quantity")
+        original_notional=_finite(self.original_notional,"original_notional"); approved_notional=_finite(self.approved_notional,"approved_notional")
         approved = {
             RiskDecisionType.APPROVED,
             RiskDecisionType.APPROVED_WITH_REDUCTION,
         }
         if self.decision not in approved and (
-            approved_target is not None or approved_quantity is not None
+            approved_target is not None or approved_quantity is not None or approved_notional is not None
         ):
             raise RiskContractError("blocked decisions cannot approve exposure")
         if self.decision is RiskDecisionType.APPROVED:
-            if approved_target != original_target or approved_quantity != original_quantity:
+            if approved_target != original_target or approved_quantity != original_quantity or approved_notional != original_notional:
                 raise RiskContractError("approval must preserve original values")
         if self.decision is RiskDecisionType.APPROVED_WITH_REDUCTION:
             target_changed = approved_target != original_target
             quantity_changed = approved_quantity != original_quantity
-            if not target_changed and not quantity_changed:
+            notional_changed=approved_notional!=original_notional
+            if not target_changed and not quantity_changed and not notional_changed:
                 raise RiskContractError("reduction must make at least one value stricter")
             if original_target is not None:
                 if current_exposure is None or approved_target is None:
@@ -348,6 +355,9 @@ class RiskDecision:
                     raise RiskContractError("approved quantity exceeds the original intent")
             elif approved_quantity is not None:
                 raise RiskContractError("risk decision cannot invent a quantity")
+            if original_notional is not None:
+                if approved_notional is None or approved_notional<=0 or approved_notional>original_notional: raise RiskContractError("approved notional exceeds the original intent")
+            elif approved_notional is not None: raise RiskContractError("risk decision cannot invent a notional")
         if self.decision is RiskDecisionType.SYSTEM_PAUSED and not self.system_paused:
             raise RiskContractError("SYSTEM_PAUSED must set system_paused")
         if self.decision is RiskDecisionType.SYMBOL_PAUSED and not self.symbol_paused:
@@ -408,6 +418,7 @@ class RiskApprovedTradeIntent:
         if (
             self.risk_decision.approved_target is None
             and self.risk_decision.approved_quantity is None
+            and self.risk_decision.approved_notional is None
         ):
             raise RiskContractError("order construction needs an approved exposure value")
 

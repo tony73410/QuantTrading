@@ -77,6 +77,25 @@ class DecisionContext:
         if len(names) != len(set(names)):
             raise DecisionContractError("decision parameter names must be unique")
 
+@dataclass(frozen=True,slots=True,order=True)
+class SizingReference:
+    name: str
+    value: Decimal
+    def __post_init__(self):
+        if not self.name.strip() or not isinstance(self.value,Decimal) or not self.value.is_finite(): raise DecisionContractError("sizing reference requires a name and finite Decimal")
+
+@dataclass(frozen=True,slots=True)
+class SizingContext:
+    as_of_utc: datetime
+    asset_factors: tuple[SizingReference,...]=()
+    market_factors: tuple[SizingReference,...]=()
+    account_fields: tuple[SizingReference,...]=()
+    position_fields: tuple[SizingReference,...]=()
+    def __post_init__(self):
+        object.__setattr__(self,"as_of_utc",_utc(self.as_of_utc,"sizing as_of_utc"))
+        names=[f"asset.{x.name}" for x in self.asset_factors]+[f"market.{x.name}" for x in self.market_factors]+[f"account.{x.name}" for x in self.account_fields]+[f"position.{x.name}" for x in self.position_fields]
+        if len(names)!=len(set(names)): raise DecisionContractError("sizing context references must be unique")
+
 
 @dataclass(frozen=True, slots=True)
 class PortfolioSnapshot:
@@ -120,6 +139,11 @@ class TradeIntent:
     policy_name: str
     policy_version: str
     created_at_utc: datetime
+    requested_notional: Decimal | None = None
+    notional_currency: str | None = None
+    sizing_mode: str | None = None
+    sizing_expression: str | None = None
+    sizing_references: tuple[str,...] = ()
 
     def __post_init__(self) -> None:
         symbol = self.symbol.strip().upper()
@@ -150,6 +174,9 @@ class TradeIntent:
                 raise DecisionContractError("confidence must be finite")
             if not Decimal("0") <= self.confidence <= Decimal("1"):
                 raise DecisionContractError("confidence must be between 0 and 1")
+        if self.requested_notional is not None:
+            if not isinstance(self.requested_notional,Decimal) or not self.requested_notional.is_finite() or self.requested_notional<=0: raise DecisionContractError("requested_notional must be a positive finite Decimal")
+            if self.notional_currency is None or not self.notional_currency.strip(): raise DecisionContractError("requested_notional requires currency")
         if not self.reason_codes:
             raise DecisionContractError("trade intent requires at least one reason code")
         object.__setattr__(self, "symbol", symbol)
@@ -205,9 +232,11 @@ class DecisionInput:
     factors: FactorSnapshotCollection
     portfolio: PortfolioSnapshot
     context: DecisionContext
+    sizing: SizingContext | None = None
 
     def __post_init__(self) -> None:
         if self.factors.as_of_utc > self.context.as_of_utc:
             raise DecisionContractError("decision cannot use future factor snapshots")
         if self.portfolio.as_of_utc > self.context.as_of_utc:
             raise DecisionContractError("decision cannot use future portfolio context")
+        if self.sizing is not None and self.sizing.as_of_utc > self.context.as_of_utc: raise DecisionContractError("decision cannot use future sizing context")

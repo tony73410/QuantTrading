@@ -52,6 +52,7 @@ class Responsibility(StrEnum):
     FETCH_MARKET_DATA = "fetch_market_data"
     CACHE_MARKET_DATA = "cache_market_data"
     CALCULATE_SINGLE_ASSET_FACTORS = "calculate_single_asset_factors"
+    CALCULATE_MARKET_FACTORS = "calculate_market_factors"
     CREATE_TRADE_INTENTS = "create_trade_intents"
     PROVIDE_PORTFOLIO_CONTEXT = "provide_portfolio_context"
     EVALUATE_RISK = "evaluate_risk"

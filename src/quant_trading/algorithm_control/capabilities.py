@@ -9,6 +9,7 @@ RESPONSIBILITY_OWNERS: dict[Responsibility, OwnerLayer] = {
     Responsibility.FETCH_MARKET_DATA: OwnerLayer.MARKET_DATA,
     Responsibility.CACHE_MARKET_DATA: OwnerLayer.STORAGE,
     Responsibility.CALCULATE_SINGLE_ASSET_FACTORS: OwnerLayer.FACTOR,
+    Responsibility.CALCULATE_MARKET_FACTORS: OwnerLayer.FACTOR,
     Responsibility.CREATE_TRADE_INTENTS: OwnerLayer.DECISION,
     Responsibility.PROVIDE_PORTFOLIO_CONTEXT: OwnerLayer.PORTFOLIO,
     Responsibility.EVALUATE_RISK: OwnerLayer.RISK,
@@ -24,7 +25,7 @@ RESPONSIBILITY_OWNERS: dict[Responsibility, OwnerLayer] = {
 ALLOWED_CAPABILITIES: dict[OwnerLayer, frozenset[Capability]] = {
     OwnerLayer.MARKET_DATA: frozenset({Capability.READ_MARKET_DATA}),
     OwnerLayer.STORAGE: frozenset({Capability.READ_STANDARDIZED_MARKET_DATA, Capability.WRITE_MARKET_CACHE}),
-    OwnerLayer.FACTOR: frozenset({Capability.READ_STANDARDIZED_MARKET_DATA, Capability.CALCULATE_FACTORS}),
+    OwnerLayer.FACTOR: frozenset({Capability.READ_STANDARDIZED_MARKET_DATA, Capability.READ_FACTOR_SNAPSHOT, Capability.CALCULATE_FACTORS}),
     OwnerLayer.DECISION: frozenset({Capability.READ_FACTOR_SNAPSHOT, Capability.CREATE_TRADE_INTENT}),
     OwnerLayer.PORTFOLIO: frozenset({Capability.READ_PORTFOLIO_STATE}),
     OwnerLayer.RISK: frozenset({

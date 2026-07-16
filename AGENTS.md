@@ -11,6 +11,7 @@
 - 默认执行环境标识为 **ALPACA PAPER**，但当前只有空白的 `execution.paper` / `execution.live` 同级边界，没有执行功能；自动订单提交和 Alpaca Live Trading 必须关闭，任何未来订单都要求人工确认。配置 Alpaca Key 不等于获得订单或实盘授权。
 - Alpaca Market Data 与未来 Alpaca Execution 必须保持独立模块边界。没有明确批准、独立 Live 配置和完整风险保护，不得连接实盘账户或操作真实资金订单。
 - 不因顺手清理或追求整洁而扩大范围。编辑、测试或审查中发现的错误和可信潜在缺陷必须先写入 `logs/BUG_LOG.md`；当前仍影响用户的问题同时摘要到 `KNOWN_ISSUES.md`。
+- 新增可由用户独立打开的正式GUI功能时，必须同时评估并更新 `quant_trading.launcher` 的可信入口目录、主控制台测试和 `docs/modules/main-launcher.md`；不得把新功能的业务逻辑复制到主控制台。
 
 ## Required workflow
 
@@ -97,6 +98,7 @@ Implementation does not grant runtime or trading authority. AI recommendations a
 - 三层算法不变量：`factors`不得导入或知道`decision`/`risk`；`decision`只能依赖公开Factor模型/接口，不得依赖具体Factor实现、原始行情、SQLite、`risk`或券商；`risk`只能依赖公开Factor/Decision合同和抽象状态接口，不得依赖具体Provider、Store、GUI或Execution。
 - `TradeIntent`只是建议意图，不是订单、风险批准或成交。所有未来可执行意图必须经过独立Risk层；Risk可否决、延迟、暂停或降低风险，但不得扩大/反转原始意图、产生Alpha或直接下单。未来Execution只能接受类型明确的Risk-approved对象，不能接受普通`TradeIntent`。
 - `execution.paper`与`execution.live`是同一Execution所有者下的同级边界，当前必须保持空白、禁用、互不导入。任何内容、合同、Provider、账户/订单访问或激活都属于新的审批任务；Live不得从Paper继承权限、凭据、endpoint或状态。
+- `portfolio_accounting`是账户与投资组合事实/派生状态的统一业务领域：`ledger`只追加订单生命周期、确认成交和现金事实，`accounting`只从事实重建状态。订单意图、已提交/拒绝/未成交订单不得改变现金或持仓；Risk与GUI只能通过公开只读快照/Query合同读取，不得修改账本或余额；Broker快照只能用于核对，不得静默覆盖本地历史。
 - Risk配置必须与Factor/Decision配置分离并具有版本；未获用户批准不得填写金额、比例、亏损、回撤、杠杆或保证金限制。Live与自动提交仍关闭，Emergency automatic liquidation尚未实现。
 - 算法控制中心管理Registry元数据、受限Factor定义编辑、Decision对精确Factor版本的选择、`ParameterSchema`、Draft/Saved/Active版本、验证、NO EXECUTION预览和审计。GUI不得执行任意Python、计算Factor、包含Decision/Risk规则、访问行情/API/SQL或执行逻辑，也不得按组件名称写分支；受限表达式的验证/计算合同归Factor层。
 - 控制中心的Save、Apply和Restore必须留下不可变版本及原因；Locked安全不变量不能停用。凭据、配置激活或Preview/Dry Run均不得成为订单授权。

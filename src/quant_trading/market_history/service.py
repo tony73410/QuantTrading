@@ -39,6 +39,10 @@ class HistoricalDataService:
         self.provider = provider
         self.cache_policy = cache_policy or CachePolicy()
 
+    def list_cached_symbols(self) -> list[str]:
+        """List locally available symbols without contacting the Provider."""
+        return self.store.list_symbols()
+
     def load(
         self,
         request: HistoricalDataRequest,

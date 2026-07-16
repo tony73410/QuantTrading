@@ -84,6 +84,17 @@ def test_production_import_graph_has_no_cycles() -> None:
 def test_documented_layer_boundaries_are_not_crossed() -> None:
     imports = _production_imports()
     forbidden = {
+        "quant_trading.launcher": (
+            "quant_trading.market_history",
+            "quant_trading.algorithm_control",
+            "quant_trading.factors",
+            "quant_trading.decision",
+            "quant_trading.risk",
+            "quant_trading.persistence",
+            "quant_trading.execution",
+            "alpaca",
+            "sqlite3",
+        ),
         "quant_trading.market_history.ui": (
             "quant_trading.market_history.providers",
             "quant_trading.market_history.storage",
@@ -204,6 +215,7 @@ def test_factor_and_decision_layers_communicate_only_through_public_contracts() 
     ]
     allowed_factor_contracts = {
         "quant_trading.factors.models",
+        "quant_trading.factors.market",
         "quant_trading.factors.interfaces",
     }
     decision_violations = [
@@ -271,6 +283,7 @@ def test_algorithm_control_uses_only_public_factor_authoring_contracts() -> None
         "quant_trading.factors.expression_language",
         "quant_trading.factors.interfaces",
         "quant_trading.factors.models",
+        "quant_trading.factors.market",
     }
     violations = [
         f"{module} imports non-contract Factor module {target}"
@@ -313,3 +326,93 @@ def test_market_history_app_is_the_only_concrete_composition_root() -> None:
         if has_provider and has_store:
             roots.append(module)
     assert roots == ["quant_trading.market_history.app"]
+
+
+def test_portfolio_accounting_dependency_boundaries() -> None:
+    imports = _production_imports()
+    forbidden = {
+        "quant_trading.portfolio_accounting.ledger": (
+            "quant_trading.algorithm_control",
+            "quant_trading.market_history.ui",
+            "PySide6",
+        ),
+        "quant_trading.portfolio_accounting.accounting": (
+            "quant_trading.execution",
+            "quant_trading.market_history.providers",
+            "alpaca",
+            "PySide6",
+        ),
+        "quant_trading.portfolio_accounting.reconciliation": (
+            "quant_trading.execution",
+            "alpaca",
+            "PySide6",
+        ),
+    }
+    violations = []
+    for module, targets in imports.items():
+        for owner, blocked in forbidden.items():
+            if _matches(module, owner):
+                for target in targets:
+                    if any(_matches(target, prefix) for prefix in blocked):
+                        violations.append(f"{module} imports forbidden {target}")
+    assert not violations, "\n".join(sorted(violations))
+
+
+def test_gui_does_not_access_ledger_storage_implementation_directly() -> None:
+    violations = [
+        f"{module} imports {target}"
+        for module, targets in _production_imports().items()
+        if ".ui." in module or module.endswith(".ui")
+        for target in targets
+        if _matches(target, "quant_trading.portfolio_accounting.ledger.in_memory_repository")
+    ]
+    assert not violations, "\n".join(sorted(violations))
+
+
+def test_risk_reads_accounting_contracts_but_has_no_mutation_dependency() -> None:
+    imports = _production_imports()
+    risk_targets = {
+        target
+        for module, targets in imports.items()
+        if _matches(module, "quant_trading.risk")
+        for target in targets
+    }
+    assert "quant_trading.portfolio_accounting.interfaces" in risk_targets
+    assert not any(_matches(target, "quant_trading.portfolio_accounting.ledger") for target in risk_targets)
+    assert not any(_matches(target, "quant_trading.portfolio_accounting.accounting.service") for target in risk_targets)
+
+
+def test_execution_has_no_cash_or_position_mutation_implementation() -> None:
+    forbidden_names = {"cash", "positions", "cost_basis", "daily_pnl"}
+    violations = []
+    for path in (PACKAGE_ROOT / "execution").rglob("*.py"):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        assigned = {
+            node.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
+        }
+        for name in sorted(assigned & forbidden_names):
+            violations.append(f"{path.name} mutates {name}")
+    assert not violations, "\n".join(violations)
+
+
+def test_validation_framework_does_not_own_business_or_gui_rules() -> None:
+    imports = _production_imports()
+    targets = imports.get("quant_trading.validation", set())
+    forbidden = (
+        "quant_trading.market_history",
+        "quant_trading.factors",
+        "quant_trading.decision",
+        "quant_trading.risk",
+        "quant_trading.execution",
+        "quant_trading.portfolio_accounting",
+        "quant_trading.algorithm_control",
+        "PySide6",
+        "alpaca",
+        "sqlite3",
+    )
+    violations = [
+        target for target in targets if any(_matches(target, prefix) for prefix in forbidden)
+    ]
+    assert not violations, "\n".join(sorted(violations))

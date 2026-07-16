@@ -5,6 +5,10 @@ from __future__ import annotations
 from typing import Protocol
 
 from quant_trading.decision.models import PortfolioSnapshot, TradeIntent
+from quant_trading.portfolio_accounting.interfaces import (
+    AccountSnapshotProvider as AccountingAccountSnapshotProvider,
+    PortfolioSnapshotProvider as AccountingPortfolioSnapshotProvider,
+)
 
 from .models import (
     AccountSnapshot,

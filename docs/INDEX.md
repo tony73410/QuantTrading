@@ -1,5 +1,8 @@
 # Documentation Index
 
+- [Historical Backtesting and Simulation](modules/backtesting.md)
+- [Market Factor Layer](modules/market-factors.md)
+
 - [Central SQLite persistence](modules/central-persistence.md) — shared physical database, independent Store contracts, Factor history and calculation-run audit.
 
 - [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
@@ -24,9 +27,13 @@
 | Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同、优先级和无数值规则引擎 |
 | Analysis/decision/risk pipeline | `modules/analysis-decision-pipeline.md` | Factor → Decision以及Factor → Decision → Risk单向编排和Execution停止边界 |
 | Execution environments | `modules/execution-environments.md` | Paper与Live两个同级、空白、禁用的未来执行环境边界 |
+| Portfolio accounting | `modules/portfolio-accounting.md` | 统一会计领域、派生快照、核对与只读Query边界 |
+| Trading ledger | `modules/trading-ledger.md` | 追加式订单操作与成交/现金事实记录边界 |
 | Algorithm control GUI | `modules/algorithm-control-gui.md` | Registry驱动的组件、参数、版本配置、依赖验证、NO EXECUTION预览和审计管理面 |
+| Algorithm Idea Notebook | `modules/idea-notebook.md` | Algorithm Control内的本地纯文本想法记录；与Factor、Decision、Backtesting和Execution隔离 |
 | Workflow | `development/WORKFLOW.md` | 每次任务的执行流程 |
 | Debugging | `development/DEBUGGING.md` | 错误编号、日志、诊断命令和标准排查流程 |
+| Validation and health | `development/VALIDATION.md` | 统一验证结果、错误严重度、Fail-Closed汇总和模块验证所有权 |
 | Discovered bugs | `../logs/BUG_LOG.md` | 编辑、测试、审查和运行中发现的确认错误与可信潜在缺陷历史 |
 | Current known issues | `../KNOWN_ISSUES.md` | 当前仍影响用户的问题、证据和临时规避方法摘要 |
 | Requirement interpretation | `development/REQUIREMENT_INTERPRETATION.md` | 将日常表达转为准确、安全、可验证的需求 |

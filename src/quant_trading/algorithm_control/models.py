@@ -11,7 +11,8 @@ from uuid import UUID
 
 from quant_trading.application_settings import ExecutionEnvironment
 from quant_trading.decision.models import DecisionResult
-from quant_trading.factors.models import FactorSnapshot
+from quant_trading.factors.models import FactorParameter, FactorSnapshot
+from quant_trading.market_history.models import Adjustment, DataFeed, Timeframe
 from quant_trading.risk.models import RiskDecision
 
 from .errors import AlgorithmControlError
@@ -46,6 +47,7 @@ class ComponentType(StrEnum):
     MARKET_DATA = "market_data"
     STORAGE = "storage"
     FACTOR = "factor"
+    MARKET_FACTOR = "market_factor"
     DECISION = "decision"
     PORTFOLIO = "portfolio"
     RISK = "risk"
@@ -381,6 +383,12 @@ class PreviewRequest:
     as_of_utc: datetime
     configuration_ids: tuple[UUID, ...] = ()
     use_fake_input: bool = False
+    start_utc: datetime | None = None
+    timeframe: Timeframe = Timeframe.DAY
+    adjustment: Adjustment = Adjustment.RAW
+    feed: DataFeed = DataFeed.IEX
+    factor_parameters: tuple[FactorParameter, ...] = ()
+    persist_factor_snapshot: bool = False
 
     def __post_init__(self) -> None:
         symbol = self.symbol.strip().upper()
@@ -388,6 +396,17 @@ class PreviewRequest:
             raise AlgorithmControlError("preview symbol must not be empty")
         object.__setattr__(self, "symbol", symbol)
         object.__setattr__(self, "as_of_utc", _utc(self.as_of_utc, "preview as_of"))
+        if self.start_utc is not None:
+            start = _utc(self.start_utc, "preview start")
+            if start >= self.as_of_utc:
+                raise AlgorithmControlError("preview start must be before as_of")
+            object.__setattr__(self, "start_utc", start)
+        if not isinstance(self.timeframe, Timeframe):
+            raise AlgorithmControlError("preview timeframe must use Timeframe")
+        if not isinstance(self.adjustment, Adjustment):
+            raise AlgorithmControlError("preview adjustment must use Adjustment")
+        if not isinstance(self.feed, DataFeed):
+            raise AlgorithmControlError("preview feed must use DataFeed")
 
 
 @dataclass(frozen=True, slots=True)

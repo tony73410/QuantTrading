@@ -14,6 +14,8 @@ from quant_trading.algorithm_control.models import ComponentType, ConfigurationS
 from quant_trading.factors import FactorDefinitionParameter
 from quant_trading.factors.errors import FactorDefinitionError
 from quant_trading.algorithm_control.errors import ControlStoreError
+from quant_trading.algorithm_control.factor_lifecycle import FactorLifecycleState
+from quant_trading.algorithm_control.models import ComponentStatus
 
 
 def _save(controller, expression: str = 'latest("close")'):
@@ -97,3 +99,30 @@ def test_definition_store_rejects_tampered_content(tmp_path: Path) -> None:
 
     with pytest.raises(ControlStoreError):
         JsonFactorDefinitionStore(path).list_definitions()
+
+
+def test_factor_version_can_be_archived_and_restored_without_deletion(tmp_path: Path) -> None:
+    controller = build_controller(tmp_path)
+    saved = _save(controller)
+
+    archived = controller.set_factor_lifecycle(
+        saved.component_id,
+        FactorLifecycleState.ARCHIVED,
+        "Hide this version from new Decision configurations",
+    )
+
+    assert archived.state is FactorLifecycleState.ARCHIVED
+    assert controller.registry.get(saved.component_id).status is ComponentStatus.DEPRECATED
+    assert controller.factor_definition_history() == (saved,)
+
+    restarted = build_controller(tmp_path)
+    assert restarted.factor_lifecycle_record(saved.component_id).state is FactorLifecycleState.ARCHIVED
+    assert restarted.registry.get(saved.component_id).status is ComponentStatus.DEPRECATED
+    assert restarted.factor_definition_history() == (saved,)
+
+    restarted.set_factor_lifecycle(
+        saved.component_id,
+        FactorLifecycleState.AVAILABLE,
+        "Restore this immutable version for future selection",
+    )
+    assert restarted.registry.get(saved.component_id).status is ComponentStatus.AVAILABLE

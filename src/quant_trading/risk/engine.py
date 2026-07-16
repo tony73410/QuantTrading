@@ -119,7 +119,7 @@ class RiskEngine:
 
         strongest = max(results, key=lambda result: _PRIORITY[result.decision]).decision
         decision = self._decision_type(strongest)
-        approved_target, approved_quantity = self._approved_values(
+        approved_target, approved_quantity, approved_notional = self._approved_values(
             trade_intent, results, decision
         )
         reasons = tuple(dict.fromkeys(code for result in results for code in result.reason_codes))
@@ -138,6 +138,7 @@ class RiskEngine:
             tuple(results),
             approved_target=approved_target,
             approved_quantity=approved_quantity,
+            approved_notional=approved_notional,
             warnings=warnings,
             requires_manual_review=(
                 context.risk.manual_confirmation_required
@@ -252,7 +253,7 @@ class RiskEngine:
     def _validate_reduction(self, intent: TradeIntent, result: RiskRuleResult) -> None:
         if result.decision is not RiskRuleDecision.REDUCE:
             return
-        originals = (intent.current_exposure, intent.target_exposure, intent.desired_change)
+        originals = (intent.current_exposure, intent.target_exposure, intent.desired_change,intent.requested_notional)
         if intent.target_exposure is not None:
             if intent.current_exposure is None or result.approved_target is None:
                 raise RiskContractError("target reduction needs current and approved target")
@@ -269,10 +270,14 @@ class RiskEngine:
                 raise RiskContractError("risk rule attempted to increase or reverse quantity")
         elif result.approved_quantity is not None:
             raise RiskContractError("risk rule cannot invent a quantity")
+        if intent.requested_notional is not None:
+            if result.approved_notional is None or result.approved_notional<=0 or result.approved_notional>intent.requested_notional: raise RiskContractError("risk rule attempted to increase requested notional")
+        elif result.approved_notional is not None: raise RiskContractError("risk rule cannot invent a notional")
         if originals == (
             intent.current_exposure,
             result.approved_target,
             result.approved_quantity,
+            result.approved_notional,
         ):
             raise RiskContractError("REDUCE must make at least one value stricter")
 
@@ -281,14 +286,14 @@ class RiskEngine:
         intent: TradeIntent,
         results: list[RiskRuleResult],
         decision: RiskDecisionType,
-    ) -> tuple[Decimal | None, Decimal | None]:
+    ) -> tuple[Decimal | None, Decimal | None, Decimal | None]:
         if decision not in {
             RiskDecisionType.APPROVED,
             RiskDecisionType.APPROVED_WITH_REDUCTION,
         }:
-            return None, None
+            return None, None, None
         if decision is RiskDecisionType.APPROVED:
-            return intent.target_exposure, intent.desired_change
+            return intent.target_exposure, intent.desired_change, intent.requested_notional
         reductions = [result for result in results if result.decision is RiskRuleDecision.REDUCE]
         target = intent.target_exposure
         if target is not None and intent.current_exposure is not None:
@@ -302,7 +307,9 @@ class RiskEngine:
                 (result.approved_quantity for result in reductions),
                 key=lambda value: abs(value),  # type: ignore[arg-type]
             )
-        return target, quantity
+        notional=intent.requested_notional
+        if notional is not None: notional=min(result.approved_notional for result in reductions)
+        return target, quantity, notional
 
     @staticmethod
     def _decision_type(decision: RiskRuleDecision) -> RiskDecisionType:
@@ -338,6 +345,7 @@ class RiskEngine:
         *,
         approved_target: Decimal | None = None,
         approved_quantity: Decimal | None = None,
+        approved_notional: Decimal | None = None,
         warnings: tuple[str, ...] = (),
         requires_manual_review: bool | None = None,
         system_paused: bool = False,
@@ -372,4 +380,6 @@ class RiskEngine:
             account_snapshot_id=context.account.snapshot_id,
             environment=context.risk.environment,
             earliest_execution_utc=earliest_execution_utc,
+            original_notional=intent.requested_notional,
+            approved_notional=approved_notional,
         )

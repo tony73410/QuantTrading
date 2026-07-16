@@ -21,7 +21,11 @@ from quant_trading.algorithm_control.models import (
 )
 from quant_trading.algorithm_control.ui.parameter_editor import ParameterEditor
 from quant_trading.algorithm_control.app import build_controller
-from quant_trading.algorithm_control.ui.main_panel import AlgorithmControlPanel
+from quant_trading.algorithm_control.factor_lifecycle import FactorLifecycleState
+from quant_trading.algorithm_control.ui.main_panel import (
+    ALGORITHM_CONTROL_PAGE_IDS,
+    AlgorithmControlPanel,
+)
 
 
 def test_parameter_editor_is_generated_from_schema():
@@ -52,7 +56,19 @@ def test_parameter_editor_is_generated_from_schema():
 def test_control_panel_shows_empty_algorithm_layers_and_locked_risk_invariants(tmp_path):
     app = QApplication.instance() or QApplication([])
     panel = AlgorithmControlPanel(build_controller(tmp_path))
-    assert panel.tabs.count() == 7
+    assert panel.tabs.count() == 12
+    assert any(
+        panel.tabs.tabText(index) == "算法 Idea 笔记"
+        for index in range(panel.tabs.count())
+    )
+    assert any(panel.tabs.tabText(index) == "单只股票因子" for index in range(panel.tabs.count()))
+    assert any(panel.tabs.tabText(index) == "市场/宏观因子" for index in range(panel.tabs.count()))
+    assert any(panel.tabs.tabText(index) == "Simulation Strategies" for index in range(panel.tabs.count()))
+    assert any(panel.tabs.tabText(index) == "Portfolio & Ledger" for index in range(panel.tabs.count()))
+    assert tuple(panel._page_indexes) == ALGORITHM_CONTROL_PAGE_IDS
+    for expected_index, page_id in enumerate(ALGORITHM_CONTROL_PAGE_IDS):
+        panel.select_page(page_id)
+        assert panel.tabs.currentIndex() == expected_index
     assert panel.factor_page.list.count() == 0
     assert panel.decision_page.list.count() == 0
     assert panel.risk_page.list.count() == 4
@@ -121,5 +137,44 @@ def test_factor_catalog_and_decision_factor_choices_are_visible(tmp_path):
         panel.decision_page.factor_choices.item(0).data(Qt.ItemDataRole.UserRole)
         == factor.component_id
     )
+    panel.close()
+    assert app is not None
+
+
+def test_factor_selection_can_be_reloaded_and_archived_version_restored(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    controller = build_controller(tmp_path)
+    factor = controller.save_factor_definition(
+        factor_id="user.lifecycle_selection",
+        display_name="Lifecycle selection Factor",
+        description="Regression fixture for list selection synchronization.",
+        expression='latest("close")',
+        minimum_observations=1,
+        output_unit="USD",
+        missing_input_policy="return_missing_status",
+        parameters=(),
+        change_reason="Create lifecycle selection fixture",
+    )
+    panel = AlgorithmControlPanel(controller)
+    authoring = panel.factor_page.authoring
+
+    authoring.clear_form()
+    assert authoring.list.currentRow() == -1
+    assert authoring._selected_id is None
+
+    authoring.list.setCurrentRow(0)
+    assert authoring._selected_id == factor.definition_id
+    assert authoring.factor_id.text() == factor.factor_id
+
+    authoring.reason.setText("Archive from GUI regression test")
+    authoring._set_lifecycle(FactorLifecycleState.ARCHIVED)
+    assert controller.factor_lifecycle_record(factor.component_id).state is FactorLifecycleState.ARCHIVED
+
+    authoring.clear_form()
+    authoring.list.setCurrentRow(0)
+    authoring.reason.setText("Restore from GUI regression test")
+    authoring._set_lifecycle(FactorLifecycleState.AVAILABLE)
+    assert controller.factor_lifecycle_record(factor.component_id).state is FactorLifecycleState.AVAILABLE
+
     panel.close()
     assert app is not None

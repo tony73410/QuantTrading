@@ -1,8 +1,10 @@
 # Safe Factor Authoring
 
+The existing restricted-expression editor authors Asset Factors for one stock. The sibling `市场/宏观因子` page creates immutable Market Factor definitions over one exact Asset Factor version and an explicit symbol universe. It does not accept arbitrary Python or silently change the universe.
+
 ## Status
 
-Implemented and verified as a disabled-by-default authoring capability. No authored Factor is enabled automatically and no production Decision policy exists.
+Implemented and verified as a disabled-by-default authoring and local-preview capability. No authored Factor is enabled automatically and preview grants no trading authority.
 
 ## Purpose
 
@@ -18,7 +20,13 @@ Let the user define and revise a single-asset Factor through the Algorithm Contr
 
 ## Non-responsibilities
 
-No source-code execution, API/SQL/file access, Market Data loading, Decision rule, Risk rule, order, account or broker behavior. Saving or selecting does not activate a Factor.
+No source-code execution, direct API/SQL/file access from GUI, Decision rule, Risk rule, order, account or broker behavior. Saving, archiving, restoring or previewing does not activate a Factor.
+
+## Lifecycle and local preview
+
+Each immutable version can be `AVAILABLE`, `ARCHIVED`, or `DEPRECATED`. Lifecycle changes append an event with a required reason and never delete definitions or historical results. New Decision definitions may reference only an available exact Factor version.
+
+The local workbench selects symbol, date range, timeframe, adjustment and feed, filters cached Bars to the chosen `as_of_utc`, then runs the public calculator. It may optionally persist a Factor snapshot in the central SQLite database. It does not fetch missing Market Data. For preview only, a Bar is treated as available after its timestamp plus its timeframe duration; exchange-calendar and historical adjusted-data semantics remain open for any future backtest.
 
 ## Public interfaces
 

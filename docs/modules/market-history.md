@@ -8,11 +8,12 @@ Alpaca 在本模块中仅承担 **Market Data Provider / 行情数据提供商**
 
 ## User capabilities
 
+- 在窗口最左侧滚动浏览当前 SQLite 中至少有一条 Bar 的全部已下载股票；列表按代码排序，单击代码会同步股票输入框，并使用当前日期范围、粒度、复权与 Feed 自动加载图表。手工加载的新股票在成功写入本地缓存后会加入该列表。
 - 输入股票代码，使用不区分大小写的本地常见美股代码自动补全，并选择粒度对应的快捷范围或自定义日期。首次查询点击“加载”；已有图表后切换时间范围或粒度会立即在后台自动加载新选择，不需再次点击。目录按 11 个 GICS 大类行业各收录 10 个常见代码；它只帮助输入，不覆盖全部上市公司、不限制其他代码，也不构成投资建议。
 - 选择 10 分钟、30 分钟、1 小时、日线、周线或月线；Raw、拆股、分红或全部复权；IEX 或 SIP Feed。分钟/小时数据默认只显示纽约时间 09:30–16:00 的常规交易时段。
 - 切换 Candlestick、折线和 OHLC；折线可选 Open/High/Low/Close/VWAP。
 - 开关成交量、范围滑块和自动更新；执行普通加载、最新尾部更新或明确的 Force Refresh。
-- 使用 Plotly 悬停、缩放、拖动、范围快捷按钮、范围滑块和重置视图；切换请求日期范围时重置旧缩放窗口，仅改变图表样式时保留当前视图；加载和调整窗口尺寸后图表高度跟随当前可见区域，避免底部年份坐标被挤出窗口。
+- 使用 Plotly 悬停、缩放、拖动、范围快捷按钮、范围滑块和重置视图；切换请求日期范围时重置旧缩放窗口，仅改变图表样式时保留当前视图；加载和调整窗口尺寸后图表高度跟随当前可见区域，避免底部年份坐标被挤出窗口。控制面板和状态栏在可见高度不足时在自身区域内纵向滚动，不得因刷新后的状态文字换行而把主窗口撑出屏幕。
 - 没有 API 凭据时启动 GUI，并查看已有本地数据。
 - 在状态区域查看“行情数据：Alpaca、主要券商：Alpaca、当前环境：Paper Trading、真实交易：未启用、自动下单：未启用、订单确认：需要人工确认”。
 
@@ -41,7 +42,7 @@ Alpaca 在本模块中仅承担 **Market Data Provider / 行情数据提供商**
 
 - `HistoricalDataRequest`：标准化 `[start, end)` 历史请求。
 - `MarketBar`：带 UTC 时间和明确维度的 OHLCV 数据。
-- `HistoricalMarketDataProvider` / `HistoricalDataStore`：可替换 Provider 与 Store Protocol。
+- `HistoricalMarketDataProvider` / `HistoricalDataStore`：可替换 Provider 与 Store Protocol；Store 的 `list_symbols()` 只读列出至少存在一条本地 Bar 的股票代码。
 - `HistoricalDataService.load()`：本地优先加载、刷新和离线回退。
 - `HistoryController`：GUI 参数转换、并发保护和图表入口。
 - `python -m quant_trading.market_history` / `quant-history`：桌面启动入口。
@@ -191,6 +192,8 @@ The existing `runtime/data/market_history.sqlite3` file is now the application's
 ## Data validation
 
 写入前检查 symbol/维度、带时区 UTC、严格时间排序、唯一键、请求范围、有限数值、OHLC 关系、非负 volume/trade count。异常价格不会被静默修正，也不会更新 Coverage。
+
+即使请求结束边界允许延伸到当前时间之后，响应中的单条Bar也不得晚于验证时UTC；未来Bar以`DataValidationError`阻止，不写缓存、不进入Factor或图表。
 
 ## Clearing local data
 

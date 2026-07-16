@@ -1,8 +1,12 @@
 # Change Proposals
 
+- `PROPOSAL-007-asset-market-factor-decision-sizing.md`: approved Asset/Market Factor separation and Decision Sizing phase one.
+
 Current proposals:
 
-- [`PROPOSAL-004`](PROPOSAL-004-factor-lifecycle-decision-authoring-and-execution-control.md) — draft six-phase plan for Factor lifecycle, evidence-based preview, Decision Policy authoring, Risk-gated dry run and a separate disabled Execution control surface; implementation and trading semantics are not approved.
+- [`PROPOSAL-005`](PROPOSAL-005-portfolio-accounting-layer.md) — implemented-disabled in-memory Portfolio Accounting/Trading Ledger scaffold; no broker, persistence, execution, or production accounting activation.
+
+- [`PROPOSAL-004`](PROPOSAL-004-factor-lifecycle-decision-authoring-and-execution-control.md) — implemented-disabled six-phase Factor lifecycle, local evidence preview, restricted Decision Policy authoring, Risk-gated dry run and read-only Execution control surface; no order or Live authority.
 
 - [`PROPOSAL-003`](PROPOSAL-003-safe-factor-authoring-and-decision-selection.md) — implemented-disabled restricted Factor authoring and exact Decision Factor-version selection; no arbitrary Python, policy, activation or order behavior.
 
@@ -36,6 +40,8 @@ Idea
 Implementation is evidence, not activation. An AI recommendation is not approval. A component must remain `REGISTERED` or `DISABLED` until the evidence and approval required for the next state exist.
 
 ## IDs and lifecycle
+
+Implemented proposal: `PROPOSAL-008-simulation-decision-journal.md` records the approved complete daily research-evaluation journal.
 
 Use the next unused `PROPOSAL-NNN`. Allowed proposal statuses are:
 

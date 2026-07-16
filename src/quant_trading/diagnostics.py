@@ -16,6 +16,14 @@ from pathlib import Path
 from .market_history.config import AppSettings
 from .market_history.models import Adjustment, DataFeed, HistoricalDataRequest, Timeframe
 from .market_history.providers import AlpacaHistoricalMarketDataProvider
+from .error_codes import ErrorCode
+from .validation import (
+    HealthCheckResult,
+    HealthStatus,
+    ValidationIssue,
+    ValidationResult,
+    ValidationSeverity,
+)
 
 
 class DiagnosticStatus(str, Enum):
@@ -228,6 +236,45 @@ def run_diagnostics(
     return results
 
 
+def summarize_diagnostics(results: list[DiagnosticResult]) -> HealthCheckResult:
+    """Translate existing read-only checks into the unified health contract."""
+
+    validation_results: list[ValidationResult] = []
+    incomplete = False
+    for result in results:
+        if result.status is DiagnosticStatus.PASS:
+            issues: tuple[ValidationIssue, ...] = ()
+        else:
+            if result.status is DiagnosticStatus.SKIPPED:
+                incomplete = True
+                severity = ValidationSeverity.INFO
+            elif result.status is DiagnosticStatus.WARNING:
+                severity = ValidationSeverity.WARNING
+            else:
+                severity = ValidationSeverity.BLOCKING
+            issues = (ValidationIssue(
+                ErrorCode.INTEGRITY_VALIDATION,
+                severity,
+                "diagnostics",
+                result.name,
+                result.message,
+                suggested_action="Review this check before enabling any execution path.",
+            ),)
+        validation_results.append(
+            ValidationResult.from_issues(result.name, "diagnostics", issues)
+        )
+    statuses = {item.status for item in validation_results}
+    if any(status is DiagnosticStatus.FAIL for status in (item.status for item in results)):
+        health = HealthStatus.BLOCKED
+    elif incomplete:
+        health = HealthStatus.UNKNOWN
+    elif any(status.value == "warning" for status in statuses):
+        health = HealthStatus.DEGRADED
+    else:
+        health = HealthStatus.HEALTHY
+    return HealthCheckResult(health, tuple(validation_results))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run read-only QuantTrade diagnostics")
     parser.add_argument(
@@ -239,6 +286,8 @@ def main(argv: list[str] | None = None) -> int:
     results = run_diagnostics(include_network=args.network)
     for result in results:
         print(f"{result.status.value:<7} {result.name}: {result.message}")
+    health = summarize_diagnostics(results)
+    print(f"SYSTEM_HEALTH {health.status.value.upper()} automatic_execution_allowed={str(health.allows_automatic_execution).lower()}")
     return 1 if any(result.status is DiagnosticStatus.FAIL for result in results) else 0
 
 

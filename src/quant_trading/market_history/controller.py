@@ -43,6 +43,10 @@ class HistoryController:
         with self._result_lock:
             return self._current_result
 
+    def list_downloaded_symbols(self) -> list[str]:
+        """Expose local symbol discovery to the GUI without exposing the Store."""
+        return self._service.list_cached_symbols()
+
     @staticmethod
     def build_request(
         *,

@@ -27,15 +27,19 @@ from PySide6.QtWidgets import (
     QComboBox,
     QCompleter,
     QDateEdit,
+    QFrame,
     QFormLayout,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListWidget,
     QMessageBox,
     QProgressBar,
     QPushButton,
+    QScrollArea,
+    QSizePolicy,
     QSplitter,
     QVBoxLayout,
     QWidget,
@@ -420,6 +424,11 @@ class HistoryPanel(QWidget):
         symbol_row.addWidget(self.symbol_input)
         symbol_row.addWidget(self.load_button)
 
+        self.downloaded_symbols_list = QListWidget()
+        self.downloaded_symbols_list.setAlternatingRowColors(True)
+        self.downloaded_symbols_list.setToolTip("单击股票代码，自动加载当前所选范围的图表数据。")
+        self._refresh_downloaded_symbols()
+
         self.range_combo = QComboBox()
         for label, value in _RANGE_PRESETS_BY_TIMEFRAME[Timeframe.DAY]:
             self.range_combo.addItem(label, value)
@@ -568,18 +577,39 @@ class HistoryPanel(QWidget):
         left_layout.addWidget(self.message_label)
         left_layout.addStretch(1)
 
+        self.controls_scroll = QScrollArea()
+        self.controls_scroll.setWidgetResizable(True)
+        self.controls_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.controls_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.controls_scroll.setSizePolicy(
+            QSizePolicy.Policy.Preferred,
+            QSizePolicy.Policy.Ignored,
+        )
+        self.controls_scroll.setMinimumHeight(0)
+        self.controls_scroll.setWidget(left)
+
+        downloaded_box = QGroupBox("已下载股票")
+        downloaded_layout = QVBoxLayout(downloaded_box)
+        downloaded_layout.addWidget(self.downloaded_symbols_list)
+
         self.chart_view = _PlotlyView()
         self.chart_view.render_failed.connect(self._on_chart_failed)
         splitter = QSplitter()
-        splitter.addWidget(left)
+        splitter.addWidget(downloaded_box)
+        splitter.addWidget(self.controls_scroll)
         splitter.addWidget(self.chart_view)
-        splitter.setSizes([360, 1020])
+        splitter.setSizes([150, 360, 870])
         layout = QVBoxLayout(self)
         layout.addWidget(splitter)
 
     def _connect_signals(self) -> None:
         self.load_button.clicked.connect(self._load_from_controls)
         self.symbol_input.returnPressed.connect(self._load_from_controls)
+        self.downloaded_symbols_list.itemClicked.connect(
+            self._load_downloaded_symbol
+        )
         self.refresh_button.clicked.connect(self._refresh_latest)
         self.force_refresh_button.clicked.connect(self._force_refresh)
         self.range_combo.currentIndexChanged.connect(self._on_range_changed)
@@ -593,6 +623,21 @@ class HistoryPanel(QWidget):
         self.show_volume_check.toggled.connect(self._schedule_redraw)
         self.show_range_slider_check.toggled.connect(self._schedule_redraw)
         self.auto_refresh_check.toggled.connect(self._toggle_auto_refresh)
+
+    def _refresh_downloaded_symbols(self) -> None:
+        selected_symbol = self.symbol_input.text().strip().upper()
+        symbols = self.controller.list_downloaded_symbols()
+        self.downloaded_symbols_list.clear()
+        self.downloaded_symbols_list.addItems(symbols)
+        matches = self.downloaded_symbols_list.findItems(
+            selected_symbol, Qt.MatchFlag.MatchExactly
+        )
+        if matches:
+            self.downloaded_symbols_list.setCurrentItem(matches[0])
+
+    def _load_downloaded_symbol(self, item) -> None:
+        self.symbol_input.setText(item.text())
+        self._load_from_controls()
 
     def _on_range_changed(self) -> None:
         self._apply_range_preset()
@@ -755,6 +800,7 @@ class HistoryPanel(QWidget):
             QTimer.singleShot(0, self._load_from_controls)
             return
         self._update_status(result)
+        self._refresh_downloaded_symbols()
         self._redraw_chart()
         if result.warnings:
             self.message_label.setText("；".join(result.warnings))

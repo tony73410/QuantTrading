@@ -1,5 +1,9 @@
 # Trading Decision Engine
 
+Decision may now propose a positive USD `requested_notional`, but it remains a TradeIntent rather than an order. Supported sizing modes are fixed USD, percent available cash, percent equity, percent position value, exit all and restricted expression.
+
+Restricted expressions use Decimal arithmetic and typed namespaces: `asset.*`, `market.*`, `account.cash`, `account.equity`, `position.quantity`, and `position.market_value`. Account/position values come from immutable `SizingContext`; they are not Factors. Unknown, missing, non-finite or non-positive results fail closed. Risk may preserve, reduce, reject or defer the notional and may never increase it.
+
 ## Status
 
 **Partially implemented and verified.** Contracts, registry, non-executing engine, conservative invalid/stale-factor blocking, and Fake-driven tests exist. No production decision policy or trading rule is registered.
@@ -37,7 +41,7 @@ The layer does not download or calculate Market Data, reimplement factors, acces
 
 `DecisionResult` references all Factor snapshot IDs and the selected policy/version. `TradeIntent` can express an action label and optional explicitly unit-bearing exposure fields, but it has no broker, order ID, execution status, endpoint, or submission method.
 
-`DecisionAction` defines vocabulary only: `INCREASE`, `DECREASE`, `HOLD`, `EXIT`, `NO_DECISION`. No code currently selects these actions outside Fake tests.
+`DecisionAction` defines vocabulary: `INCREASE`, `DECREASE`, `HOLD`, `EXIT`, `NO_DECISION`. A restricted user-authored `SafeRuleDecisionPolicy` may select one of these labels from exact Factor values using numeric comparisons and explicit `ALL`/`ANY` combination. It never supplies quantity, target exposure, confidence, order type, or broker behavior.
 
 ## Dependencies
 
@@ -62,7 +66,7 @@ The engine does not invent a staleness duration. Only explicit Factor status is 
 
 Algorithm Control configuration can now store `selected_factor_ids`, each identifying an exact registered Factor version. Selection is an input declaration only: it does not calculate the Factor, define a Decision Policy, activate a component, or create a TradeIntent. Unknown/non-Factor IDs are rejected; an enabled Decision also requires selected Factors to be active.
 
-No Decision configuration file or production policy parameters exist. Immutable `DecisionParameter` values are separate from `FactorParameter`; the Decision layer cannot modify Factor parameters.
+Immutable Decision definition versions persist locally under `runtime/algorithm_control/decision_definitions.json` and register disabled. Their thresholds are Decision parameters, separate from Factor parameters. They are usable for local dry run without becoming active or executable.
 
 ## Tests
 
@@ -70,6 +74,6 @@ No Decision configuration file or production policy parameters exist. Immutable 
 
 ## Known limitations
 
-- No approved policy, thresholds, weights, position sizing, portfolio data, or risk model.
-- No DecisionResult persistence; any future store must reference Factor snapshots and remain separate from orders.
+- No approved production policy, thresholds, weights, portfolio-construction policy or risk model. Research-only notional sizing contracts exist but are not production activation.
+- No DecisionResult persistence; local dry-run results are transient. Any future store must reference Factor snapshots and remain separate from orders.
 - Independent Risk contracts/engine now exist downstream, but no numerical Risk policy or execution layer exists. Decision output cannot bypass Risk or be executed directly.

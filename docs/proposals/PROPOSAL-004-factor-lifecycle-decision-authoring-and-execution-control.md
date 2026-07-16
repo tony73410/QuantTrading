@@ -3,10 +3,10 @@
 ## Status and identity
 
 - Proposal ID: `PROPOSAL-004`
-- Status: `DRAFT`
+- Status: `IMPLEMENTED_DISABLED`
 - Date: 2026-07-14
 - Author: Codex
-- User approval status: `Not requested for implementation`
+- User approval status: `Approved for implementation on 2026-07-15; no trading activation approved`
 - Related proposal: [`PROPOSAL-003`](PROPOSAL-003-safe-factor-authoring-and-decision-selection.md)
 - Related modules: [`factor-authoring.md`](../modules/factor-authoring.md), [`factors.md`](../modules/factors.md), [`trading-decision.md`](../modules/trading-decision.md), [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md), [`execution-environments.md`](../modules/execution-environments.md)
 - Related architecture: [`OVERVIEW.md`](../architecture/OVERVIEW.md)
@@ -462,7 +462,20 @@ No later phase should be treated as approved merely because an earlier phase was
 
 ## 12. Approval record
 
-The user requested that this plan be written and saved for later use. That request approves the planning document only. It does **not** approve implementation, Factor deletion, Decision rules, position semantics, Paper submission, Live Trading, or automatic order submission.
+The user first requested that this plan be saved, and on 2026-07-15 explicitly instructed Codex to start all six phases. That later instruction approved the non-executing implementation described below. It did **not** approve permanent Factor deletion, numerical position semantics, Paper submission, Live Trading, or automatic order submission.
+
+## 19. Implementation outcome (2026-07-15)
+
+All six phases are implemented in a disabled, local-only form:
+
+- Factor versions can be archived, deprecated, and restored without deleting definitions or historical results.
+- The Factor workbench runs a selected immutable definition against local SQLite Market Bars only. It can optionally persist the resulting Factor snapshot in the central SQLite database; it never calls Alpaca or an execution service.
+- The Decision editor saves immutable, disabled rule-policy versions using numeric comparisons, explicit `ALL`/`ANY` combination, and an exact Factor-version contract. It does not accept arbitrary Python, position size, quantity, leverage, or order settings.
+- The Pipeline workbench runs local Factor calculation, a selected Decision Policy, and the existing Risk gate. With no approved numerical Risk policies, a proposed intent remains `MANUAL_REVIEW_REQUIRED`; no order is constructed or submitted.
+- The Execution Control tab is read-only and declaration-only. Paper and Live both show no runtime implementation; Live and all automatic submission remain disabled.
+- Regression and architecture tests verify persistence, point-in-time filtering, immutable versions, exact Factor references, direction-only intents, the Risk-gated dry run, and disabled execution metadata.
+
+Implementation deliberately stops short of production activation. Exact exchange-calendar availability, point-in-time adjusted-data semantics, portfolio sizing, numerical Risk limits, Paper execution, account access, Order Construction, and Live execution remain open or not implemented.
 
 ## 13. Documentation impact when implemented
 

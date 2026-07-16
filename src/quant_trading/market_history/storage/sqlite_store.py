@@ -63,6 +63,22 @@ class SQLiteHistoricalDataStore:
                 cause=exc,
             ) from exc
 
+    def list_symbols(self) -> list[str]:
+        """Return every stock symbol that has at least one locally cached Bar."""
+        try:
+            with closing(self._connect()) as connection:
+                rows = connection.execute(
+                    "SELECT UPPER(symbol) AS symbol FROM market_bars "
+                    "GROUP BY UPPER(symbol) ORDER BY UPPER(symbol)"
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise StorageError(
+                f"Could not list cached symbols: {exc}",
+                error_code=ErrorCode.DATABASE_QUERY,
+                cause=exc,
+            ) from exc
+        return [str(row["symbol"]) for row in rows]
+
     def query_bars(self, request: HistoricalDataRequest) -> list[MarketBar]:
         sql = """
             SELECT * FROM market_bars

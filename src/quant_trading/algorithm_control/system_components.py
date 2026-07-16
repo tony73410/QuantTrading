@@ -64,3 +64,53 @@ def locked_safety_components() -> tuple[ComponentMetadata, ...]:
         )
         for component_id, display_name, description in definitions
     )
+
+
+def disabled_execution_boundary_components() -> tuple[ComponentMetadata, ...]:
+    """Describe Paper and Live boundaries without implementing broker access."""
+
+    definitions = (
+        (
+            "execution.alpaca_paper_boundary",
+            "Alpaca Paper执行边界",
+            "模拟交易执行层占位。当前未实现账户、订单或券商连接。",
+            "quant_trading.execution.paper",
+        ),
+        (
+            "execution.alpaca_live_boundary",
+            "Alpaca Live执行边界",
+            "真实资金执行层占位。Live Trading关闭，且当前未实现任何连接。",
+            "quant_trading.execution.live",
+        ),
+    )
+    return tuple(
+        ComponentMetadata(
+            component_id=component_id,
+            display_name=display_name,
+            component_type=ComponentType.EXECUTION,
+            version="0",
+            description=description,
+            status=ComponentStatus.NOT_IMPLEMENTED,
+            parameter_schema=(),
+            input_contract="ApprovedTradeIntent",
+            output_contract="NoOutput",
+            minimum_data_requirements="A valid RiskApprovedTradeIntent; execution implementation is still absent.",
+            enabled_by_default=False,
+            implementation_path=implementation_path,
+            documentation_path="docs/modules/execution-environments.md",
+            safety_level=SafetyLevel.HIGH_RISK,
+            owner_layer=OwnerLayer.EXECUTION,
+            owner_module=implementation_path,
+            responsibilities=(Responsibility.BUILD_ORDERS,),
+            non_responsibilities=("Factor calculation, Decision logic, Risk approval, current broker submission.",),
+            allowed_dependencies=("quant_trading.risk.models.RiskApprovedTradeIntent",),
+            forbidden_dependencies=("quant_trading.factors", "quant_trading.decision.rule_policy", "PySide6"),
+            required_capabilities=(Capability.BUILD_ORDER,),
+            side_effects=(),
+            financial_effect="None: boundary is registered but unimplemented and disabled.",
+            execution_allowed=False,
+            live_allowed=False,
+            default_feature_state=FeatureState.REGISTERED,
+        )
+        for component_id, display_name, description, implementation_path in definitions
+    )

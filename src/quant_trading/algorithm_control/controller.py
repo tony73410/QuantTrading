@@ -9,7 +9,14 @@ from quant_trading.application_settings import ApplicationRoleSettings
 
 from .configuration_service import ConfigurationService
 from .factor_definition_service import FactorDefinitionService
+from .factor_lifecycle import FactorLifecycleRecord, FactorLifecycleService, FactorLifecycleState
+from .decision_definition_service import DecisionDefinitionService
+from quant_trading.decision.definitions import DecisionPolicyDefinition
 from quant_trading.factors.definitions import FactorDefinition, FactorDefinitionParameter
+from quant_trading.backtesting.strategy_definitions import SimulationStrategyDefinition
+from quant_trading.backtesting.strategy_service import SimulationStrategyService
+from quant_trading.factors.market import MarketFactorDefinition
+from .market_factor_service import MarketFactorDefinitionService
 from .models import (
     AlgorithmOverview,
     AuditAction,
@@ -44,6 +51,10 @@ class AlgorithmControlController:
         roles: ApplicationRoleSettings = ApplicationRoleSettings(),
         proposals: ChangeProposalRegistry | None = None,
         factor_definitions: FactorDefinitionService | None = None,
+        factor_lifecycle: FactorLifecycleService | None = None,
+        decision_definitions: DecisionDefinitionService | None = None,
+        simulation_strategies: SimulationStrategyService | None = None,
+        market_factor_definitions: MarketFactorDefinitionService | None = None,
     ) -> None:
         self.registry = registry
         self.configurations = configurations
@@ -52,6 +63,10 @@ class AlgorithmControlController:
         self.roles = roles
         self.proposals = proposals or ChangeProposalRegistry()
         self.factor_definitions = factor_definitions
+        self.factor_lifecycle = factor_lifecycle
+        self.decision_definitions = decision_definitions
+        self.simulation_strategies = simulation_strategies
+        self.market_factor_definitions = market_factor_definitions
 
     def snapshot(self) -> ControlSnapshot:
         state = self.configurations.state()
@@ -65,7 +80,7 @@ class AlgorithmControlController:
             configurations=state.configurations,
             audit_records=state.audit_records,
             overview=AlgorithmOverview(
-                factor_count=sum(item.component_type is ComponentType.FACTOR for item in components),
+                factor_count=sum(item.component_type in (ComponentType.FACTOR,ComponentType.MARKET_FACTOR) for item in components),
                 decision_count=sum(item.component_type is ComponentType.DECISION for item in components),
                 risk_count=sum(item.component_type is ComponentType.RISK for item in components),
                 active_configuration_count=len(active),
@@ -95,6 +110,43 @@ class AlgorithmControlController:
         if self.factor_definitions is None:
             raise RuntimeError("Factor authoring is not configured")
         return self.factor_definitions.save(**values)
+
+    def market_factor_definition_history(self, identifier: str | None = None) -> tuple[MarketFactorDefinition,...]:
+        return () if self.market_factor_definitions is None else self.market_factor_definitions.list_definitions(identifier)
+
+    def save_market_factor_definition(self, **values: object) -> MarketFactorDefinition:
+        if self.market_factor_definitions is None: raise RuntimeError("Market Factor authoring is not configured")
+        return self.market_factor_definitions.save(**values)
+
+    def factor_lifecycle_record(self, component_id: str) -> FactorLifecycleRecord:
+        if self.factor_lifecycle is None:
+            raise RuntimeError("Factor lifecycle management is not configured")
+        return self.factor_lifecycle.record_for(component_id)
+
+    def set_factor_lifecycle(
+        self,
+        component_id: str,
+        state: FactorLifecycleState,
+        reason: str,
+    ) -> FactorLifecycleRecord:
+        if self.factor_lifecycle is None:
+            raise RuntimeError("Factor lifecycle management is not configured")
+        return self.factor_lifecycle.transition(component_id, state, reason=reason)
+
+    def decision_definition_history(self, policy_id: str | None = None) -> tuple[DecisionPolicyDefinition, ...]:
+        return () if self.decision_definitions is None else self.decision_definitions.list_definitions(policy_id)
+
+    def save_decision_definition(self, **values: object) -> DecisionPolicyDefinition:
+        if self.decision_definitions is None:
+            raise RuntimeError("Decision authoring is not configured")
+        return self.decision_definitions.save(**values)
+
+    def simulation_strategy_history(self, strategy_id: str | None = None) -> tuple[SimulationStrategyDefinition, ...]:
+        return () if self.simulation_strategies is None else self.simulation_strategies.list_definitions(strategy_id)
+
+    def save_simulation_strategy(self, **values: object) -> SimulationStrategyDefinition:
+        if self.simulation_strategies is None: raise RuntimeError("Simulation Strategy management is not configured")
+        return self.simulation_strategies.save(**values)
 
     def set_feature_state(
         self,

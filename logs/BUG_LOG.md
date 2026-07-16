@@ -1204,3 +1204,1582 @@ Development-time pytest failure only; no runtime request, credential, network or
 
 ### Approval needs
 No additional approval; this is a minimal regression fix within the approved GUI extension.
+
+## BUG-20260715-001
+
+### Title
+Algorithm preview composition initially imported the concrete Market History SQLite Store across the application boundary.
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Architecture / Database
+
+### Environment
+Windows 11; Python 3.14.5; pytest 9.1.1.
+
+### Reproduction steps
+1. Compose the new local Factor preview directly inside Algorithm Control.
+2. Run the architecture test suite.
+3. Observe the forbidden concrete Store import.
+
+### Expected behavior
+GUI/control code issues typed preview requests; application orchestration obtains local storage through a narrow public factory/Store contract.
+
+### Actual behavior
+The first implementation imported the concrete SQLite history adapter across the protected boundary.
+
+### Error message
+Architecture dependency assertion failed.
+
+### Technical exception
+Pytest assertion in the documented layer-boundary architecture test.
+
+### Location
+`src/quant_trading/orchestration/algorithm_preview_composition.py`; corrected through `src/quant_trading/market_history/local_store_factory.py`.
+
+### Root cause
+Infrastructure assembly was initially placed too close to the GUI composition root.
+
+### Fix
+Move concrete Store creation behind a narrow Market History factory and keep the GUI dependent only on the preview service contract.
+
+### Files changed
+- `src/quant_trading/market_history/local_store_factory.py`
+- `src/quant_trading/orchestration/algorithm_preview_composition.py`
+- `src/quant_trading/algorithm_control/app.py`
+
+### Validation
+Architecture tests and full suite passed: 223 tests.
+
+### Regression test
+`test_control_center_does_not_import_broker_or_execution_provider`; `test_documented_layer_boundaries_are_not_crossed`.
+
+### Risk
+Low after fix; no database schema or data changed.
+
+### Rollback
+Remove the local preview composition as a unit; do not restore the forbidden direct GUI/Store dependency.
+
+### Related logs
+Development-time pytest only; no runtime network, credential or order activity.
+
+## BUG-20260715-002
+
+### Title
+Initial Phase 5 implementation added runtime execution-gate code to declaration-only Execution boundaries.
+
+### Status
+Fixed
+
+### Severity
+High
+
+### Area
+Architecture / Execution safety
+
+### Environment
+Windows 11; Python 3.14.5; pytest 9.1.1.
+
+### Reproduction steps
+1. Add a runtime gate/model under `quant_trading.execution` while Paper/Live are approved only as empty boundaries.
+2. Run execution-boundary architecture tests.
+
+### Expected behavior
+Phase 5 may expose read-only status metadata but must not create an execution runtime or order path.
+
+### Actual behavior
+The initial draft crossed the declaration-only boundary even though it did not submit orders.
+
+### Error message
+Execution-boundary architecture assertion failed.
+
+### Technical exception
+Pytest assertion detecting runtime content in the protected execution package.
+
+### Location
+Initial uncommitted `quant_trading.execution` gate/model draft; corrected in `algorithm_control/system_components.py` and `ui/execution_control_panel.py`.
+
+### Root cause
+“Execution control surface” was initially interpreted as requiring a runtime gate rather than a status-only management view.
+
+### Fix
+Delete the uncommitted runtime execution draft, retain empty Paper/Live packages, and represent both environments using disabled component metadata plus a read-only GUI.
+
+### Files changed
+- `src/quant_trading/algorithm_control/system_components.py`
+- `src/quant_trading/algorithm_control/ui/execution_control_panel.py`
+- `src/quant_trading/algorithm_control/ui/main_panel.py`
+
+### Validation
+`test_execution_boundaries_contain_no_runtime_implementation` and all 223 tests passed.
+
+### Regression test
+`test_execution_control_metadata_is_declaration_only_and_disabled`.
+
+### Risk
+Resolved. Execution, Paper submission, automatic submission and Live remain unavailable.
+
+### Rollback
+Remove the read-only metadata/page; the empty execution boundaries remain unchanged.
+
+### Related logs
+Development-time architecture test only; no account, network or order activity.
+
+## BUG-20260715-003
+
+### Title
+Pipeline Dry Run button could remain disabled after Decision choices were populated.
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+GUI
+
+### Environment
+Windows 11; Python 3.14.5; PySide6 6.x.
+
+### Reproduction steps
+1. Open Algorithm Control with at least one saved Decision definition.
+2. Refresh the component catalog.
+3. Inspect the Pipeline Dry Run button.
+
+### Expected behavior
+The button becomes available after the exact Decision-version list contains an item.
+
+### Actual behavior
+Its enabled state was calculated before the list was repopulated.
+
+### Error message
+None; stale UI state.
+
+### Technical exception
+None.
+
+### Location
+`src/quant_trading/algorithm_control/ui/main_panel.py`, refresh flow.
+
+### Root cause
+Refresh operations occurred in the wrong order.
+
+### Fix
+Set the enabled state only after repopulating the Decision combo box.
+
+### Files changed
+- `src/quant_trading/algorithm_control/ui/main_panel.py`
+
+### Validation
+GUI unit tests, offscreen eight-tab smoke test and full suite passed.
+
+### Regression test
+Covered by Algorithm Control panel smoke and Decision authoring tests.
+
+### Risk
+Low; affects only button availability, not financial behavior.
+
+### Rollback
+Revert the refresh-order change.
+
+### Related logs
+No runtime error code; found during code review.
+
+## BUG-20260715-004
+
+### Title
+Decision management wrapper initially removed the existing `factor_choices` compatibility surface.
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+GUI / Compatibility
+
+### Environment
+Windows 11; Python 3.14.5; pytest 9.1.1.
+
+### Reproduction steps
+1. Wrap the existing Decision component page with the new authoring page.
+2. Run the existing Algorithm Control GUI test.
+
+### Expected behavior
+Existing callers can still inspect the exact Factor-choice widget.
+
+### Actual behavior
+The wrapper initially exposed only the nested panel, causing `AttributeError`.
+
+### Error message
+`AttributeError: 'DecisionManagementPanel' object has no attribute 'factor_choices'`
+
+### Technical exception
+AttributeError in the existing GUI regression test.
+
+### Location
+`src/quant_trading/algorithm_control/ui/decision_authoring_panel.py`.
+
+### Root cause
+The wrapper did not forward a small pre-existing inspection surface.
+
+### Fix
+Expose a compatibility alias to the contained component panel's `factor_choices` widget.
+
+### Files changed
+- `src/quant_trading/algorithm_control/ui/decision_authoring_panel.py`
+- `tests/unit/algorithm_control/test_parameter_editor.py`
+
+### Validation
+The originally failing test and the complete 223-test suite passed.
+
+### Regression test
+`test_control_panel_shows_empty_algorithm_layers_and_locked_risk_invariants`.
+
+### Risk
+Low; read-only compatibility only.
+
+### Rollback
+Remove the wrapper entirely or migrate callers before removing the alias.
+
+### Related logs
+Development-time pytest only; no runtime request or trading activity.
+
+## BUG-20260715-005
+
+### Title
+Successful IEX requests can cover a wider requested interval than the returned Bar history.
+
+### Status
+Deferred
+
+### Severity
+Medium
+
+### Area
+API / Cache / Data coverage
+
+### Environment
+Windows 11; Python 3.14.5; `alpaca-py`; SQLite central database; Alpaca IEX Market Data; Raw adjustment.
+
+### Reproduction steps
+1. Request approximately 2016-07-15 through 2026-07-15 for a mature US stock using IEX.
+2. Allow the normal local-first service to finish successfully and update Coverage.
+3. Query the earliest stored Bar for that symbol and compare it with the requested start.
+
+### Expected behavior
+The interface should clearly distinguish a successfully queried interval from the actual earliest and latest Bar returned by the selected Feed.
+
+### Actual behavior
+The batch completed successfully, but most selected stocks had actual daily IEX Bars beginning around 2020-07-27. Coverage can still represent the full successfully queried request interval, so a user may interpret “covered” as ten years of actual Bars.
+
+### Error message
+None. This is a data-availability and coverage-semantics mismatch, not a request exception.
+
+### Technical exception
+None.
+
+### Location
+`src/quant_trading/market_history/service.py` missing-range and successful-fetch flow; `src/quant_trading/market_history/storage/sqlite_store.py` Coverage persistence; status presentation in the Market History GUI.
+
+### Root cause
+Coverage intentionally records successfully queried time intervals so weekends, holidays and genuine no-data periods are not requested forever. Alpaca IEX can return less historical depth than the requested interval, and the current provider response does not supply a separate authoritative “history unavailable before” boundary. Treating all no-Bar periods as missing would instead cause repeated empty downloads.
+
+### Fix
+Deferred. No safe local fix was applied because changing Coverage semantics without provider availability metadata or an approved trading calendar could cause repeated API calls and alter cache behavior. The limitation is documented, and bulk-download verification now reports actual Bar bounds separately from requested bounds.
+
+### Files changed
+- `KNOWN_ISSUES.md`
+- `logs/BUG_LOG.md`
+- `logs/EDIT_LOG.md`
+
+### Validation
+The 110-symbol batch completed 330 of 330 Raw/IEX Daily/Weekly/Monthly combinations. Actual aggregate Bar bounds were inspected separately; SQLite integrity returned `ok`, and duplicate unique-key count was zero.
+
+### Regression test
+Not added because production behavior was not changed. A future fix needs tests that distinguish requested Coverage, actual Bar coverage and permanently unavailable provider history without retry loops.
+
+### Risk
+Users may believe ten years were downloaded when the selected IEX Feed returned fewer years. Changing the current behavior prematurely could create unnecessary repeated downloads.
+
+### Rollback
+Remove only the new documentation entries if they are incorrect; no source or schema change was made for this deferred issue.
+
+### Related logs
+2026-07-15 bulk Market Data operation; runtime logs under `runtime/logs/`. No credential values, account requests or order operations were recorded.
+
+## BUG-20260715-006
+
+### Title
+Factor版本行看似已选中，但生命周期操作认为没有选中版本。
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Algorithm Control GUI / Factor authoring
+
+### Environment
+Windows 11；PySide6桌面界面；算法控制中心“因子层 → 创建/修改Factor”。
+
+### Reproduction steps
+1. 在左侧选择一个Factor版本并将其归档。
+2. 列表刷新后保留或重新显示该行的视觉高亮。
+3. 点击“恢复为可用”。
+
+### Expected behavior
+视觉高亮的版本应成为内部选中版本，并可在填写修改原因后执行恢复。
+
+### Actual behavior
+右侧表单为空，点击“恢复为可用”后提示“请先在左侧选择一个已保存的Factor版本”，即视觉选择与内部`_selected_id`不同步。
+
+### Error message
+“请选择版本：请先在左侧选择一个已保存的Factor版本。”
+
+### Technical exception
+无异常；这是GUI选择状态同步缺陷。
+
+### Location
+`src/quant_trading/algorithm_control/ui/factor_authoring_panel.py`中的`reload()`、`clear_form()`、`currentRowChanged`连接和`_set_lifecycle()`选择检查。
+
+### Root cause
+当前只监听`QListWidget.currentRowChanged`。清除选择或重载后，列表行号仍可能保持为0；用户再次点击同一行只改变视觉选择而不改变current row，因此不会重新调用`_load_selected()`，`_selected_id`仍为`None`。
+
+### Fix
+`clear_form()`现在同时将列表current row重置为`-1`，并监听`itemSelectionChanged`重新加载真实选择；再次选择同一行时，视觉选择、右侧表单和内部`_selected_id`保持同步。
+
+### Files changed
+- `KNOWN_ISSUES.md`
+- `logs/BUG_LOG.md`
+- `logs/EDIT_LOG.md`
+- `src/quant_trading/algorithm_control/ui/factor_authoring_panel.py`
+- `tests/unit/algorithm_control/test_parameter_editor.py`
+
+### Validation
+`.venv\Scripts\python.exe -m pytest -q tests\unit\algorithm_control\test_parameter_editor.py tests\unit\algorithm_control\test_factor_definition_authoring.py tests\architecture\test_dependency_boundaries.py`：19 passed。
+
+### Regression test
+新增`test_factor_selection_can_be_reloaded_and_archived_version_restored`，覆盖表单清空后重选同一行、归档和恢复为可用。
+
+### Risk
+用户无法可靠恢复、归档或弃用当前视觉高亮的Factor版本；不涉及订单、实盘或交易语义变化。
+
+### Rollback
+撤销选择同步连接、current row重置及对应回归测试；不需要迁移数据或配置。
+
+### Related logs
+用户于2026-07-15提供的GUI截图；无账户、订单或交易活动。
+
+## BUG-20260715-007
+
+### Title
+刷新后的状态内容提高窗口最低高度，导致历史数据浏览器向下延伸出屏幕。
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Market History GUI / Qt layout
+
+### Environment
+Windows 11；PySide6/QWebEngine；最大化的股票历史数据浏览器；带已下载股票列表、控制面板、状态和Plotly图表的三栏布局。
+
+### Reproduction steps
+1. 启动股票历史数据浏览器并最大化窗口。
+2. 加载股票或点击“更新最新数据”。
+3. 状态区域填入范围、Coverage、更新时间、来源和请求编号等内容。
+4. 观察窗口内容向下延伸，底部超出显示器可见范围。
+
+### Expected behavior
+刷新不得改变主窗口的可见高度；高度不足时，左侧控制和状态区域应在自身范围内滚动，图表继续适配剩余可见空间。
+
+### Actual behavior
+状态值刷新并换行后，左侧完整内容的size hint成为Qt布局最低高度，主窗口被向下撑大；控件并未消失，而是落到屏幕外。
+
+### Error message
+无错误对话框或Python异常。
+
+### Technical exception
+无；这是Qt widget minimum-size propagation造成的布局缺陷。
+
+### Location
+`src/quant_trading/market_history/ui/history_panel.py::HistoryPanel._build_ui`中的控制/状态栏布局。
+
+### Root cause
+控制面板、18行状态、进度条和可换行消息直接作为`QSplitter`子部件。刷新后较长状态文本增加子部件minimum size hint，Qt只能通过提高整个窗口最低高度满足布局。此前`BUG-20260713-007/008`修复的是Plotly HTML相对WebView viewport的溢出和异步resize时序，没有约束Qt左侧栏的最低高度，因此没有覆盖本问题。
+
+### Fix
+使用可调整内容大小的`QScrollArea`承载控制面板和状态栏，关闭横向滚动并将纵向size policy设为`Ignored`、最低高度设为0。内容过高时仅在该栏出现纵向滚动条，不再把主窗口撑出屏幕；既有Plotly响应式resize逻辑保持不变。
+
+### Files changed
+- `src/quant_trading/market_history/ui/history_panel.py`
+- `tests/unit/market_history/test_history_panel_roles.py`
+- `docs/modules/market-history.md`
+- `KNOWN_ISSUES.md`
+- `logs/BUG_LOG.md`
+- `logs/EDIT_LOG.md`
+
+### Validation
+- 定向布局回归：2 passed。
+- Market History单元/集成和架构检查：117 passed，1个既有上游`websockets.legacy`弃用警告。
+- `git diff --check`在最终审查中执行。
+
+### Regression test
+`test_status_refresh_cannot_expand_window_beyond_requested_height`构造长Coverage和刷新消息，验证窗口高度不变、minimum size hint不超过请求高度且控制栏产生自身纵向滚动范围。
+
+### Risk
+小屏幕或较大字体下，控制/状态栏需要滚动才能查看底部内容；这比窗口内容落到屏幕外可控。行情、图表数据、缓存、数据库和交易安全语义不变。
+
+### Rollback
+移除`controls_scroll`并把原`left`部件直接放回Splitter；会恢复刷新后窗口最低高度可能超过屏幕的问题。无需配置或数据迁移。
+
+### Related logs
+用户于2026-07-15提供刷新前后整窗截图；关联历史问题`BUG-20260713-007`与`BUG-20260713-008`。
+
+## BUG-20260715-008
+
+### Title
+Algorithm Control点击“添加条件”时将Qt按钮布尔参数误作DecisionCondition并触发未处理异常。
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Algorithm Control GUI / Decision authoring
+
+### Reproduction steps
+1. 启动Algorithm Control Center。
+2. 打开Decision创建/修改页。
+3. 点击“添加条件”。
+4. 观察error.log中的未处理主线程异常。
+
+### Expected behavior
+新增一行空条件编辑器，不产生异常。
+
+### Actual behavior
+Qt `QPushButton.clicked(bool)`将`False`传给`_add_condition(existing)`；函数将其作为`DecisionCondition`读取字段并抛出`AttributeError`。
+
+### Error message
+`AttributeError: 'bool' object has no attribute 'factor_component_id'`
+
+### Technical location
+`src/quant_trading/algorithm_control/ui/decision_authoring_panel.py::DecisionAuthoringPanel.__init__/_add_condition`，日志堆栈指向第165行附近。
+
+### Root cause
+按钮signal直接连接了一个带可选业务对象参数的slot，Qt信号布尔参数与该slot签名发生语义冲突。
+
+### Fix
+按钮连接改为显式无参lambda，并由`_add_blank_condition()`适配后再调用保留业务对象参数的`_add_condition()`。Qt checked状态不再可能进入DecisionCondition参数。
+
+### Regression test
+`test_add_condition_button_adds_an_empty_row_without_passing_qt_checked_state`以offscreen Qt发出bool overload，验证只调用blank adapter并新增一行。
+
+### Validation
+基线日志`runtime/logs/error.log`在2026-07-15T18:55:00Z保存了可复现堆栈；修改前全套251 tests未覆盖按钮点击路径。修复后定向Decision authoring测试通过；最终全套259 passed，见`EDIT-20260715-009`。
+
+### Risk
+用户无法可靠在GUI创建Decision条件；异常由全局hook记录，但本次没有订单或执行路径。
+
+### Rollback
+撤销无参adapter和对应测试即可；会恢复Qt信号参数进入业务slot的风险，无数据或配置迁移。
+
+## BUG-20260715-009
+
+### Title
+Market Data验证允许请求区间内的未来Bar通过。
+
+### Status
+Fixed
+
+### Severity
+High
+
+### Area
+Market History / data integrity
+
+### Reproduction steps
+1. 创建结束时间为当前时间之后、但不超过当前时间加一天的合法`HistoricalDataRequest`。
+2. 创建timestamp同样位于未来且落入该请求区间的`MarketBar`。
+3. 调用`validate_market_bars`。
+
+### Expected behavior
+未来Bar应被`QT-DATA-002`对应的数据合同阻止，不能进入缓存、Factor或后续流程。
+
+### Actual behavior
+当前实现只检查`request.start_time <= timestamp < request.end_time`，因此未来Bar可通过。
+
+### Error message
+无；错误数据被接受。
+
+### Technical location
+`src/quant_trading/market_history/models.py::validate_market_bars`。
+
+### Root cause
+请求边界验证与point-in-time完整性验证被混为一体；合法的未来结束边界不能证明其中每条Bar已经发生。
+
+### Fix
+`validate_market_bars`在一次验证开始时固定当前UTC上界，逐条拒绝晚于该上界的Bar；不排序、不改写、不写入缓存。
+
+### Regression test
+`test_future_market_bar_is_rejected_even_when_inside_request_range`证明请求区间内的未来Bar也必须触发`DataValidationError`。
+
+### Validation
+修复前该测试明确失败（DID NOT RAISE）；修复后Market模型/配置定向测试通过。最终全套259 passed，见`EDIT-20260715-009`。
+
+### Risk
+未来时间戳可能造成前视数据进入图表、缓存或算法输入。当前没有订单执行，但这是后续交易安全阻断缺口。
+
+### Rollback
+撤销未来UTC上界检查和回归测试即可；会恢复前视数据缺口，无配置/Schema/数据迁移。
+
+## BUG-20260715-010
+
+### Title
+盘中常规时段过滤使用固定09:30–16:00，无法识别交易所提前收盘日。
+
+### Status
+Deferred
+
+### Severity
+Medium
+
+### Area
+Market History / session filtering
+
+### Reproduction steps
+1. 选择包含美股提前收盘日的分钟或小时数据。
+2. Provider返回该日13:00–16:00纽约时间的扩展/盘后Bar。
+3. 当前固定常规时段过滤仍将其视为16:00前数据。
+
+### Expected behavior
+常规时段过滤应按适用交易所日历识别该交易日的真实收盘时间。
+
+### Actual behavior
+当前实现只使用`America/New_York`固定09:30–16:00窗口，无法区分提前收盘日。
+
+### Error message
+无；属于数据会话分类偏差。
+
+### Technical location
+Market History Provider的盘中常规时段过滤；当前项目没有交易所日历合同或依赖。
+
+### Root cause
+精确交易日历来源、市场适用范围和新依赖尚未获用户批准，现有代码只能使用固定时间窗口。
+
+### Fix
+Deferred。需要先批准交易所日历来源/依赖和适用市场语义；本次稳定性任务禁止新增依赖或扩展市场规则。
+
+### Regression test
+未添加实现测试；修复时应使用已知提前收盘日Fake calendar覆盖13:00边界。本次只确认现有文档与代码限制。
+
+### Validation
+对应`KI-0007`；本次未访问网络，未能使用Provider样本重新确认具体日期。问题不标记Fixed。
+
+### Risk
+提前收盘日的盘后Bar可能被显示为常规时段，并可能污染依赖该分类的研究输入。当前没有生产交易或执行。
+
+### Rollback
+本条仅补充现有Deferred事实记录，无代码可回滚；未来若结论变化，应追加状态更新，不删除历史。
+# BUG-20260715-011
+
+### Title
+Backtesting tests collided with an existing same-named pytest module
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Test collection
+
+### Reproduction steps
+Run `.venv\Scripts\python.exe -m pytest` after adding `tests/unit/backtesting/test_service.py`.
+
+### Expected behavior
+The complete suite collects both module-specific service test files.
+
+### Actual behavior
+Pytest stopped with an `import file mismatch` against `tests/unit/market_history/test_service.py`.
+
+### Error message
+`import file mismatch: imported module 'test_service' ...`
+
+### Technical location
+`tests/unit/backtesting/`
+
+### Root cause
+The new test directory had no package marker, so two files named `test_service.py` shared a top-level import name.
+
+### Fix
+Added `tests/unit/backtesting/__init__.py`.
+
+### Regression test
+Complete-suite collection and execution.
+
+### Validation
+Pending final full-suite rerun in EDIT_LOG record.
+
+### Risk
+Test-only packaging; no runtime or financial behavior impact.
+
+### Rollback
+Remove the package marker only if the colliding test module is also renamed.
+### Verification update — 2026-07-15
+
+BUG-20260715-011 is verified Fixed: the final complete suite collected 263 tests and passed all 263.
+## BUG-20260715-012
+
+### Title
+Algorithm Control tab-count regression after adding Simulation Strategies
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Algorithm Control GUI tests
+
+### Reproduction steps
+Run the targeted Algorithm Control tests after registering the approved Simulation Strategies page.
+
+### Expected behavior
+The control-center entry test recognizes every trusted page, including Simulation Strategies.
+
+### Actual behavior
+The test expected 9 tabs while the approved GUI now contains 10.
+
+### Error message
+`assert 10 == 9`
+
+### Technical location
+`tests/unit/algorithm_control/test_parameter_editor.py`
+
+### Root cause
+The new visible page was added without updating the existing GUI-entry regression assertion.
+
+### Fix
+Updated the count and added an explicit Simulation Strategies label assertion.
+
+### Regression test
+Targeted Algorithm Control suite and final full suite.
+
+### Validation
+Pending final validation in EDIT_LOG.
+
+### Risk
+Test-only correction; no financial behavior impact.
+
+### Rollback
+Revert the assertion only if the approved GUI page is also removed.
+### Verification update — 2026-07-15
+
+BUG-20260715-012 is verified Fixed: targeted Algorithm Control/Backtesting/architecture tests passed 74/74 and the final complete suite passed 267/267.
+## BUG-20260715-013
+
+### Title
+Algorithm Control entry-count test did not include the approved Market Factor page
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Algorithm Control GUI tests
+
+### Reproduction steps
+Run `tests/unit/algorithm_control` after adding the approved Market Factor page.
+
+### Expected behavior
+The entry test recognizes separate Asset Factor and Market Factor pages.
+
+### Actual behavior
+The test expected 10 tabs but the approved UI contains 11.
+
+### Error message
+`assert 11 == 10`
+
+### Root cause
+The visible-entry regression assertion was not yet synchronized with the approved new page.
+
+### Fix and regression test
+Updated the count and added explicit labels for `单只股票因子` and `市场/宏观因子`; targeted and full-suite validation follow.
+
+### Risk and rollback
+Test-only correction. Revert only if the approved Market Factor page is removed.
+## BUG-20260715-014
+
+### Title
+Approved Market Factor contract was absent from architecture allowlist
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Architecture and GUI regression tests
+
+### Reproduction steps
+Run Algorithm Control and architecture tests after introducing `quant_trading.factors.market`.
+
+### Expected behavior
+The new public Market Factor contract is permitted while private/reverse Factor dependencies remain forbidden, and GUI entries are located by stable labels.
+
+### Actual behavior
+The architecture allowlist rejected the new public module and a legacy fixed tab index pointed to Execution Control.
+
+### Root cause
+Tests encoded the pre-change public-contract list and tab ordering.
+
+### Fix and regression test
+Added only `quant_trading.factors.market` to the public allowlist and replaced the fragile tab index with a label assertion. Targeted and full validation follow.
+
+### Risk and rollback
+No production behavior change. Revert together with the Market Factor public contract/page.
+### Verification update — 2026-07-15
+
+BUG-20260715-013 and BUG-20260715-014 are verified Fixed. Targeted architecture/Factor/Decision/Algorithm Control/Backtesting/Risk tests passed 95/95 before final additions; the final complete suite passed 277/277.
+## BUG-20260715-015
+
+### Title
+Decision Journal initially rejected legacy signal-provider simulations
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Research Backtesting compatibility
+
+### Reproduction steps
+Run the existing sizing-provider regression after adding the daily journal.
+
+### Expected behavior
+Existing providers continue to simulate; first-party providers additionally expose complete daily evidence.
+
+### Actual behavior and error message
+A valid fill raised `ValueError: signal is missing its decision journal evaluation`.
+
+### Technical location and root cause
+`backtesting.service.HistoricalBacktestService._completed_entry`; optional trace evidence was initially treated as mandatory.
+
+### Fix and regression test
+Fill enrichment is conditional for legacy `signals()` providers. Existing sizing-provider and full Backtesting suites cover compatibility.
+
+### Validation, risk and rollback
+Fixed in targeted validation; final evidence is in EDIT_LOG. Low risk and no financial behavior change. Reverting restores the compatibility failure.
+
+## BUG-20260715-016
+
+### Title
+Definition strategy condition trace referenced a method-local type outside its scope
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Research Backtesting decision trace
+
+### Reproduction steps
+Run a saved Simulation Strategy after enabling condition trace capture.
+
+### Expected behavior
+Every daily saved-strategy evaluation constructs condition evidence.
+
+### Actual behavior and error message
+`NameError: ConditionTrace is not defined`.
+
+### Technical location and root cause
+`backtesting.strategies.DefinitionSignalProvider._matches`; the type was imported inside another method.
+
+### Fix and regression test
+Moved trace contracts to module scope. Saved Asset/Market strategy tests and daily-journal tests cover the path.
+
+### Validation, risk and rollback
+Fixed in targeted validation; final evidence is in EDIT_LOG. Low risk, isolated to research trace construction.
+
+## BUG-20260715-017
+
+### Title
+Non-filled simulation signals remained labeled pending in the Decision Journal
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Simulation audit semantics
+
+### Reproduction steps
+Run the one-year 110-symbol baseline and count journal outcomes after fills complete.
+
+### Expected behavior
+Every matched signal ends as FILLED or BLOCKED with an explicit reason.
+
+### Actual behavior and error message
+591 non-filled signals remained `pending_next_bar`; there was no exception, but the persisted audit status was misleading.
+
+### Technical location and root cause
+`backtesting.service.HistoricalBacktestService.run`; only successful fill enrichment updated the initial pending outcome.
+
+### Fix and regression test
+No-position sells, already-held buys, missing sizing amounts and sub-one-share amounts now become BLOCKED with explicit reasons. Tests assert no pending outcome remains after a completed run.
+
+### Validation, risk and rollback
+Final one-year and full-suite verification is recorded in EDIT_LOG. The change affects research reporting only and does not create or alter an operational order.
+
+### Verification update — 2026-07-15
+BUG-20260715-015, BUG-20260715-016 and BUG-20260715-017 are verified Fixed: targeted tests passed 12/12, the final complete suite passed 279/279, and the final 27,610-entry run contained zero pending outcomes.
+
+## BUG-20260715-018
+
+### Title
+Partial simulated sell cleared the entire position
+
+### Status
+Investigating
+
+### Severity
+High
+
+### Area
+Historical simulation portfolio state
+
+### Reproduction steps
+Start with a simulated long position, emit a SELL using fixed notional smaller than the position value, and inspect the next journal/ending market value.
+
+### Expected behavior
+Only the simulated filled quantity is removed; the remaining quantity stays in the isolated position state.
+
+### Actual behavior
+Cash increases by the partial fill amount, but `positions[symbol]` is set to zero.
+
+### Technical location and root cause
+`src/quant_trading/backtesting/service.py`, sell processing in `HistoricalBacktestService.run`; the fill quantity replaced the original quantity variable and the position was unconditionally cleared.
+
+### Fix, regression test and validation
+Pending a failing regression test and minimal state-update correction.
+
+### Risk and rollback
+High for research-result correctness, none for real accounts because Backtesting is isolated. Rollback would restore the known incorrect partial-sell behavior.
+
+## BUG-20260715-019
+
+### Title
+Decision Journal recorded executed gross as requested notional
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Simulation audit trail
+
+### Reproduction steps
+Use a requested notional that does not divide exactly by the next-bar price and inspect `requested_notional` versus `approved_notional`.
+
+### Expected behavior
+Requested notional preserves the sizing result; approved/executed amount reflects whole-share rounding.
+
+### Actual behavior
+Both fields contain the executed gross amount.
+
+### Technical location and root cause
+`src/quant_trading/backtesting/service.py`; `_completed_entry` receives `gross` in the requested-notional argument.
+
+### Fix, regression test and validation
+Pending a failing regression test and explicit separation of requested and executed values.
+
+### Risk and rollback
+Medium for audit accuracy; no execution authority or account effect.
+
+## BUG-20260715-020
+
+### Title
+Saved-strategy Market Factor trace did not preserve its real version
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Simulation Decision Journal
+
+### Reproduction steps
+Run a saved strategy with a versioned Market Factor and inspect the daily Market Factor trace.
+
+### Expected behavior
+The trace identifies the exact saved Market Factor version and symbol universe.
+
+### Actual behavior
+The trace reports the literal string `exact` as its version.
+
+### Technical location and root cause
+`backtesting.strategies.DefinitionSignalProvider`; prepared market data retained only sizing name/value references, discarding definition trace metadata.
+
+### Fix, regression test and validation
+Pending preservation of a separate typed Market Factor trace cache and an exact-version assertion.
+
+### Risk and rollback
+Medium audit-accuracy risk only; no order or account path.
+
+## BUG-20260715-021
+
+### Title
+Reusable saved-strategy provider retained Market Factor values across prepares
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Backtesting strategy preparation
+
+### Reproduction steps
+Reuse one `DefinitionSignalProvider` for two different bar sets/date ranges and inspect its prepared Market Factor references.
+
+### Expected behavior
+Each run derives Market Factors only from that run's bars.
+
+### Actual behavior
+The internal date cache is not cleared by `prepare()`.
+
+### Technical location and root cause
+`backtesting.strategies.DefinitionSignalProvider.prepare`; run-scoped derived state was stored on the provider without reset.
+
+### Fix, regression test and validation
+Pending explicit cache reset and repeat-run regression coverage.
+
+### Risk and rollback
+Medium research-correctness risk when callers reuse a provider; no operational effect.
+
+## BUG-20260715-022
+
+### Title
+Backtest domain service depended on concrete SQLite storage
+
+### Status
+Investigating
+
+### Severity
+Low
+
+### Area
+Architecture drift
+
+### Reproduction steps
+Inspect imports in `backtesting.service`.
+
+### Expected behavior
+The domain service consumes a narrow read-only historical-bar port; only the application composition root imports SQLite.
+
+### Actual behavior
+The service type annotation imports `SQLiteHistoricalDataStore` directly despite already supporting Fakes structurally.
+
+### Technical location and root cause
+`src/quant_trading/backtesting/service.py`; initial implementation annotated the first concrete store rather than declaring its actual narrow dependency.
+
+### Fix, regression test and validation
+Pending an additive Backtesting-owned Protocol and architecture assertion.
+
+### Risk and rollback
+Low current runtime risk, medium future coupling risk. Rollback restores concrete coupling without data migration.
+
+## BUG-20260715-023
+
+### Title
+Market Factor aggregation could silently accept duplicate or mismatched-as-of inputs
+
+### Status
+Investigating
+
+### Severity
+High
+
+### Area
+Market Factor input integrity
+
+### Reproduction steps
+Pass two results for one required symbol, or pass required symbols whose Factor timestamps differ from the requested Market Factor as-of time.
+
+### Expected behavior
+The immutable universe must contain exactly one valid, same-as-of result per symbol; invalid collections fail closed.
+
+### Actual behavior
+A dictionary comprehension silently keeps the last duplicate and no as-of equality check is performed.
+
+### Technical location and root cause
+`src/quant_trading/factors/market.py`, `MarketFactorCalculator.calculate`; set equality alone does not prove one-to-one or temporal consistency.
+
+### Fix, regression test and validation
+Pending explicit cardinality/duplicate/as-of validation with invalid-input regression tests.
+
+### Risk and rollback
+High for research Factor correctness; no direct execution or account effect. Rollback restores acceptance of ambiguous input.
+
+## BUG-20260715-024
+
+### Title
+Backtest market-data validation swallowed unexpected programming exceptions
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Backtesting error boundary
+
+### Reproduction steps
+Cause the validation call itself to raise an exception other than its declared `DataValidationError`.
+
+### Expected behavior
+Known bad symbol data is skipped; unexpected implementation failures abort and remain visible.
+
+### Actual behavior
+`except Exception` labels every failure as invalid market data and continues.
+
+### Technical location and root cause
+`HistoricalBacktestService.run`; the exception boundary was broader than the Market Data validation contract.
+
+### Fix, regression test and validation
+Pending narrowing to `DataValidationError` and a regression that unexpected errors propagate.
+
+### Risk and rollback
+Medium diagnostic/correctness risk; narrowing may expose latent errors instead of silently producing a partial research run.
+
+## BUG-20260715-025
+
+### Title
+Canonical status documents contradicted implemented Backtesting and research sizing
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Project architecture documentation
+
+### Reproduction steps
+Compare current Backtesting/Sizing code and tests with Compass B1/B16/B17, architecture Overview status, Project State verification footer and related module limitations.
+
+### Expected behavior
+Canonical documents distinguish implemented research-only capabilities from unimplemented production activation/rules.
+
+### Actual behavior
+Several older paragraphs still state that backtests and position sizing are not implemented and cite the prior 259-test baseline.
+
+### Technical location and root cause
+`PROJECT_COMPASS.md`, `docs/architecture/OVERVIEW.md`, `docs/project/PROJECT_STATE.md` and two module documents; later approved phases updated additive sections without superseding all old status statements.
+
+### Fix, regression test and validation
+Pending minimal factual corrections and a consistency search after final verification.
+
+### Risk and rollback
+Medium architecture-drift risk because future work may duplicate or bypass existing owners. Documentation-only rollback would restore known contradictions.
+
+### Stabilization verification update — 2026-07-15/16
+
+BUG-20260715-018 through BUG-20260715-025 are verified **Fixed**.
+
+- 018: partial sells retain `position_before - filled_quantity`; regression verifies 100 → 70 shares.
+- 019: a USD 305 request at USD 10 records requested `305` and executed/approved `300`.
+- 020: saved Market Factor traces retain version `1` and locked source symbols.
+- 021: `prepare()` resets all run-scoped Market Factor references/traces.
+- 022: `HistoricalBacktestService` depends on `HistoricalBarSource`; concrete SQLite remains in the app composition root.
+- 023: duplicate-symbol and mixed-as-of Market Factor collections return `INVALID_INPUT`.
+- 024: only declared `DataValidationError` is converted to a skipped symbol; unexpected exceptions propagate.
+- 025: canonical status documents now distinguish implemented research Backtesting/sizing from unimplemented production activation.
+
+Targeted Factor/Backtesting/architecture validation passed 40/40. The final complete suite passed 283/283 with one existing upstream deprecation warning. A 110/110-symbol one-year run and four GUI/import/diagnostic smokes passed. No issue from this set remains open in `KNOWN_ISSUES.md`.
+
+## BUG-20260716-001
+
+### Title
+Backtest results accepted inconsistent run identity and terminal totals
+
+### Status
+Investigating
+
+### Severity
+High
+
+### Area
+Backtesting public contracts
+
+### Reproduction steps
+Construct a `BacktestResult` whose `run_id` differs from `request.run_id`, whose completion precedes its start, or whose ending equity differs from cash plus market value.
+
+### Expected behavior
+Run identity, chronology and terminal Decimal totals are validated before a result can be persisted or shown in the GUI.
+
+### Actual behavior
+Only result timestamp timezone presence is validated; mutually inconsistent result data is accepted.
+
+### Error message
+No error is raised.
+
+### Technical location
+`src/quant_trading/backtesting/models.py`, `BacktestResult.__post_init__`.
+
+### Root cause
+The initial additive result contract normalized timestamps but did not encode its cross-field invariants.
+
+### Fix
+Pending minimal invariant checks in the immutable public model.
+
+### Regression test
+Pending tests for mismatched run identity, invalid chronology and inconsistent ending totals.
+
+### Validation
+Pending targeted and complete test suites.
+
+### Risk
+Corrupt research evidence can be stored under a plausible result object; no operational account or order path is affected.
+
+### Rollback
+Remove the additive contract checks; no data migration is required.
+
+## BUG-20260716-002
+
+### Title
+Simulated financial records accepted invalid Decimal and arithmetic relationships
+
+### Status
+Investigating
+
+### Severity
+High
+
+### Area
+Backtesting trade and equity contracts
+
+### Reproduction steps
+Construct a `SimulatedTrade` with `gross_amount != quantity * price`, the wrong cash-effect sign, a naive fill timestamp, or a non-finite Decimal; construct an `EquityPoint` whose total differs from cash plus market value.
+
+### Expected behavior
+Invalid research financial records fail at the model boundary.
+
+### Actual behavior
+The immutable dataclasses accept all of these inconsistent values.
+
+### Error message
+No error is raised.
+
+### Technical location
+`src/quant_trading/backtesting/models.py`, `SimulatedTrade` and `EquityPoint`.
+
+### Root cause
+The simulation service generated valid values, but the public records relied on the producer instead of defending their own contract.
+
+### Fix
+Pending finite-Decimal, UTC, text and arithmetic validation that mirrors the isolated simulation semantics.
+
+### Regression test
+Pending direct model tests for valid normalization and invalid arithmetic.
+
+### Validation
+Pending targeted and complete test suites.
+
+### Risk
+Persisted trade history or GUI totals could be internally false even though the service normally emits valid records.
+
+### Rollback
+Remove the additive model validation; no stored result rewrite is required.
+
+## BUG-20260716-003
+
+### Title
+Backtest JSON repository could overwrite or return the wrong run identity
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Backtesting result persistence
+
+### Reproduction steps
+Save twice with the same run ID, or place a valid result for run B in the JSON path named for run A and call `get(A)`.
+
+### Expected behavior
+Saved research runs are immutable by ID, and `get(run_id)` verifies that the decoded result has the requested identity.
+
+### Actual behavior
+`save` silently replaces the existing JSON and `get` returns whatever identity the file contains.
+
+### Error message
+No error is raised.
+
+### Technical location
+`src/quant_trading/backtesting/repository.py`, `JsonBacktestResultRepository.save/get`.
+
+### Root cause
+Atomic replacement was implemented without a create-only guard or read identity assertion.
+
+### Fix
+Pending explicit overwrite rejection and requested-ID verification.
+
+### Regression test
+Pending repository tests for duplicate save and wrong-file identity.
+
+### Validation
+Pending targeted and complete test suites.
+
+### Risk
+A research audit record can be lost or misattributed; operational Ledger and account data remain isolated.
+
+### Rollback
+Remove the two repository guards; no schema or migration reversal is needed.
+
+## BUG-20260716-004
+
+### Title
+Daily decision-journal contracts accepted malformed or incomplete evidence
+
+### Status
+Investigating
+
+### Severity
+Medium
+
+### Area
+Backtesting decision journal
+
+### Reproduction steps
+Construct a journal entry with invalid OHLC data, non-finite Decimal values, an empty symbol, a naive trace timestamp, or `FILLED` outcome without the complete trade/cash/position evidence.
+
+### Expected behavior
+The detailed daily audit record validates its market evidence and requires a coherent financial evidence set for simulated fills.
+
+### Actual behavior
+Only the entry timestamp timezone and symbol casing are checked; malformed evidence is accepted.
+
+### Error message
+No error is raised.
+
+### Technical location
+`src/quant_trading/backtesting/models.py`, `FactorTrace`, `ConditionTrace` and `DecisionJournalEntry`.
+
+### Root cause
+The first journal phase prioritized additive trace capture and did not complete defensive validation on the new immutable contracts.
+
+### Fix
+Pending localized trace, OHLC, optional-Decimal and filled-evidence validation.
+
+### Regression test
+Pending direct contract tests plus an existing full backtest compatibility check.
+
+### Validation
+Pending targeted and complete test suites.
+
+### Risk
+The GUI can present detailed but internally invalid research evidence; operational Ledger, Risk and Execution remain isolated.
+
+### Rollback
+Remove the additive journal validations; no persistence schema migration is involved.
+
+## BUG-20260716-005
+
+### Title
+Launcher documentation understated the registered GUI catalog
+
+### Status
+Investigating
+
+### Severity
+Low
+
+### Area
+GUI discoverability documentation
+
+### Reproduction steps
+Compare `DEFAULT_LAUNCH_TARGETS` and launcher tests with Project State and the Main Launcher module test description.
+
+### Expected behavior
+Current-state documentation lists Market History, Algorithm Control and Backtesting as the three trusted child GUI targets.
+
+### Actual behavior
+One Project State sentence and one module-test sentence still claim that only two child entries exist.
+
+### Error message
+Not applicable; this is a factual documentation defect.
+
+### Technical location
+`docs/project/PROJECT_STATE.md` and `docs/modules/main-launcher.md`.
+
+### Root cause
+The Backtesting target was added to the code and public-interface section without updating two older count statements.
+
+### Fix
+Pending minimal factual corrections; no launcher code change is needed.
+
+### Regression test
+Existing launcher tests enumerate and verify the three target IDs; final offscreen smoke covers the launcher plus all three child applications.
+
+### Validation
+Pending final documentation consistency search.
+
+### Risk
+Low runtime risk, but users and future maintainers may overlook the Backtesting GUI.
+
+### Rollback
+Revert the two documentation sentences only.
+
+### Verification update — 2026-07-16
+
+BUG-20260716-001 through BUG-20260716-005 are verified **Fixed**.
+
+- 001: `BacktestResult` now rejects mismatched request/run identity, reversed chronology, inconsistent terminal Decimal totals/return, invalid curve identity and duplicate or cross-run evidence.
+- 002: `SimulatedTrade` and `EquityPoint` now enforce finite Decimal values, UTC fills and exact gross/cash/equity relationships.
+- 003: result files are create-only by run ID; `get` and `list_results` verify decoded identity against the requested ID or filename.
+- 004: Factor/condition traces and daily journal entries validate identity, UTC, finite values, OHLCV and complete filled-trade evidence.
+- 005: Project State and Main Launcher documentation now match the three registered child GUI targets.
+
+The new regression module passed 11/11; targeted Backtesting/architecture validation passed 26/26; the complete suite passed 294/294 with one existing upstream warning. All seven pre-existing saved result files decoded successfully under the stricter contracts. New isolated run `1b7651ca-52bc-486a-89e5-5cdb851992e5` completed 110/110 symbols with 43 fills, 27,720 journal entries, zero pending outcomes and ending equity `1665427.225`. Four GUI entry smokes, dependency/compile/diagnostics/SQLite checks and the no-trading-capability source search passed. No issue from this set remains open in `KNOWN_ISSUES.md`.
+
+## BUG-20260716-006
+
+### Title
+Idea Notebook save confirmation was immediately overwritten
+
+### Status
+Investigating
+
+### Severity
+Low
+
+### Area
+Algorithm Control Idea Notebook GUI
+
+### Reproduction steps
+Create a valid note through `IdeaNotebookPanel._save()` and inspect the status label after the table reload selects the saved row.
+
+### Expected behavior
+The page confirms that the note was saved and that no algorithm or trading workflow was triggered.
+
+### Actual behavior
+The selection-change callback replaces the confirmation with the generic current-note identifier.
+
+### Error message
+No exception; the GUI regression assertion failed on the visible status text.
+
+### Technical location
+`src/quant_trading/algorithm_control/ui/idea_notebook_panel.py`, `_save()` and reload/selection ordering.
+
+### Root cause
+The success message was set before `reload()`, whose row-selection signal updated the same label.
+
+### Fix
+Pending setting the operation result after the reload completes.
+
+### Regression test
+`tests/unit/algorithm_control/test_idea_notebook.py::test_gui_saves_and_archives_a_passive_note`.
+
+### Validation
+Pre-fix targeted result: 1 failed, 15 passed.
+
+### Risk
+Low presentation risk; saved content is correct and no algorithm, account or execution path is involved.
+
+### Rollback
+Revert the status-order change only.
+
+### Verification update — 2026-07-16
+
+BUG-20260716-006 is verified **Fixed**. The success/status message is now assigned after table reload and selection signals complete, so save/archive confirmation remains visible. The regression first reproduced the defect (`1 failed, 15 passed`), then passed in the targeted set (`16 passed`). The final complete suite passed 298/298 with one existing upstream deprecation warning, and the offscreen Algorithm Control smoke constructed 12 pages, saved/reloaded one isolated temporary note, and invoked no execution path.
+
+## BUG-20260716-007
+
+### Title
+Main launcher could not directly locate existing core Algorithm Control pages
+
+### Status
+Investigating
+
+### Severity
+Low
+
+### Area
+Main GUI navigation and discoverability
+
+### Reproduction steps
+Open `python -m quant_trading` and try to navigate directly to Idea Notebook, Asset Factor, Market Factor, Decision, Risk, Execution status, Portfolio & Ledger, Simulation Strategies, Pipeline, Conflict Center or Audit.
+
+### Expected behavior
+The main GUI provides a compact, trusted route to every existing user-facing core page while backend-only modules remain internal.
+
+### Actual behavior
+The launcher exposes only the three standalone applications. Users must know that eleven core pages are nested inside Algorithm Control and then find the tab manually.
+
+### Error message
+Not applicable; this is a confirmed navigation/discoverability gap.
+
+### Technical location
+`src/quant_trading/launcher/app.py`, `src/quant_trading/algorithm_control/app.py`, and `src/quant_trading/algorithm_control/ui/main_panel.py`.
+
+### Root cause
+The trusted launch catalog can store only a module name and Algorithm Control has no stable startup-page selector.
+
+### Fix
+Pending additive trusted arguments, a compact core-page shortcut catalog, and an Algorithm Control page-selection boundary. No business logic will move into the launcher.
+
+### Regression test
+Pending Launcher command/GUI coverage and Algorithm Control page-selection coverage.
+
+### Validation
+Pending targeted, complete and offscreen GUI tests.
+
+### Risk
+Low runtime risk, but users may overlook existing safety, accounting, strategy and audit pages. Adding navigation must not create arbitrary command execution or duplicate feature logic.
+
+### Rollback
+Remove shortcut metadata/startup-page selection and retain the existing three standalone application entries.
+
+## BUG-20260716-008
+
+### Title
+Algorithm Control page-map patch retained an obsolete loop colon
+
+### Status
+Investigating
+
+### Severity
+Low
+
+### Area
+Algorithm Control GUI startup navigation
+
+### Reproduction steps
+Compile or import `src/quant_trading/algorithm_control/ui/main_panel.py` immediately after the page-map edit.
+
+### Expected behavior
+The page metadata is assigned as a tuple and then iterated by the following explicit loop.
+
+### Actual behavior
+The tuple assignment ended with `):`, retaining the colon from the replaced inline `for` loop and producing invalid Python syntax.
+
+### Error message
+`SyntaxError` at the page tuple terminator.
+
+### Technical location
+`src/quant_trading/algorithm_control/ui/main_panel.py`, `AlgorithmControlPanel.__init__` page-map construction.
+
+### Root cause
+The patch replaced the old `for ... in (...)` header with a `pages = (...)` assignment but did not remove the old loop colon.
+
+### Fix
+Pending removal of the obsolete colon before compile and regression tests.
+
+### Regression test
+Existing Algorithm Control import/GUI tests plus final `compileall` and full suite.
+
+### Validation
+Pending.
+
+### Risk
+If left unfixed, Algorithm Control and direct shortcuts cannot start. The defect was found by immediate source inspection before execution.
+
+### Rollback
+Revert the page-map edit or remove the single obsolete colon.
+
+### Verification update — 2026-07-16
+
+BUG-20260716-007 and BUG-20260716-008 are verified **Fixed**.
+
+- 007: the Main Launcher retains its three standalone applications and now exposes all eleven existing Algorithm Control core pages through a compact static shortcut catalog. Each shortcut starts the owner process with one reviewed `--page` ID; no feature logic or arbitrary user argument enters the launcher.
+- 008: the obsolete tuple colon was removed before runtime testing. `compileall`, Algorithm Control imports and GUI construction now pass.
+
+Targeted Launcher/Algorithm Control/architecture validation passed 30/30. The complete suite passed 301/301 with one existing upstream warning. The offscreen Main GUI smoke selected `portfolio_ledger`, verified the detached command, and the real Algorithm Control entry parsed that page and exited 0 with `execution_invocations=0`. No issue from this set remains open in `KNOWN_ISSUES.md`.
+
+## BUG-20260716-009
+
+### Title
+Staged snapshot contained six whitespace integrity defects
+
+### Status
+Investigating
+
+### Severity
+Low
+
+### Area
+Documentation and Algorithm Control source formatting
+
+### Reproduction steps
+Stage the approved working tree and run `git diff --cached --check`.
+
+### Expected behavior
+The staged snapshot has no trailing whitespace or extra blank line at end of file.
+
+### Actual behavior
+One ADR status line and four Proposal metadata lines contain trailing spaces; `factor_workbench_panel.py` has one extra blank line at EOF.
+
+### Error message
+`trailing whitespace` and `new blank line at EOF`.
+
+### Technical location
+`docs/decisions/ADR-0015-simulation-decision-journal.md`, `docs/proposals/PROPOSAL-008-simulation-decision-journal.md`, and `src/quant_trading/algorithm_control/ui/factor_workbench_panel.py`.
+
+### Root cause
+Earlier Markdown hard-break formatting and an extra terminal newline were not caught until the complete staged snapshot was checked.
+
+### Fix
+Pending removal of whitespace only; no content or runtime behavior change.
+
+### Regression test
+Final `git diff --cached --check`.
+
+### Validation
+Pending restage and staged-snapshot integrity check.
+
+### Risk
+No runtime risk; committing a known dirty diff would reduce repository quality and can fail future hooks.
+
+### Rollback
+Not applicable beyond restoring the insignificant whitespace.
+
+### Verification update — 2026-07-16
+
+BUG-20260716-009 is verified **Fixed**. The five trailing-space locations and one extra EOF line were removed without changing text meaning or Python behavior. The complete staged snapshot will be restaged and rechecked before commit.

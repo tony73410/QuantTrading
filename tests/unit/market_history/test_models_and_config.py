@@ -114,6 +114,14 @@ def test_duplicate_market_bar_is_rejected():
         validate_market_bars([bar, bar], request)
 
 
+def test_future_market_bar_is_rejected_even_when_inside_request_range():
+    now = datetime.now(UTC)
+    request = make_request(start=now - timedelta(days=1), end=now + timedelta(hours=12))
+    future_bar = make_bar(now + timedelta(hours=1), request=request)
+    with pytest.raises(DataValidationError, match="future"):
+        validate_market_bars([future_bar], request)
+
+
 def test_environment_configures_cache_without_credentials(monkeypatch, tmp_path):
     monkeypatch.delenv("APCA_API_KEY_ID", raising=False)
     monkeypatch.delenv("APCA_API_SECRET_KEY", raising=False)

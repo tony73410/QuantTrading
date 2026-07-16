@@ -230,6 +230,7 @@ def validate_market_bars(
     bars: Iterable[MarketBar], request: HistoricalDataRequest
 ) -> tuple[MarketBar, ...]:
     validated = tuple(bars)
+    validation_time_utc = datetime.now(UTC)
     seen: set[tuple[str, datetime, Timeframe, Adjustment, DataFeed]] = set()
     previous_timestamp: datetime | None = None
     for bar in validated:
@@ -247,6 +248,8 @@ def validate_market_bars(
             raise DataValidationError("provider returned mismatched dimensions")
         if not request.start_time <= bar.timestamp_utc < request.end_time:
             raise DataValidationError("provider returned a bar outside the requested range")
+        if bar.timestamp_utc > validation_time_utc:
+            raise DataValidationError("provider returned a future market bar")
         if previous_timestamp is not None and bar.timestamp_utc <= previous_timestamp:
             raise DataValidationError("provider bars are not strictly ordered")
         previous_timestamp = bar.timestamp_utc

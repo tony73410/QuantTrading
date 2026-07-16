@@ -45,6 +45,10 @@ class FakeController:
     def build_chart(_options):
         return go.Figure()
 
+    @staticmethod
+    def list_downloaded_symbols():
+        return ["AAPL", "MSFT", "NVDA"]
+
 
 def test_gui_shows_alpaca_paper_defaults_and_live_safety():
     application = QApplication.instance() or QApplication([])
@@ -136,6 +140,62 @@ def test_symbol_input_suggests_popular_symbols_case_insensitively():
             Qt.CaseSensitivity.CaseInsensitive
         )
         assert "列表之外" in panel.symbol_input.toolTip()
+    finally:
+        panel.close()
+        application.processEvents()
+
+
+def test_downloaded_symbol_list_is_scrollable_and_click_loads_selected_symbol(monkeypatch):
+    application = QApplication.instance() or QApplication([])
+    panel = HistoryPanel(
+        FakeController(),
+        market_data_credentials_available=False,
+    )
+    loads: list[str] = []
+    try:
+        monkeypatch.setattr(
+            panel,
+            "_load_from_controls",
+            lambda: loads.append(panel.symbol_input.text()),
+        )
+
+        assert [
+            panel.downloaded_symbols_list.item(index).text()
+            for index in range(panel.downloaded_symbols_list.count())
+        ] == ["AAPL", "MSFT", "NVDA"]
+        panel._load_downloaded_symbol(panel.downloaded_symbols_list.item(1))
+
+        assert panel.symbol_input.text() == "MSFT"
+        assert loads == ["MSFT"]
+    finally:
+        panel.close()
+        application.processEvents()
+
+
+def test_status_refresh_cannot_expand_window_beyond_requested_height():
+    application = QApplication.instance() or QApplication([])
+    panel = HistoryPanel(
+        FakeController(),
+        market_data_credentials_available=False,
+    )
+    try:
+        panel.resize(1380, 700)
+        panel.show()
+        application.processEvents()
+        requested_height = panel.height()
+
+        panel._status_values["coverage"].setText(
+            "；".join(f"2026-07-{day:02d} 本地覆盖已更新" for day in range(1, 32))
+        )
+        panel.message_label.setText(
+            "刷新完成后的详细状态可以在控制栏内滚动查看，不得撑大主窗口。"
+            * 8
+        )
+        application.processEvents()
+
+        assert panel.height() == requested_height
+        assert panel.minimumSizeHint().height() <= requested_height
+        assert panel.controls_scroll.verticalScrollBar().maximum() > 0
     finally:
         panel.close()
         application.processEvents()

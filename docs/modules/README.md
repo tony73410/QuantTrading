@@ -6,6 +6,7 @@
 
 当前正式模块文档：
 
+- `main-launcher.md` — QuantTrade主要桌面入口和未来独立GUI功能登记规则；
 - `market-history.md` — 历史行情、缓存和GUI；
 - `factors.md` — 单资产、策略中立的因子合同和无公式引擎；
 - `trading-decision.md` — 只消费FactorSnapshot的非执行决策合同和无规则引擎；
@@ -13,6 +14,7 @@
 - `analysis-decision-pipeline.md` — 只负责Factor → Decision或Factor → Decision → Risk调用顺序的编排边界。
 - `execution-environments.md` — Paper与Live两个同级、空白、禁用的未来执行环境边界；不含订单能力。
 - `algorithm-control-gui.md` — 只负责组件元数据、通用参数、配置版本、验证、安全预览和审计的独立GUI管理面。
+- `idea-notebook.md` — Algorithm Control内的被动本地想法笔记；不注册、不计算，也不进入回测或交易流程。
 
 Factors/Decision/Risk/Orchestration以及空白Paper/Live Execution边界由用户明确批准建立，但当前没有正式因子公式、交易规则、数值风险规则、订单或执行行为。其他模块仍必须由实际、已批准需求驱动。
 

@@ -26,7 +26,9 @@ from quant_trading.algorithm_control.validation_service import ConfigurationVali
 def test_locked_defaults_are_active_and_versioned(tmp_path: Path):
     controller = build_controller(tmp_path)
     snapshot = controller.snapshot()
-    assert len(snapshot.components) == 4
+    locked = tuple(item for item in snapshot.components if item.locked)
+    assert len(locked) == 4
+    assert len(snapshot.components) == 6
     assert len(snapshot.configurations) == 4
     assert all(item.status is ConfigurationStatus.ACTIVE and item.enabled for item in snapshot.configurations)
     assert not snapshot.overview.live_trading_enabled

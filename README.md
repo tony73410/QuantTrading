@@ -4,6 +4,16 @@
 
 安全默认值为 **Alpaca Paper / Automatic submission: OFF / Live trading: OFF / Manual confirmation: REQUIRED**。项目现在仅预留了彼此分离的 Paper 与 Live 空白执行边界，没有账户、订单或券商客户端，因此程序不会提交模拟或真实订单。
 
+## Main GUI / 主控制台
+
+普通使用时只需要启动主控制台：
+
+```powershell
+.\.venv\Scripts\python.exe -m quant_trading
+```
+
+主控制台目前提供“股票历史数据浏览器”和“算法控制中心”两个按钮。点击后会打开独立窗口；关闭其中一个功能不会关闭其他窗口。未来新增的独立GUI功能必须同时在主控制台登记入口。
+
 ## Data and brokerage setup / 行情与券商设置
 
 Alpaca is the project's primary market-data provider and planned primary brokerage. The default execution environment is Alpaca Paper Trading. Order execution is not implemented, automatic submission is disabled, and Alpaca Live Trading remains disabled.
@@ -58,15 +68,15 @@ python -m venv .venv
 → 停止：订单构建和执行尚未实现
 ```
 
-目前没有正式因子公式、技术指标、买卖条件、仓位规则、Decision Policy或数值Risk Policy；三层没有接入GUI或券商执行。Factor结果持久化合同已经实现，但只有显式注入Store的未来算法Pipeline才会写入。Factor不知道Decision/Risk，Decision不知道Risk，Risk不能扩大原始意图或调用券商。Live和自动提交仍关闭。详细边界见 `docs/modules/factors.md`、`docs/modules/trading-decision.md` 和 `docs/modules/risk-control.md`。
+目前没有生产激活的因子/Decision、仓位规则或数值Risk Policy。算法控制中心可以用本地缓存预览用户保存的Factor，编辑受限Decision规则，并运行停在Risk层的NO EXECUTION Dry Run；它不会访问券商或提交订单。Factor不知道Decision/Risk，Decision不知道Risk，Risk不能扩大原始意图或调用券商。Live和自动提交仍关闭。详细边界见 `docs/modules/factors.md`、`docs/modules/trading-decision.md` 和 `docs/modules/risk-control.md`。
 
 ## Algorithm Control Center / 算法控制中心
 
 在“因子层”页面可以使用**受限表达式**创建或修改Factor。每次保存都会创建不可变新版本，并且默认不启用。它不是任意Python代码编辑器：只能使用界面列出的行情字段、数值参数、算术和聚合函数，不能访问文件、网络、数据库或券商。
 
-在“交易决策层”页面，已经注册的Decision组件可以选择所需的精确Factor版本。选择Factor只是保存输入配置，不会自动产生买卖规则、TradeIntent或订单。当前还没有正式Decision Policy，因此普通初始界面不会伪造一个可交易的Decision组件。
+在“交易决策层”页面，可以用精确Factor版本、数值比较条件、ALL/ANY组合和明确动作保存不可变Decision版本。新版本默认禁用，不包含股票数量、仓位或订单参数，也不会自动参与运行。
 
-Factor定义保存在忽略Git的 `runtime/algorithm_control/factor_definitions.json`；计算出的Factor历史（未来在明确Pipeline运行时）仍由中央SQLite Store负责。详细说明见 [`docs/modules/factor-authoring.md`](docs/modules/factor-authoring.md)。
+Factor定义、生命周期和Decision定义保存在忽略Git的 `runtime/algorithm_control/`。Factor页可以归档/弃用/恢复版本，并用本地SQLite行情预览；用户勾选保存结果时，Factor历史进入中央SQLite Store。Pipeline页可以运行Factor → Decision → Risk本地演练，但不会构造或提交订单。“执行控制”页只显示Paper/Live均未实现和关闭。详细说明见 [`docs/modules/factor-authoring.md`](docs/modules/factor-authoring.md)。
 
 独立启动组件与配置管理窗口：
 

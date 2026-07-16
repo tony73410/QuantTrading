@@ -17,6 +17,8 @@ Their presence records ownership only. It does not mean an account is connected,
 
 ## Non-responsibilities
 
+Future Execution Providers may emit typed order lifecycle events and confirmed fills only. They must not directly modify cash, positions, cost basis, equity, or P&L; those remain Portfolio Accounting responsibilities. The current Paper/Live packages still emit nothing and remain empty/disabled.
+
 - Account, position, order, fill, cancellation, or broker API behavior.
 - Order Construction or submission.
 - Risk approval, strategy, Decision, Factor, Market Data, SQLite, GUI, credentials, endpoints, or configuration.
@@ -52,7 +54,7 @@ None. Existing `ALPACA_PAPER` remains a target label only. Live Trading and auto
 
 ## Tests
 
-`tests/architecture/test_execution_environment_boundaries.py` verifies that Paper and Live are siblings, contain no runtime implementation, and do not import one another. Existing dependency tests continue to prohibit raw `TradeIntent` access and Risk-gate bypass.
+`tests/architecture/test_execution_environment_boundaries.py` verifies that Paper and Live are siblings, contain no runtime implementation, and do not import one another. Algorithm Control additionally shows read-only metadata for both boundaries; this UI does not add an execution interface. Existing dependency tests continue to prohibit raw `TradeIntent` access and Risk-gate bypass.
 
 ## Known limitations
 

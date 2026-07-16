@@ -1,5 +1,7 @@
 # Risk Control Layer
 
+Risk contracts preserve `original_notional` and `approved_notional`. Approval preserves the Decision request; reduction must remain positive and no greater than the original; blocked decisions approve no notional. No numerical Risk limits were added in this phase.
+
 ## Purpose
 
 `quant_trading.risk` is the independent, pre-execution safety gate between a
@@ -9,6 +11,8 @@ preserve, reduce, delay, require review, or block an intent. It does not own
 investment selection or return-seeking logic.
 
 ## Responsibilities
+
+Risk may consume immutable Portfolio Accounting snapshots through additive `AccountingAccountSnapshotProvider` and `AccountingPortfolioSnapshotProvider` read contracts. It cannot append/correct Ledger entries or call Accounting mutation/rebuild services. Existing trace-only context providers remain backward compatible pending a separately reviewed runtime adapter.
 
 - validate that the intent and referenced Factor snapshot agree on symbol and time;
 - reject invalid Factor evidence and defer stale/incomplete evidence;
@@ -145,7 +149,7 @@ broker or submit an order.
 - Market-open and duplicate-order checks have reason-code categories but no approved rules.
 - Risk decisions are not persisted; audit events use the existing runtime log.
 - Emergency de-risking can pause new intents only. Automatic liquidation is Not implemented.
-- GUI does not currently display Factor, Decision or Risk results.
+- Algorithm Control can display a transient local Risk dry-run result. With no approved numerical Risk policies, a proposed intent is conservatively marked for manual review and never reaches execution.
 
 ## Future extension boundary
 

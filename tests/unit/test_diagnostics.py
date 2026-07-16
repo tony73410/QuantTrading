@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from quant_trading.diagnostics import DiagnosticStatus, run_diagnostics
+from quant_trading.diagnostics import DiagnosticStatus, run_diagnostics, summarize_diagnostics
+from quant_trading.validation import HealthStatus
 from quant_trading.market_history.storage import SQLiteHistoricalDataStore
 
 
@@ -22,6 +23,9 @@ def test_diagnostics_are_read_only_safe_and_skip_network_by_default(
     assert by_name["alpaca_market_data_credentials"].status is DiagnosticStatus.WARNING
     assert by_name["alpaca_market_data_connection"].status is DiagnosticStatus.SKIPPED
     assert by_name["trading_safety"].status is DiagnosticStatus.PASS
+    health = summarize_diagnostics(results)
+    assert health.status is HealthStatus.UNKNOWN
+    assert not health.allows_automatic_execution
 
 
 def test_diagnostics_detect_incomplete_credentials_without_showing_values(

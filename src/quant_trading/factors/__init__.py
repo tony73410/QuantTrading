@@ -17,6 +17,7 @@ from .models import (
 )
 from .storage_models import FactorCalculationRun, FactorCalculationStatus
 from .registry import FactorRegistry
+from .market import MarketAggregation, MarketFactorCalculator, MarketFactorDefinition, MarketFactorResult
 
 __all__ = [
     "FactorCalculator",
@@ -38,4 +39,5 @@ __all__ = [
     "SingleAssetFactorEngine",
     "SafeExpressionFactorCalculator",
     "parse_and_validate_expression",
+    "MarketAggregation", "MarketFactorCalculator", "MarketFactorDefinition", "MarketFactorResult",
 ]

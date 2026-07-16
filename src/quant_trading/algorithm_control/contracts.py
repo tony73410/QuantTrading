@@ -92,6 +92,8 @@ def default_contract_registry() -> DataContractRegistry:
         declaration("LockedEnabledState", "algorithm_control.ConfigurationRecord", "risk", ("configuration", "gui")),
         declaration("MarketDataWindow", "quant_trading.factors.models.MarketDataWindow", "market_data", ("factor",)),
         declaration("FactorSnapshot", "quant_trading.factors.models.FactorSnapshot", "factor", ("decision", "risk")),
+        declaration("AssetFactorResultCollection", "tuple[quant_trading.factors.models.FactorResult, ...]", "factor", ("factor",)),
+        declaration("MarketFactorResult", "quant_trading.factors.market.MarketFactorResult", "factor", ("decision", "risk")),
         declaration("TradeIntent", "quant_trading.decision.models.TradeIntent", "decision", ("risk",)),
         declaration("RiskDecision", "quant_trading.risk.models.RiskDecision", "risk", ("execution", "gui")),
         declaration("ApprovedTradeIntent", "quant_trading.risk.models.RiskApprovedTradeIntent", "risk", ("execution",)),

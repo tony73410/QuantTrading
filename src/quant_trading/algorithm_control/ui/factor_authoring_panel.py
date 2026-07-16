@@ -27,6 +27,8 @@ from quant_trading.factors.definitions import FactorDefinition, FactorDefinition
 from quant_trading.factors.expression_language import parse_and_validate_expression
 
 from ..controller import AlgorithmControlController
+from ..factor_lifecycle import FactorLifecycleState
+from .factor_workbench_panel import FactorWorkbenchPanel
 
 
 class FactorAuthoringPanel(QWidget):
@@ -58,6 +60,9 @@ class FactorAuthoringPanel(QWidget):
         self.remove_parameter_button = QPushButton("删除所选参数")
         self.validate_button = QPushButton("验证表达式")
         self.save_button = QPushButton("保存为不可变新版本")
+        self.archive_button = QPushButton("归档所选版本")
+        self.deprecate_button = QPushButton("标记为弃用")
+        self.restore_lifecycle_button = QPushButton("恢复为可用")
 
         form_widget = QWidget()
         form = QFormLayout(form_widget)
@@ -79,6 +84,11 @@ class FactorAuthoringPanel(QWidget):
         buttons.addWidget(self.validate_button)
         buttons.addWidget(self.save_button)
         form.addRow("", buttons)
+        lifecycle_buttons = QHBoxLayout()
+        lifecycle_buttons.addWidget(self.archive_button)
+        lifecycle_buttons.addWidget(self.deprecate_button)
+        lifecycle_buttons.addWidget(self.restore_lifecycle_button)
+        form.addRow("版本生命周期", lifecycle_buttons)
 
         splitter = QSplitter()
         splitter.addWidget(self.list)
@@ -94,11 +104,15 @@ class FactorAuthoringPanel(QWidget):
         layout.addWidget(splitter)
 
         self.list.currentRowChanged.connect(self._load_selected)
+        self.list.itemSelectionChanged.connect(self._load_selected_from_selection)
         self.new_button.clicked.connect(self.clear_form)
         self.add_parameter_button.clicked.connect(lambda: self.parameters.insertRow(self.parameters.rowCount()))
         self.remove_parameter_button.clicked.connect(self._remove_parameter)
         self.validate_button.clicked.connect(self._validate)
         self.save_button.clicked.connect(self._save)
+        self.archive_button.clicked.connect(lambda: self._set_lifecycle(FactorLifecycleState.ARCHIVED))
+        self.deprecate_button.clicked.connect(lambda: self._set_lifecycle(FactorLifecycleState.DEPRECATED))
+        self.restore_lifecycle_button.clicked.connect(lambda: self._set_lifecycle(FactorLifecycleState.AVAILABLE))
         self.reload()
 
     def reload(self) -> None:
@@ -106,7 +120,8 @@ class FactorAuthoringPanel(QWidget):
         self._definitions = self.controller.factor_definition_history()
         self.list.clear()
         for item in self._definitions:
-            self.list.addItem(f"{item.display_name} · {item.factor_id} · v{item.version}")
+            state = self.controller.factor_lifecycle_record(item.component_id).state.value
+            self.list.addItem(f"{item.display_name} · {item.factor_id} · v{item.version} · {state}")
         index = next((i for i, item in enumerate(self._definitions) if item.definition_id == current), -1)
         if index >= 0:
             self.list.setCurrentRow(index)
@@ -117,6 +132,7 @@ class FactorAuthoringPanel(QWidget):
 
     def clear_form(self) -> None:
         self._selected_id = None
+        self.list.setCurrentRow(-1)
         self.list.clearSelection()
         self.factor_id.clear()
         self.factor_id.setEnabled(True)
@@ -128,6 +144,10 @@ class FactorAuthoringPanel(QWidget):
         self.missing_policy.setText("return_missing_status")
         self.parameters.setRowCount(0)
         self.reason.clear()
+
+    def _load_selected_from_selection(self) -> None:
+        if self.list.selectedItems():
+            self._load_selected(self.list.currentRow())
 
     def _load_selected(self, row: int) -> None:
         if not 0 <= row < len(self._definitions):
@@ -200,6 +220,24 @@ class FactorAuthoringPanel(QWidget):
         if row >= 0:
             self.parameters.removeRow(row)
 
+    def _set_lifecycle(self, state: FactorLifecycleState) -> None:
+        if self._selected_id is None:
+            QMessageBox.information(self, "请选择版本", "请先在左侧选择一个已保存的Factor版本。")
+            return
+        reason = self.reason.text().strip()
+        if not reason:
+            QMessageBox.information(self, "需要原因", "归档、弃用或恢复都必须填写修改原因。")
+            return
+        definition = next(item for item in self._definitions if item.definition_id == self._selected_id)
+        try:
+            self.controller.set_factor_lifecycle(definition.component_id, state, reason)
+        except Exception as exc:
+            QMessageBox.warning(self, "生命周期未修改", str(exc))
+            return
+        self.reason.clear()
+        self.reload()
+        self.state_changed.emit()
+
 
 class FactorManagementPanel(QWidget):
     preview_requested = Signal(object)
@@ -210,12 +248,14 @@ class FactorManagementPanel(QWidget):
         from PySide6.QtWidgets import QTabWidget
 
         self.authoring = FactorAuthoringPanel(controller)
+        self.workbench = FactorWorkbenchPanel(controller)
         self.components = component_panel
         # Preserve the existing panel inspection surface used by smoke tests and
         # simple UI diagnostics while the Factor page gains a second tab.
         self.list = self.components.list
         tabs = QTabWidget()
         tabs.addTab(self.authoring, "创建/修改Factor")
+        tabs.addTab(self.workbench, "本地验证与证据")
         tabs.addTab(self.components, "版本配置与预览")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
@@ -226,3 +266,4 @@ class FactorManagementPanel(QWidget):
     def reload(self) -> None:
         self.authoring.reload()
         self.components.reload()
+        self.workbench.reload()

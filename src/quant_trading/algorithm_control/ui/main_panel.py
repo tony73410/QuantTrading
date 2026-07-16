@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, time, timedelta
 from uuid import uuid4
 
-from PySide6.QtCore import QThreadPool
+from PySide6.QtCore import QDate, QThreadPool
 from PySide6.QtWidgets import (
     QHBoxLayout,
+    QComboBox,
+    QDateEdit,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -24,18 +27,49 @@ from quant_trading.errors import QuantTradeError
 from quant_trading.observability import log_exception
 
 from ..controller import AlgorithmControlController
-from ..admission_models import PipelineReadiness
 from ..models import ComponentType, PreviewKind, PreviewRequest
 from .component_panel import ComponentPanel
 from .factor_authoring_panel import FactorManagementPanel
+from .decision_authoring_panel import DecisionManagementPanel
+from .execution_control_panel import ExecutionControlPanel
+from .idea_notebook_panel import IdeaNotebookPanel
+from .portfolio_ledger_panel import PortfolioLedgerPanel
+from .simulation_strategy_panel import SimulationStrategyPanel
+from .market_factor_panel import MarketFactorPanel
 from .workers import TaskWorker
+from quant_trading.portfolio_accounting.queries.interfaces import (
+    EmptyPortfolioAccountingQueryService,
+    PortfolioAccountingQueryService,
+)
+from ..idea_notebook import IdeaNotebookService
 
 
 logger = logging.getLogger(__name__)
 
 
+ALGORITHM_CONTROL_PAGE_IDS: tuple[str, ...] = (
+    "overview",
+    "idea_notebook",
+    "asset_factors",
+    "market_factors",
+    "decision",
+    "risk",
+    "execution",
+    "portfolio_ledger",
+    "simulation_strategies",
+    "pipeline",
+    "conflicts",
+    "audit",
+)
+
+
 class AlgorithmControlPanel(QMainWindow):
-    def __init__(self, controller: AlgorithmControlController) -> None:
+    def __init__(
+        self,
+        controller: AlgorithmControlController,
+        portfolio_queries: PortfolioAccountingQueryService | None = None,
+        idea_notebook: IdeaNotebookService | None = None,
+    ) -> None:
         super().__init__()
         self.controller = controller
         self.setWindowTitle("QuantTrade 算法控制中心")
@@ -44,28 +78,60 @@ class AlgorithmControlPanel(QMainWindow):
         self._active_task: str | None = None
         self.tabs = QTabWidget()
         self.overview = self._overview_page()
+        self.idea_notebook_page = IdeaNotebookPanel(idea_notebook)
         self.factor_page = FactorManagementPanel(
             controller,
             ComponentPanel(controller, ComponentType.FACTOR),
         )
-        self.decision_page = ComponentPanel(controller, ComponentType.DECISION)
+        self.market_factor_page = MarketFactorPanel(controller)
+        self.decision_page = DecisionManagementPanel(
+            controller,
+            ComponentPanel(controller, ComponentType.DECISION),
+        )
         self.risk_page = ComponentPanel(controller, ComponentType.RISK)
+        self.execution_page = ExecutionControlPanel(controller)
+        self.portfolio_ledger_page = PortfolioLedgerPanel(
+            portfolio_queries or EmptyPortfolioAccountingQueryService()
+        )
+        self.simulation_strategy_page = SimulationStrategyPanel(controller)
         self.pipeline = self._pipeline_page()
         self.conflict_center = self._conflict_page()
         self.audit = self._audit_page()
-        for label, widget in (
-            ("总览", self.overview), ("因子层", self.factor_page),
-            ("交易决策层", self.decision_page), ("风险检查层", self.risk_page),
-            ("Pipeline", self.pipeline), ("冲突中心", self.conflict_center), ("审计记录", self.audit),
-        ):
+        pages = (
+            ("overview", "总览", self.overview),
+            ("idea_notebook", "算法 Idea 笔记", self.idea_notebook_page),
+            ("asset_factors", "单只股票因子", self.factor_page),
+            ("market_factors", "市场/宏观因子", self.market_factor_page),
+            ("decision", "交易决策层", self.decision_page),
+            ("risk", "风险检查层", self.risk_page),
+            ("execution", "执行控制", self.execution_page),
+            ("portfolio_ledger", "Portfolio & Ledger", self.portfolio_ledger_page),
+            ("simulation_strategies", "Simulation Strategies", self.simulation_strategy_page),
+            ("pipeline", "Pipeline", self.pipeline),
+            ("conflicts", "冲突中心", self.conflict_center),
+            ("audit", "审计记录", self.audit),
+        )
+        self._page_indexes: dict[str, int] = {}
+        for page_id, label, widget in pages:
+            self._page_indexes[page_id] = self.tabs.count()
             self.tabs.addTab(widget, label)
         self.setCentralWidget(self.tabs)
         for page in (self.factor_page, self.decision_page, self.risk_page):
             page.preview_requested.connect(self._component_preview)
             page.state_changed.connect(self.refresh)
         self.factor_page.state_changed.connect(self._factor_catalog_changed)
+        self.market_factor_page.state_changed.connect(self.refresh)
         self.dry_run_button.clicked.connect(self._dry_run)
         self.refresh()
+
+    def select_page(self, page_id: str) -> None:
+        """Select one trusted existing page without invoking its operations."""
+
+        try:
+            index = self._page_indexes[page_id]
+        except KeyError as exc:
+            raise ValueError(f"unknown Algorithm Control page: {page_id}") from exc
+        self.tabs.setCurrentIndex(index)
 
     def _overview_page(self) -> QWidget:
         page = QWidget()
@@ -85,6 +151,23 @@ class AlgorithmControlPanel(QMainWindow):
         self.pipeline_text = QLabel()
         self.pipeline_text.setWordWrap(True)
         layout.addWidget(self.pipeline_text)
+        self.pipeline_decision = QComboBox()
+        self.pipeline_symbol = QLineEdit("AAPL")
+        self.pipeline_start = QDateEdit(QDate.currentDate().addYears(-1))
+        self.pipeline_end = QDateEdit(QDate.currentDate())
+        for editor in (self.pipeline_start, self.pipeline_end):
+            editor.setCalendarPopup(True)
+            editor.setDisplayFormat("yyyy-MM-dd")
+        layout.addWidget(QLabel("Dry Run使用的Decision精确版本："))
+        layout.addWidget(self.pipeline_decision)
+        layout.addWidget(QLabel("股票代码："))
+        layout.addWidget(self.pipeline_symbol)
+        dates = QHBoxLayout()
+        dates.addWidget(QLabel("开始日期"))
+        dates.addWidget(self.pipeline_start)
+        dates.addWidget(QLabel("截至日期"))
+        dates.addWidget(self.pipeline_end)
+        layout.addLayout(dates)
         self.dry_run_button = QPushButton("运行 Dry Run（NO EXECUTION）")
         layout.addWidget(self.dry_run_button)
         self.preview_result = QLabel("尚未运行。")
@@ -132,13 +215,19 @@ class AlgorithmControlPanel(QMainWindow):
             "控制中心没有执行步骤，预览结果永远不能直接下单。<br><br>"
             + (issues or "当前依赖验证通过。")
         )
+        current_decision = self.pipeline_decision.currentData()
+        decision_components = self.controller.components(ComponentType.DECISION)
+        known = tuple(self.pipeline_decision.itemData(index) for index in range(self.pipeline_decision.count()))
+        expected = tuple(item.component_id for item in decision_components)
+        if known != expected:
+            self.pipeline_decision.clear()
+            for component in decision_components:
+                self.pipeline_decision.addItem(f"{component.display_name} · {component.component_id}", component.component_id)
+            index = self.pipeline_decision.findData(current_decision)
+            if index >= 0:
+                self.pipeline_decision.setCurrentIndex(index)
         self.dry_run_button.setEnabled(
-            overview.pipeline_readiness in {
-                PipelineReadiness.READY,
-                PipelineReadiness.READY_FOR_DRY_RUN,
-                PipelineReadiness.READY_FOR_PAPER,
-            }
-            and self._active_task is None
+            self.pipeline_decision.count() > 0 and self._active_task is None
         )
         self.conflict_table.setRowCount(len(overview.conflicts))
         for row, conflict in enumerate(overview.conflicts):
@@ -159,6 +248,8 @@ class AlgorithmControlPanel(QMainWindow):
             values = (record.timestamp_utc.isoformat(), record.action.value, record.component_id or "—", record.previous_configuration_version or "—", record.new_configuration_version or "—", record.application_result, record.change_reason)
             for column, value in enumerate(values):
                 self.audit_table.setItem(row, column, QTableWidgetItem(str(value)))
+        self.execution_page.reload()
+        self.portfolio_ledger_page.reload()
 
     def _factor_catalog_changed(self) -> None:
         self.factor_page.reload()
@@ -170,12 +261,31 @@ class AlgorithmControlPanel(QMainWindow):
         self._start_preview(kind, (component_id,))
 
     def _dry_run(self) -> None:
-        self._start_preview(PreviewKind.PIPELINE_DRY_RUN, self.controller.registry.component_ids)
+        component_id = self.pipeline_decision.currentData()
+        if component_id is None:
+            return
+        start = self.pipeline_start.date().toPython()
+        end = self.pipeline_end.date().toPython()
+        if start > end:
+            QMessageBox.information(self, "日期无效", "开始日期不能晚于截至日期。")
+            return
+        request = PreviewRequest(
+            uuid4(),
+            PreviewKind.PIPELINE_DRY_RUN,
+            (str(component_id),),
+            self.pipeline_symbol.text(),
+            datetime.combine(end + timedelta(days=1), time.min, UTC),
+            start_utc=datetime.combine(start, time.min, UTC),
+        )
+        self._run_preview_request(request)
 
     def _start_preview(self, kind: PreviewKind, component_ids: tuple[str, ...]) -> None:
+        request = PreviewRequest(uuid4(), kind, component_ids, "AAPL", datetime.now(UTC), use_fake_input=True)
+        self._run_preview_request(request)
+
+    def _run_preview_request(self, request: PreviewRequest) -> None:
         if self._active_task is not None:
             return
-        request = PreviewRequest(uuid4(), kind, component_ids, "AAPL", datetime.now(UTC), use_fake_input=True)
         task_id = str(request.preview_id)
         self._active_task = task_id
         self.preview_result.setText("正在后台运行安全预览……")

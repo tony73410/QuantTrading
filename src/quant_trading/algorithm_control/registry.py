@@ -35,6 +35,19 @@ class AlgorithmComponentRegistry:
             raise ComponentRegistrationError(f"component admission failed: {summary}")
         self._components[component.component_id] = component
 
+    def replace(self, component: ComponentMetadata) -> None:
+        """Replace existing metadata after applying normal admission checks."""
+
+        if component.component_id not in self._components:
+            raise ComponentRegistrationError(
+                f"component is not registered: {component.component_id}"
+            )
+        conflicts = self.admission.assess_component(component)
+        if conflicts:
+            summary = "; ".join(item.description for item in conflicts)
+            raise ComponentRegistrationError(f"component admission failed: {summary}")
+        self._components[component.component_id] = component
+
     def registration_status(self, component: ComponentMetadata) -> ComponentStatus:
         """Return INVALID for rejected metadata without making it runnable."""
 

@@ -36,6 +36,12 @@ class FactorDefinitionService:
                 return item
         raise ValueError("factor definition does not exist")
 
+    def get_by_component_id(self, component_id: str) -> FactorDefinition:
+        for item in self.list_definitions():
+            if item.component_id == component_id:
+                return item
+        raise ValueError("factor component definition does not exist")
+
     def save(
         self,
         *,

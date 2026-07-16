@@ -45,6 +45,12 @@ class ConfigurationValidator:
                 continue
             if factor.component_type is not ComponentType.FACTOR:
                 issues.append(ValidationIssue("NOT_A_FACTOR", f"所选组件不是Factor：{factor_id}", "selected_factor_ids"))
+            elif factor.status.value == "deprecated":
+                issues.append(ValidationIssue(
+                    "FACTOR_NOT_AVAILABLE",
+                    f"所选Factor已归档或弃用：{factor_id}",
+                    "selected_factor_ids",
+                ))
         for required in component.required_factors:
             if component.component_type is ComponentType.DECISION and required not in selected:
                 issues.append(ValidationIssue("REQUIRED_FACTOR_NOT_SELECTED", f"必须选择依赖Factor：{required}", "selected_factor_ids"))
