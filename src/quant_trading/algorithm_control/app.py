@@ -15,8 +15,20 @@ from quant_trading.observability import configure_logging, install_exception_hoo
 from quant_trading.orchestration.algorithm_preview_composition import build_algorithm_preview_service
 from quant_trading.portfolio_accounting.queries import InMemoryPortfolioAccountingQueryService
 from quant_trading.backtesting import JsonSimulationStrategyStore, SimulationStrategyService
+from quant_trading.persistence import (
+    SQLiteAssetStateStore,
+    SQLiteCapitalAllocationStore,
+    SQLiteResearchHistoryQueryService,
+    SQLiteRunHistoryRepository,
+    SQLiteTargetPositionStore,
+)
+from quant_trading.run_history import AlgorithmRunService, detect_software_identity
+from quant_trading.capital_allocation import CapitalAllocationService
+from quant_trading.asset_state import AssetStateService
+from quant_trading.target_position import TargetPositionService
 
 from .audit_service import AuditService
+from .factor_history_export import FactorHistoryExportService
 from .configuration_service import ConfigurationService
 from .factor_definition_service import FactorDefinitionService
 from .factor_definition_store import JsonFactorDefinitionStore
@@ -65,7 +77,12 @@ def build_controller(project_root: Path | None = None, *, session_id: str | None
         validator,
         AuditService(session_id or f"ALG-{uuid4().hex[:12].upper()}"),
     )
-    previews = build_algorithm_preview_service(root, factor_definitions, decision_definitions)
+    previews = build_algorithm_preview_service(
+        root,
+        factor_definitions,
+        decision_definitions,
+        session_id=session_id or "algorithm-control",
+    )
     return AlgorithmControlController(
         registry,
         configurations,
@@ -103,14 +120,69 @@ def main(argv: Sequence[str] | None = None) -> int:
             extra={"operation": "algorithm_control_close", "environment": "alpaca_paper"},
         )
     )
+    controller = build_controller(root, session_id=session_id)
+    run_history_queries = SQLiteRunHistoryRepository(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    run_history_queries.initialize()
+    research_history_queries = SQLiteResearchHistoryQueryService(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    research_history_queries.initialize()
+    software = detect_software_identity(root)
+    capital_store = SQLiteCapitalAllocationStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    capital_store.initialize()
+    capital_service = CapitalAllocationService(
+        capital_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    asset_state_store = SQLiteAssetStateStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    asset_state_store.initialize()
+    asset_state_service = AssetStateService(
+        asset_state_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    target_position_store = SQLiteTargetPositionStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    target_position_store.initialize()
+    target_position_service = TargetPositionService(
+        target_position_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
     panel = AlgorithmControlPanel(
-        build_controller(root, session_id=session_id),
+        controller,
         InMemoryPortfolioAccountingQueryService(),
         IdeaNotebookService(
             JsonIdeaNoteStore(
                 root / "runtime" / "algorithm_control" / "idea_notes.json"
             )
         ),
+        run_history_queries,
+        research_history_queries,
+        research_history_queries,
+        research_history_queries,
+        FactorHistoryExportService(
+            software_version=software.package_version,
+            source_revision=software.source_revision,
+            worktree_state=software.worktree_state.value,
+        ),
+        capital_service,
+        capital_store,
+        session_id,
+        asset_state_service,
+        asset_state_store,
+        session_id,
+        target_position_service,
+        target_position_store,
+        session_id,
     )
     if options.page is not None:
         panel.select_page(options.page)

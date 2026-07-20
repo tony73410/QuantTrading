@@ -4,7 +4,26 @@ from .engine import SingleAssetFactorEngine
 from .definitions import FactorDefinition, FactorDefinitionParameter
 from .expression import SafeExpressionFactorCalculator
 from .expression_language import parse_and_validate_expression
-from .interfaces import FactorCalculator, FactorDefinitionStore, FactorSnapshotStore
+from .interfaces import (
+    EmptyFactorHistoryQueryService,
+    EmptyFactorVisualizationQueryService,
+    FactorCalculator,
+    FactorDefinitionStore,
+    FactorHistoryQueryService,
+    FactorVisualizationQueryService,
+    FactorSnapshotStore,
+)
+from .history import (
+    FactorHistoryQuery,
+    FactorHistoryRecord,
+    FactorSourcePriceStatus,
+    FactorVisualizationPoint,
+    FactorVisualizationQuery,
+    FactorVisualizationSeries,
+    FactorVersionComparison,
+    FactorVersionComparisonQuery,
+    FactorVersionValue,
+)
 from .models import (
     FactorContext,
     FactorParameter,
@@ -24,6 +43,19 @@ __all__ = [
     "FactorDefinition",
     "FactorDefinitionParameter",
     "FactorDefinitionStore",
+    "FactorHistoryQuery",
+    "FactorHistoryQueryService",
+    "FactorHistoryRecord",
+    "FactorSourcePriceStatus",
+    "FactorVisualizationPoint",
+    "FactorVisualizationQuery",
+    "FactorVisualizationQueryService",
+    "FactorVisualizationSeries",
+    "FactorVersionComparison",
+    "FactorVersionComparisonQuery",
+    "FactorVersionValue",
+    "EmptyFactorHistoryQueryService",
+    "EmptyFactorVisualizationQueryService",
     "FactorSnapshotStore",
     "FactorCalculationRun",
     "FactorCalculationStatus",

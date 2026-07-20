@@ -12,7 +12,15 @@
 - Restricted Factor definitions, syntax validation and evaluation belong to `quant_trading.factors`. Algorithm Control may edit public contracts and issue typed preview requests; local evaluation must be delegated to application orchestration, not implemented in GUI callbacks.
 - Decision configuration may reference exact registered Factor component IDs only. Selection does not activate a Factor, define Decision logic or bypass Risk.
 
-- `quant_trading.persistence` may implement public Store Protocols and use public Market/Factor models, but it must not own formulas, Decision/Risk logic, GUI, Providers or execution. Pure Factor code must not import the concrete SQLite adapter.
+- `quant_trading.run_history` owns only neutral `NO_EXECUTION` lifecycle/query contracts and depends on stdlib; it must not import Persistence, GUI, Factor, Decision, Risk, Accounting, Backtesting or Execution.
+- `quant_trading.persistence` may implement public Store/query Protocols and use neutral Run History plus public Market/Factor/Decision/Risk result/history models, but it must not own formulas/rules, reconstruct missing domain evidence, contain GUI, call Providers, mutate Accounting or access execution. Pure business modules must not import concrete SQLite adapters.
+- Algorithm Control may consume injected `RunHistoryQueryService`, `FactorHistoryQueryService` and `DecisionHistoryQueryService` contracts. GUI code must not execute SQL, calculate Factor/Decision values or reconstruct historical condition outcomes; local preview orchestration persists evidence through injected Store contracts.
+- Factor visualization must consume an injected `FactorVisualizationQueryService`. Persistence may attach only the exact source Bar identity recorded by the Factor result; nearest-Bar selection, fill, resampling and recomputation are forbidden.
+- `quant_trading.visualization` is presentation-only and may depend on Plotly/PySide6 plus shared infrastructure errors. It must not import Market History, Factor, Decision, Risk, Persistence, Accounting, Orchestration or Execution. Owning presentation modules build figures and may share only the public renderer.
+- `quant_trading.capital_allocation` owns research planning semantics and may depend only on stdlib, shared errors and neutral Run History contracts. It must not import Persistence, GUI, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting or Execution. Portfolio Accounting does not consume research plans; any future factual-snapshot adapter is a separately approved one-way boundary.
+- Capital plans use explicit `RESEARCH_INPUT` USD amounts, exact Decimal conservation, protected locked/tactical reserves and only zero-sum asset-cash transfers. Persistence may implement the public Store/query ports and must recheck complete bucket identity, predecessor and exact deltas transactionally. Algorithm Control may call only injected typed services; no downstream module consumes plans automatically.
+- `quant_trading.asset_state` owns user-defined symbolic state graphs, one-open-cycle-per-symbol history, explicit manual transitions and deterministic replay. It may depend only on stdlib, shared errors and neutral Run History contracts; it must not import Persistence, GUI, Capital Allocation, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting or Execution.
+- Asset-state labels have no built-in financial meaning. The Store must transactionally revalidate exact definitions, predecessor snapshots, allowed edges, operation identity and optional local Run/Factor evidence. Algorithm Control may call only injected typed services, and no downstream module may consume state automatically in Phase 4A.
 
 - 模块通过明确公共接口通信，共享数据结构必须有明确字段或类型约定。
 - 依赖方向应可被 `MODULE_MAP.md` 和模块文档解释，并保持无环。
@@ -24,6 +32,7 @@
 - 能归入现有职责的需求优先扩展现有模块；新增模块需先审批。
 - `algorithm_control`只管理公开元数据、配置版本、生命周期、验证、预览请求和审计；不得依赖具体Alpaca Provider、历史SQLite Store或未来Execution Provider。`orchestration`可通过窄Store工厂/公开接口组合本地预览，但不得联网或构造订单。
 - `launcher`只维护静态可信GUI入口并启动独立进程；不得导入功能GUI、Provider、Store、算法、Risk或Execution实现。未来独立GUI功能应登记入口和测试，不得把业务逻辑放进主菜单。
+- `target_position` owns only immutable bounded curve definitions and exact manual research previews. It may depend on neutral Run History contracts, but must not import Market/Factor/Asset State/Capital Allocation/Portfolio Accounting/Decision/Risk/Backtesting/Execution. No existing business or execution module may consume it automatically in Phase 5A.
 - 算法参数界面必须由`ParameterSchema`生成；不得按算法名称写`if/elif`并把公式或交易规则藏入GUI。
 
 ## Admission and capability enforcement

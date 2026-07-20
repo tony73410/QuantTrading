@@ -1,4 +1,4 @@
-"""Local-data-only Factor preview adapter for the algorithm control center."""
+"""Local-data-only Factor previews with durable, non-executing run history."""
 
 from __future__ import annotations
 
@@ -22,6 +22,14 @@ from quant_trading.factors import (
 from quant_trading.factors.interfaces import FactorSnapshotStore
 from quant_trading.market_history.interfaces import HistoricalDataStore
 from quant_trading.market_history.models import HistoricalDataRequest
+from quant_trading.run_history import (
+    AlgorithmRunService,
+    AlgorithmRunType,
+    RunBindingType,
+    RunStageName,
+    SoftwareIdentity,
+    StartRunRequest,
+)
 
 
 class LocalMarketWindowLoader:
@@ -67,41 +75,132 @@ class LocalFactorPreviewExecutor:
         definitions: FactorDefinitionService,
         market_store: HistoricalDataStore,
         factor_store: FactorSnapshotStore | None = None,
+        *,
+        run_service: AlgorithmRunService | None = None,
+        software_identity: SoftwareIdentity | None = None,
+        session_id: str = "algorithm-control",
     ) -> None:
         self._definitions = definitions
         self._window_loader = LocalMarketWindowLoader(market_store)
         self._factor_store = factor_store
+        self._run_service = run_service
+        self._software_identity = software_identity
+        self._session_id = session_id
 
     def preview(self, request: PreviewRequest) -> PreviewResult:
         if request.kind is not PreviewKind.FACTOR or len(request.component_ids) != 1:
             raise ValueError("Factor preview requires exactly one Factor component")
-        definition = self._definitions.get_by_component_id(request.component_ids[0])
-        window = self._window_loader.load(request)
-        engine = SingleAssetFactorEngine((SafeExpressionFactorCalculator(definition),))
-        run_id = None
-        if request.persist_factor_snapshot and self._factor_store is not None:
-            run_id = self._factor_store.begin_calculation(
-                window,
-                correlation_id=str(request.preview_id),
-            )
+        algorithm_run = None
+        active_stage = None
+        calculation_id = None
         try:
+            if self._run_service is not None and self._software_identity is not None:
+                algorithm_run = self._run_service.start_run(
+                    StartRunRequest(
+                        AlgorithmRunType.FACTOR_PREVIEW,
+                        self._session_id,
+                        f"REQ-PREVIEW-{request.preview_id.hex.upper()}",
+                        request.as_of_utc,
+                        (request.symbol,),
+                        "algorithm_control.factor_preview",
+                        "local_user",
+                        self._software_identity,
+                    )
+                )
+            definition = self._definitions.get_by_component_id(request.component_ids[0])
+            if algorithm_run is not None and self._run_service is not None:
+                self._run_service.bind(
+                    algorithm_run.run_id,
+                    RunBindingType.FACTOR_DEFINITION,
+                    definition.factor_id,
+                    str(definition.version),
+                    source_reference=str(definition.definition_id),
+                )
+                active_stage = self._run_service.start_stage(
+                    algorithm_run.run_id, RunStageName.MARKET_DATA, 1
+                )
+            window = self._window_loader.load(request)
+            if active_stage is not None and self._run_service is not None:
+                active_stage = self._run_service.complete_stage(
+                    active_stage,
+                    result_type="market_data_window",
+                    result_id=(
+                        f"{request.symbol}:{request.timeframe.value}:"
+                        f"{request.adjustment.value}:{request.feed.value}:"
+                        f"{request.as_of_utc.isoformat()}"
+                    ),
+                )
+                active_stage = self._run_service.start_stage(
+                    algorithm_run.run_id, RunStageName.FACTOR, 2
+                )
+            engine = SingleAssetFactorEngine((SafeExpressionFactorCalculator(definition),))
+            should_persist = self._factor_store is not None and (
+                request.persist_factor_snapshot or algorithm_run is not None
+            )
+            if should_persist and self._factor_store is not None:
+                calculation_id = self._factor_store.begin_calculation(
+                    window,
+                    correlation_id=f"REQ-PREVIEW-{request.preview_id.hex.upper()}",
+                    algorithm_run_id=algorithm_run.run_id if algorithm_run else None,
+                    stage_id=active_stage.stage_id if active_stage else None,
+                )
             snapshot = engine.calculate(
                 window,
                 FactorContext(request.as_of_utc, request.factor_parameters),
             )
-            if run_id is not None and self._factor_store is not None:
-                snapshot = self._factor_store.complete_calculation_success(run_id, snapshot, window)
-        except Exception as exc:
-            if run_id is not None and self._factor_store is not None:
-                self._factor_store.complete_calculation_failure(
-                    run_id,
-                    error_code="QT-FACTOR-001",
-                    error_summary=f"{type(exc).__name__}: {exc}",
+            if calculation_id is not None and self._factor_store is not None:
+                snapshot = self._factor_store.complete_calculation_success(
+                    calculation_id, snapshot, window
                 )
+            result = snapshot.results[0]
+            warning = result.status is not FactorStatus.VALID
+            if active_stage is not None and self._run_service is not None:
+                active_stage = self._run_service.complete_stage(
+                    active_stage,
+                    result_type="factor_snapshot",
+                    result_id=str(snapshot.snapshot_id),
+                    with_warnings=warning,
+                )
+                self._run_service.complete_run(
+                    algorithm_run.run_id, with_warnings=warning
+                )
+        except Exception as exc:
+            summary = f"{type(exc).__name__}: {exc}"
+            if calculation_id is not None and self._factor_store is not None:
+                try:
+                    self._factor_store.complete_calculation_failure(
+                        calculation_id,
+                        error_code="QT-FACTOR-001",
+                        error_summary=summary,
+                    )
+                except Exception:
+                    pass
+            if algorithm_run is not None and self._run_service is not None:
+                try:
+                    if active_stage is not None and not active_stage.status.terminal:
+                        self._run_service.fail_stage(
+                            active_stage,
+                            error_code="QT-FACTOR-001",
+                            error_summary=summary,
+                        )
+                    self._run_service.fail_run(
+                        algorithm_run.run_id,
+                        error_code="QT-PREVIEW-FAILED",
+                        error_summary=summary,
+                    )
+                except Exception:
+                    pass
             raise
-        result = snapshot.results[0]
-        status = PreviewStatus.COMPLETED if result.status is FactorStatus.VALID else PreviewStatus.WARNING
-        persistence = "并已保存到中央 SQLite 因子历史" if request.persist_factor_snapshot else "未保存，仅预览"
+        status = (
+            PreviewStatus.COMPLETED
+            if result.status is FactorStatus.VALID
+            else PreviewStatus.WARNING
+        )
+        persistence = (
+            "并已保存到中央 SQLite 因子历史"
+            if calculation_id is not None
+            else "未保存，仅预览"
+        )
         return PreviewResult(
             preview_id=request.preview_id,
             kind=request.kind,
@@ -113,4 +212,5 @@ class LocalFactorPreviewExecutor:
             ),
             no_execution=True,
             factor_snapshot=snapshot,
+            run_id=algorithm_run.run_id if algorithm_run else None,
         )

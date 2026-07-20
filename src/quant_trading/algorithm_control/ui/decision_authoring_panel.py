@@ -34,10 +34,12 @@ from quant_trading.decision import (
     SizingDefinition,
     SizingMode,
 )
+from quant_trading.decision.interfaces import DecisionHistoryQueryService
 from PySide6.QtCore import Qt
 
 from ..controller import AlgorithmControlController
 from ..models import ComponentStatus, ComponentType
+from .decision_history_panel import DecisionHistoryPanel
 
 
 class DecisionAuthoringPanel(QWidget):
@@ -264,22 +266,34 @@ class DecisionAuthoringPanel(QWidget):
 class DecisionManagementPanel(QWidget):
     preview_requested = Signal(object)
     state_changed = Signal()
+    open_run_requested = Signal(object)
 
-    def __init__(self, controller: AlgorithmControlController, component_panel: QWidget, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        controller: AlgorithmControlController,
+        component_panel: QWidget,
+        parent: QWidget | None = None,
+        *,
+        history_queries: DecisionHistoryQueryService | None = None,
+    ) -> None:
         super().__init__(parent)
         self.authoring = DecisionAuthoringPanel(controller)
+        self.history = DecisionHistoryPanel(history_queries)
         self.components = component_panel
         self.list = self.components.list
         self.factor_choices = self.components.factor_choices
         tabs = QTabWidget()
         tabs.addTab(self.authoring, "创建/修改Decision")
+        tabs.addTab(self.history, "历史与计算明细")
         tabs.addTab(self.components, "版本配置与预览")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
         self.authoring.state_changed.connect(self.state_changed)
         self.components.state_changed.connect(self.state_changed)
         self.components.preview_requested.connect(self.preview_requested)
+        self.history.open_run_requested.connect(self.open_run_requested)
 
     def reload(self) -> None:
         self.authoring.reload()
         self.components.reload()
+        self.history.reload()

@@ -11,7 +11,7 @@ from quant_trading.factors.models import FactorStatus
 
 from .errors import DecisionContractError
 from .interfaces import TradingDecisionPolicy
-from .models import DecisionInput, DecisionResult, DecisionStatus
+from .models import DecisionInput, DecisionResult, DecisionStatus, DecisionTraceStatus
 from .registry import DecisionPolicyRegistry
 
 
@@ -109,4 +109,5 @@ class TradingDecisionEngine:
             intents=(),
             reason_codes=reasons,
             created_at_utc=self._clock(),
+            trace_status=DecisionTraceStatus.NOT_EVALUATED,
         )

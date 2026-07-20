@@ -420,6 +420,7 @@ class PreviewResult:
     decision_result: DecisionResult | None = None
     risk_decisions: tuple[RiskDecision, ...] = ()
     execution_eligibility: ExecutionEligibility = ExecutionEligibility.NOT_ELIGIBLE
+    run_id: UUID | None = None
 
     def __post_init__(self) -> None:
         if not self.no_execution:

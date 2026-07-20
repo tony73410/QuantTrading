@@ -12,6 +12,8 @@
 
 ## Resolved
 
+- **KI-0013 — Canonical governance references were ambiguous.** Resolved 2026-07-16: Portfolio Accounting retains `INTENT-017`, Main Launcher is uniquely `INTENT-019`, Run History is `INTENT-020`, architecture invariants are monotonic through 34, and Compass verification metadata reflects the current Phase 1 worktree and 312-test evidence. Architecture regression tests enforce unique Intent IDs and invariant numbering. See `BUG-20260716-010`.
+
 - **KI-0012 — 请求区间内的未来Market Bar可通过验证。** Resolved 2026-07-15：Market Data合同现在以验证时UTC为上界拒绝未来Bar，不改写或排序输入。详见`BUG-20260715-009`。
 - **KI-0011 — Decision“添加条件”按钮可能把Qt checked状态当作业务对象。** Resolved 2026-07-15：新增显式无参signal adapter，防止bool进入DecisionCondition slot。详见`BUG-20260715-008`。
 

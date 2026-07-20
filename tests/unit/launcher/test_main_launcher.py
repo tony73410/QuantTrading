@@ -86,6 +86,9 @@ def test_launcher_window_builds_one_button_per_registered_target(tmp_path):
     assert set(window.buttons) == {"market_history", "algorithm_control", "backtesting"}
     assert window.shortcut_combo.count() == len(ALGORITHM_CONTROL_PAGE_IDS) - 1
     assert window.shortcut_combo.itemData(0) == "idea_notebook"
+    assert window.shortcut_combo.findData("capital_allocation") >= 0
+    assert window.shortcut_combo.findData("asset_state") >= 0
+    assert window.shortcut_combo.findData("target_position") >= 0
     assert "Live Trading关闭" in window.safety.text()
     window.close()
     assert app is not None

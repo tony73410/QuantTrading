@@ -14,6 +14,7 @@ from quant_trading.decision import (
     DecisionPolicyRegistry,
     DecisionResult,
     DecisionStatus,
+    DecisionTraceStatus,
     PortfolioSnapshot,
     TradeIntent,
     TradingDecisionEngine,
@@ -153,6 +154,7 @@ def test_invalid_or_stale_factors_block_policy_and_produce_no_intent(
     assert policy.calls == 0
     assert result.status is decision_status
     assert result.intents == ()
+    assert result.trace_status is DecisionTraceStatus.NOT_EVALUATED
 
 
 def test_policy_can_be_replaced_without_changing_factor_contract() -> None:

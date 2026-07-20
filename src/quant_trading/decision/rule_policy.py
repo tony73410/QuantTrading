@@ -7,8 +7,15 @@ from decimal import Decimal
 from uuid import uuid4
 
 from .definitions import ComparisonOperator, DecisionPolicyDefinition, RuleCombination
-from .models import DecisionInput, DecisionResult, DecisionStatus, TradeIntent
-from .sizing import evaluate_sizing
+from .models import (
+    DecisionConditionTrace,
+    DecisionInput,
+    DecisionResult,
+    DecisionStatus,
+    DecisionTraceStatus,
+    TradeIntent,
+)
+from .sizing import evaluate_sizing_with_trace
 
 
 class SafeRuleDecisionPolicy:
@@ -30,11 +37,29 @@ class SafeRuleDecisionPolicy:
             for result in snapshot.results
         }
         checks: list[bool] = []
-        for condition in self.definition.conditions:
-            _, result = results[(condition.factor_name, condition.factor_version)]
+        traces: list[DecisionConditionTrace] = []
+        for order, condition in enumerate(self.definition.conditions):
+            snapshot_id, result = results[(condition.factor_name, condition.factor_version)]
             if isinstance(result.value, bool) or not isinstance(result.value, (Decimal, int)):
                 raise ValueError("Decision conditions require numeric Factor values")
-            checks.append(self._compare(Decimal(result.value), condition.operator, condition.threshold))
+            input_value = Decimal(result.value)
+            matched = self._compare(input_value, condition.operator, condition.threshold)
+            checks.append(matched)
+            traces.append(
+                DecisionConditionTrace(
+                    order,
+                    condition.factor_component_id,
+                    condition.factor_name,
+                    condition.factor_version,
+                    snapshot_id,
+                    input_value,
+                    result.unit,
+                    result.status,
+                    condition.operator.value,
+                    condition.threshold,
+                    matched,
+                )
+            )
         matched = all(checks) if self.definition.combination is RuleCombination.ALL else any(checks)
         decision_id = uuid4()
         snapshot_ids = tuple(snapshot.snapshot_id for snapshot in decision_input.factors.snapshots)
@@ -51,9 +76,14 @@ class SafeRuleDecisionPolicy:
                 (),
                 ("CONDITIONS_NOT_MET" if not matched else self.definition.reason_code,),
                 now,
+                tuple(traces),
+                DecisionTraceStatus.CAPTURED,
             )
         first_snapshot = decision_input.factors.snapshots[0]
-        requested_notional, sizing_references = evaluate_sizing(self.definition.sizing, decision_input.sizing)
+        requested_notional, sizing_inputs = evaluate_sizing_with_trace(
+            self.definition.sizing, decision_input.sizing
+        )
+        sizing_references = tuple(item.name for item in sizing_inputs)
         intent = TradeIntent(
             uuid4(),
             decision_id,
@@ -75,6 +105,7 @@ class SafeRuleDecisionPolicy:
             sizing_mode=self.definition.sizing.mode.value,
             sizing_expression=self.definition.sizing.expression,
             sizing_references=sizing_references,
+            sizing_inputs=sizing_inputs,
         )
         return DecisionResult(
             decision_id,
@@ -87,6 +118,8 @@ class SafeRuleDecisionPolicy:
             (intent,),
             (self.definition.reason_code,),
             now,
+            tuple(traces),
+            DecisionTraceStatus.CAPTURED,
         )
 
     @staticmethod

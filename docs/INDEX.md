@@ -1,9 +1,15 @@
 # Documentation Index
 
+- [Shared visualization presentation](modules/visualization.md) — business-neutral responsive Plotly/QWebEngine rendering reused by Market History and Algorithm Control.
+
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
 - [Central SQLite persistence](modules/central-persistence.md) — shared physical database, independent Store contracts, Factor history and calculation-run audit.
+- [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message contracts, Schema v3 result/Decision-trace evidence, and Run History Explorer.
+- [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
+- [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
+- [Target Position Research](modules/target-position.md) — immutable bounded finite-knot curves, explicit manual USD research previews, structured Decimal traces and Schema v6 history; disabled and unconsumed.
 
 - [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
 - [Proposal template](proposals/PROPOSAL_TEMPLATE.md) — required identity, ownership, capability, contract, financial/safety and impact fields.
@@ -26,8 +32,10 @@
 | Trading decision | `modules/trading-decision.md` | 只消费FactorSnapshot的非执行决策合同、注册器、无规则引擎与边界 |
 | Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同、优先级和无数值规则引擎 |
 | Analysis/decision/risk pipeline | `modules/analysis-decision-pipeline.md` | Factor → Decision以及Factor → Decision → Risk单向编排和Execution停止边界 |
+| Algorithm run history | `modules/run-history.md` | Searchable Run IDs, ordered stages, exact version bindings, persistent Factor/Decision/Risk evidence, Decision traces, migrations and read-only Explorer |
 | Execution environments | `modules/execution-environments.md` | Paper与Live两个同级、空白、禁用的未来执行环境边界 |
 | Portfolio accounting | `modules/portfolio-accounting.md` | 统一会计领域、派生快照、核对与只读Query边界 |
+| Asset state | `modules/asset-state.md` | 版本化符号状态、交易周期、人工转换、时间线和确定性重放；不含自动状态公式 |
 | Trading ledger | `modules/trading-ledger.md` | 追加式订单操作与成交/现金事实记录边界 |
 | Algorithm control GUI | `modules/algorithm-control-gui.md` | Registry驱动的组件、参数、版本配置、依赖验证、NO EXECUTION预览和审计管理面 |
 | Algorithm Idea Notebook | `modules/idea-notebook.md` | Algorithm Control内的本地纯文本想法记录；与Factor、Decision、Backtesting和Execution隔离 |

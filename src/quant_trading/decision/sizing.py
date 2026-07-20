@@ -2,20 +2,33 @@
 import ast
 from decimal import Decimal
 from .definitions import SizingDefinition,SizingMode
+from .models import DecisionSizingInputSource, DecisionSizingInputTrace
 
 def evaluate_sizing(definition: SizingDefinition,context):
+    amount, inputs = evaluate_sizing_with_trace(definition, context)
+    return amount, tuple(item.name for item in inputs)
+
+
+def evaluate_sizing_with_trace(definition: SizingDefinition,context):
     mode=definition.mode
     if mode is SizingMode.NONE:return None,()
     values={}
     if context is not None:
         for namespace,items in (("asset",context.asset_factors),("market",context.market_factors),("account",context.account_fields),("position",context.position_fields)):
-            values.update({f"{namespace}.{x.name}":x.value for x in items})
+            source = DecisionSizingInputSource(namespace)
+            values.update({
+                f"{namespace}.{x.name}": DecisionSizingInputTrace(
+                    f"{namespace}.{x.name}", source, x.value
+                )
+                for x in items
+            })
     if mode is SizingMode.FIXED_USD:return definition.value,()
     field={SizingMode.PERCENT_AVAILABLE_CASH:"account.cash",SizingMode.PERCENT_EQUITY:"account.equity",SizingMode.PERCENT_POSITION_VALUE:"position.market_value",SizingMode.EXIT_ALL:"position.market_value"}.get(mode)
     if field is not None:
         if field not in values: raise ValueError(f"sizing requires {field}")
-        amount=values[field] if mode is SizingMode.EXIT_ALL else values[field]*definition.value/Decimal(100)
-        return _positive(amount),(field,)
+        raw_value = values[field].value
+        amount=raw_value if mode is SizingMode.EXIT_ALL else raw_value*definition.value/Decimal(100)
+        return _positive(amount),(values[field],)
     tree=ast.parse(definition.expression or "",mode="eval"); references=set()
     def evaluate(node):
         if isinstance(node,ast.Constant) and isinstance(node.value,(int,float)) and not isinstance(node.value,bool): return Decimal(str(node.value))
@@ -29,9 +42,9 @@ def evaluate_sizing(definition: SizingDefinition,context):
             if not isinstance(current,ast.Name): raise ValueError("invalid sizing reference")
             root=current.id; key=".".join((root,*reversed(parts)))
             if root not in ("asset","market","account","position") or key not in values: raise ValueError(f"unknown sizing reference: {key}")
-            references.add(key); return values[key]
+            references.add(key); return values[key].value
         raise ValueError("sizing expression supports only numbers, arithmetic, and approved references")
-    return _positive(evaluate(tree.body)),tuple(sorted(references))
+    return _positive(evaluate(tree.body)),tuple(values[key] for key in sorted(references))
 def _positive(value):
     if not value.is_finite() or value<=0: raise ValueError("sizing result must be a positive finite Decimal")
     return value

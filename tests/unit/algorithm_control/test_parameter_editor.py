@@ -56,7 +56,7 @@ def test_parameter_editor_is_generated_from_schema():
 def test_control_panel_shows_empty_algorithm_layers_and_locked_risk_invariants(tmp_path):
     app = QApplication.instance() or QApplication([])
     panel = AlgorithmControlPanel(build_controller(tmp_path))
-    assert panel.tabs.count() == 12
+    assert panel.tabs.count() == len(ALGORITHM_CONTROL_PAGE_IDS)
     assert any(
         panel.tabs.tabText(index) == "算法 Idea 笔记"
         for index in range(panel.tabs.count())
@@ -65,6 +65,8 @@ def test_control_panel_shows_empty_algorithm_layers_and_locked_risk_invariants(t
     assert any(panel.tabs.tabText(index) == "市场/宏观因子" for index in range(panel.tabs.count()))
     assert any(panel.tabs.tabText(index) == "Simulation Strategies" for index in range(panel.tabs.count()))
     assert any(panel.tabs.tabText(index) == "Portfolio & Ledger" for index in range(panel.tabs.count()))
+    assert any(panel.tabs.tabText(index) == "Capital Allocation" for index in range(panel.tabs.count()))
+    assert any(panel.tabs.tabText(index) == "Asset State" for index in range(panel.tabs.count()))
     assert tuple(panel._page_indexes) == ALGORITHM_CONTROL_PAGE_IDS
     for expected_index, page_id in enumerate(ALGORITHM_CONTROL_PAGE_IDS):
         panel.select_page(page_id)

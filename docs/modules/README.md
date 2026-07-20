@@ -1,8 +1,14 @@
 # Module Documentation
 
+- `visualization.md` — presentation-only shared Plotly/QWebEngine renderer; it owns no chart meaning, data query, algorithm or persistence behavior.
+
 - `factor-authoring.md` — restricted expression definitions, immutable disabled Factor versions, and exact Decision Factor-version selection.
 
-- `central-persistence.md` — shared local SQLite schema and independent Factor-history persistence boundary.
+- `central-persistence.md` — shared local SQLite Schema v6, versioned migrations, independent Run/Factor/Decision/Risk/Capital/Asset State/Target Position persistence and typed research-query adapters.
+- `target-position.md` — bounded manual target-level research owner with immutable curve definitions, exact Decimal traces and no runtime consumer.
+- `capital-allocation.md` — immutable research cash plans, protected reserve/asset buckets, exact conservation, append-only transfers and typed Store/query contracts.
+- `asset-state.md` — versioned user-defined symbolic states, one open cycle per symbol, append-only manual transitions and deterministic replay; no automatic trading meaning.
+- `run-history.md` — neutral NO EXECUTION Run lifecycle/query owner, linked Factor/Decision research evidence and Run History Explorer contract.
 
 当前正式模块文档：
 

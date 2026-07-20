@@ -1,6 +1,6 @@
 from datetime import UTC,datetime
 from decimal import Decimal
-from quant_trading.decision import SizingContext,SizingDefinition,SizingMode,SizingReference
+from quant_trading.decision import DecisionTraceStatus,SizingContext,SizingDefinition,SizingMode,SizingReference
 from quant_trading.decision.sizing import evaluate_sizing
 from uuid import uuid4
 from quant_trading.decision import ComparisonOperator,DecisionAction,DecisionCondition,DecisionContext,DecisionInput,DecisionPolicyDefinition,PortfolioSnapshot,RuleCombination,SafeRuleDecisionPolicy
@@ -24,3 +24,7 @@ def test_decision_intent_contains_traceable_requested_notional():
     policy=DecisionPolicyDefinition(uuid4(),"sized",1,"Sized","Sized test",(DecisionCondition("user_factor.momentum.v1","momentum","1",ComparisonOperator.GREATER_THAN,Decimal("0")),),RuleCombination.ALL,DecisionAction.INCREASE,"TEST",NOW,"user","test",SizingDefinition(SizingMode.PERCENT_AVAILABLE_CASH,Decimal("10")))
     output=SafeRuleDecisionPolicy(policy).evaluate(DecisionInput(FactorSnapshotCollection(uuid4(),NOW,(snapshot,)),PortfolioSnapshot(uuid4(),NOW),DecisionContext(NOW),CONTEXT))
     assert output.intents[0].requested_notional==Decimal("100") and output.intents[0].notional_currency=="USD" and output.intents[0].sizing_references==("account.cash",)
+    assert output.intents[0].sizing_inputs[0].value==Decimal("1000")
+    assert output.trace_status is DecisionTraceStatus.CAPTURED
+    assert output.condition_traces[0].input_value==Decimal("2")
+    assert output.condition_traces[0].matched is True

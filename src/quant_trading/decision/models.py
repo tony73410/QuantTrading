@@ -9,7 +9,7 @@ from enum import StrEnum
 from typing import TypeAlias
 from uuid import UUID
 
-from quant_trading.factors.models import FactorSnapshotCollection
+from quant_trading.factors.models import FactorSnapshotCollection, FactorStatus
 
 from .errors import DecisionContractError
 
@@ -49,6 +49,19 @@ class DecisionStatus(StrEnum):
     INVALID_FACTORS = "invalid_factors"
     STALE_FACTORS = "stale_factors"
     POLICY_ERROR = "policy_error"
+
+
+class DecisionTraceStatus(StrEnum):
+    CAPTURED = "captured"
+    NOT_EVALUATED = "not_evaluated"
+    TRACE_NOT_CAPTURED = "trace_not_captured"
+
+
+class DecisionSizingInputSource(StrEnum):
+    ASSET = "asset"
+    MARKET = "market"
+    ACCOUNT = "account"
+    POSITION = "position"
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -95,6 +108,54 @@ class SizingContext:
         object.__setattr__(self,"as_of_utc",_utc(self.as_of_utc,"sizing as_of_utc"))
         names=[f"asset.{x.name}" for x in self.asset_factors]+[f"market.{x.name}" for x in self.market_factors]+[f"account.{x.name}" for x in self.account_fields]+[f"position.{x.name}" for x in self.position_fields]
         if len(names)!=len(set(names)): raise DecisionContractError("sizing context references must be unique")
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class DecisionSizingInputTrace:
+    name: str
+    source: DecisionSizingInputSource
+    value: Decimal
+
+    def __post_init__(self) -> None:
+        name = _required_text(self.name, "sizing input name")
+        if not isinstance(self.source, DecisionSizingInputSource):
+            raise DecisionContractError("sizing input source is invalid")
+        if not isinstance(self.value, Decimal) or not self.value.is_finite():
+            raise DecisionContractError("sizing input value must be a finite Decimal")
+        if not name.startswith(f"{self.source.value}."):
+            raise DecisionContractError("sizing input name must match its source")
+        object.__setattr__(self, "name", name)
+
+
+@dataclass(frozen=True, slots=True)
+class DecisionConditionTrace:
+    evaluation_order: int
+    factor_component_id: str
+    factor_name: str
+    factor_version: str
+    factor_snapshot_id: UUID
+    input_value: Decimal
+    input_unit: str | None
+    factor_status: FactorStatus
+    operator: str
+    threshold: Decimal
+    matched: bool
+
+    def __post_init__(self) -> None:
+        if self.evaluation_order < 0:
+            raise DecisionContractError("condition evaluation order cannot be negative")
+        for field_name in ("factor_component_id", "factor_name", "factor_version"):
+            object.__setattr__(self, field_name, _required_text(getattr(self, field_name), field_name))
+        if not isinstance(self.input_value, Decimal) or not self.input_value.is_finite():
+            raise DecisionContractError("condition input must be a finite Decimal")
+        if not isinstance(self.threshold, Decimal) or not self.threshold.is_finite():
+            raise DecisionContractError("condition threshold must be a finite Decimal")
+        if not isinstance(self.factor_status, FactorStatus):
+            raise DecisionContractError("condition factor_status is invalid")
+        if self.operator not in {"<", "<=", "==", ">=", ">"}:
+            raise DecisionContractError("condition operator is invalid")
+        if self.input_unit is not None:
+            object.__setattr__(self, "input_unit", _required_text(self.input_unit, "input_unit"))
 
 
 @dataclass(frozen=True, slots=True)
@@ -144,6 +205,7 @@ class TradeIntent:
     sizing_mode: str | None = None
     sizing_expression: str | None = None
     sizing_references: tuple[str,...] = ()
+    sizing_inputs: tuple[DecisionSizingInputTrace, ...] = ()
 
     def __post_init__(self) -> None:
         symbol = self.symbol.strip().upper()
@@ -179,6 +241,11 @@ class TradeIntent:
             if self.notional_currency is None or not self.notional_currency.strip(): raise DecisionContractError("requested_notional requires currency")
         if not self.reason_codes:
             raise DecisionContractError("trade intent requires at least one reason code")
+        input_names = tuple(item.name for item in self.sizing_inputs)
+        if len(input_names) != len(set(input_names)):
+            raise DecisionContractError("sizing input traces must be unique")
+        if self.sizing_inputs and input_names != self.sizing_references:
+            raise DecisionContractError("sizing references and input traces must align")
         object.__setattr__(self, "symbol", symbol)
         object.__setattr__(self, "as_of_utc", as_of)
         object.__setattr__(self, "created_at_utc", created)
@@ -198,6 +265,8 @@ class DecisionResult:
     intents: tuple[TradeIntent, ...]
     reason_codes: tuple[str, ...]
     created_at_utc: datetime
+    condition_traces: tuple[DecisionConditionTrace, ...] = ()
+    trace_status: DecisionTraceStatus = DecisionTraceStatus.TRACE_NOT_CAPTURED
 
     def __post_init__(self) -> None:
         as_of = _utc(self.as_of_utc, "decision as_of_utc")
@@ -212,6 +281,17 @@ class DecisionResult:
             raise DecisionContractError("a valid decision must contain at least one intent")
         if self.status is not DecisionStatus.VALID and self.intents:
             raise DecisionContractError("non-valid decisions must not contain intents")
+        if not isinstance(self.trace_status, DecisionTraceStatus):
+            raise DecisionContractError("trace_status must use DecisionTraceStatus")
+        orders = tuple(trace.evaluation_order for trace in self.condition_traces)
+        if orders != tuple(range(len(self.condition_traces))):
+            raise DecisionContractError("condition traces must use contiguous evaluation order")
+        if any(trace.factor_snapshot_id not in self.factor_snapshot_ids for trace in self.condition_traces):
+            raise DecisionContractError("condition trace references an unknown Factor snapshot")
+        if self.trace_status is DecisionTraceStatus.CAPTURED and not self.condition_traces:
+            raise DecisionContractError("captured Decision traces cannot be empty")
+        if self.trace_status is not DecisionTraceStatus.CAPTURED and self.condition_traces:
+            raise DecisionContractError("uncaptured or unevaluated Decisions cannot contain traces")
         for intent in self.intents:
             if (
                 intent.decision_id != self.decision_id

@@ -182,6 +182,8 @@ class SQLiteFactorSnapshotStore:
         market_data: MarketDataWindow,
         *,
         correlation_id: str | None = None,
+        algorithm_run_id: UUID | None = None,
+        stage_id: UUID | None = None,
     ) -> UUID:
         run_id = uuid4()
         try:
@@ -190,8 +192,9 @@ class SQLiteFactorSnapshotStore:
                     """
                     INSERT INTO factor_calculation_runs (
                         run_id, correlation_id, symbol, as_of_utc, timeframe,
-                        adjustment, feed, started_at_utc, status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        adjustment, feed, started_at_utc, status,
+                        algorithm_run_id, stage_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         str(run_id),
@@ -203,6 +206,8 @@ class SQLiteFactorSnapshotStore:
                         market_data.feed.value,
                         _to_iso(datetime.now(UTC)),
                         FactorCalculationStatus.RUNNING.value,
+                        str(algorithm_run_id) if algorithm_run_id is not None else None,
+                        str(stage_id) if stage_id is not None else None,
                     ),
                 )
                 connection.commit()
@@ -392,6 +397,8 @@ class SQLiteFactorSnapshotStore:
             UUID(row["snapshot_id"]) if row["snapshot_id"] else None,
             row["error_code"],
             row["error_summary"],
+            UUID(row["algorithm_run_id"]) if row["algorithm_run_id"] else None,
+            UUID(row["stage_id"]) if row["stage_id"] else None,
         )
 
     def _insert_snapshot(

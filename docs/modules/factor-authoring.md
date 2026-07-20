@@ -26,7 +26,7 @@ No source-code execution, direct API/SQL/file access from GUI, Decision rule, Ri
 
 Each immutable version can be `AVAILABLE`, `ARCHIVED`, or `DEPRECATED`. Lifecycle changes append an event with a required reason and never delete definitions or historical results. New Decision definitions may reference only an available exact Factor version.
 
-The local workbench selects symbol, date range, timeframe, adjustment and feed, filters cached Bars to the chosen `as_of_utc`, then runs the public calculator. It may optionally persist a Factor snapshot in the central SQLite database. It does not fetch missing Market Data. For preview only, a Bar is treated as available after its timestamp plus its timeframe duration; exchange-calendar and historical adjusted-data semantics remain open for any future backtest.
+The local workbench selects symbol, date range, timeframe, adjustment and feed, filters cached Bars to the chosen `as_of_utc`, then runs the public calculator. Tracked previews persist the Factor snapshot and calculation attempt in central SQLite and link them to a `NO_EXECUTION` Run. It does not fetch missing Market Data. For preview only, a Bar is treated as available after its timestamp plus its timeframe duration; exchange-calendar and historical adjusted-data semantics remain open for any future backtest.
 
 ## Public interfaces
 

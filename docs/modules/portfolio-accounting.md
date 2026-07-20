@@ -10,6 +10,8 @@ Architecture scaffold and deterministic in-memory replay are implemented. Cash a
 
 Ledger is the source of recorded facts. Portfolio state is derived. Broker state is an external reconciliation reference and must never silently overwrite local history.
 
+`quant_trading.capital_allocation` is a separate planning owner. Its user-entered `RESEARCH_INPUT` cash basis, buckets, transfers and snapshots are not Ledger facts, do not mutate Accounting and cannot claim to equal broker/account cash. Neither module imports the other; any future one-way Accounting-snapshot adapter requires separate approval.
+
 ## Public contracts
 
 - `AccountSnapshot`, `PositionSnapshot`, `PortfolioSnapshot`, `DailyPnLSnapshot`

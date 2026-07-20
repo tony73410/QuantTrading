@@ -25,6 +25,10 @@ from quant_trading.market_history.models import (
 )
 from quant_trading.market_history.storage.sqlite_store import SQLiteHistoricalDataStore
 from quant_trading.persistence.factor_sqlite_store import SQLiteFactorSnapshotStore
+from quant_trading.persistence.run_sqlite_store import SQLiteRunHistoryRepository
+from quant_trading.persistence import SQLiteResearchHistoryQueryService
+from quant_trading.decision import DecisionHistoryQuery, DecisionTraceStatus
+from quant_trading.run_history import RunStageName
 
 
 def _seed_local_bar(root: Path) -> None:
@@ -182,3 +186,30 @@ def test_complete_local_dry_run_stops_at_manual_risk_review(tmp_path: Path) -> N
     assert result.decision_result.intents[0].target_exposure is None
     assert result.risk_decisions[0].decision is RiskDecisionType.MANUAL_REVIEW_REQUIRED
     assert result.execution_eligibility.value == "not_eligible"
+    assert result.run_id is not None
+
+    detail = SQLiteRunHistoryRepository(
+        tmp_path / "runtime" / "data" / "market_history.sqlite3"
+    ).get_run_detail(result.run_id)
+    assert detail is not None
+    assert [stage.name for stage in detail.stages] == [
+        RunStageName.MARKET_DATA,
+        RunStageName.FACTOR,
+        RunStageName.DECISION,
+        RunStageName.RISK,
+    ]
+    assert [artifact.artifact_type for artifact in detail.artifacts] == [
+        "factor_calculation",
+        "decision_result",
+        "risk_decision",
+    ]
+    history = SQLiteResearchHistoryQueryService(
+        tmp_path / "runtime" / "data" / "market_history.sqlite3"
+    )
+    decisions = history.query_decision_history(
+        DecisionHistoryQuery(policy_name="pipeline.intent", policy_version="1")
+    )
+    assert len(decisions) == 1
+    assert decisions[0].trace_status is DecisionTraceStatus.CAPTURED
+    assert decisions[0].condition_traces[0].input_value == Decimal("110")
+    assert decisions[0].condition_traces[0].matched is True

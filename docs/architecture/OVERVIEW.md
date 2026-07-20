@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 16
-last_updated_utc: 2026-07-16T20:17:23Z
+version: 22
+last_updated_utc: 2026-07-20T22:30:00Z
 ```
 
 ## Purpose
@@ -28,7 +28,13 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - 10/30-minute, one-hour, daily, weekly, and monthly views;
 - rotating, redacted runtime logs and read-only diagnostics.
 - independent Single-Asset Factor, Trading Decision and Risk contracts plus a local-only GUI workbench: immutable definitions, non-destructive Factor lifecycle, restricted Decision rules and Risk-gated dry run, all disabled from production/execution;
+- a neutral, durable `NO_EXECUTION` Run History layer with ordered stages, exact bindings, structured messages, central SQLite Factor/Decision/Risk evidence, and a read-only Run History Explorer;
+- typed, bounded Factor-history/filter and exact-version comparison queries plus durable Decision condition/sizing traces, exposed through read-only inspectors linked to Run History;
+- exact-version Factor/source-price visualization joined only to the persisted final source Bar, explicit missing/status gaps, bounded CSV/JSON copies, and one business-neutral Plotly/QWebEngine renderer shared by Market History and Algorithm Control;
 - a disabled, in-memory Portfolio Accounting scaffold with separate append-only Trading Ledger, state derivation, reconciliation-reporting, and read-only query boundaries.
+- a separate disabled/unconsumed research Capital Allocation domain with an explicit USD basis, protected reserve/asset-cash buckets, exact Decimal conservation, immutable transfers/snapshots, central persistence and an Algorithm Control owner page;
+- a separate disabled/unconsumed Asset State research domain with immutable user-defined symbolic graphs, one open cycle per symbol, explicit manual transitions, durable attempts, deterministic replay, central Schema v5 persistence and an Algorithm Control owner page;
+- a separate disabled/unconsumed Target Position research domain with immutable user-defined monotone finite-knot curves, exact manual scalar/USD previews, structured Decimal traces, central Schema v6 persistence and an Algorithm Control owner page;
 - a shared validation-result and fail-closed system-health foundation; business validation rules remain owned by their modules.
 
 The following are **not implemented**: production activation, production portfolio construction/position sizing, production-grade cost basis/P&L/accounting, numerical risk policies/limits, orders, Paper order execution, and Live execution. Research-only Decision notional sizing and isolated historical Backtesting are implemented, but grant no production authority. The Portfolio Accounting scaffold only replays explicit cash effects and long filled quantities in memory; advanced conventions remain Open Decisions. Restricted user-authored Factor and Decision rules exist only as disabled definitions and local previews. Empty `quant_trading.execution.paper` and `.live` namespace boundaries contain no interfaces or behavior. `ALPACA_PAPER` is a safe label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
@@ -89,6 +95,17 @@ AlgorithmControlPanel -> AlgorithmControlController
 AlgorithmControlPanel -> IdeaNotebookPanel -> IdeaNotebookService
   -> runtime/algorithm_control/idea_notes.json
   (passive text only; no Registry, Pipeline, Backtest, accounting or execution output)
+AlgorithmControlPanel -> RunHistoryPanel -> RunHistoryQueryService
+  -> typed Run/Stage/Binding/Artifact views
+  (read-only; no GUI SQL or algorithm calculation)
+AlgorithmControlPanel -> CapitalAllocationPanel
+  -> CapitalAllocationService / CapitalAllocationQueryService
+  -> explicit research plan -> exact conserved snapshots / Allocation Runs
+  (no factual Accounting or Decision/Risk/Backtesting/Execution consumer)
+AlgorithmControlPanel -> AssetStatePanel
+  -> AssetStateService / AssetStateQueryService
+  -> user-defined graph -> manual cycle transitions -> immutable replay
+  (no automatic evaluation, financial meaning or downstream consumer)
 ```
 
 This plane reads public contracts and metadata. It must not own formulas, decision/risk rules, Market Data, historical SQLite access, or broker execution. The Idea Notebook branch is an isolated presentation/local-storage branch: its text is never consumed by algorithm, simulation, accounting, risk, or execution modules.
@@ -229,6 +246,22 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Side effects / configuration | In-memory figure construction only; no direct configuration reads. |
 | Tests / documentation | Chart unit tests and WebEngine smoke tests; [`market-history.md`](../modules/market-history.md). |
 
+### Shared Plotly figure presentation
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.visualization` / `src/quant_trading/visualization/` |
+| Status | Implemented and verified |
+| Purpose | Render already-built Plotly Figures through one reusable responsive QWebEngine lifecycle. |
+| Responsibilities | Self-contained temporary HTML, `Plotly.react`, Qt/browser resize synchronization, safe DOM identifiers and render-failure signaling. |
+| Non-responsibilities | Chart meaning, Market/Factor queries, calculation, SQL, export, accounts, Risk or execution. |
+| Public interfaces | `PlotlyFigureView`, `show_figure()`, `render_failed`. |
+| Inputs / outputs | Plotly-compatible Figure and presentation identifiers / responsive WebEngine display or `ChartError`. |
+| Allowed dependencies | stdlib, Plotly I/O, PySide6 Core/WebEngine/Widgets, shared infrastructure error type. |
+| Forbidden dependencies | Market History, Factor, Decision, Risk, Persistence, Accounting, Orchestration, Alpaca and Execution. |
+| Side effects / configuration | Auto-removed operating-system temporary HTML only; no project/database write or credential. |
+| Tests / documentation | shared-renderer/Market History regressions and import-boundary tests; [`visualization.md`](../modules/visualization.md), ADR-0018. |
+
 ### Settings and safety-role declarations
 
 | Field | Definition |
@@ -261,21 +294,37 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Side effects / configuration | Writes rotating logs; diagnostics creates temporary writability probes and optionally performs an explicit read-only network request. |
 | Tests / documentation | Observability/diagnostics tests; [`DEBUGGING.md`](../development/DEBUGGING.md). |
 
+### Unified Algorithm Run History
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.run_history` / `src/quant_trading/run_history/` |
+| Status | Implemented and verified for local research previews; execution mode restricted to `NO_EXECUTION` |
+| Purpose | Own one neutral, searchable top-level identity and ordered evidence chain without owning any algorithm calculation. |
+| Responsibilities | Run/stage lifecycle, parent/session/request identity, symbols, exact bindings, structured messages, software identity, typed list/detail query contracts. |
+| Non-responsibilities | Market Data, Factor/Decision/Risk calculation, SQL, GUI, allocation/state semantics, accounting, orders, Paper or Live. |
+| Public interfaces | `AlgorithmRunService`, `AlgorithmRun`, `RunStage`, `RunBinding`, `RunMessage`, `RunHistoryRepository`, `RunHistoryQueryService`, typed summary/detail/artifact views. |
+| Inputs / outputs | Validated run metadata and domain-result references / immutable research-run identity and typed read models. |
+| Allowed dependencies | Python standard library only. |
+| Forbidden dependencies | Persistence/SQLite, PySide6, Factor, Decision, Risk, Portfolio Accounting, Backtesting, Alpaca, Execution. |
+| Side effects / configuration | None in the domain package; injected repository owns persistence. |
+| Tests / documentation | lifecycle/reload and architecture tests; [`run-history.md`](../modules/run-history.md), ADR-0016. |
+
 ### Central SQLite persistence
 
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
-| Status | Implemented and verified; Factor persistence inactive without an injected production Pipeline |
-| Purpose | Share one physical local SQLite database while keeping Market and Factor persistence contracts independent. |
-| Responsibilities | Connections, schema versioning, additive initialization, concrete Factor snapshot/result/run persistence and exact-result deduplication. |
-| Non-responsibilities | Market Data download, Factor calculation, availability semantics, Decision/Risk, GUI, cleanup deletion, broker or execution. |
-| Public interfaces | `CentralSQLiteDatabase`, concrete `SQLiteFactorSnapshotStore`; implements public `FactorSnapshotStore`. |
-| Inputs / outputs | database path plus public Market/Factor contracts / persisted Market tables, canonical Factor snapshots and calculation-run audit. |
-| Allowed dependencies | Python stdlib `sqlite3`, public Market/Factor models and Factor Store Protocol. |
-| Forbidden dependencies | UI, Controller, Service, Provider, charts, Decision, Risk, Orchestration, Alpaca and Execution. |
-| Side effects / configuration | Additive schema version 1 in the existing ignored `runtime/data/market_history.sqlite3`; no new configuration or credential. |
-| Tests / documentation | temporary-SQLite migration/transaction/dedup tests and architecture tests; [`central-persistence.md`](../modules/central-persistence.md), ADR-0009. |
+| Status | Implemented and verified with central Schema v6 plus v1→v2, v2→v3, v3→v4, v4→v5 and v5→v6 migration evidence |
+| Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor, Decision, Risk, Capital Allocation, Asset State and Target Position ownership/contracts independent. |
+| Responsibilities | Connections, versioned additive migration, pre-migration backup, row-count/FK/integrity validation, concrete Run History repository, Factor snapshot/result/run persistence and exact-result deduplication, immutable Decision/TradeIntent condition/sizing traces and Risk/rule-result adapters, Capital Allocation, Asset State and Target Position adapters with transactional cross-object validation, typed research read views, and exact persisted source-Bar visualization joins. |
+| Non-responsibilities | Market Data download, algorithm calculation, availability semantics, GUI, cleanup deletion, broker, accounting or execution. |
+| Public interfaces | `CentralSQLiteDatabase`, `SQLiteRunHistoryRepository`, `SQLiteFactorSnapshotStore`, `SQLiteAlgorithmResultStore`, `SQLiteResearchHistoryQueryService`, `SQLiteCapitalAllocationStore`, `SQLiteAssetStateStore`, `SQLiteTargetPositionStore`; implements public Store/query Protocols. |
+| Inputs / outputs | database path plus neutral Run History and public domain result contracts / durable Market tables and linked research evidence. |
+| Allowed dependencies | Python stdlib `sqlite3`, neutral Run History contracts, public Market/Factor/Decision/Risk/Capital Allocation/Asset State/Target Position models and Store Protocols. |
+| Forbidden dependencies | UI, Controller, Service, Provider, charts, algorithm implementations/rules, Orchestration, Alpaca and Execution. |
+| Side effects / configuration | Additive Schema v6 in the ignored central database and verified v1/v2/v3/v4/v5 backups under `runtime/data/backups/`; v6 adds no default/backfilled curve/result and no credential. |
+| Tests / documentation | temporary-SQLite backup/migration/rollback/transaction/dedup/reload/query tests and architecture tests; [`central-persistence.md`](../modules/central-persistence.md), [`run-history.md`](../modules/run-history.md), [`capital-allocation.md`](../modules/capital-allocation.md), [`asset-state.md`](../modules/asset-state.md), [`target-position.md`](../modules/target-position.md), ADR-0009/0016/0017/0019/0020/0021. |
 
 ### Single-Asset Factor layer
 
@@ -284,9 +333,9 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Module / path | `quant_trading.factors` / `src/quant_trading/factors/` |
 | Status | Partially implemented and verified; contracts/engine exist, production formulas do not |
 | Purpose | Convert one symbol's safe, completed Market Data window into versioned strategy-neutral factor snapshots. |
-| Responsibilities | Time-availability validation, typed result/status contracts, calculator registry, independent calculator execution and traceability. |
+| Responsibilities | Time-availability validation, typed result/status contracts, calculator registry, independent calculator execution and traceability, public history/filter/exact-version comparison semantics, and exact source-price availability/query meaning for visualization. |
 | Non-responsibilities | Decisions, accounts/portfolio, risk, orders, GUI, Alpaca, SQL, concrete Market Data loading. |
-| Public interfaces | `FactorCalculator`, `SingleAssetFactorEngine`, `FactorRegistry`, `MarketDataWindow`, `FactorResult`, `FactorSnapshot`, `FactorSnapshotCollection`. |
+| Public interfaces | `FactorCalculator`, `SingleAssetFactorEngine`, `FactorRegistry`, `MarketDataWindow`, `FactorResult`, `FactorSnapshot`, `FactorSnapshotCollection`, `FactorHistoryQueryService`, `FactorVisualizationQueryService` and typed history/comparison/visualization records. |
 | Inputs / outputs | completed `MarketDataObservation` values plus Factor context / versioned Factor snapshot. |
 | Allowed dependencies | Standard library and standardized `market_history.models` Bar/dimension types. |
 | Forbidden dependencies | Decision/orchestration/execution, GUI, Service, Provider, Store, Alpaca, SQLite. |
@@ -300,9 +349,9 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Module / path | `quant_trading.decision` / `src/quant_trading/decision/` |
 | Status | Partially implemented and verified; contracts/engine exist, production policies do not |
 | Purpose | Consume public Factor snapshots and neutral portfolio context to produce traceable, non-executing intentions. |
-| Responsibilities | Policy registry, factor-status gate, policy output validation, snapshot/policy traceability. |
+| Responsibilities | Policy registry, factor-status gate, policy output validation, immutable condition/sizing trace meaning, snapshot/policy traceability and public Decision-history query semantics. |
 | Non-responsibilities | Raw Market Data, factor calculation, SQLite, charts, risk approval, broker orders or execution. |
-| Public interfaces | `TradingDecisionPolicy`, `TradingDecisionEngine`, `DecisionPolicyRegistry`, `DecisionInput`, `DecisionResult`, `TradeIntent`. |
+| Public interfaces | `TradingDecisionPolicy`, `TradingDecisionEngine`, `DecisionPolicyRegistry`, `DecisionInput`, `DecisionResult`, `TradeIntent`, `DecisionConditionTrace`, `DecisionSizingInputTrace`, `DecisionHistoryQueryService` and typed history records. |
 | Inputs / outputs | `FactorSnapshotCollection`, neutral `PortfolioSnapshot`, Decision context / Decision result and optional intent proposals. |
 | Allowed dependencies | Standard library plus public `factors.models`/`interfaces` contracts. |
 | Forbidden dependencies | Factor Engine/Registry/implementations, Market History, Alpaca, SQLite, GUI, orchestration, execution. |
@@ -330,16 +379,16 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.orchestration` / `src/quant_trading/orchestration/` |
-| Status | Implemented and verified at interface level; not connected to GUI/Market History Service |
+| Status | Implemented and verified at interface level and through local Algorithm Control previews; never connected to execution |
 | Purpose | Enforce one-way Factor-then-Decision and optional Risk invocation while leaving all engines independently usable. |
-| Responsibilities | Shared `as_of` validation, call order, optional Factor Store audit/persistence through its Protocol, snapshot wrapping, return Factor/Decision/Risk trace results. |
-| Non-responsibilities | Market Data loading, formulas, policies/rules, SQL, order conversion, broker access or execution. |
-| Public interfaces | `AnalysisDecisionPipeline`, `TradingEvaluationPipeline` and request/result contracts. |
-| Inputs / outputs | injected engines and standardized request / Factor snapshot, Decision result and optional Risk decisions. |
-| Allowed dependencies | Public Factor/Decision/Risk engines/models and public Factor Store Protocol. |
-| Forbidden dependencies | Concrete calculators/policies/rules, concrete SQLite adapter, Provider, Alpaca, GUI and execution. |
-| Side effects / configuration | Optional injected Factor persistence; no direct SQL or configuration namespace. |
-| Tests / documentation | Fake integration and architecture tests; [`analysis-decision-pipeline.md`](../modules/analysis-decision-pipeline.md). |
+| Responsibilities | Shared `as_of` validation, call order, Store-protocol evidence persistence, Run/stage transitions, exact definition bindings, snapshot wrapping, return Factor/Decision/Risk trace results. |
+| Non-responsibilities | SQL, formulas, policies/rules, GUI, order conversion, broker access or execution. |
+| Public interfaces | `AnalysisDecisionPipeline`, `TradingEvaluationPipeline`, request/result contracts, local preview executors and explicit preview composition. |
+| Inputs / outputs | injected engines/services/Stores and standardized request / Factor snapshot, Decision result, optional Risk decisions and top-level Run ID. |
+| Allowed dependencies | Public Factor/Decision/Risk and Run History engines/models/Store Protocols; explicit composition root may import concrete adapters. |
+| Forbidden dependencies | Concrete formulas/policies/rules, SQL inside calculation adapters, Alpaca, GUI and execution. |
+| Side effects / configuration | Optional injected evidence persistence; explicit local preview composition wires central adapters; no direct SQL, network or execution. |
+| Tests / documentation | Fake integration, local Dry Run reload and architecture tests; [`analysis-decision-pipeline.md`](../modules/analysis-decision-pipeline.md). |
 
 ### Paper and Live Execution boundaries
 
@@ -372,6 +421,54 @@ The Ledger is the source of recorded facts; accounting state is derived; broker 
 | Side effects / configuration | None; both are disabled and neither reads configuration or credentials. |
 | Tests / documentation | declaration-content and sibling-boundary architecture tests; [`execution-environments.md`](../modules/execution-environments.md), ADR-0010. |
 
+### Research Capital Allocation
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.capital_allocation` / `src/quant_trading/capital_allocation/` |
+| Status | Implemented and verified as disabled/unconsumed research planning; no account or execution authority |
+| Purpose | Earmark one explicit user-entered USD research cash basis while proving exact internal conservation. |
+| Responsibilities | Immutable plans/buckets/transfers/snapshots/attempts, exact Decimal validation, protected locked/tactical reserves, asset-to-asset zero-sum transfers, typed Store/query ports, structured explanations and Allocation Run coordination. |
+| Non-responsibilities | Factual Ledger/Accounting state, holdings, sector hierarchy, dynamic weights, reserve borrowing, Target Position, state machine, Decision/Risk/Backtesting consumption, broker, orders, Paper or Live. |
+| Public interfaces | `CapitalAllocationService`, `CapitalAllocationStore`, `CapitalAllocationQueryService`, schema-v1 capital commands/models/views. |
+| Inputs / outputs | explicit research cash/bucket/transfer text plus actor/Session/Request identity / immutable conserved planning evidence and one terminal `NO_EXECUTION` Run. |
+| Allowed dependencies | stdlib, shared errors and neutral Run History contracts. |
+| Forbidden dependencies | Persistence/SQLite, PySide6, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca and Execution. |
+| Side effects / configuration | None in the domain; injected Store owns central Schema v4 writes. No defaults, credentials, active plan or runtime consumer. |
+| Tests / documentation | domain/repository/migration/Run/GUI/architecture tests; [`capital-allocation.md`](../modules/capital-allocation.md), ADR-0019. |
+
+### Research Asset State
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.asset_state` / `src/quant_trading/asset_state/` |
+| Status | Implemented and verified as disabled/unconsumed manual research history; no trading or execution authority |
+| Purpose | Preserve user-defined symbolic state graphs and explicit per-symbol cycle history without inventing financial state meaning. |
+| Responsibilities | Immutable definition/state/edge contracts, one-open-cycle-per-symbol validation, explicit start/transition/close commands, immutable events/snapshots/operation attempts, operation idempotency, optional exact local evidence bindings, typed Store/query ports, structured explanations and deterministic replay validation. |
+| Non-responsibilities | Default states, Factor calculation, automatic transition evaluation, thresholds, saturation/reset logic, Target Position, Capital/Accounting mutation, Decision/Risk/Backtesting consumption, broker, orders, Paper or Live. |
+| Public interfaces | `AssetStateService`, `AssetStateStore`, `AssetStateQueryService`, `AssetStateMachineDefinition`, `TradingCycle`, `AssetStateTransitionEvent`, `AssetStateSnapshot`, `StateReplayResult` and schema-v1 typed commands/queries. |
+| Inputs / outputs | explicit user-provided graph/cycle/manual transition/close inputs plus actor/Session/Request identity and optional exact local Run/Factor references / immutable state evidence and one terminal `NO_EXECUTION` Run. |
+| Allowed dependencies | stdlib, shared errors and neutral Run History contracts. |
+| Forbidden dependencies | Persistence/SQLite, PySide6, Capital Allocation, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca and Execution. |
+| Side effects / configuration | None in the domain; injected Store owns central Schema v5 writes. No default graph, financial labels, active consumer, credentials or runtime automation. |
+| Tests / documentation | domain/repository/migration/Run/GUI/architecture tests; [`asset-state.md`](../modules/asset-state.md), ADR-0020. |
+
+### Research Target Position
+
+| Field | Definition |
+|---|---|
+| Module / path | `quant_trading.target_position` / `src/quant_trading/target_position/` |
+| Status | Implemented and verified as disabled/unconsumed manual research calculation; no trading or execution authority |
+| Purpose | Own one explicit bounded desired-holding calculation without selecting or fabricating upstream input authority or downstream action. |
+| Responsibilities | Immutable versioned finite-knot curves, exact Decimal validation, endpoint clamp/adjacent interpolation, target fraction/USD notional/current difference, structured traces, durable operation attempts, typed Store/query ports and Target Position Run coordination. |
+| Non-responsibilities | Reference/risk/standardized state, automatic Factor/Asset State input, Capital/Accounting adapter, price lookup, hysteresis, TradeIntent, Decision/Risk/Backtesting consumption, broker, orders, Paper or Live. |
+| Public interfaces | `TargetPositionService`, `TargetPositionEngine`, `TargetPositionStore`, `TargetPositionQueryService`, curve/knot/command/result/trace/attempt/query contracts. |
+| Inputs / outputs | explicit definition or manual scalar/non-negative USD basis/current value plus UTC/actor/Session/Request identity / immutable bounded target research evidence and one terminal `NO_EXECUTION` Run. |
+| Allowed dependencies | stdlib, centralized errors and neutral Run History contracts. |
+| Forbidden dependencies | Persistence/SQLite, PySide6, Market/Factor/Asset State/Capital Allocation/Portfolio Accounting/Decision/Risk/Backtesting, Alpaca and Execution. |
+| Side effects / configuration | None in the domain; injected Store owns central Schema v6 writes. No default curve/value, Active definition, runtime consumer, credential or execution path. |
+| Tests / documentation | domain/repository/migration/Run/GUI/chart/architecture tests; [`target-position.md`](../modules/target-position.md), ADR-0021. |
+
 ### Tests and future layers
 
 ### Validation and system health
@@ -392,15 +489,15 @@ The Ledger is the source of recorded facts; accounting state is derived; broker 
 |---|---|
 | Module / path | `quant_trading.algorithm_control` / `src/quant_trading/algorithm_control/` |
 | Status | Implemented and verified; authored Factors remain disabled and no production Decision/Risk policy is registered |
-| Purpose | Manage metadata, restricted Factor authoring, Decision Factor-version selection, generic parameter schemas, configuration versions, dependency validation, safe previews, audit history, and an isolated passive Idea Notebook. |
-| Responsibilities | Immutable Factor definition versions; registry discovery; exact Decision input selection; Draft/Saved/Active lifecycle; locked safety state; background NO EXECUTION preview; passive local note editing. |
-| Non-responsibilities | Arbitrary Python execution, Factor calculation, Decision/risk rules, Market Data, history SQL, accounts, orders, broker execution. |
-| Public interfaces | Registry, `FactorDefinitionService`, typed control models, configuration/validation/preview services, Controller, Panel, `IdeaNote`, `IdeaNotebookService`, `build_controller()`. |
-| Inputs / outputs | Registered metadata and user configuration intent / versioned state, validation, audit and preview results. |
-| Allowed dependencies | application safety settings, public Factor definition/expression-language and Factor/Decision/Risk result contracts, PySide6, stdlib. |
+| Purpose | Manage metadata, restricted Factor authoring, Decision Factor-version selection, generic parameter schemas, configuration versions, dependency validation, safe previews, audit history, an isolated passive Idea Notebook, typed research inspectors and Capital Allocation/Asset State owner pages. |
+| Responsibilities | Immutable Factor definition versions; registry discovery; exact Decision input selection; Draft/Saved/Active lifecycle; locked safety state; background NO EXECUTION preview; passive local note editing; bounded Run/Factor/Decision filters; exact chart/export presentation; collect explicit capital and manual state inputs and display typed owner-domain history through injected services. |
+| Non-responsibilities | Arbitrary Python execution, Factor/Decision/Risk/Capital/State calculations, automatic transitions, historical trace reconstruction/repair, Market Data, direct SQL, factual Accounting mutation, accounts, orders or broker execution. |
+| Public interfaces | Registry, `FactorDefinitionService`, typed control models, configuration/validation/preview services, Controller, Panel, `IdeaNotebookPanel`, `RunHistoryPanel`, Factor/Decision history/chart/export panels, `CapitalAllocationPanel`, `AssetStatePanel`, `build_controller()`. |
+| Inputs / outputs | Registered metadata, explicit user intent and typed Run/Factor/Decision/Capital/State views / versioned state, validation, preview/audit evidence, read-only history, Plotly Figure, CSV/JSON copies and explicit owner-domain commands. |
+| Allowed dependencies | application safety settings, public Factor/Decision/Risk/Run/Capital/Asset State service/query contracts, shared renderer, Plotly in chart adapters, PySide6 and stdlib. |
 | Forbidden dependencies | concrete Alpaca provider/client, market-history SQLite store, broker/execution provider, tests. |
-| Side effects / configuration | Atomic ignored JSON at `runtime/algorithm_control/control_state.json`, `factor_definitions.json`, and isolated `idea_notes.json`; no credentials. |
-| Tests / documentation | `tests/unit/algorithm_control`, safe-expression and architecture tests; [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md), [`idea-notebook.md`](../modules/idea-notebook.md), [`factor-authoring.md`](../modules/factor-authoring.md). |
+| Side effects / configuration | Atomic ignored JSON at `runtime/algorithm_control/control_state.json`, `factor_definitions.json`, and isolated `idea_notes.json`; preview orchestration writes evidence through injected Stores; explicit Factor export atomically writes only a user-selected file with overwrite confirmation; no credentials. |
+| Tests / documentation | `tests/unit/algorithm_control`, local Dry Run/trace/capital/state reload, research-history GUI, safe-expression and architecture tests; [`algorithm-control-gui.md`](../modules/algorithm-control-gui.md), [`run-history.md`](../modules/run-history.md), [`capital-allocation.md`](../modules/capital-allocation.md), [`asset-state.md`](../modules/asset-state.md). |
 
 `tests/` is verification infrastructure, not a runtime module, and production code must never import it. Production Factor/Decision/Risk activation, production-grade portfolio accounting semantics, Order Construction and execution behavior are **Not implemented**. Isolated historical Backtesting is implemented as research-only and remains outside operational accounting. The in-memory Portfolio Accounting scaffold is partial by design. Empty Execution namespaces never imply those capabilities.
 
@@ -423,6 +520,7 @@ Allowed production flow:
 ```text
 UI -> Controller -> Service -> Provider/Store Protocols
               \-> Chart Builder
+Market History UI / Algorithm Control UI -> shared PlotlyFigureView (rendering only)
 Composition root -> all concrete components for dependency injection
 Concrete Provider/Store -> public models and errors
 Cross-cutting code <- called for logging/error context without taking feature ownership
@@ -432,18 +530,29 @@ Standardized MarketDataWindow -> Factor Engine -> FactorSnapshot contract
 FactorSnapshot contract -> Decision Engine -> TradeIntent (not an order)
 TradeIntent -> Risk Engine -> RiskDecision (not an order)
 Orchestration -> Factor Engine then Decision Engine, optionally then Risk Engine
+Orchestration -> neutral AlgorithmRunService and domain Store Protocols
+Run History Query Service -> typed read models -> Algorithm Control Run History GUI
+Factor History Query Service -> typed history/comparison records -> Algorithm Control Factor GUI
+Factor Visualization Query Service -> exact Factor/source-Bar series -> Factor chart/export presentation
+Decision History Query Service -> persisted condition/sizing records -> Algorithm Control Decision GUI
+Explicit RESEARCH_INPUT -> CapitalAllocationService -> Capital Store Protocol -> immutable plan/snapshot/transfer
+Capital Allocation Query Service -> typed plan/conservation history -> Algorithm Control Capital GUI
+Explicit user-defined graph/manual command -> AssetStateService -> Asset State Store Protocol
+Asset State Query Service -> typed cycle/timeline/replay history -> Algorithm Control Asset State GUI
 ```
 
 | Module | May depend on | Must not depend on |
 |---|---|---|
 | Composition root | all concrete components needed for wiring | strategy/order behavior not implemented |
-| UI | Controller, UI-facing models/errors/settings | concrete Alpaca Provider, SQLite Store/SQL, execution clients |
+| UI | Controller, UI-facing models/errors/settings, typed read-only query contracts | concrete Alpaca Provider, SQLite Store/SQL, execution clients |
 | Controller | Service, Chart Builder, models/errors | UI widgets, concrete Provider/Store |
 | Service | Provider/Store Protocols, models/errors | UI, concrete Provider/Store, Plotly, execution |
 | Alpaca Market Data Provider | Alpaca data SDK, models/errors | Alpaca Trading SDK, GUI, SQLite Store |
 | SQLite Store | `sqlite3`, models/errors | GUI, Alpaca SDK/Provider, Chart Builder |
-| Central persistence | `sqlite3`, public Market/Factor models and Store Protocol | GUI, Provider, Decision, Risk, Orchestration, Alpaca, execution |
+| Run History | stdlib and its own neutral contracts | SQL/Persistence, GUI, Factor, Decision, Risk, Accounting, Backtesting, Alpaca, Execution |
+| Central persistence | `sqlite3`, neutral Run History contracts, public Market/Factor/Decision/Risk/Capital Allocation/Asset State models and Store/query Protocols | GUI, Provider, algorithm implementations/rules, Orchestration, Alpaca, execution |
 | Chart Builder | models, pandas, Plotly | API, database, UI widgets, execution |
+| Shared visualization | stdlib, Plotly, PySide6 and shared infrastructure error | every Market/Factor/Decision/Risk/Persistence/Accounting/Orchestration/Execution module |
 | Settings | standard library and typed config models | business logic, network clients, database mutation |
 | Observability | standard library, error types/context | product/financial decisions |
 | Diagnostics | public settings/models; concrete adapters only for explicit read-only checks | mutation, GUI ownership, accounts/orders |
@@ -451,9 +560,11 @@ Orchestration -> Factor Engine then Decision Engine, optionally then Risk Engine
 | Decision layer | Factor public models/interfaces, Decision contracts | Factor implementations/engine, Risk, raw Market Data, Store, broker/execution |
 | Risk layer | application environment enum, public Factor/Decision models, public Portfolio Accounting snapshot-provider contracts, Risk contracts | Factor/Decision implementations, GUI, Provider/Store, Alpaca, execution, Ledger/Accounting mutation services |
 | Portfolio Accounting | stdlib and its own typed public contracts | concrete broker/execution, GUI, Market History Provider/Store, Factor/Decision/Risk implementations, Alpaca |
+| Capital Allocation | stdlib, shared errors, neutral Run History contracts | Persistence/SQLite, GUI, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca, Execution |
+| Asset State | stdlib, shared errors, neutral Run History contracts | Persistence/SQLite, GUI, Capital Allocation, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca, Execution |
 | Validation/health | stdlib, centralized ErrorCode and observability | all business-rule implementations, GUI, Alpaca, SQLite, Execution |
-| Algorithm Control | public Factor definition/expression-language and Factor/Decision/Risk result contracts, application settings, PySide6 | concrete Factor calculator internals, Market Data/SQLite/broker/execution, Decision/Risk implementations |
-| Orchestration | Factor, Decision and Risk public engines/models; Factor Store Protocol | formulas, policies/rules, concrete persistence/Provider, execution |
+| Algorithm Control | public Factor/Decision/Risk/Run History/Capital Allocation/Asset State service/query contracts, shared renderer, Plotly/PySide6, application settings | concrete Factor calculator internals, Market Data/SQLite, Portfolio Accounting mutation, broker/execution, Decision/Risk implementations, reconstructed historical causality or state transitions |
+| Orchestration | Factor, Decision and Risk public engines/models; Run History and domain Store Protocols; its explicit application-composition module may wire concrete adapters | formulas, policies/rules, SQL/concrete persistence inside calculation adapters, execution |
 | Paper Execution boundary | none at this stage | Live boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client |
 | Live Execution boundary | none at this stage | Paper boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client; all runtime use while Live is disabled |
 | Planned Order Construction / execution behavior | Risk-approved contracts and approved execution interfaces/models | raw TradeIntent, GUI, historical Store, Market Data cache logic |
@@ -515,7 +626,111 @@ Explicitly completed, available MarketDataWindow
  -> STOP: Order Construction and Execution are Not implemented
 ```
 
-The current GUI and Market History Service do not invoke this pipeline. Factor can run without Decision/Risk; Decision can run from Fake/public Factor snapshots; Risk can run from a Fake/public TradeIntent and neutral context without Provider, SQLite or broker. Orchestration owns only call order and does not provide a temporary execution path.
+The Algorithm Control GUI may explicitly request this pipeline through its local-only preview adapter. The adapter reads already cached Bars, calls domain engines, and persists evidence through injected Store contracts; GUI callbacks contain no calculation or SQL. The Market History Service does not invoke the algorithm path. Factor can run without Decision/Risk; Decision can run from public Factor snapshots; Risk can run from a public TradeIntent and neutral context without account, broker or execution. Orchestration owns only call order and does not provide a temporary execution path.
+
+### Durable local preview history
+
+```text
+Algorithm Control PreviewRequest
+ -> AlgorithmRun (NO_EXECUTION, Session/Request/software identity)
+ -> Market Data stage (local cached Bars only)
+ -> Factor stage -> Factor calculation attempt + immutable FactorSnapshot
+ -> Decision stage -> immutable DecisionResult + condition traces + TradeIntent exact sizing inputs
+ -> optional Risk stage -> immutable RiskDecision + ordered rule results
+ -> terminal Run status + structured warnings/errors
+ -> RunHistoryQueryService -> Run History Explorer
+ -> STOP: no Order Construction, account access, Portfolio Accounting mutation or Execution
+```
+
+Factor Preview ends after Factor; Decision Preview ends after Decision; Pipeline Dry Run uses all four stages under one Run ID. Failed and blocked runs remain queryable. Identical Factor result content may reuse the existing immutable snapshot while each calculation attempt and top-level Run remain distinct. New restricted Decision evaluations persist causality at calculation time; legacy rows without captured evidence remain explicitly `TRACE_NOT_CAPTURED` and are never reconstructed in a query adapter or GUI.
+
+### Exact Factor research visualization and export
+
+```text
+Algorithm Control exact symbol/version/range/dimensions/PriceField
+ -> FactorVisualizationQueryService
+ -> Persistence reads bounded Factor history
+ -> for each source_data_end_utc, parameterized lookup of only:
+      symbol + timestamp_utc + timeframe + adjustment + feed
+ -> FactorVisualizationSeries with AVAILABLE / NO_SOURCE_WINDOW /
+      MISSING_SOURCE_BAR / MISSING_PRICE_FIELD
+ -> FactorHistoryChartBuilder (separate Factor/price axes + status gaps)
+ -> shared PlotlyFigureView (rendering only)
+ -> optional explicit atomic CSV/JSON copy of the already returned records
+ -> STOP: no recalculation, database write, Decision/Risk/account/order path
+```
+
+The Bar timestamp must equal `source_data_end_utc`. Nearest-Bar selection, forward-fill, interpolation, resampling, normalization, correlation and version ranking are forbidden. A missing selected field can retain the exact Bar timestamp but no price value. Decimal values remain exact strings in exports; conversion to browser numbers occurs only in the chart adapter. Valid boolean/string Factor values remain typed status evidence and a numeric-line gap rather than being coerced.
+
+### Research Capital Allocation and conservation
+
+```text
+Explicit user-entered USD RESEARCH_INPUT
+ -> CapitalAllocationService
+ -> immutable plan: exactly one LOCKED_RESERVE + one TACTICAL_RESERVE
+                    + zero or more unique ASSET_CASH buckets
+ -> exact Decimal conservation result (difference must be zero)
+ -> SQLiteCapitalAllocationStore transaction + immutable snapshot/operation
+ -> ALLOCATION_REBALANCE / ALLOCATION Run (NO_EXECUTION)
+ -> CapitalAllocationQueryService -> Algorithm Control / Open Run
+
+Explicit manual transfer
+ -> positive ASSET_CASH source -> different ASSET_CASH destination
+ -> no overdraft; reserves and every other bucket unchanged
+ -> exact predecessor/conservation recheck in the Store transaction
+ -> immutable transfer + next snapshot
+ -> STOP: no Accounting, Decision, Risk, Backtesting, order or Execution consumer
+```
+
+The research basis is never inferred from broker or Portfolio Accounting state. Invalid and failed attempts remain durable but create no plan, accepted transfer or snapshot. Multiple plans may coexist for comparison, but none is Active or automatically consumed.
+
+### Manual Asset State history and replay
+
+```text
+Explicit user-defined state labels + allowed directed edges
+ -> AssetStateService
+ -> immutable AssetStateMachineDefinition
+ -> ASSET_STATE_RESEARCH / STATE Run (NO_EXECUTION)
+
+Explicit cycle start for one normalized symbol
+ -> reject if that symbol already has an open cycle
+ -> initial immutable snapshot + START event
+
+Explicit manual transition
+ -> exact definition + current predecessor snapshot + allowed edge
+ -> optional exact local Run/Factor evidence bindings
+ -> immutable transition event + next snapshot
+
+Explicit close
+ -> CLOSE event + closed cycle; no transition or inferred next state
+ -> SQLiteAssetStateStore transaction revalidates cross-object evidence
+ -> AssetStateQueryService + deterministic replay -> GUI / Open Run
+ -> STOP: no Factor evaluator, financial threshold, Target Position,
+          Capital/Accounting mutation, Decision/Risk/Backtesting/Execution consumer
+```
+
+State labels are opaque user-provided symbols. Invalid and storage-failed attempts remain durable but create no accepted definition, cycle event, transition or snapshot. Reusing an operation ID with the same canonical payload returns the original completed result; reusing it with different content is rejected and recorded. Replay validates the stored chain and reports corruption; it never repairs or recomputes a transition.
+
+### Bounded Target Position manual preview
+
+```text
+Explicit user-defined direction + min/neutral/max fractions + finite knots
+ -> TargetPositionService -> immutable TargetPositionCurveDefinition
+ -> TARGET_POSITION_PREVIEW / TARGET_POSITION Run (NO_EXECUTION)
+
+Explicit manual research_state_value
++ explicit non-negative research_capital_basis_usd
++ explicit non-negative current_position_value_usd
+ -> endpoint clamp, exact knot or adjacent Decimal interpolation
+ -> target fraction + target USD notional + current difference/direction
+ -> structured TargetPositionCalculationTrace
+ -> SQLiteTargetPositionStore transaction revalidates raw inputs/result/Run identity
+ -> TargetPositionQueryService -> Target Position Laboratory / Open Run
+ -> STOP: no Factor/Asset State/Capital/Accounting adapter, hysteresis,
+          TradeIntent, Decision/Risk/Backtesting/Execution consumer
+```
+
+Definitions and preview results are immutable, disabled and unconsumed. Invalid/storage-failed attempts remain durable but create no accepted definition/result. The GUI builds charts only from typed persisted evidence and contains no interpolation or money calculation.
 
 ### Future execution-to-accounting fact flow
 
@@ -552,7 +767,7 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
 | Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented central local persistence | historical Bars/Coverage/Fetch History, immutable Factor snapshots/results, calculation-run audit and read-only diagnostics | formulas, Decision/Risk logic, external-service access or orders |
+| SQLite | Implemented central local persistence, Schema v6 | historical Bars/Coverage/Fetch History, Run lifecycle/bindings/messages, immutable Factor/Decision/Risk evidence, normalized Decision traces, immutable research-capital/manual-state/manual-target evidence and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical trace reconstruction/repair, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -568,9 +783,18 @@ Market Data availability, Paper authorization, and Live authorization are three 
 - `QuantTradeError`/feature errors and `ErrorCode`: user/developer error boundary.
 - `MarketDataObservation`/`MarketDataWindow`: completed Bar plus explicit availability evidence for one symbol and `as_of`.
 - `FactorResult`/`FactorSnapshot`/`FactorSnapshotCollection`: versioned strategy-neutral Factor contract and decision boundary.
+- `FactorHistoryQueryService` and typed history/comparison records: bounded, read-only successful/invalid/failed research evidence and exact-version comparison.
+- `FactorVisualizationQueryService`, query/point/series and source-price status: one exact Factor identity plus only its exact persisted final source-Bar field, with explicit missing evidence.
 - `FactorCalculator`: replaceable formula contract; no production implementation currently exists.
-- `DecisionInput`/`DecisionResult`/`TradeIntent`: traceable non-executing decision contracts.
+- `DecisionInput`/`DecisionResult`/`TradeIntent`: traceable non-executing decision contracts, including immutable condition and exact sizing-input evidence where captured.
+- `DecisionHistoryQueryService` and typed history records: bounded read-only Decision/factor/condition/intent evidence with explicit legacy trace availability.
 - `TradingDecisionPolicy`: replaceable policy contract; no production implementation currently exists.
+- `AlgorithmRun`/`RunStage`/`RunBinding`/`RunMessage`: neutral `NO_EXECUTION` lifecycle and trace contracts.
+- `RunHistoryRepository`/`RunHistoryQueryService`: lifecycle persistence port and typed read-only list/detail port.
+- `CapitalPlan`/`CapitalAllocationTransferEvent`/`CapitalSnapshot`/`CapitalConservationResult`: immutable research planning and exact-conservation evidence.
+- `CapitalAllocationStore`/`CapitalAllocationQueryService`: append/load port and bounded typed plan/detail query port; concrete SQLite remains infrastructure-owned.
+- `AssetStateMachineDefinition`/`TradingCycle`/`AssetStateTransitionEvent`/`AssetStateSnapshot`: immutable symbolic state graph and per-symbol manual timeline evidence.
+- `AssetStateStore`/`AssetStateQueryService`/`StateReplayResult`: append/load port, bounded typed history and deterministic integrity replay; concrete SQLite remains infrastructure-owned.
 
 Public fields, parameter meaning, return structures, and exception contracts must not change silently.
 
@@ -580,12 +804,16 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. FactorSnapshot persistence is implemented through an independent Store Protocol and concrete infrastructure adapter; DecisionResult persistence remains **Not implemented**.
+Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. FactorSnapshot, DecisionResult, RiskDecision, Capital Allocation, Asset State and Target Position research evidence persist through separate public Store Protocols and concrete infrastructure adapters. Central Schema v6 is additive. Capital Allocation adds no default amount/active plan; Asset State adds no default graph/meaning/evaluator; Target Position adds no default curve/value, Active definition, upstream adapter or downstream consumer. Persistence/query capability grants neither production activation nor execution authority.
 
 ## Testing Boundaries
 
 - Models, Controller, Service/cache decisions, Provider conversion/retry, Store transactions, Chart Builder, UI behavior, Factor/Decision/Risk contracts and engines, observability, and diagnostics have focused unit tests.
 - Integration tests use temporary SQLite databases and Fake/Mock Providers to exercise the full local-first flow.
+- Research-history tests cover v2→v3 backup/preservation/failure rollback, successful/invalid/failed Factor evidence, exact-version comparison, exact source-Bar/missing-field joins, Decision condition/sizing reload, legacy trace availability and read-only GUI Open Run behavior.
+- Factor visualization/export tests cover contract identity/UTC/gaps, separate axes and audit hover data, exact Decimal/typed CSV/JSON content, atomic creation, explicit overwrite and GUI enum normalization. Shared-renderer regressions preserve Market History behavior.
+- Capital Allocation tests cover exact Decimal conservation, reserve/overdraft/duplicate rejection, complete snapshot identity, v3→v4 backup/rollback/preservation, restart reload, durable invalid attempts, Run artifacts, GUI controller behavior and no Accounting/trading dependency.
+- Asset State tests cover immutable graph validation, one-open-cycle enforcement, manual edge transitions, idempotency/conflicts, complete cross-object Store validation, v4→v5 backup/rollback/preservation, restart reload, durable invalid/failed attempts, deterministic replay/corruption detection, Run artifacts, GUI behavior and no downstream/trading dependency.
 - GUI/WebEngine tests may run offscreen and must not use a real network.
 - Architecture tests parse production imports to detect forbidden cross-layer imports, Factor/Decision/Risk reverse or implementation dependencies, execution-gate bypass, cycles, imports from `tests`/`archive`, and any premature content or cross-import in the empty Paper/Live boundaries.
 - Automated tests must not use real credentials or submit Paper/Live orders. Optional network diagnostics are explicit, read-only, and outside the normal test suite.
@@ -624,8 +852,28 @@ Factor and Decision parameters are separate immutable typed contexts (`FactorPar
 26. Portfolio Accounting derives state only from standardized Ledger financial facts and market-price contracts; Execution, Risk, GUI, and broker reconciliation cannot directly mutate it.
 27. Broker reconciliation reports differences and never silently overwrites local history. Risk and GUI are read-only snapshot/query consumers.
 28. Business modules own their validation rules; shared validation only standardizes results and health. Validator failure becomes CRITICAL, and BLOCKED/CRITICAL/UNKNOWN health cannot authorize automatic execution.
-24. Algorithm Control is a management plane, not an algorithm or execution path; it remains registry/schema-driven and every preview is NO EXECUTION.
-25. Draft edits do not silently become Active; Save, Apply and Restore create traceable immutable versions, and locked safety invariants cannot be disabled.
+29. Algorithm Control is a management plane, not an algorithm or execution path; it remains registry/schema-driven and every preview is NO EXECUTION.
+30. Draft edits do not silently become Active; Save, Apply and Restore create traceable immutable versions, and locked safety invariants cannot be disabled.
+31. Run History owns neutral lifecycle and query contracts only; domain modules retain calculation/result semantics, Persistence owns SQL, and GUI consumes typed read views.
+32. Every tracked local preview binds exact definitions and stores success, warning, blocked or failure evidence under a top-level Run ID; no result is silently overwritten by a later version or rerun.
+33. Run and result history is append-preserving. Only controlled running-to-terminal lifecycle fields may update; corrections or recomputation create new Runs rather than mutating prior results.
+34. `NO_EXECUTION` is the only supported Run History execution mode. Persisting, displaying, replaying or reopening a Run never grants order, Paper or Live authority.
+35. Decision causality is captured by the Decision owner at evaluation time. Uncaptured legacy evidence remains explicitly unavailable; Persistence, Run History and GUI must never reconstruct it as historical fact.
+36. Factor/Decision history queries are read-only, bounded and exact-version-aware. Comparison never ranks a Factor version or grants algorithm, Risk or trading authority.
+37. Factor/source-price visualization may attach only the persisted Bar with exact symbol/timeframe/adjustment/feed identity and `timestamp_utc == source_data_end_utc`. Missing evidence remains explicit; nearest/filled/resampled/recomputed values are forbidden.
+38. `quant_trading.visualization` owns rendering mechanics only and imports no business/infrastructure module. Chart meaning remains with the owning presentation adapter, and an export is a bounded user-selected copy rather than canonical evidence or an algorithm input.
+39. Capital Allocation is a research-planning owner, not a factual cash authority. Its `RESEARCH_INPUT` basis, plans, transfers and snapshots never become Ledger/Accounting/broker facts or mutate account/position state.
+40. Every Capital Plan has exactly one locked reserve, one tactical reserve and zero or more unique asset-cash buckets whose finite non-negative Decimal balances exactly equal the explicit USD basis; no tolerance, float conversion or hidden unallocated amount exists.
+41. Phase 3A protects both reserve buckets. Only a positive, non-overdrawing `ASSET_CASH → ASSET_CASH` zero-sum transfer may create a next snapshot; every other bucket remains unchanged and duplicate transfer identity has no second effect.
+42. Every capital plan/transfer attempt is a durable `NO_EXECUTION` Run. Invalid/failed attempts create no accepted capital fact, accepted snapshots are immutable/complete, Persistence revalidates identity/predecessor/deltas transactionally, and Decision/Risk/Backtesting/Accounting/Execution consume nothing automatically.
+43. Asset State is an independent research-history owner. Phase 4A state labels are opaque user-defined symbols with no default financial meaning; no Factor/Decision/Risk/Capital/Backtesting/Accounting/Execution module may consume them automatically.
+44. A normalized symbol has at most one open Trading Cycle. Every accepted state change is an explicit manual operation over one immutable exact definition and an allowed directed edge; start/close events and every resulting snapshot are append-only.
+45. Asset State operation identity is idempotent: the same operation ID and canonical payload returns the original completed result, while changed content is rejected and durably recorded. Invalid/failed attempts create no accepted definition, cycle event, transition or snapshot.
+46. Persistence revalidates Asset State definition/edge/predecessor/operation/evidence consistency transactionally. Deterministic replay reports broken chains or evidence and never repairs, infers, evaluates a Factor or recomputes historical state.
+47. Target Position is an independent disabled research-calculation owner. Phase 5A accepts only explicit manual scalar, USD capital-basis and current-position inputs; no Factor, Asset State, Capital Allocation, Portfolio Accounting, Decision, Risk, Backtesting or Execution module consumes or supplies them automatically.
+48. Every Target Position fraction is finite Decimal and satisfies `0 <= minimum <= neutral <= maximum <= 1`. Definitions require at least three strictly increasing knots straddling zero, exactly one neutral zero knot, monotonic targets and endpoint coverage; no curve or value is defaulted.
+49. Target Position calculation is exact endpoint clamp, exact-knot selection or adjacent Decimal linear interpolation. Target USD equals explicit basis times fraction; difference equals target minus explicit current value; no cent rounding, hysteresis, TradeIntent, Risk or order semantics are added.
+50. Every definition-save/preview attempt is a durable `NO_EXECUTION` Run. Invalid/failed attempts create no accepted definition/result, accepted evidence is immutable, Persistence revalidates exact raw-input/result/Run identity transactionally, and GUI/Run History never recalculate historical values.
 
 Changing an invariant requires an impact proposal, explicit user approval, relevant ADR/docs/tests, and a rollback method.
 
@@ -653,6 +901,15 @@ Registration and activation are separate. Component metadata declares identity, 
 | Submit an approved order | Execution | Execution Provider (Not implemented) |
 | Edit algorithm configuration | Configuration / GUI | Algorithm Control services and presentation |
 | Present results/conflicts | GUI | Presentation layer |
+| Define exact Factor/source-price visualization evidence | Factor / Storage | Factor public contracts / Persistence exact-join adapter |
+| Render an already-built Plotly Figure | GUI infrastructure | `quant_trading.visualization.PlotlyFigureView` |
+| Record neutral algorithm-run lifecycle | Run History | `AlgorithmRunService` and repository contract |
+| Persist/query linked run evidence | Storage | central SQLite adapters behind public Store/query contracts |
+| Define research cash plans, protected buckets and conservation | Portfolio planning | `quant_trading.capital_allocation` |
+| Persist/query research capital evidence | Storage | `SQLiteCapitalAllocationStore` behind Capital Store/query contracts |
+| Define symbolic state graphs, per-symbol cycles, manual transitions and replay meaning | Asset State research | `quant_trading.asset_state` |
+| Persist/query manual Asset State evidence | Storage | `SQLiteAssetStateStore` behind Asset State Store/query contracts |
+| Reconstruct factual account cash/positions | Portfolio Accounting | Ledger facts → Accounting replay; never Capital Allocation |
 | Record control/risk audit | Logging / owning service | existing observability/audit services |
 
 One responsibility has one canonical owner. A parallel implementation is an extension/replacement under the same contract, not a second authority.

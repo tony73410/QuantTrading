@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Protocol
+from uuid import UUID
 
 from quant_trading.decision.models import PortfolioSnapshot, TradeIntent
 from quant_trading.portfolio_accounting.interfaces import (
@@ -14,6 +15,7 @@ from .models import (
     AccountSnapshot,
     OpenOrdersSnapshot,
     RiskEvaluationContext,
+    RiskDecision,
     RiskRuleResult,
 )
 
@@ -30,6 +32,17 @@ class RiskPolicy(Protocol):
         trade_intent: TradeIntent,
         context: RiskEvaluationContext,
     ) -> RiskRuleResult: ...
+
+
+class RiskDecisionStore(Protocol):
+    """Persist Risk evidence without giving Risk any SQL or execution behavior."""
+
+    def save_risk_decision(
+        self,
+        algorithm_run_id: UUID,
+        stage_id: UUID,
+        decision: RiskDecision,
+    ) -> None: ...
 
 
 class AccountStateProvider(Protocol):

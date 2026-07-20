@@ -24,11 +24,18 @@ from PySide6.QtWidgets import (
 )
 
 from quant_trading.factors.definitions import FactorDefinition, FactorDefinitionParameter
+from quant_trading.factors.interfaces import (
+    FactorHistoryQueryService,
+    FactorVisualizationQueryService,
+)
+
+from ..factor_history_export import FactorHistoryExportService
 from quant_trading.factors.expression_language import parse_and_validate_expression
 
 from ..controller import AlgorithmControlController
 from ..factor_lifecycle import FactorLifecycleState
 from .factor_workbench_panel import FactorWorkbenchPanel
+from .factor_history_panel import FactorHistoryPanel
 
 
 class FactorAuthoringPanel(QWidget):
@@ -242,13 +249,28 @@ class FactorAuthoringPanel(QWidget):
 class FactorManagementPanel(QWidget):
     preview_requested = Signal(object)
     state_changed = Signal()
+    open_run_requested = Signal(object)
 
-    def __init__(self, controller: AlgorithmControlController, component_panel: QWidget, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        controller: AlgorithmControlController,
+        component_panel: QWidget,
+        parent: QWidget | None = None,
+        *,
+        history_queries: FactorHistoryQueryService | None = None,
+        visualization_queries: FactorVisualizationQueryService | None = None,
+        export_service: FactorHistoryExportService | None = None,
+    ) -> None:
         super().__init__(parent)
         from PySide6.QtWidgets import QTabWidget
 
         self.authoring = FactorAuthoringPanel(controller)
         self.workbench = FactorWorkbenchPanel(controller)
+        self.history = FactorHistoryPanel(
+            history_queries,
+            visualization_queries=visualization_queries,
+            export_service=export_service,
+        )
         self.components = component_panel
         # Preserve the existing panel inspection surface used by smoke tests and
         # simple UI diagnostics while the Factor page gains a second tab.
@@ -256,14 +278,17 @@ class FactorManagementPanel(QWidget):
         tabs = QTabWidget()
         tabs.addTab(self.authoring, "创建/修改Factor")
         tabs.addTab(self.workbench, "本地验证与证据")
+        tabs.addTab(self.history, "历史与比较")
         tabs.addTab(self.components, "版本配置与预览")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
         self.authoring.state_changed.connect(self.state_changed)
         self.components.state_changed.connect(self.state_changed)
         self.components.preview_requested.connect(self.preview_requested)
+        self.history.open_run_requested.connect(self.open_run_requested)
 
     def reload(self) -> None:
         self.authoring.reload()
         self.components.reload()
         self.workbench.reload()
+        self.history.reload()

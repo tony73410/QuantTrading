@@ -3,25 +3,19 @@
 from __future__ import annotations
 
 import logging
-import json
 from datetime import date, timedelta
 from typing import Callable
 
-import plotly.io as pio
 from PySide6.QtCore import (
     QDate,
-    QDir,
     QObject,
     QRunnable,
-    QTemporaryFile,
     QThreadPool,
     QTimer,
-    QUrl,
     Signal,
     Qt,
 )
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -56,6 +50,7 @@ from quant_trading.observability import (
     request_context,
     session_context,
 )
+from quant_trading.visualization import PlotlyFigureView
 
 from ..controller import HistoryController
 from ..errors import CredentialsMissingError, MarketHistoryError
@@ -217,146 +212,6 @@ class _LoadWorker(QRunnable):
                     error_code=wrapped.error_code,
                 )
                 self.signals.failed.emit(wrapped, self.request_id)
-
-
-class _PlotlyView(QWebEngineView):
-    render_failed = Signal(object)
-    _RESPONSIVE_STYLE = """
-<style id="quant-history-responsive-layout">
-html, body, #market-history-chart {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-}
-</style>
-"""
-    _CONFIG = {
-        "responsive": True,
-        "displaylogo": False,
-        "scrollZoom": True,
-        "modeBarButtonsToAdd": ["drawline", "eraseshape"],
-    }
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._ready = False
-        self._loading = False
-        self._pending_figure: object | None = None
-        self._html_file: QTemporaryFile | None = None
-        self._plot_resize_timer = QTimer(self)
-        self._plot_resize_timer.setSingleShot(True)
-        self._plot_resize_timer.setInterval(150)
-        self._plot_resize_timer.timeout.connect(self._resize_plot)
-        self.loadFinished.connect(self._on_load_finished)
-
-    def show_figure(self, figure: object) -> None:
-        if self._ready:
-            self._react(figure)
-            return
-        if self._loading:
-            self._pending_figure = figure
-            return
-        self._loading = True
-        html = pio.to_html(
-            figure,
-            full_html=True,
-            include_plotlyjs=True,
-            div_id="market-history-chart",
-            config=self._CONFIG,
-        )
-        html = self._make_responsive_html(html)
-        html_bytes = html.encode("utf-8")
-        html_file = QTemporaryFile(
-            QDir.tempPath() + "/quant-history-chart-XXXXXX.html",
-            self,
-        )
-        html_file.setAutoRemove(True)
-        if not html_file.open() or html_file.write(html_bytes) != len(html_bytes):
-            self._loading = False
-            raise ChartError("Could not create temporary Plotly HTML file")
-        html_file.flush()
-        html_file.close()
-        self._html_file = html_file
-        # QWebEngineView.setHtml() uses a data URL with a size limit. Plotly's
-        # offline JavaScript bundle is larger, so load the same self-contained
-        # HTML from an auto-removed local temporary file instead.
-        self.load(QUrl.fromLocalFile(html_file.fileName()))
-
-    def _on_load_finished(self, success: bool) -> None:
-        self._loading = False
-        self._ready = success
-        if not success:
-            self.render_failed.emit(ChartError("QWebEngine failed to load Plotly HTML"))
-            return
-        self._install_resize_observer()
-        if success and self._pending_figure is not None:
-            pending = self._pending_figure
-            self._pending_figure = None
-            self._react(pending)
-        elif success:
-            QTimer.singleShot(0, self._resize_plot)
-            self._plot_resize_timer.start()
-
-    def _react(self, figure: object) -> None:
-        figure_json = json.dumps(figure.to_json())
-        config_json = json.dumps(self._CONFIG)
-        self.page().runJavaScript(
-            "(() => {"
-            "const figure = JSON.parse(" + figure_json + ");"
-            "const chart = document.getElementById('market-history-chart');"
-            "return Plotly.react(chart, figure.data, figure.layout, "
-            + config_json
-            + ").then(() => Plotly.Plots.resize(chart));"
-            "})()"
-        )
-        self._plot_resize_timer.start()
-
-    def _install_resize_observer(self) -> None:
-        self.page().runJavaScript(
-            "(() => {"
-            "if (window.quantHistoryResizeObserver) { return; }"
-            "let animationFrame = null;"
-            "window.quantHistoryResizeObserver = new ResizeObserver(() => {"
-            "if (animationFrame !== null) { cancelAnimationFrame(animationFrame); }"
-            "animationFrame = requestAnimationFrame(() => {"
-            "animationFrame = null;"
-            "const chart = document.getElementById('market-history-chart');"
-            "if (chart && typeof Plotly !== 'undefined') {"
-            "Plotly.Plots.resize(chart);"
-            "}"
-            "});"
-            "});"
-            "window.quantHistoryResizeObserver.observe(document.documentElement);"
-            "})()"
-        )
-
-    def _resize_plot(self) -> None:
-        if not self._ready:
-            return
-        self.page().runJavaScript(
-            "(() => {"
-            "const chart = document.getElementById('market-history-chart');"
-            "if (chart && typeof Plotly !== 'undefined') {"
-            "Plotly.Plots.resize(chart);"
-            "}"
-            "})()"
-        )
-
-    def resizeEvent(self, event) -> None:  # noqa: N802 - Qt virtual method
-        super().resizeEvent(event)
-        if self._ready:
-            self._plot_resize_timer.start()
-
-    @classmethod
-    def _make_responsive_html(cls, html: str) -> str:
-        """Bind Plotly's percentage height to the current WebView viewport."""
-        if "</head>" not in html:
-            raise ChartError("Plotly HTML document has no head element")
-        return html.replace("</head>", cls._RESPONSIVE_STYLE + "</head>", 1)
 
 
 class HistoryPanel(QWidget):
@@ -594,7 +449,11 @@ class HistoryPanel(QWidget):
         downloaded_layout = QVBoxLayout(downloaded_box)
         downloaded_layout.addWidget(self.downloaded_symbols_list)
 
-        self.chart_view = _PlotlyView()
+        self.chart_view = PlotlyFigureView(
+            div_id="market-history-chart",
+            observer_name="quantHistoryResizeObserver",
+            temporary_file_prefix="quant-history-chart",
+        )
         self.chart_view.render_failed.connect(self._on_chart_failed)
         splitter = QSplitter()
         splitter.addWidget(downloaded_box)

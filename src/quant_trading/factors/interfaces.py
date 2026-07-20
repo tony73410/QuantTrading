@@ -11,6 +11,14 @@ from quant_trading.market_history.models import Adjustment, DataFeed, Timeframe
 from .definitions import FactorDefinition
 from .models import FactorContext, FactorResult, FactorSnapshot, MarketDataWindow
 from .storage_models import FactorCalculationRun
+from .history import (
+    FactorHistoryQuery,
+    FactorHistoryRecord,
+    FactorVisualizationQuery,
+    FactorVisualizationSeries,
+    FactorVersionComparison,
+    FactorVersionComparisonQuery,
+)
 
 
 class FactorCalculator(Protocol):
@@ -46,6 +54,8 @@ class FactorSnapshotStore(Protocol):
         market_data: MarketDataWindow,
         *,
         correlation_id: str | None = None,
+        algorithm_run_id: UUID | None = None,
+        stage_id: UUID | None = None,
     ) -> UUID: ...
 
     def complete_calculation_success(
@@ -83,3 +93,42 @@ class FactorDefinitionStore(Protocol):
     def list_definitions(self) -> tuple[FactorDefinition, ...]: ...
 
     def save_definition(self, definition: FactorDefinition) -> None: ...
+
+
+class FactorHistoryQueryService(Protocol):
+    """Read persisted Factor attempts/results without calculating them."""
+
+    def query_factor_history(
+        self, query: FactorHistoryQuery = FactorHistoryQuery()
+    ) -> tuple[FactorHistoryRecord, ...]: ...
+
+    def compare_factor_versions(
+        self, query: FactorVersionComparisonQuery
+    ) -> tuple[FactorVersionComparison, ...]: ...
+
+
+class EmptyFactorHistoryQueryService:
+    def query_factor_history(
+        self, query: FactorHistoryQuery = FactorHistoryQuery()
+    ) -> tuple[FactorHistoryRecord, ...]:
+        return ()
+
+    def compare_factor_versions(
+        self, query: FactorVersionComparisonQuery
+    ) -> tuple[FactorVersionComparison, ...]:
+        return ()
+
+
+class FactorVisualizationQueryService(Protocol):
+    """Read exact persisted Factor/source-Bar visualization evidence."""
+
+    def query_factor_visualization(
+        self, query: FactorVisualizationQuery
+    ) -> FactorVisualizationSeries: ...
+
+
+class EmptyFactorVisualizationQueryService:
+    def query_factor_visualization(
+        self, query: FactorVisualizationQuery
+    ) -> FactorVisualizationSeries:
+        return FactorVisualizationSeries(query, ())

@@ -2783,3 +2783,617 @@ Not applicable beyond restoring the insignificant whitespace.
 ### Verification update — 2026-07-16
 
 BUG-20260716-009 is verified **Fixed**. The five trailing-space locations and one extra EOF line were removed without changing text meaning or Python behavior. The complete staged snapshot will be restaged and rechecked before commit.
+
+## BUG-20260716-010
+
+### Title
+Canonical governance documents contain duplicate identifiers and stale verification metadata
+
+### Status
+Deferred
+
+### Severity
+Medium
+
+### Area
+Project governance and canonical architecture documentation
+
+### Reproduction steps
+1. Inspect `PROJECT_COMPASS.md` section B11 and find two unrelated rows identified as `INTENT-017`.
+2. Inspect `docs/architecture/OVERVIEW.md` under Architecture Invariants and observe invariant numbering restart at 24 and 25 after item 28.
+3. Compare the Compass `last_verified_commit_or_working_tree_state` value with `git status`, `git rev-parse HEAD`, and `origin/main`.
+
+### Expected behavior
+Intent IDs and invariant references are unique and stable, and verification metadata accurately describes the evidenced repository state.
+
+### Actual behavior
+Portfolio Accounting and Main Launcher share the same Active Intent ID, two architecture invariants share earlier numbers, and the Compass still describes the current tree as uncommitted although HEAD `5a32cf6` is clean and matches `origin/main`.
+
+### Error message
+Not applicable; this is a canonical-document integrity defect.
+
+### Technical location
+`PROJECT_COMPASS.md` metadata and B11 Active Intent Ledger; `docs/architecture/OVERVIEW.md` Architecture Invariants.
+
+### Root cause
+Later governance and launcher additions appended identifiers and evidence text without a final uniqueness/current-state consistency pass.
+
+### Fix
+Deferred because changing canonical identifiers and verification metadata should be performed as a focused governance correction with cross-reference checks. Preserve the earlier Portfolio Accounting intent ID and assign the launcher a new unique ID; renumber only the duplicated architecture list items; refresh the verification evidence from the actual clean commit.
+
+### Regression test
+Pending a documentation-integrity check for unique `INTENT-NNN` identifiers, monotonic invariant numbering, and a manual evidence review of mutable Git-state metadata.
+
+### Validation
+The observability-framework inventory independently confirmed a clean worktree at `5a32cf6`, matching `origin/main`. Existing persistence/pipeline/preview/backtesting/architecture verification passed 54/54. No runtime code was changed.
+
+### Risk
+Future proposals and audit reports can cite an ambiguous intent or invariant, and maintainers may incorrectly believe the verified repository contains uncommitted work. Trading behavior is not directly affected.
+
+### Workaround
+Until corrected, refer to the Portfolio Accounting and Main Launcher intents by their full titles and evidence links rather than `INTENT-017` alone, and cite architecture invariant text rather than the duplicated numeric label.
+
+### Rollback
+Remove only this appended Bug Log record and the matching Known Issues summary if the evidence is disproved; do not rewrite prior Bug Log history.
+
+### Resolution update — 2026-07-16
+
+**Status: Fixed.** The user explicitly approved this correction with Phase 1 Run History. Portfolio Accounting remains `INTENT-017`; the Main Launcher is uniquely `INTENT-019`; the new approved Run History intent is `INTENT-020`. Canonical architecture invariants are now monotonic and unique through item 34. Compass verification metadata now describes the current uncommitted Phase 1 worktree, 312-test result, Schema v2 migration evidence, and unchanged execution safety state.
+
+Regression coverage is implemented in `tests/architecture/test_governance_document_integrity.py`: it checks unique Active Intent IDs, a complete monotonic invariant sequence, and rejects the stale 301-test Compass metadata. The full suite passed 312 tests with one pre-existing upstream deprecation warning. No financial, Risk, account, order, Paper or Live behavior changed.
+
+## BUG-20260716-011
+
+### Title
+Compass explicitly denied the already verified research Backtesting capability
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Canonical governance documentation
+
+### Reproduction steps
+1. Read `PROJECT_COMPASS.md` B1 and confirm isolated historical Backtesting is `Implemented and verified for research`.
+2. Read B6 and observe the blanket statement that the current application does not implement a `backtest`.
+
+### Expected behavior
+Canonical capability and non-capability statements distinguish implemented isolated research Backtesting from unimplemented production trading strategy/execution behavior.
+
+### Actual behavior
+The two sections contradicted each other, allowing a future audit to deny a verified research capability or misread the safety boundary.
+
+### Error message
+Not applicable; this was a canonical-document integrity contradiction.
+
+### Technical location
+`PROJECT_COMPASS.md`, sections B1 and B6.
+
+### Root cause
+The B6 non-capability sentence predated the approved isolated Backtesting implementation and was not narrowed when that research capability became verified.
+
+### Fix
+Replaced the blanket denial with an explicit denial of production strategy/signal/advice/profit-guarantee capability while stating that isolated research-only Backtesting exists without production or execution authority.
+
+### Regression test
+`tests/architecture/test_governance_document_integrity.py::test_compass_does_not_deny_verified_research_backtesting` rejects the stale sentence and requires the truthful research-only qualification.
+
+### Validation
+The targeted governance/Run History/dependency suite passed 22 tests. The complete suite passed 320 tests with one existing upstream `websockets.legacy` deprecation warning.
+
+### Risk
+Documentation-only; no formula, simulation result, Risk rule, account, order, Paper or Live behavior changed. If left unresolved, future change admission and status reports could use inconsistent canonical evidence.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the contradiction was confirmed, locally fixed and regression-tested in the same approved task.
+
+### Rollback
+Revert the Compass wording and regression assertion only, although doing so knowingly restores the contradiction.
+
+## BUG-20260716-012
+
+### Title
+Proposal index described actively persisted local Factor history as inactive
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Change-admission governance index
+
+### Reproduction steps
+1. Read `docs/proposals/README.md` entry for PROPOSAL-001.
+2. Compare its statement that implementation remains inactive with implemented PROPOSAL-009/010 and the verified local preview persistence path.
+
+### Expected behavior
+The proposal index distinguishes active local `NO_EXECUTION` evidence persistence from unapproved production Factor activation.
+
+### Actual behavior
+The entry used “inactive” for the whole implementation, contradicting the implemented local preview Store while attempting to describe only the production-activation boundary.
+
+### Technical location
+`docs/proposals/README.md`, PROPOSAL-001 index entry.
+
+### Root cause
+The early proposal summary was not updated after later approved proposals activated persistence for explicit local research previews without activating production Factors.
+
+### Fix
+Updated the index to state that PROPOSAL-009/010 extend the original storage decision for active local `NO_EXECUTION` evidence while production activation remains unapproved.
+
+### Regression test
+`tests/architecture/test_governance_document_integrity.py::test_proposal_index_does_not_claim_local_factor_history_is_inactive` rejects the stale blanket claim.
+
+### Validation
+Pending the focused governance test at the time of this record; the proposal task will append final evidence to its Edit Log entry.
+
+### Risk
+Documentation-only. The stale description could cause a future proposal to create duplicate storage or falsely claim the preview path was unused. No database, Factor formula, Risk, account, order, Paper or Live behavior changed.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the contradiction was fixed locally in the same task.
+
+### Rollback
+Revert the single proposal-index sentence and regression assertion, although doing so restores the documented contradiction.
+
+### Verification update — 2026-07-16
+
+The focused governance suite passed 5 tests, including the new proposal-index regression. `git diff --check` passed with only existing Windows LF→CRLF notices. BUG-20260716-012 remains **Fixed**; no current Known Issue was created.
+
+## BUG-20260716-013
+
+### Title
+Qt combo boxes returned plain strings for typed Factor history dimensions
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Algorithm Control Factor history query boundary
+
+### Reproduction steps
+1. Select an exact Timeframe, Adjustment, Feed or PriceField in the Factor History panel.
+2. Request the exact Factor/source-price chart.
+3. Observe that Qt may return the `StrEnum` item data as a plain `str`.
+4. The downstream chart or SQLite adapter then attempts to read `.value` from that string.
+
+### Expected behavior
+The GUI Controller boundary reconstructs the declared enum type before creating a typed query contract.
+
+### Actual behavior
+Raw `QComboBox.currentData()` values were passed directly, causing `'str' object has no attribute 'value'` in the new chart path and leaving the analogous persisted history-filter path unsafe.
+
+### Error message
+`'str' object has no attribute 'value'`
+
+### Technical location
+`src/quant_trading/algorithm_control/ui/factor_history_panel.py`
+
+### Root cause
+The UI assumed PySide6 would preserve Python `StrEnum` instances through QVariant storage. PySide6 is permitted to expose their string representation instead.
+
+### Fix
+Normalize every optional or required combo value back through its exact enum constructor at the GUI boundary before building Factor history, comparison or visualization queries.
+
+### Regression test
+`tests/unit/algorithm_control/test_research_history_panels.py::test_factor_history_panel_renders_exact_chart_and_exports_current_records` drives real combo selections through the chart and export workflow.
+
+### Validation
+Pending the focused GUI suite at the time of this record; final evidence is recorded in the Phase 2B Edit Log entry.
+
+### Risk
+Local read-only research UI only. No Factor calculation, price transformation, Decision, Risk, account, order, Paper or Live behavior changed.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the issue was confirmed and fixed with a regression test in the same approved task.
+
+### Rollback
+Revert the enum-normalization helper and its call sites, which would knowingly restore the query failure.
+
+## BUG-20260716-014
+
+### Title
+Factor export no-overwrite guard had a time-of-check/time-of-use race
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Factor history export filesystem boundary
+
+### Reproduction steps
+1. Start a new export to a path that does not yet exist with `overwrite=False`.
+2. Create the target path from another process after the initial existence check but before the final filesystem replacement.
+3. Observe that unconditional `os.replace()` can replace the newly created file.
+
+### Expected behavior
+An export without explicit overwrite approval must atomically create a new file or fail if the name is already occupied at the final filesystem operation.
+
+### Actual behavior
+The initial guard rejected an already existing path, but the final operation still used replace semantics and left a narrow race window.
+
+### Technical location
+`src/quant_trading/algorithm_control/factor_history_export.py`
+
+### Root cause
+The temporary file was correctly written in the destination directory, but the same final operation was used for both explicit-overwrite and create-only modes.
+
+### Fix
+Use `os.replace()` only after explicit overwrite approval. Create-only export uses a same-filesystem hard link from the completed temporary file to the target; link creation is atomic and fails if the target exists, after which the temporary name is removed.
+
+### Regression test
+`tests/unit/algorithm_control/test_factor_history_export.py::test_create_only_export_does_not_overwrite_a_racing_target` creates the destination inside the final link call and verifies the competing content remains unchanged.
+
+### Validation
+Pending the final focused/full suite at the time of this record; final evidence is recorded in EDIT-20260716-009.
+
+### Risk
+Local user-selected export files only. Central SQLite, Factor/Decision/Risk calculations, accounts, orders, Paper and Live are unaffected.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the race was fixed with a deterministic regression test in the same approved task.
+
+### Rollback
+Reverting to unconditional replace would knowingly weaken the explicit no-overwrite guarantee. Removing export entirely is the feature-level rollback.
+
+### Verification update — 2026-07-16
+
+BUG-20260716-013 and BUG-20260716-014 remain **Fixed**. The complete suite passed 332 tests with one existing upstream warning; the focused architecture/research/GUI suite passed 64 tests and the export suite passed 4 tests. Compileall, dependency integrity and diff whitespace checks passed. Neither issue requires a current Known Issue entry.
+
+## BUG-20260716-015
+
+### Title
+Valid non-numeric Factor values looked like successfully plotted numeric evidence
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Factor history chart presentation
+
+### Reproduction steps
+1. Persist a `VALID` Factor result whose public typed value is `bool` or `str`.
+2. Open the exact Factor history chart.
+3. Observe that the numeric line correctly has a gap but the status marker used the same green color as a plotted numeric point and omitted the original value.
+
+### Expected behavior
+The presentation must not coerce a valid non-numeric Factor into a browser number and must make the reason for the numeric-line gap explicit.
+
+### Actual behavior
+The line omitted the point, but the status track could imply complete numeric evidence.
+
+### Technical location
+`src/quant_trading/algorithm_control/factor_history_chart.py`
+
+### Root cause
+Status color considered calculation/result/source availability but not whether the Factor's declared typed value was numerically plottable.
+
+### Fix
+Keep the numeric gap, display the original typed Factor value in status hover, and use a separate non-numeric color. No boolean/string-to-number conversion is introduced.
+
+### Regression test
+`tests/unit/algorithm_control/test_factor_history_chart.py::test_chart_keeps_invalid_factor_and_missing_price_as_explicit_gaps` includes a valid boolean result and verifies its gap, source-price continuity, typed hover value and distinct status color.
+
+### Validation
+Pending the final focused/full suite; final evidence is appended below and recorded in EDIT-20260716-009.
+
+### Risk
+Presentation-only. Persisted evidence and all Factor/Decision/Risk calculations remain unchanged; no financial or execution meaning is added.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the issue was fixed with regression coverage in the same approved task.
+
+### Rollback
+Revert the status hover/color change only; doing so would knowingly restore an ambiguous chart marker.
+
+### Verification update — 2026-07-16
+
+BUG-20260716-015 remains **Fixed**. Its focused chart/export suite passed 5 tests, and the complete suite then passed 332 tests with one existing upstream warning. No current Known Issue was created.
+
+## BUG-20260720-001
+
+### Title
+Capital SQLite Store could accept a total-conserved initial snapshot that omitted a plan bucket
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Capital Allocation persistence boundary
+
+### Reproduction steps
+1. Construct a valid typed capital plan with locked reserve, tactical reserve and two asset-cash buckets.
+2. Construct a separately valid snapshot whose total still equals the research cash basis, but omit one asset bucket and add its amount to another bucket.
+3. Call the public SQLite Store directly instead of the coordinating service.
+
+### Expected behavior
+Persistence must reject any snapshot that does not contain every plan bucket exactly once with matching type, symbol and currency. Transfer snapshots must retain that complete set and apply only the exact source debit/destination credit while leaving all other buckets unchanged.
+
+### Actual behavior
+The domain objects independently verified exact totals, but the Store previously checked only top-level plan/snapshot/operation identity. A caller outside the normal service path could therefore persist structurally incomplete bucket evidence whose grand total was still zero-difference.
+
+### Technical location
+`src/quant_trading/persistence/capital_allocation_sqlite_store.py`
+
+### Root cause
+Conservation of the grand total and completeness of the per-bucket state were validated separately, without a Store-boundary cross-object comparison.
+
+### Fix
+The Store now requires the initial snapshot to exactly match all plan bucket definitions and initial balances. Transfer persistence reloads the current complete bucket set inside the same `BEGIN IMMEDIATE` transaction and requires the next snapshot to preserve every bucket, cash basis and currency, apply exactly one source debit and destination credit, keep every other balance unchanged and remain non-negative.
+
+### Regression test
+`tests/unit/capital_allocation/test_sqlite_capital_allocation.py::test_sqlite_store_rejects_a_conserved_snapshot_with_a_missing_plan_bucket`
+
+### Validation
+The focused Capital Allocation domain, SQLite, GUI-boundary and architecture suite passed 15 tests after the fix. Final full-suite evidence is recorded in the PROPOSAL-012 implementation Edit Log entry.
+
+### Risk
+The fix is fail-closed and affects only research capital-plan persistence. It adds no Portfolio Accounting facts, Risk rule, Decision logic, order, Paper or Live behavior.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the issue was fixed with regression coverage during the approved implementation.
+
+### Rollback
+Revert the Store cross-object validation and its regression test, which would knowingly restore the persistence-boundary gap; feature-level rollback is to leave the Capital Allocation composition disabled and restore the pre-v4 database backup.
+
+## BUG-20260720-002
+
+### Title
+Asset State idempotency lookup and operation evidence could lose the original completed request
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Asset State persistence and idempotency boundary
+
+### Reproduction steps
+1. Complete an Asset State operation with one `operation_id`.
+2. Submit the same ID with different canonical content so the conflict attempt is durably recorded.
+3. Query the operation ID again, or inspect a transition note / an unknown requested cycle ID.
+
+### Expected behavior
+The first completed operation remains the idempotent source of truth. Same ID plus identical payload returns that result; changed content is rejected without displacing it. Every canonical request field, including transition note and unresolved requested cycle ID, remains auditable.
+
+### Actual behavior
+The initial Store lookup could select a later conflicting row instead of the completed operation. Transition note was absent from the canonical/persisted input, and an unknown requested cycle ID could be lost because only a resolved cycle foreign key was retained.
+
+### Technical location
+`src/quant_trading/asset_state/models.py`, `src/quant_trading/asset_state/service.py`, `src/quant_trading/persistence/asset_state_sqlite_store.py`, central Schema v5 operation table
+
+### Root cause
+Attempt history and idempotent operation identity were represented by the same lookup ordering, and not every user request field had an independent durable column/input contract.
+
+### Fix
+Completed operations are selected before conflict attempts and then by original row order. Transition note participates in canonical identity and persists with the attempt. `requested_cycle_id` is stored independently from the optional resolved cycle foreign key, preserving invalid requests without fabricating a valid reference.
+
+### Regression test
+`tests/unit/asset_state/test_sqlite_asset_state.py::test_operation_idempotency_preserves_original_result_and_records_conflict` and the unknown-cycle invalid-attempt assertion.
+
+### Validation
+The Asset State focused suite passed 8 tests after the fix; the complete implementation suite subsequently passed 362 tests with one existing upstream warning before documentation-only final checks.
+
+### Risk
+Fail-closed local research-history correction only. No transition is inferred, no financial meaning is added, and Decision/Risk/Capital/Accounting/Backtesting/Execution are unaffected.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the defect was fixed with regression coverage during the approved implementation.
+
+### Rollback
+Revert the idempotency/evidence changes only while leaving Asset State disabled, which would knowingly restore the audit gap; feature rollback restores the verified Schema v4 backup with writers stopped.
+
+## BUG-20260720-003
+
+### Title
+Asset State SQLite Store initially trusted completed cross-object evidence supplied by the service
+
+### Status
+Fixed
+
+### Severity
+High
+
+### Area
+Asset State transactional persistence boundary
+
+### Reproduction steps
+1. Build individually valid Asset State definition/operation/snapshot objects.
+2. Alter a completed definition operation so its structured graph input no longer matches the accepted definition.
+3. Call the public Store directly, bypassing normal service coordination.
+
+### Expected behavior
+Persistence must independently reject any completed operation whose exact definition, Run/stage, predecessor, edge, event, snapshot or structured input evidence is inconsistent. The failed attempt must remain durable while no accepted state fact is committed.
+
+### Actual behavior
+The initial adapter relied on service validation and could accept individually valid but mutually inconsistent completed objects at its public boundary.
+
+### Technical location
+`src/quant_trading/persistence/asset_state_sqlite_store.py`
+
+### Root cause
+Object-level validation did not prove cross-object identity and provenance at the transaction boundary, which is callable independently of the coordinating service.
+
+### Fix
+The Store now revalidates completed definition inputs against the exact typed definition; exact local Run/stage identity; start/transition/close operation evidence; current predecessor; definition graph/allowed edge; resulting snapshot and event/transition relationships in one transaction. Inconsistent accepted facts roll back, and the service persists only a failed attempt in a separate terminal Run.
+
+### Regression test
+`tests/unit/asset_state/test_sqlite_asset_state.py::test_store_rejects_inconsistent_completed_definition_evidence`
+
+### Validation
+The focused Asset State suite passed 8 tests after the fix; the complete implementation suite subsequently passed 362 tests with one existing upstream warning before documentation-only final checks.
+
+### Risk
+The fix strengthens fail-closed research persistence. It cannot create or advance state, and it adds no formula, financial rule, account, order, Paper or Live behavior.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the defect was fixed with a deterministic Store-boundary regression during the approved task.
+
+### Rollback
+Revert the transactional cross-object checks only while disabling the Asset State composition, which would knowingly restore the Store-boundary defect; database rollback is restoration of the verified Schema v4 backup with writers stopped.
+
+## BUG-20260720-004
+
+### Title
+Target Position GUI passed a Qt-coerced string where the typed direction enum was required
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Target Position Laboratory controller boundary
+
+### Reproduction steps
+1. Open the Target Position Laboratory.
+2. Enter a valid finite-knot definition and click Save.
+3. Observe that Qt returns the `StrEnum` item data as its string value.
+
+### Expected behavior
+The GUI converts presentation data into the exact typed command contract and delegates the definition to `TargetPositionService`.
+
+### Actual behavior
+The initial implementation passed the Qt string directly, so `CreateTargetPositionDefinitionCommand` rejected the otherwise valid request before a Run/attempt could be created.
+
+### Technical location
+`src/quant_trading/algorithm_control/ui/target_position_panel.py`
+
+### Root cause
+PySide's QVariant conversion did not preserve the Python `StrEnum` object stored as combo-box item data.
+
+### Fix
+The GUI now explicitly reconstructs `TargetPositionDirection` at its typed controller boundary before constructing the command.
+
+### Regression test
+`tests/unit/algorithm_control/test_target_position_panel.py::test_panel_saves_definition_previews_and_opens_exact_run`
+
+### Validation
+The Target Position GUI/domain/repository/architecture focused suite passed after the fix; final suite evidence is recorded in `EDIT-20260720-006`.
+
+### Risk
+Local research input conversion only. The fix adds no curve default, consumer, TradeIntent, Risk or execution behavior.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because it was fixed with deterministic GUI regression coverage during the approved implementation.
+
+### Rollback
+Revert the explicit enum reconstruction and keep the Target Position write surface disabled, which would knowingly restore the inability to save definitions through the GUI.
+
+## BUG-20260720-005
+
+### Title
+Target Position SQLite Store initially trusted completed cross-object evidence supplied by the service
+
+### Status
+Fixed
+
+### Severity
+High
+
+### Area
+Target Position transactional persistence boundary
+
+### Reproduction steps
+1. Build individually valid Target Position definition/result and completed operation objects.
+2. Change the operation's raw definition name, knot input or preview input so it no longer matches the accepted object.
+3. Call the public SQLite Store directly, bypassing normal service coordination.
+
+### Expected behavior
+Persistence independently rejects mutually inconsistent completed evidence and rolls back the accepted definition/result.
+
+### Actual behavior
+The initial adapter checked primary IDs and Run/stage identity but did not compare every raw operation input to the accepted definition/result.
+
+### Technical location
+`src/quant_trading/persistence/target_position_sqlite_store.py`
+
+### Root cause
+Object-level validation was not sufficient to prove cross-object provenance at the independently callable Store boundary.
+
+### Fix
+Definition persistence now compares name/reason/direction/bounds/predecessor/creator and every parsed knot to the accepted definition. Preview persistence compares exact definition, manual Decimal inputs, `as_of`, evidence, actor and reason to the accepted result. Any mismatch rolls back transactionally; the service then stores only a failed attempt under its terminal Run.
+
+### Regression test
+`tests/unit/target_position/test_target_position.py::test_sqlite_store_rejects_inconsistent_completed_definition_evidence`
+
+### Validation
+The focused repository suite passed 7 tests after the fix; final suite evidence is recorded in `EDIT-20260720-006`.
+
+### Risk
+Fail-closed local research persistence only. The fix cannot create a definition/result and adds no financial or execution authority.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the defect was fixed with Store-boundary regression coverage during the approved implementation.
+
+### Rollback
+Revert the cross-object validation only while disabling Target Position composition, which would knowingly restore the audit-integrity gap; feature rollback restores the verified Schema v5 backup with writers stopped.
+
+## BUG-20260720-006
+
+### Title
+Target Position chart initially omitted the current-position fraction marker required by the approved inspector contract
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Target Position typed result and presentation adapter
+
+### Reproduction steps
+1. Persist a valid manual Target Position preview with non-zero research capital basis.
+2. Open the result in Target Position Laboratory.
+3. Inspect the curve chart and calculation detail.
+
+### Expected behavior
+The inspector shows both the persisted target fraction/value and the current position fraction/value, with separate current and target markers.
+
+### Actual behavior
+The first implementation displayed current USD in the table but exposed only the target marker/fraction on the curve.
+
+### Technical location
+`src/quant_trading/target_position/models.py`, `src/quant_trading/algorithm_control/target_position_chart.py`, `src/quant_trading/algorithm_control/ui/target_position_panel.py`
+
+### Root cause
+The approved current-position display requirement was not mapped to a typed read-model property during the initial GUI implementation.
+
+### Fix
+`TargetPositionResult.current_position_fraction` now derives an exact read-only ratio from the two persisted manual inputs in the domain model; zero basis explicitly returns unavailable. The chart and structured detail consume that typed value and render distinct persisted-target and derived-current markers. No GUI business calculation or Schema change was added.
+
+### Regression test
+`tests/unit/target_position/test_target_position.py::test_definition_interpolation_and_run_evidence_survive_restart`, `tests/unit/algorithm_control/test_target_position_chart.py::test_chart_uses_exact_persisted_knots_without_calculation`, and the Target Position panel test.
+
+### Validation
+Focused Target Position domain/chart/GUI tests passed after the fix; final suite evidence is recorded in `EDIT-20260720-006`.
+
+### Risk
+Read-only presentation completeness only. It neither changes the target result nor creates a TradeIntent, Risk result or order.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because it was fixed with domain/chart/GUI regression coverage during the approved implementation.
+
+### Rollback
+Revert the derived read-model property and marker only, which would knowingly restore the inspector omission while leaving stored canonical inputs/results unchanged.

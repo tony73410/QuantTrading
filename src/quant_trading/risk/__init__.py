@@ -7,6 +7,7 @@ from .interfaces import (
     AccountStateProvider,
     OpenOrderStateProvider,
     PortfolioStateProvider,
+    RiskDecisionStore,
     RiskPolicy,
 )
 from .models import (
@@ -43,6 +44,7 @@ __all__ = [
     "RiskContext",
     "RiskDecision",
     "RiskDecisionType",
+    "RiskDecisionStore",
     "RiskEngine",
     "RiskEvaluationContext",
     "RiskEvaluationStatus",

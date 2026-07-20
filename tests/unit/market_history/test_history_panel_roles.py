@@ -32,9 +32,9 @@ from quant_trading.market_history.ui import HistoryPanel
 from quant_trading.market_history.ui.history_panel import (
     _POPULAR_STOCK_SYMBOLS,
     _POPULAR_STOCK_SYMBOLS_BY_SECTOR,
-    _PlotlyView,
     _LoadWorker,
 )
+from quant_trading.visualization import PlotlyFigureView
 
 
 class FakeController:
@@ -363,7 +363,11 @@ def test_background_worker_inherits_session_and_request_context():
 
 def test_plotly_bundle_loads_from_local_file_and_executes_javascript():
     application = QApplication.instance() or QApplication([])
-    view = _PlotlyView()
+    view = PlotlyFigureView(
+        div_id="market-history-chart",
+        observer_name="quantHistoryResizeObserver",
+        temporary_file_prefix="quant-history-chart-test",
+    )
     view.resize(900, 600)
     view.show()
     loaded: list[bool] = []
@@ -464,7 +468,11 @@ def test_plotly_bundle_loads_from_local_file_and_executes_javascript():
 
 def test_plotly_applies_data_queued_while_initial_page_is_loading():
     application = QApplication.instance() or QApplication([])
-    view = _PlotlyView()
+    view = PlotlyFigureView(
+        div_id="market-history-chart",
+        observer_name="quantHistoryResizeObserver",
+        temporary_file_prefix="quant-history-chart-test",
+    )
     loaded: list[bool] = []
     load_loop = QEventLoop()
     view.loadFinished.connect(

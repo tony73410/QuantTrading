@@ -3476,3 +3476,412 @@ The user requested verification that every core function/module is reachable fro
 No network, broker, account, order, real/Paper submission, credential, dependency, commit or push was used. Live Trading and automatic submission remain disabled. Rollback by removing `DEFAULT_CORE_SHORTCUTS` and its combo UI, removing `LaunchTarget.arguments`, restoring the module-only start command, and removing Algorithm Control `--page`/`select_page`; the original three application buttons remain. No data migration or cleanup is required.
 
 Intent alignment: all existing user-facing core functions are now easy to find from the Main GUI without fabricating pages for infrastructure. Architecture alignment: navigation metadata stays in Launcher and actual pages remain in Algorithm Control; no reverse import or duplicated logic. Safety alignment: page selection grants no runtime, trading or financial authority. Unapproved behavior added: none. Assumption introduced: “all core functions/modules” means all existing user-facing GUI capabilities; backend infrastructure remains internal or terminal-only. Compass sections updated: verified Launcher capability, Active Intent status and evidence metadata; Stable Core unchanged. Remaining drift risk: Diagnostics still requires the documented terminal command, and repeated clicks may open multiple child processes.
+
+## EDIT-20260716-004 — Algorithm observability stage-zero inventory record
+
+### Scope and impact
+Performed a read-only DEEP inventory for the user-provided development-roadmap and algorithm-observability framework. Inspected the Compass, canonical architecture, project state/index/roadmap, relevant module and proposal documents, current Git state, central SQLite schema/data, Factor/Decision/Risk/orchestration/control/backtesting/accounting contracts, recent Edit/Bug history, and launcher requirements. No runtime code, public contract, configuration, database schema, financial semantics, algorithm, Risk value, Paper/Live boundary or execution authority changed.
+
+### Findings and records
+Confirmed that central Factor history, Factor/Decision/Risk public contracts, local dry-run orchestration, versioned Algorithm Control definitions, research Backtesting evidence and the in-memory Portfolio Accounting scaffold already exist. Confirmed that a top-level `AlgorithmRun`, durable Decision/Risk result stores and a unified Run History Explorer do not exist. The 59.2 MB central SQLite database is schema version 1 with 215,340 Market Bars and zero Factor history rows; integrity and foreign-key checks passed. Eight isolated Backtesting result files total about 200 MB. Recorded deferred `BUG-20260716-010` / `KI-0013` for duplicate canonical identifiers, duplicate invariant numbering and stale Git-state verification metadata discovered during the audit.
+
+### Files changed
+- Appended: `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- Modified current-issue summary: `KNOWN_ISSUES.md`.
+- No source, test, schema, runtime-data, proposal, Compass or architecture file was changed.
+
+### Validation
+`python -m pytest tests/unit/factors/test_sqlite_factor_store.py tests/integration/test_analysis_decision_pipeline.py tests/unit/algorithm_control/test_preview_and_controller.py tests/unit/backtesting/test_contracts.py tests/architecture -q` passed 54/54. SQLite read-only `PRAGMA integrity_check` returned `ok`; `PRAGMA foreign_key_check` returned no rows. Git evidence before the record change was clean at `5a32cf6`, matching `origin/main`.
+
+### Safety, rollback and Compass audit
+No network, broker, account, credential, order, Paper/Live submission, automatic activation or data mutation was used. Roll back only the three appended issue/audit records if their evidence is disproved; do not rewrite earlier log history. Intent alignment: the inventory preserves the user's observability goal and existing implementation. Architecture alignment: it recommends extending the existing central persistence and owner modules rather than creating parallel authorities. Safety alignment: Live and automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: none affecting financial meaning. Compass sections updated: none; the detected canonical-document defect is logged for a separately reviewed correction. Remaining drift risk: the proposed unified run contract and schema migration still require a formal approved proposal before implementation.
+
+## EDIT-20260716-005 — Unified Algorithm Run History phase one
+
+### Approval, task mode and scope
+The user explicitly approved fixing `BUG-20260716-010`, creating `PROPOSAL-009`, and implementing observability phase one: a new neutral `run_history` module, central SQLite schema v1→v2 migration, durable Factor/Decision/Risk preview evidence, and the minimum Run History Explorer. Task mode: **DEEP**. Primary modules: `run_history` and central persistence. Secondary modules: Factor, Decision, Risk, local preview orchestration, Algorithm Control GUI and Main Launcher. Explicit exclusions were preserved: no new trading formula, numerical Risk limit, Portfolio Accounting persistence, Paper capability, Live capability, broker access or order submission. Expected blast radius: **SYSTEM_WIDE** because this adds a schema migration and a cross-module correlation contract, while runtime trading authority remains unchanged.
+
+### Implemented behavior and contracts
+- Added immutable, typed `AlgorithmRun`, stage, version binding, message, query and detail contracts. The service supports validated start/terminal lifecycle transitions, child/parent correlation, exact definition/configuration bindings, warning/error preservation and software/worktree identity. The only phase-one execution mode is `NO_EXECUTION`.
+- Added append-oriented SQLite repositories for run history and Decision/Risk evidence. Existing Factor snapshots gained optional top-level Run/stage correlation. Pipeline preview now records Market Data → Factor → Decision → Risk under one `FULL_PIPELINE_PREVIEW` Run ID; individual Factor and Decision previews use their corresponding run types. Failures and invalid evidence remain reloadable after restart.
+- Added schema v2 migration with mandatory pre-migration backup, transactional DDL/data validation, row-count preservation checks, foreign-key validation and integrity validation. Historical result rows are not overwritten. Added the Run History Explorer as an Algorithm Control presentation page using only the typed query contract; added a trusted Main Launcher shortcut and automatic opening of the completed preview Run.
+- Created approved `PROPOSAL-009` and `ADR-0016`. Fixed `BUG-20260716-010` by assigning distinct canonical intent IDs to Main Launcher (`INTENT-019`) and Run History (`INTENT-020`), restoring monotonic architecture-invariant numbering and correcting current verification metadata. Added governance regression tests to prevent recurrence.
+
+### Central database migration evidence
+The authorized central database `runtime/data/market_history.sqlite3` was migrated from schema v1 to v2. The required backup is `runtime/data/backups/market_history.schema-v1-to-v2.20260716T221625973960Z.sqlite3`. Before/after preserved 215,340 Market Bars and 365 fetch audit rows. The migrated database reports schema version 2, zero foreign-key violations and `PRAGMA integrity_check = ok`; the backup remains schema version 1 with the same counts and integrity result. Runtime database files remain Git-ignored.
+
+### Files changed
+- Governance and project records: `PROJECT_COMPASS.md`, `CHANGELOG.md`, `KNOWN_ISSUES.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`, `docs/INDEX.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/proposals/README.md`, `docs/proposals/PROPOSAL-009-unified-algorithm-run-history.md`, `docs/decisions/README.md`, `docs/decisions/ADR-0016-unified-algorithm-run-history.md`.
+- Architecture and module documents: `docs/architecture/OVERVIEW.md`, `docs/architecture/DEPENDENCY_RULES.md`, `docs/architecture/MODULE_MAP.md`, `docs/modules/README.md`, `docs/modules/run-history.md`, `docs/modules/central-persistence.md`, `docs/modules/algorithm-control-gui.md`, `docs/modules/analysis-decision-pipeline.md`, `docs/modules/factor-authoring.md`, `docs/modules/factors.md`, `docs/modules/trading-decision.md`, `docs/modules/risk-control.md`, `docs/modules/main-launcher.md`, `docs/modules/market-history.md`.
+- Run History and persistence source: `src/quant_trading/run_history/__init__.py`, `src/quant_trading/run_history/models.py`, `src/quant_trading/run_history/interfaces.py`, `src/quant_trading/run_history/service.py`, `src/quant_trading/run_history/identity.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/persistence/sqlite_database.py`, `src/quant_trading/persistence/factor_sqlite_store.py`, `src/quant_trading/persistence/run_sqlite_store.py`, `src/quant_trading/persistence/algorithm_result_sqlite_store.py`.
+- Domain/orchestration source: `src/quant_trading/factors/interfaces.py`, `src/quant_trading/factors/storage_models.py`, `src/quant_trading/decision/__init__.py`, `src/quant_trading/decision/interfaces.py`, `src/quant_trading/risk/__init__.py`, `src/quant_trading/risk/interfaces.py`, `src/quant_trading/orchestration/factor_preview.py`, `src/quant_trading/orchestration/algorithm_dry_run.py`, `src/quant_trading/orchestration/algorithm_preview_composition.py`.
+- GUI/launcher source: `src/quant_trading/algorithm_control/app.py`, `src/quant_trading/algorithm_control/models.py`, `src/quant_trading/algorithm_control/ui/main_panel.py`, `src/quant_trading/algorithm_control/ui/run_history_panel.py`, `src/quant_trading/launcher/app.py`.
+- Tests: `tests/unit/run_history/test_sqlite_run_history.py`, `tests/unit/algorithm_control/test_run_history_panel.py`, `tests/unit/algorithm_control/test_factor_preview_workbench.py`, `tests/unit/algorithm_control/test_parameter_editor.py`, `tests/architecture/test_run_history_boundaries.py`, `tests/architecture/test_governance_document_integrity.py`, `tests/architecture/test_dependency_boundaries.py`.
+
+### Change Impact Report
+- Public contracts: additive Run History domain/query/repository contracts plus additive Decision/Risk result-store protocols and optional Factor run correlation; no existing trading contract was removed or reinterpreted.
+- Configuration: no user configuration format or default changed. Database: central schema v2 and its tested v1→v2 migration. GUI: one Algorithm Control page and one trusted Launcher shortcut. Permissions: no new credential, account, network or execution authority. Trading semantics and safety: existing Factor/Decision/Risk calculations are preserved; Risk still cannot enlarge or reverse an intent; all new tracked runs are `NO_EXECUTION`; `execution.paper` and `execution.live` remain empty and disabled.
+- Migration rollback: stop writers, preserve a copy of the v2 database, restore the named schema-v1 backup, and revert the phase-one source/document changes. A code-only downgrade against the v2 file is not supported. No automated destructive downgrade was added.
+
+### Validation and bug discovery audit
+- Complete test suite: **312 passed, 0 failed, 0 skipped**, with one existing upstream `websockets.legacy` deprecation warning, in 35.04 seconds.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only Git's existing LF→CRLF working-copy notices.
+- Fixed bug: `BUG-20260716-010`; `KI-0013` is resolved and the append-only Bug Log has a dated resolution update. No new confirmed or deferred bug was discovered in the final implementation audit. Existing unrelated known issues remain unchanged.
+
+### Compass audit
+Intent alignment: phase one implements the approved observability foundation and exact persistence/restart acceptance path without entering later financial phases. Architecture alignment: `run_history` owns neutral lifecycle/correlation contracts, persistence owns SQLite, Factor/Decision/Risk retain their result semantics, orchestration composes the pipeline, and GUI reads a typed query service without SQL or algorithm logic. Safety alignment: only `NO_EXECUTION` records are accepted, existing Risk authority is preserved, and no Paper/Live/order path was added. Unapproved behavior added: none. Assumptions introduced: `ASM-016` records append-oriented phase-one history, keeps Backtesting's existing JSON store independent, and makes tracked preview Factor evidence durable so Decision/Risk references remain reproducible. Compass sections updated: version/evidence metadata, current phase, verified capabilities, approved behavior, assumptions, Active Intents and implementation direction; Stable Core is unchanged. Remaining drift risk: recomputation replay, retention/archival automation, export, full historical time-series analysis, Portfolio Accounting persistence and later strategy phases remain explicitly unimplemented; physical display QA beyond automated offscreen/controller coverage remains a manual follow-up. Suggested commit message: `feat: add unified algorithm run history phase one`.
+
+## EDIT-20260716-006 — Phase 2A admission proposal
+
+### Scope and finding
+In response to the user's request to continue development, performed the required DEEP admission review for the next roadmap step. Existing PROPOSAL-009/Schema v2 already provide per-Run Factor/Decision/Risk evidence and a read-only Run History Explorer. Basic Factor snapshot queries exist but do not expose one searchable successful/invalid/failed history view or exact-version comparison GUI. Current restricted Decision policies evaluate condition booleans at runtime, but neither `DecisionResult` nor Schema v2 preserves condition input/operator/threshold/outcome or exact sizing input values. Therefore a truthful Decision Inspector cannot be completed as a GUI-only change.
+
+### Proposed resolution and approval boundary
+Created `PROPOSAL-010` as a compatible Phase 2A extension of existing owners, not a replacement or parallel history system. It proposes typed Factor-history queries, exact-version tabular comparison, durable Decision condition/sizing traces, two read-only Algorithm Control history subpanels with Open Run, and additive central SQLite v2→v3 migration. It explicitly preserves isolated Backtesting JSON journals and defers chart overlay/export, Target Position, formulas, numerical Risk, accounting persistence, Paper and Live. Conflict result: `REQUIRES_MIGRATION`; blast radius: `SYSTEM_WIDE`. Explicit user approval is required before implementation.
+
+### Files and validation
+- Added: `docs/proposals/PROPOSAL-010-factor-history-and-decision-trace.md`.
+- Modified: `docs/proposals/README.md`, `logs/EDIT_LOG.md`.
+- No source, test, configuration, database, GUI, runtime data, financial meaning or execution authority changed. No bug was found or fixed.
+- Rollback: remove the proposed document/index entry and this appended record only if the proposal is rejected; do not alter Phase 1 implementation or history.
+
+### Compass audit
+Intent alignment: converts “continue development” into the smallest auditable next-phase proposal while preserving the user's observability roadmap. Architecture alignment: extends Factor/Decision/Run History/persistence owners and rejects GUI reconstruction or a second store. Safety alignment: no implementation, migration, algorithm activation, Risk value, account/order path, Paper or Live behavior occurred. Unapproved behavior added: none. Assumptions introduced: the recommended next step is Phase 2A, with Target Position deferred until its financial semantics are explicitly approved. Compass sections updated: none because the proposal remains pending. Remaining drift risk: implementation must not start until the user approves the recorded schema/public-contract scope and deferrals.
+
+## EDIT-20260716-007 — Factor history and Decision trace Phase 2A
+
+### Approval, task mode and scope
+The user explicitly approved `PROPOSAL-010`. This **DEEP** implementation extends the approved Phase 1 Run History instead of creating a parallel evidence system. Primary modules: Factor, Decision and central persistence. Secondary modules: Run History correlation, local preview orchestration and Algorithm Control presentation. Blast radius: **SYSTEM_WIDE** because the central schema and public immutable result contracts changed additively. Explicit exclusions were preserved: no Target Position, Factor/price chart/export, new formula/action/threshold, numerical Risk, Portfolio Accounting persistence, Backtesting JSON migration, account/order behavior, Paper or Live.
+
+### Implemented contracts and behavior
+- Added typed immutable Factor research contracts for bounded history filters and exact-version comparison. Successful, invalid and failed calculation attempts remain distinguishable; failed attempts do not fabricate snapshots or values, and comparison reports missing evidence without ranking versions.
+- Added immutable Decision condition traces and exact sizing-input traces. The restricted policy captures input value/status/unit, operator, threshold, result and evaluation order at calculation time. Engine-blocked inputs are `NOT_EVALUATED`; legacy rows remain `TRACE_NOT_CAPTURED`. Existing sizing formulas and the public `evaluate_sizing()` behavior are unchanged.
+- Added public Factor/Decision query-service ports and one SQLite infrastructure adapter. Persistence owns SQL; Factor/Decision own semantic records; Run History owns cross-run navigation; GUI consumes only injected typed read services and never reconstructs missing evidence.
+- Added read-only `历史与比较` and `历史与计算明细` subtabs to the existing Factor and Decision pages. They support documented filters, detail display, exact-version comparison and `Open Run`. No new standalone GUI or Launcher shortcut was needed because the existing trusted Factor/Decision entries open these owner pages.
+
+### Schema migration and runtime evidence
+Central SQLite advanced additively from v2 to v3. Schema v3 adds `decision_results.trace_status`, normalized `decision_condition_results` and `trade_intent_sizing_inputs` tables, and bounded research-query indexes. The authorized migration created `runtime/data/backups/market_history.schema-v2-to-v3.20260716T231050870979Z.sqlite3`. The active database is Schema 3; the backup remains Schema 2. Both preserve 215,340 Market Bars and 365 Fetch History rows and return `integrity_check=ok`; the active database has zero foreign-key violations. Existing Factor/Run/Decision tables were preserved; the active database currently has no historical algorithm rows requiring trace backfill.
+
+Rollback requires stopping writers, preserving the v3 database, restoring the named v2 backup and reverting Phase 2A code/contracts. A code-only downgrade against Schema v3 is unsupported. Never drop or overwrite v3-only trace evidence.
+
+### Files changed
+- Domain/source: `src/quant_trading/factors/history.py`, Factor exports/interfaces; `src/quant_trading/decision/history.py`, Decision exports/interfaces/models/engine/rule policy/sizing; persistence exports/database/result store/research query/Run detail adapter; Algorithm Control app, Factor/Decision authoring panels and the new history panels.
+- Tests: new research-history repository/migration/reload tests and Factor/Decision history-panel tests; updated Decision sizing/engine, dry-run, architecture and governance regressions.
+- Governance/design: `PROPOSAL-010`, ADR-0017, Compass, canonical architecture/dependency/module map, Project State/Roadmap/Changelog/indexes, affected Factor/Decision/Run History/persistence/orchestration/GUI/Launcher/Market/Risk module docs, Bug Log and Edit Log.
+- Configuration, dependencies, Algorithm Control JSON formats, Backtesting JSON results, Portfolio Accounting, Execution packages and launcher catalog were not changed by Phase 2A.
+
+### Validation and bug discovery audit
+- Complete suite: **320 passed, 0 failed, 0 skipped**, with one existing upstream `websockets.legacy` deprecation warning, in 31.39 seconds.
+- Final targeted governance/research-history/GUI suite: 10 passed. Broader governance/Run History/dependency suite: 22 passed.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing LF→CRLF working-copy notices.
+- Confirmed and fixed `BUG-20260716-011`: Compass B6 denied the verified isolated research Backtesting capability. The correction distinguishes research simulation from absent production strategy/execution and has a governance regression test. It was resolved in the same task and was not added to `KNOWN_ISSUES.md`.
+- No other confirmed, deferred or cannot-reproduce bug was discovered. No network, account, credential, broker, order, Paper or Live path was used.
+
+### Change Impact Report
+- Public contracts: additive Factor/Decision history/query records and backward-compatible Decision/TradeIntent trace fields. Configuration: unchanged. Database: additive central v2→v3 migration. GUI: two owner-page read-only subtabs. Tests/docs: expanded as listed. Permissions/trading semantics/safety defaults: unchanged; every recorded preview remains `NO_EXECUTION`, Risk cannot enlarge/reverse an intent, automatic submission remains disabled and Live remains disabled.
+- Backtesting remains an isolated JSON research owner. Portfolio Accounting remains in memory. No Target Position or account/position financial meaning was introduced.
+
+### Compass audit
+Intent alignment: implements the approved Phase 2A research-inspection slice and its restart/audit goals while preserving every deferral. Architecture alignment: Factor/Decision own semantic contracts, persistence owns Schema v3/SQL, Run History owns navigation, orchestration forwards immutable results, and GUI uses typed query ports without calculation. Safety alignment: no trading authority, numerical Risk value, account mutation or Execution path was added; Paper/Live remain empty and disabled. Unapproved behavior added: none. Assumptions introduced: `ASM-017` records that historical Decision causality is truthful only when captured at evaluation time; legacy absence stays explicit. Compass sections updated: evolving phase/evidence, capabilities, architecture summary, approved boundary, assumption, `INTENT-021`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: charts/export, Target Position, recomputation replay, retention, full Backtesting integration and accounting persistence still require separate approval, and physical GUI display QA remains partly manual. Suggested commit message: `feat: add factor history and decision trace phase 2a`.
+
+## EDIT-20260716-008 — Phase 2B visualization/export admission proposal
+
+### Scope and existing-work reminder
+In response to the user's request to continue development, performed a **DEEP proposal-only** admission review. Phase 2A already owns typed Factor history/version comparison and Schema v3; Market History already has a verified Plotly/QWebEngine renderer, but that renderer is private to its page. The recommended reuse path is therefore to extend the existing Factor research query, join only the exact persisted source Bar, and extract a neutral shared renderer rather than create another history database, import a private UI class or duplicate browser lifecycle code.
+
+### Proposed resolution and approval boundary
+Created `PROPOSAL-011` for Phase 2B exact-version Factor/source-price visualization and bounded CSV/JSON export. The proposed chart requires exact symbol/Factor/version/timeframe/adjustment/feed, joins only `MarketBar.timestamp_utc == FactorHistoryRecord.source_data_end_utc`, uses a separately labeled selected price field, converts Decimal to browser Number only for display, never interpolates/resamples/normalizes/ranks, and keeps invalid/failed/missing evidence visible. Export operates only on the current typed bounded result set, writes atomically to an explicitly selected path and requires confirmation before overwrite.
+
+The proposal also requests approval for a new presentation-only `quant_trading.visualization` module containing public `PlotlyFigureView`. Market History would reuse it without changing its chart builder; Algorithm Control would provide its own Factor figure builder. Conflict result: `REQUIRES_ADAPTER`; blast radius: `MULTI_MODULE`. No Schema v4, data migration, Market Data download, recomputation, Target Position, Decision timeline, numerical Risk, accounting, Backtesting integration, Paper or Live is proposed.
+
+### Bug discovery and files
+- Confirmed and fixed `BUG-20260716-012`: the Proposal index still described central Factor-history implementation as wholly inactive, contradicting verified local `NO_EXECUTION` persistence from PROPOSAL-009/010. The corrected summary separates active local evidence from unapproved production activation and has a governance regression test.
+- Added: `docs/proposals/PROPOSAL-011-factor-research-visualization-and-export.md`.
+- Modified: `docs/proposals/README.md`, `tests/architecture/test_governance_document_integrity.py`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- No runtime source, public contract, dependency, configuration, SQLite schema/data, GUI behavior, Factor/Decision/Risk calculation, account, order or execution capability changed.
+
+### Validation and rollback
+Focused governance tests passed 5/5. `git diff --check` passed with only existing LF→CRLF working-copy notices. The last complete implementation suite remains the truthful Phase 2A result of 320 passed with one upstream warning; no new runtime implementation required rerunning it in this proposal-only step. Roll back this admission by removing PROPOSAL-011 and its index entry plus this Edit Log record if rejected; retain the factual BUG-20260716-012 correction and append-only Bug history.
+
+### Compass audit
+Intent alignment: converts a generic continuation request into the smallest coherent next visualization proposal while preserving the user's observability direction. Architecture alignment: reuses Phase 2A/Schema v3, keeps SQL in persistence, Factor semantics in Factor, GUI presentation in Algorithm Control, and proposes a neutral renderer instead of a private cross-module import. Safety alignment: no implementation or runtime/data mutation occurred; proposed behavior is local read-only evidence plus explicit export files and remains `NO_EXECUTION`. Unapproved behavior added: none. Assumptions introduced: the recommended price overlay is the exact final source Bar and selected stored field, never nearest/filled/resampled data; this remains a proposal pending user approval. Compass sections updated: none because project behavior has not changed. Remaining drift risk: implementation must not begin until approval of the new module/public contract/file-write behavior; Target Position and all financial/execution phases remain separately unapproved.
+
+## EDIT-20260716-009 — Exact Factor research visualization and export Phase 2B
+
+### Approval, task mode and scope
+The user explicitly approved `PROPOSAL-011`. This **DEEP** implementation adds the approved Phase 2B read-only research surface over existing Phase 2A/Schema v3 evidence. Primary modules: Factor public research contracts and Algorithm Control presentation/export. Secondary modules: central Persistence exact read adapter, Market History presentation and the new business-neutral `quant_trading.visualization` renderer. Blast radius: **MULTI_MODULE**. Explicit exclusions were preserved: no Schema migration/backfill, new Factor/Decision formula, Target Position, Decision export/timeline, numerical Risk, Backtesting integration, Portfolio Accounting persistence, account/order behavior, Paper or Live.
+
+### Implemented contracts and behavior
+- Added immutable `FactorVisualizationQuery`/Point/Series contracts and `FactorVisualizationQueryService`. One query requires exact symbol, Factor name/version, UTC range, timeframe, adjustment, feed and stored `PriceField`. Source evidence distinguishes `AVAILABLE`, `NO_SOURCE_WINDOW`, `MISSING_SOURCE_BAR` and `MISSING_PRICE_FIELD`.
+- `SQLiteResearchHistoryQueryService` reuses bounded Factor history and performs one parameterized Market Bar lookup. A price is attached only when `timestamp_utc == source_data_end_utc` and symbol/timeframe/adjustment/feed all match. Nearby/wrong-dimension Bars are ignored; no fill, interpolation, resampling, normalization, ranking or recomputation exists. Central SQLite remains Schema v3 and Phase 2B performed no runtime database write.
+- Added a Factor-owned presentation adapter with separately labeled Factor/price axes and a status track. Only successful `VALID` numeric Factor values become line points; invalid/failed/missing or valid non-numeric evidence stays a gap with typed value, Factor/calculation/source status plus Run/Calculation IDs in hover details. Boolean/string values are not coerced.
+- Added deterministic `FactorHistoryExportService`: JSON/CSV preserve typed values, Decimal strings, UTC times, IDs, dimensions, parameters, quality/error/status and optional exact source-price evidence. It exports only already queried records, uses same-directory atomic create/replace, refuses mismatched records, requires explicit overwrite, and does not query or mutate SQLite.
+- Added exact dimension/price controls, chart and export actions to the existing Factor History subpanel. GUI combo values are normalized back to exact enum contracts. `Open Run` and tabular comparison remain unchanged; no new Launcher application or shortcut was needed.
+- Extracted Market History's private offline Plotly/WebEngine lifecycle into public presentation-only `PlotlyFigureView`. Market History retains its Bar chart builder and behavior; Algorithm Control supplies its separate Factor chart builder.
+
+### Files changed
+- New source: `src/quant_trading/visualization/`, `src/quant_trading/algorithm_control/factor_history_chart.py`, `src/quant_trading/algorithm_control/factor_history_export.py`.
+- Updated source: Factor history/interfaces/exports; Persistence research query; Algorithm Control app/main/Factor management/history panels; Market History history panel.
+- Tests: new Factor visualization contracts, Factor chart/export tests and exact persistence join coverage; updated research GUI, Market History renderer and architecture/governance boundaries.
+- Governance/design: implemented PROPOSAL-011, ADR-0018, new visualization module document, Compass v23, canonical architecture v19, dependency/module maps, Project State/Roadmap/Changelog/indexes, affected Factor/Persistence/Algorithm Control/Market History/Launcher docs, Bug Log and this Edit Log entry.
+- Unchanged: dependency versions, configuration formats/defaults, central Schema/data, Decision/Risk calculations, Backtesting JSON, Portfolio Accounting, launcher catalog and all Execution packages.
+
+### Validation and bug discovery audit
+- Complete suite: **332 passed, 0 failed, 0 skipped**, with one existing upstream `websockets.legacy` deprecation warning.
+- Focused architecture/research/GUI suite passed 64 tests; export regression suite passed 4 tests.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF working-copy notices.
+- Confirmed and fixed `BUG-20260716-013`: PySide6 may return `StrEnum` combo data as plain strings; the GUI now reconstructs exact enum types before every history/comparison/visualization query.
+- Confirmed and fixed `BUG-20260716-014`: create-only export no longer has a replace race; final hard-link creation fails atomically if another writer occupies the target. Confirmed and fixed `BUG-20260716-015`: valid non-numeric Factor results now remain uncoerced gaps with typed hover evidence and a distinct status color. All fixes have regression tests. No deferred or cannot-reproduce bug was introduced, and no new current Known Issue was created.
+
+### Change Impact Report
+- Public contracts: additive Factor visualization query/series/status Protocol; no existing contract removed. Configuration: unchanged. Database: read-only exact join over existing Schema v3; no migration/backfill/table/index. GUI: existing Factor owner subpanel only, plus source-compatible renderer extraction. Permissions: explicit local export-file write only; no credential/network/account/order access. Trading semantics/safety: no calculation or recommendation changed; every source gap remains explicit; Risk authority, `NO_EXECUTION`, automatic-submission disabled and Live disabled remain unchanged.
+- Rollback: remove Factor chart/export controls/adapters and visualization query contracts, restore the previous private Market History renderer if the shared view regresses, and retain Schema v3/history unchanged. User-created export copies are not automatically deleted. No database downgrade is required.
+
+### Compass audit
+Intent alignment: implements the explicitly approved smallest Phase 2B observability slice—understand one exact Factor version relative to its actual persisted source price and export bounded evidence—while preserving every deferral. Architecture alignment: Factor owns evidence meaning, Persistence owns parameterized SQL, Algorithm Control owns Factor-specific presentation/export, and `visualization` owns rendering mechanics only; Market History reuses the public renderer without surrendering chart meaning. Safety alignment: exact identity and explicit gaps prevent invented market evidence; no Factor/Decision/Risk formula, account, order, Paper/Live path or trading authority was added. Unapproved behavior added: none. Assumptions introduced: `ASM-018` records the user-approved exact final source-Bar rule. Compass sections updated: evolving phase/evidence, capability/architecture summary, approved boundary, assumption, `INTENT-022`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: physical-display QA remains partly manual, and cross-version charts/ranking, Decision export, Target Position, recomputation replay, retention, numerical Risk, full Backtesting integration and accounting persistence still require separate approval. Suggested commit message: `feat: add exact factor visualization and export phase 2b`.
+
+## EDIT-20260716-010 — End-of-session development checkpoint
+
+### Recorded state
+At the user's request, recorded a documentation-only checkpoint after the Phase 1–2B consistency audit. PROPOSAL-009/010/011 remain the complete approved observability scope: unified durable Run History, Factor/Decision research traces, exact Factor/source-price visualization and bounded Factor export. Central SQLite remains Schema v3, all tracked runs remain `NO_EXECUTION`, and Paper/Live remain empty and disabled.
+
+The checkpoint explicitly separates completed work from later roadmap stages. Recalculation replay, capital buckets/conservation, asset state machines, Target Position, numerical Risk, full Backtesting integration and Portfolio Accounting persistence remain unimplemented and require separate proposals and approval. The current combined Phase 1–2B changes remain in the uncommitted worktree; no Git stage, commit or branch operation was performed.
+
+### Validation and audit
+- Re-ran 31 governance, dependency, Run History, Algorithm Control and Execution-boundary tests: all passed.
+- Re-ran 21 Run persistence, research query, Factor visualization/export and GUI tests: all passed.
+- No source, configuration, database, financial semantics or runtime behavior changed. No new Bug was found; existing KI-0005/KI-0006 are unrelated.
+- Files changed: `docs/project/PROJECT_STATE.md`, `logs/EDIT_LOG.md`.
+
+### Compass audit
+Intent alignment: records the truthful current state and preserves the approved staged-development sequence. Architecture alignment: documentation only; no module boundary or public contract changed. Safety alignment: no account, order, Paper/Live or execution authority was added. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: none; Stable Core and Evolving Project State already describe the implemented scope. Remaining drift risk: the uncommitted multi-phase worktree should receive a reviewed checkpoint before a separately approved next phase; physical GUI QA and DEC-005/DEC-006 remain open.
+
+## EDIT-20260720-001 — Phase 3A capital-allocation admission proposal
+
+### Scope and existing-work reminder
+In response to the user's request to continue development, performed a **DEEP proposal-only** admission review from the Phase 1–2B checkpoint. Existing `portfolio_accounting` already owns factual Ledger-derived cash and positions but remains an in-memory scaffold; Run History and central Schema v3 already own durable local research evidence. A new capital feature must therefore model internal planning earmarks without becoming a second factual cash authority, and it must reuse the central Run/persistence/query boundaries.
+
+### Proposed resolution and approval boundary
+Created `PROPOSAL-012` for the smallest Phase 3A foundation: a disabled research-only `quant_trading.capital_allocation` domain, explicit user-entered USD research cash basis, exact locked/tactical/asset-cash leaf buckets, zero-tolerance Decimal conservation, append-only asset-to-asset transfers, immutable snapshots, `NO_EXECUTION` allocation Runs, central SQLite v3→v4 migration and one Algorithm Control owner page with a trusted Launcher shortcut.
+
+The proposal explicitly distinguishes allocation transfers from Ledger `CashMovement` and forbids Accounting mutation, Decision/Risk/Backtesting consumption, reserve lending, sector cash ownership, dynamic weights, holdings/Target Position, numerical Risk, broker/order access, Paper and Live. The recommended split defers sector hierarchy because counting both parent sector pools and child asset cash can duplicate money, and defers tactical transfers because loan/repayment semantics belong to the later tactical-reserve phase.
+
+### Change Impact Report and approval status
+- Conflict result: `REQUIRES_MIGRATION`; blast radius: `MULTI_MODULE`.
+- Proposed primary module: new `capital_allocation`; secondary modules: Run History, Persistence, Algorithm Control and Launcher.
+- Proposed public/data changes: additive capital contracts, `ALLOCATION_REBALANCE`/`ALLOCATION` Run enum values and central Schema v4 tables with verified v3 backup/rollback.
+- No source, public contract, configuration, database, GUI runtime, financial state, account, order or Execution behavior changed in this proposal-only task.
+- Explicit user approval is required before implementation because this introduces a new module, financial interpretation, public contracts, migration and GUI page.
+
+### Validation, bug audit and rollback
+The proposal and index will be checked by the governance suite and `git diff --check`. No new Bug was discovered; the existing uncommitted Phase 1–2B worktree was preserved. Roll back this admission by removing PROPOSAL-012 and its index entry plus this append-only record if the proposal is rejected; no database or runtime rollback is needed because implementation has not started.
+
+### Compass audit
+Intent alignment: advances the user's staged observability-first roadmap with the smallest conserved capital foundation instead of inventing dynamic allocation. Architecture alignment: factual cash remains in Portfolio Accounting, planning semantics receive one proposed owner, Run History remains neutral, Persistence owns SQL and GUI remains a client of typed services. Safety alignment: proposed plans are explicit research inputs, protected reserves cannot be transferred, all Runs are `NO_EXECUTION`, and no Decision/Risk/order authority is added. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the proposed interpretation remains pending user approval. Compass sections updated: none because project behavior has not changed. Remaining drift risk: implementing before approval would create a second cash meaning and an unauthorized Schema/public-contract change; sector, tactical-loan, target-position and accounting semantics remain separately unresolved.
+
+## EDIT-20260720-002 — Research Capital Allocation and conservation Phase 3A
+
+### Approval, task mode and scope
+The user explicitly approved `PROPOSAL-012`. This **DEEP** implementation adds a new public research-planning domain, two neutral Run enum values, central SQLite v3→v4 migration, one Algorithm Control owner page and one trusted Launcher shortcut. Primary module: `quant_trading.capital_allocation`. Secondary modules: Run History, Persistence, Algorithm Control and Launcher. Blast radius: **MULTI_MODULE** with a database migration. Explicit exclusions were preserved: no new trading formula, sector pool, dynamic weight, reserve borrowing/repayment, holdings/Target Position, state machine, numerical Risk, Backtesting consumer, Portfolio Accounting persistence/mutation, broker/account/order access, Paper or Live.
+
+### Implemented contracts and behavior
+- Added immutable schema-v1 `CapitalPlan`, bucket, transfer, snapshot, conservation, operation-attempt and typed list/detail/transfer-history contracts. A plan accepts only an explicit user-entered USD `RESEARCH_INPUT`, exactly one `LOCKED_RESERVE`, exactly one `TACTICAL_RESERVE` and zero or more symbol-unique `ASSET_CASH` buckets. All amounts are finite exact `Decimal`; no float, tolerance, inferred cash, ratio, symbol universe or Active plan exists.
+- Added `CapitalAllocationService` and public Store/query Protocols. Initial totals must match exactly. Both reserve buckets are protected in Phase 3A; the only accepted movement is a positive, non-overdrawing, different-source/destination `ASSET_CASH → ASSET_CASH` transfer. Accepted events and snapshots are immutable; duplicate transfer identity has no second effect; invalid/failed attempts remain durable without creating capital facts.
+- Added `ALLOCATION_REBALANCE` and `ALLOCATION` to neutral Run History. Every plan/transfer attempt produces one terminal `NO_EXECUTION` Run with Session/Request/software identity, plan/version binding, structured error evidence and capital snapshot artifacts. Run History remains a neutral read/navigation owner and never replays a transfer.
+- Added central SQLite Schema v4 and `SQLiteCapitalAllocationStore`. Normalized plans/buckets/transfers/snapshots/balances/operations/raw-input rows use Decimal text, UTC and foreign keys. Plan creation/transfer append are transactional with predecessor concurrency, complete bucket-set, protected metadata, cash-basis and exact source/destination delta validation. No existing table or record is overwritten or backfilled.
+- Added the Algorithm Control `Capital Allocation` page and the thirteenth trusted Launcher shortcut. The page creates explicit plans, filters/reloads history, shows exact conservation/current buckets, submits only asset-to-asset transfers, displays exact source/destination before/after balances and operation errors, and opens the related Run. GUI code contains no Decimal calculation, SQL, Accounting mutation or downstream consumer.
+
+### Central database migration evidence
+The authorized central database `runtime/data/market_history.sqlite3` was migrated from Schema v3 to v4. The verified backup is `runtime/data/backups/market_history.schema-v3-to-v4.20260720T184502106636Z.sqlite3`. Before and after counts are 215,340 `market_bars`, 365 `fetch_history`, and zero pre-existing Algorithm/Factor/Decision/Risk records. Both backup and migrated database return `PRAGMA integrity_check = ok` and zero foreign-key violations. The active database reports Schema 4; every new capital table contains zero rows, proving the migration did not fabricate a default plan or amount. Runtime database/backup files remain Git-ignored.
+
+Rollback requires stopping writers, preserving the v4 file, restoring the named verified v3 backup and reverting the Phase 3A code together. A code-only downgrade against Schema v4 is unsupported, and v4 evidence must never be silently deleted or reinterpreted.
+
+### Files changed
+- New domain/source: `src/quant_trading/capital_allocation/__init__.py`, `errors.py`, `interfaces.py`, `models.py`, `service.py`.
+- Persistence/Run source: `src/quant_trading/persistence/capital_allocation_sqlite_store.py`, persistence exports/schema/Run detail adapter, Run History enum models, centralized error codes.
+- GUI/Launcher source: new `src/quant_trading/algorithm_control/ui/capital_allocation_panel.py`; Algorithm Control composition/main panel/Run History notice; Launcher catalog.
+- Tests: new Capital domain/SQLite/migration/GUI/architecture suites; updated Run migration expectations, Algorithm Control page catalog, Launcher catalog and governance verification metadata.
+- Governance/design: implemented PROPOSAL-012, ADR-0019, new Capital Allocation module document, Compass v24, canonical architecture v20, dependency/module maps, Project State/Roadmap/Changelog/indexes, affected Persistence/Run/Algorithm Control/Launcher/Portfolio/Decision/Risk docs, Bug Log and this Edit Log record.
+- Unchanged by Phase 3A: configuration files/defaults, dependencies, Market/Factor/Decision/Risk calculation semantics, Backtesting JSON and services, Portfolio Accounting source/persistence, and all Execution package contents.
+
+### Validation and bug discovery audit
+- Complete suite: **349 passed, 0 failed**, with one existing upstream `websockets.legacy` deprecation warning, in 50.60 seconds.
+- Architecture/governance suite: **39 passed**. Focused Capital domain/SQLite/GUI tests passed; temporary v3→v4 backup, migration-failure rollback, restart reload, durable invalid evidence and Open Run were exercised.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF notices.
+- Confirmed and fixed `BUG-20260720-001`: the public SQLite Store now rejects a total-conserved snapshot that omits/mismatches plan buckets and rechecks every transfer delta inside its transaction. Regression coverage proves no partial plan/snapshot is committed. No deferred or cannot-reproduce bug was introduced and no current Known Issue was added.
+
+### Change Impact Report
+- Public contracts: additive Capital Allocation commands/models/views/Store/query interfaces and additive Run enum values; no existing trading contract removed or reinterpreted. Configuration/dependencies: unchanged. Database: additive central v3→v4 migration with verified backup/rollback. GUI: one owner page and one static shortcut. Permissions: local research SQLite writes only; no network, credential, account, broker or order authority. Trading semantics: none; plans are manual planning evidence and have no consumer. Safety: exact conservation, protected reserves, complete immutable snapshots, fail-closed attempts and `NO_EXECUTION`; Paper/Live remain empty and automatic submission/Live remain disabled.
+
+### Compass audit
+Intent alignment: implements the approved smallest Phase 3A foundation so stock-specific research cash can be observed, conserved, reloaded and audited before any target-position or allocation algorithm exists. Architecture alignment: Capital Allocation owns planning meaning, Portfolio Accounting remains the sole factual Ledger-derived owner, Run History owns lifecycle, Persistence owns SQL and Algorithm Control delegates through typed services; dependency tests prove there is no downstream consumer or cycle. Safety alignment: explicit research input cannot claim broker/account cash, reserves cannot move, accepted transfers are exact zero-sum, and every Run is `NO_EXECUTION`; no account/order/Paper/Live behavior was added. Unapproved behavior added: none. Assumptions introduced: `ASM-019` records the user-approved planning-versus-factual cash distinction. Compass sections updated: version/current phase/evidence, product capability, architecture, approval, non-capabilities, assumption, `INTENT-023`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: multiple plans are inactive comparison records only; sector/dynamic allocation, reserve borrowing, Accounting adapter, holdings/state/Target Position, numerical Risk and Backtesting integration still require separate approval. Suggested commit message: `feat: add conserved research capital allocation phase 3a`.
+
+## EDIT-20260720-003 — Phase 4A asset-state/cycle admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after Phase 3A, performed a **DEEP proposal-only** admission review. The repository's existing `FeatureState` is Algorithm Control component lifecycle, Risk's `MarketState` is market-open context, Capital Allocation owns research cash earmarks, Portfolio Accounting owns factual Ledger-derived state, and Backtesting journals remain isolated simulation evidence. None can safely become the per-symbol strategy-state owner without changing its established meaning.
+
+### Proposed resolution and approval boundary
+
+Created `PROPOSAL-013` for the smallest Phase 4A foundation: a disabled research-only `quant_trading.asset_state` domain, immutable user-defined symbolic state graphs, one open cycle per symbol, explicit manual research transitions, append-only attempts/events/snapshots, deterministic replay, `NO_EXECUTION` state Runs, central SQLite v4→v5 migration and one Algorithm Control Asset State page with a trusted Launcher shortcut.
+
+The proposal deliberately ships no default definition or state catalogue. Symbolic labels have no built-in financial meaning. Automatic Factor/Market-Factor evaluation, thresholds, hysteresis, saturation/reset logic, risk scale, standardized deviation, Target Position, Capital/Accounting consumption, Decision/Risk/Backtesting integration, Paper, Live and orders are all deferred. Exact Factor/Run IDs may be attached only as explanatory references; state history cannot reconstruct or recalculate their values.
+
+### Change Impact Report and approval status
+
+- Conflict result: `REQUIRES_MIGRATION`; blast radius: `MULTI_MODULE`.
+- Proposed primary module: new `asset_state`; secondary modules: Run History, Persistence, Algorithm Control and Launcher.
+- Proposed public/data changes: state definition/cycle/event/snapshot/attempt/replay/query contracts, additive `ASSET_STATE_RESEARCH`/`STATE` Run enum values and central Schema v5 tables with verified v4 backup/rollback.
+- No source, public contract, configuration, database, GUI runtime, state record, financial meaning, account, order or Execution behavior changed in this proposal-only task.
+- Explicit user approval is required before implementation because this adds a top-level module, public contracts, migration and GUI page and establishes the one-open-cycle/manual-transition semantics.
+
+### Validation, bug audit and rollback
+
+The full architecture/governance suite passed **39 tests** using the repository `.venv` (including 5 governance-document tests); `git diff --check` passed with only existing Windows LF→CRLF working-copy notices. An initial system-Python invocation could not import pytest, so it was replaced by the documented repository interpreter and is not a product/test failure. No new Bug was discovered; the existing uncommitted Phase 1–3A worktree remains preserved. Roll back this admission by removing PROPOSAL-013 and its index entry plus this append-only proposal record if rejected; no database/runtime rollback is needed because implementation has not started.
+
+### Compass audit
+
+Intent alignment: advances the user's stateful-strategy roadmap while separating durable state evidence from the still-unapproved trading mathematics. Architecture alignment: the proposed state owner does not reuse or mutate control lifecycle, Risk context, Capital Allocation, Accounting or Backtesting; Run History remains neutral, Persistence owns SQL and GUI delegates through typed services. Safety alignment: definitions and manual transitions are local `NO_EXECUTION` research evidence with no cash, holding, exposure, Risk or order effect. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the generic graph, one-open-cycle and manual-only semantics remain pending approval. Compass sections updated: none because project behavior has not changed. Remaining drift risk: treating user-defined labels as financial instructions or adding automatic transitions before formulas/thresholds are separately approved would be project drift.
+
+## EDIT-20260720-004 — Manual Asset State and trading-cycle history Phase 4A
+
+### Approval, task mode and scope
+
+The user explicitly approved `PROPOSAL-013`. This **DEEP** implementation adds a new public manual research-state domain, two neutral Run enum values, central SQLite v4→v5 migration, one Algorithm Control owner page and one trusted Launcher shortcut. Primary module: `quant_trading.asset_state`. Secondary modules: Run History, Persistence, Algorithm Control and Launcher. Blast radius: **MULTI_MODULE** with a database migration. Explicit exclusions were preserved: no default or financial state catalogue, automatic Factor/Market-Factor transition evaluation, thresholds/hysteresis/saturation/reset formulas, mathematical reference/risk scale/standardized deviation, Target Position, Capital Allocation or Portfolio Accounting mutation, Decision/Risk/Backtesting consumer, broker/account/order access, Paper or Live.
+
+### Implemented contracts and behavior
+
+- Added immutable schema-v1 state declarations, allowed directed edges, exact-version definitions, one-open-cycle-per-normalized-symbol `TradingCycle`, start/close events, manual transition events, evidence bindings, snapshots, operation attempts/results, bounded queries and deterministic replay results. State keys are opaque user-defined symbols and carry no built-in buy/sell/exposure meaning.
+- Added `AssetStateService` and public Store/query Protocols. Every definition save, cycle start, manual transition and close requires explicit typed input and creates one terminal `NO_EXECUTION` Run. A transition must use the current predecessor, change state and follow an allowed edge. Close preserves the final state and blocks later transitions. Invalid/storage-failed attempts remain searchable but create no accepted definition, event, transition or snapshot.
+- Added separate attempt and operation identities. Same operation ID plus the same canonical payload returns the original completed result without a second effect; changed content is rejected and recorded. Exact transition note and unresolved requested cycle identity remain durable evidence. Optional Run/Factor references are explanatory local identities only and cannot calculate or infer state.
+- Added deterministic replay from the immutable start event through accepted transitions. Replay verifies definition/version, symbol/cycle, strict sequence, predecessor, allowed edge, snapshot chain and close boundary, reports structured integrity issues and never repairs/recomputes history.
+- Added `ASSET_STATE_RESEARCH` and `STATE` to neutral Run History plus typed Asset State operation/snapshot artifacts. Run History remains lifecycle/navigation only and assigns no state meaning.
+- Added `SQLiteAssetStateStore` and central Schema v5 normalized definition/graph/cycle/event/transition/evidence/snapshot/operation/input tables. The Store independently revalidates completed definitions, exact Run/stage identity, operation input, current predecessor, graph edge, event/transition and resulting snapshot in one transaction.
+- Added the Algorithm Control `Asset State` owner page and fourteenth trusted Launcher shortcut. The page creates explicit graphs, starts/closes cycles, submits only explicit allowed manual transitions, filters/reloads definitions/cycles/attempts, shows timeline/replay integrity and opens the related Run. GUI code contains no graph/transition calculation, SQL, financial logic or downstream invocation.
+
+### Central database migration evidence
+
+The authorized central database `runtime/data/market_history.sqlite3` was migrated transactionally from Schema v4 to v5. The verified backup is `runtime/data/backups/market_history.schema-v4-to-v5.20260720T205120471224Z.sqlite3`. Before and after counts preserve 215,340 `market_bars`, 365 `fetch_history` and zero pre-existing Algorithm/Factor/Decision/Risk/Capital research records. Both backup and active database return `PRAGMA integrity_check = ok` and zero foreign-key violations; the backup remains Schema 4 and the active database reports Schema 5. All twelve new state tables were initially empty, proving the migration created no definition, state, edge, symbol, cycle, event, transition, snapshot or operation. A final read-only check reconfirmed Schema 5/4, integrity, counts and zero accepted state definitions/cycles/transitions/operations. Runtime database and backup remain Git-ignored.
+
+Rollback requires stopping writers, preserving the v5 database, restoring the named verified v4 backup and reverting Phase 4A code together. A code-only downgrade against Schema v5 is unsupported, and v5 evidence must never be silently deleted or reinterpreted.
+
+### Files changed
+
+- New domain/source: `src/quant_trading/asset_state/__init__.py`, `errors.py`, `interfaces.py`, `models.py`, `replay.py`, `service.py`.
+- Persistence/Run source: new `src/quant_trading/persistence/asset_state_sqlite_store.py`; persistence exports/schema/Run artifact adapter; Run History enum models; centralized error codes.
+- GUI/Launcher source: new `src/quant_trading/algorithm_control/ui/asset_state_panel.py`; Algorithm Control composition/main panel; Launcher catalog.
+- Tests: new `tests/unit/asset_state/test_asset_state.py`, `test_sqlite_asset_state.py`, `tests/unit/algorithm_control/test_asset_state_panel.py`, `tests/architecture/test_asset_state_boundaries.py`; updated Run/capital migration expectations, Algorithm Control page catalog, Launcher catalog and governance verification metadata.
+- Governance/design: implemented PROPOSAL-013, ADR-0020, new Asset State module document, Compass v25, canonical architecture v21 with invariants 43–46, dependency/module maps, Project State/Roadmap/Changelog/indexes, affected Persistence/Run/Algorithm Control/Launcher docs, Bug Log and this Edit Log record.
+- Unchanged by Phase 4A: environment/config formats/defaults, dependencies, Market/Factor/Decision/Risk/Capital calculation semantics, Backtesting JSON/services, Portfolio Accounting source/persistence and all Execution package contents.
+
+### Validation and bug discovery audit
+
+- Complete suite: **362 passed, 0 failed**, with one existing upstream `websockets.legacy` deprecation warning, in 58.16 seconds.
+- Final architecture/governance suite: **42 passed**. Focused Asset State domain/SQLite/GUI tests passed 8 after the Store/idempotency fixes; temporary v4→v5 backup, migration-failure rollback, restart reload, durable invalid/failed evidence, deterministic replay/corruption detection, Run artifacts and Open Run were exercised.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF notices.
+- Confirmed and fixed `BUG-20260720-002`: original completed idempotent results now outrank later conflict attempts, and exact notes/requested cycle IDs persist. Confirmed and fixed `BUG-20260720-003`: the public Store now rejects inconsistent completed cross-object evidence transactionally. Both have deterministic regression coverage. No deferred/cannot-reproduce bug was introduced and no current Known Issue was added.
+- No network, credential, account, broker, order, Paper or Live path was used. Live and automatic submission remain disabled.
+
+### Change Impact Report
+
+- Public contracts: additive Asset State commands/models/views/Store/query/replay interfaces and additive Run enum values; no existing financial/trading contract removed or reinterpreted. Configuration/dependencies: unchanged. Database: additive central v4→v5 migration with verified backup/rollback. GUI: one owner page and one static shortcut. Permissions: local research SQLite writes only. Trading semantics: none; labels and manual history have no consumer. Safety: one-open-cycle uniqueness, exact immutable definitions, allowed-edge/predecessor validation, idempotent operations, durable failures, transactional Store revalidation, deterministic replay and `NO_EXECUTION`; Paper/Live remain empty.
+
+### Compass audit
+
+Intent alignment: implements the approved smallest Phase 4A foundation so per-stock symbolic state/cycle history can be defined, observed, reloaded and audited before any trading mathematics is chosen. Architecture alignment: Asset State owns graph/cycle/transition/replay meaning; Run History owns neutral lifecycle, Persistence owns SQL, Algorithm Control delegates typed commands/queries, and dependency tests prove no Capital/Accounting/Decision/Risk/Backtesting/Execution consumer or import cycle. Safety alignment: every write is explicit and `NO_EXECUTION`; labels cannot change cash, holding, target exposure, risk or orders; automatic submission and Live remain disabled. Unapproved behavior added: none. Assumptions introduced: `ASM-020` records the user-approved manual-research-evidence interpretation. Compass sections updated: version/current phase/evidence, product capability, architecture, approval, non-capabilities, assumption, `INTENT-024`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: a future caller must not treat symbolic labels as financial instructions; automatic evaluation, state formula/thresholds, Target Position, downstream consumers, state correction/archive, numerical Risk, accounting persistence and execution still require separate approval. Suggested commit message: `feat: add manual asset state history phase 4a`.
+
+## EDIT-20260720-005 — Phase 5A bounded Target Position admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after verified Phase 4A, performed a **DEEP proposal-only** admission review. Current Decision sizing owns a proposed action amount, not a desired portfolio level. Capital Allocation owns inactive research earmarks; Portfolio Accounting owns in-memory facts; Asset State owns symbolic manual history; Factor owns typed observations but no approved standardized-price formula. Automatically connecting them would silently choose data authority, units, financial direction and trading semantics.
+
+### Proposed resolution and exact approval boundary
+
+Created `PROPOSAL-014` for the smallest Phase 5A Target Position foundation: a disabled/unconsumed `quant_trading.target_position` research owner, immutable user-defined finite-knot curves, explicit manual scalar/USD capital/current-position inputs, exact bounded interpolation/clamping, structured target/difference trace, durable successful/invalid/failed attempts, `NO_EXECUTION` Target Position Runs, proposed central SQLite v5→v6 migration, and a Target Position Laboratory with one trusted Launcher shortcut.
+
+The proposed mathematics is explicit and contains no default value: USD-only manual research basis/current value; long-only unlevered target fraction in `[0,1]`; user-selected non-increasing or non-decreasing finite knots; exact zero/neutral knot; endpoint clamping; exact Decimal linear interpolation inside each bracket; target notional equals basis times fraction; adjustment equals target minus current; exact zero yields `NONE`. This proposal does not approve any actual curve, direction, fraction, knot, amount or standardized-state formula.
+
+Standardized reference/risk-scale calculation, automatic Factor/Asset State input, hysteresis/stateful levels, Capital/Accounting adapters, TradeIntent conversion, numerical Risk, Backtesting, accounting persistence, Paper, Live and orders remain explicitly deferred.
+
+### Change Impact Report and approval status
+
+- Conflict result: `REQUIRES_MIGRATION`; blast radius: `MULTI_MODULE`.
+- Proposed primary module: new `target_position`; secondary modules: Run History, Persistence, Algorithm Control, Launcher and presentation-only visualization.
+- Proposed public/data changes: additive curve/knot/request/result/trace/attempt/query/Store contracts, `TARGET_POSITION_PREVIEW`/`TARGET_POSITION` Run enum values and central Schema v6 tables with verified v5 backup/rollback.
+- Proposed financial interpretation requires the user's explicit choice: manual research-only, USD, long-only, unlevered, monotone finite-knot interpolation. Approval would not create a runtime consumer or authorize any parameter values.
+- No source, public runtime contract, configuration, database, GUI runtime, Target Position record, account, state, capital, Decision, Risk, order or Execution behavior changed in this proposal-only task.
+
+### Validation, bug audit and rollback
+
+The architecture/governance suite passed **42 tests** and `git diff --check` passed with only existing Windows LF→CRLF notices. No new confirmed, deferred or cannot-reproduce Bug was found; `KNOWN_ISSUES.md` is unchanged by this admission. Roll back this proposal by removing PROPOSAL-014 and its proposal-index entry while preserving the append-only record; no source/database/runtime rollback is needed because implementation has not started.
+
+### Compass audit
+
+Intent alignment: advances the user's mathematical Target Position roadmap while exposing the exact proposed formula and keeping every unresolved input authority outside the implementation. Architecture alignment: the proposal creates one narrow target-level owner instead of expanding Decision, Capital, State or Accounting; Run History remains neutral, Persistence owns proposed SQL and GUI remains presentation/input only. Safety alignment: proposed fractions are bounded long-only research evidence, every future Run is `NO_EXECUTION`, and no account/order/Paper/Live authority is requested. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the exact USD/long-only/monotone finite-knot interpretation is pending approval. Compass sections updated: none because current project behavior and phase are unchanged. Remaining drift risk: implementation before approval, or later treating manual inputs/results as factual account state or a TradeIntent, would be project drift.
+
+## EDIT-20260720-006 — Implement approved PROPOSAL-014 Phase 5A bounded Target Position research
+
+### Scope and approval
+
+Implemented the user's explicit approval of PROPOSAL-014 as a **DEEP / MULTI_MODULE** disabled research slice. Added one separate `quant_trading.target_position` owner for immutable finite-knot target-level definitions and explicit manual previews. This implementation does not include a standardized reference/risk state, automatic Factor or Asset State input, Capital Allocation or Portfolio Accounting adapter, hysteresis/stateful level behavior, TradeIntent conversion, numerical Risk, Backtesting consumption, accounting persistence, Paper, Live or orders.
+
+The exact approved financial interpretation is unchanged: USD-only explicit research basis/current value; long-only unlevered target fraction within `[0,1]`; user-selected non-increasing or non-decreasing finite knots; strictly increasing scalar values straddling exactly one zero/neutral knot; endpoint coverage/clamping; exact Decimal adjacent linear interpolation; target USD equals explicit basis times fraction; difference equals target minus explicit current value; exact zero yields `NONE`. No direction, fraction, knot, amount, symbol, state meaning or formula was defaulted.
+
+### Implementation
+
+- Added immutable schema-v1 curve/knot/command/result/trace/attempt/query contracts, public Store/query Protocols, pure `TargetPositionEngine` and `TargetPositionService`. Every definition save and preview creates one terminal `TARGET_POSITION_PREVIEW` / `TARGET_POSITION` `NO_EXECUTION` Run with exact configuration binding. Success, invalid input and storage failure remain searchable; accepted results are immutable and exact repeated inputs produce equal numeric outputs under distinct Run/attempt identities.
+- Added central SQLite Schema v6 normalized definition/knot/operation/evidence/result/structured-trace tables and `SQLiteTargetPositionStore`. The Store revalidates exact Run/stage identity plus raw definition/preview inputs against accepted objects in one transaction. Run History renders Target Position operation/result artifacts without owning or recalculating their meaning.
+- Added Target Position Laboratory in Algorithm Control and the fifteenth trusted Launcher shortcut. The GUI saves explicit definitions, collects only manual scalar/USD inputs, displays definitions/results/failed attempts, exact selected bracket/clamp trace, target/current value and direction, current-position fraction when the explicit basis is non-zero, distinct current/target markers through the shared Plotly renderer and `Open Run`. GUI code contains no SQL or target/money calculation.
+- The new component remains unregistered as an Active trading component and has no consumer. `execution.paper` and `.live` were not changed; Live and automatic submission remain disabled.
+
+### Central database migration evidence
+
+The authorized ignored database `runtime/data/market_history.sqlite3` was migrated transactionally from Schema v5 to v6. The verified backup is `runtime/data/backups/market_history.schema-v5-to-v6.20260720T221057524713Z.sqlite3`. Migration preserved 215,340 `market_bars`, 365 `fetch_history` and zero pre-existing Algorithm/Factor/Decision/Risk/Capital/Asset State research records. Both backup and active database return `PRAGMA integrity_check = ok` and zero foreign-key violations; the backup remains Schema 5 and the active database reports Schema 6. All new Target Position definition/result/operation tables contain zero rows, proving no default curve, knot, amount or preview was created.
+
+Rollback requires stopping writers, preserving the v6 database, restoring the named verified v5 backup and reverting Phase 5A code together. A code-only downgrade against Schema v6 is unsupported, and any future v6 evidence must never be silently deleted or reinterpreted.
+
+### Files changed
+
+- New domain/source: `src/quant_trading/target_position/__init__.py`, `engine.py`, `errors.py`, `interfaces.py`, `models.py`, `service.py`.
+- Persistence/Run source: new `src/quant_trading/persistence/target_position_sqlite_store.py`; updated persistence exports/schema/Run artifact adapter, neutral Run enum models and centralized error codes.
+- GUI/Launcher source: new `src/quant_trading/algorithm_control/target_position_chart.py` and `ui/target_position_panel.py`; updated Algorithm Control composition/main panel and Launcher catalog.
+- Tests: new `tests/unit/target_position/test_target_position.py`, `test_sqlite_target_position.py`, Target Position panel/chart tests and architecture boundary tests; updated current-schema migration expectations, Algorithm Control page-count governance and Launcher catalog assertions.
+- Governance/design: implemented PROPOSAL-014, ADR-0021, new Target Position module document, Compass/architecture/module map/dependency rules, Project State/Roadmap/Changelog/indexes, affected Persistence/Run/Algorithm Control/Launcher/Factor docs, Bug Log and this Edit Log record.
+- Unchanged by Phase 5A: configuration/environment formats/defaults, third-party dependencies, Market/Factor/Decision/Risk/Capital/Asset State/Portfolio Accounting/Backtesting calculation semantics and all Execution package contents.
+
+### Validation and bug discovery audit
+
+- Complete suite: **375 passed, 0 failed**, with one existing upstream `websockets.legacy` deprecation warning, in 75.65 seconds.
+- Final architecture/governance suite: **45 passed**. Focused Target Position domain/SQLite/GUI/chart/Launcher/current-page suite passed 25 tests. Temporary v5→v6 backup, migration-failure rollback, restart reload, exact endpoint/knot/interpolation behavior, deterministic repeated numeric values, durable invalid/failed evidence, Run artifacts, current/target markers and Open Run were exercised.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF notices.
+- Confirmed and fixed `BUG-20260720-004`, `BUG-20260720-005` and `BUG-20260720-006`: Qt enum conversion, SQLite Store cross-object provenance and current-position fraction/marker completeness now have deterministic regression coverage. No deferred/cannot-reproduce Bug or new current Known Issue remains.
+- No network, credential, account, broker, order, Paper or Live path was used. Live and automatic submission remain disabled.
+
+### Change Impact Report
+
+Primary module: new `target_position`. Secondary modules: Run History, Persistence, Algorithm Control, Launcher and presentation-only visualization adapter. Public contracts and neutral Run enum values are additive. Configuration and dependencies are unchanged. Database impact is additive central v5→v6 with verified backup/rollback. GUI impact is one owner page and one static shortcut. Permission impact is local research SQLite writes only. Trading semantics add one hypothetical desired-level calculation but no authoritative input adapter, action, risk approval or order. Safety behavior is bounded `[0,1]`, exact/versioned/manual-only, durable/fail-closed and `NO_EXECUTION`. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: implements the approved smallest mathematical Target Position foundation and makes every input, knot, intermediate and current/target difference inspectable without choosing unresolved data authorities. Architecture alignment: Target Position owns desired-level math; Run History owns lifecycle, Persistence owns SQL and cross-object validation, Algorithm Control delegates typed service/query calls, and boundary tests prove no existing business/execution module consumes the output. Safety alignment: the contract cannot represent a short, leverage or over-basis target; every action is explicit local `NO_EXECUTION`, and no result is a TradeIntent/Risk approval/order. Unapproved behavior added: none. Assumptions introduced: `ASM-021` records the user-approved manual research-only interpretation. Compass sections updated: current phase/evidence, capability/module inventory, approval, assumption, `INTENT-025`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future code must not treat manual scalar/capital/current values as Factor/State/Accounting facts or automatically convert a target result into Decision/Risk/Execution without a separately approved adapter and contract. Suggested commit message: `feat: add bounded target position research phase 5a`.
+
+## EDIT-20260720-007 — Phase 1–5A verified Git release checkpoint
+
+### Scope and version record
+
+Recorded the user-authorized Git/GitHub handoff for the accumulated approved PROPOSAL-009 through PROPOSAL-014 implementation. The checkpoint is the Git commit containing this record; Git supplies its exact immutable revision ID. It is released from `main` to the configured GitHub `origin`, while the Python package version remains `0.1.0` and the governed implementation state is Phase 5A over central SQLite Schema v6.
+
+The checkpoint includes unified Run History and durable Factor/Decision/Risk evidence, Factor/Decision research history and visualization, conserved manual Research Capital Allocation, manual Asset State/cycle history, and bounded manual Target Position research. Capital Allocation, Asset State and Target Position remain disabled/unconsumed research capabilities. Portfolio Accounting remains in-memory. Paper/Live Execution remain declaration-only; account access, order submission, automatic submission and Live trading remain disabled.
+
+### Evidence and repository hygiene
+
+- Pre-release evidence remains: complete suite **375 passed, 0 failed** with one existing upstream warning; architecture/governance suite **45 passed**; compileall and dependency-integrity checks passed.
+- Central SQLite v5→v6 migration evidence remains external to Git: the ignored active database and verified backup preserve 215,340 Market Bars and 365 Fetch History rows, pass integrity/foreign-key checks, and contain zero default Target Position rows.
+- Runtime databases, migration backups, local environment files and credentials are not release artifacts and must remain ignored. No package dependency, configuration default, financial formula, runtime consumer or execution authority is changed by this release record.
+- Rollback is Git-level: revert the checkpoint commit for source/documentation rollback. Database downgrade still requires the separately documented stop-writers/preserve-v6/restore-verified-v5-backup procedure; a code-only downgrade against Schema v6 remains unsupported.
+
+### Compass audit
+
+Intent alignment: records and publishes the exact currently verified Phase 1–5A research state requested by the user. Architecture alignment: no module ownership, public dependency direction or persistence contract is changed. Safety alignment: release publication does not activate any registered component or execution path; Live and automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: only release-checkpoint metadata was advanced to version 26; Stable Core and project semantics are unchanged. Remaining drift risk: the package version is intentionally unchanged at `0.1.0`; future capability activation, financial integration, Paper or Live work still requires separate approval.

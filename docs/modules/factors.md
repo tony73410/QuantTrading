@@ -37,6 +37,9 @@ The layer does not decide buy/sell/increase/decrease, read portfolio/account sta
 - `FactorResult`, `FactorSnapshot`, `FactorSnapshotCollection`
 - `FactorStatus`, `FactorParameter`
 - `FactorSnapshotStore` Protocol and typed `FactorCalculationRun` audit records
+- `FactorHistoryQueryService`, `FactorHistoryQuery`, `FactorHistoryRecord`
+- `FactorVisualizationQueryService`, `FactorVisualizationQuery`, `FactorVisualizationPoint`, `FactorVisualizationSeries`, `FactorSourcePriceStatus`
+- `FactorVersionComparisonQuery`, `FactorVersionComparison`, `FactorVersionValue`
 
 Each calculator must declare a unique `factor_name`, `factor_version`, `minimum_observations`, `output_unit`, and `missing_input_policy`.
 
@@ -62,6 +65,10 @@ Forbidden: `quant_trading.decision`, `quant_trading.risk`, orchestration, execut
 
 The Factor Engine has no network, database, GUI, account, or order side effects. An independently injected infrastructure Store may persist its returned snapshot; the concrete SQLite adapter is not imported by this layer. The engine logs calculator exceptions and converts that calculator's result to `CALCULATION_ERROR` without inventing a value.
 
+The Factor domain also owns typed read-only history/query meaning. The concrete central-SQLite adapter lives in Persistence and returns successful, invalid, running and failed calculation evidence. Failed calculations contain no fabricated snapshot or value. Exact-version comparison aligns recorded values by symbol, `as_of_utc` and market dimensions, reports missing versions explicitly, and never ranks financial quality.
+
+Phase 2B adds an exact visualization evidence contract for one symbol, Factor version, UTC range, timeframe, adjustment, feed and selected stored `PriceField`. It distinguishes no source window, missing exact source Bar and missing price field. It never chooses a nearest Bar, fills a gap, resamples, normalizes, ranks or recalculates a Factor.
+
 ## Failure modes
 
 - unsafe or inconsistent market window: `FactorInputError`;
@@ -83,6 +90,9 @@ No configuration file or global factor dictionary exists. Factor parameters are 
 
 - No approved factor formulas or production calculator implementations.
 - No automatic Market History-to-`MarketDataWindow` adapter.
-- FactorSnapshot persistence is implemented behind an independent Protocol, but it is not active in ordinary flows because no production Factor calculator is registered.
+- FactorSnapshot persistence is implemented behind an independent Protocol and is active for explicit local research previews so downstream evidence has durable inputs. No production Factor calculator is registered or activated.
+- Algorithm Control's `历史与比较` subpanel consumes only `FactorHistoryQueryService`, supports symbol/Factor/version/date/status filters and tabular exact-version comparison, and can open the owning Run. It contains no SQL or Factor calculation.
+- Algorithm Control now consumes the separate `FactorVisualizationQueryService` for one exact-version Factor/source-price chart. Invalid/failed/missing evidence remains a gap plus a structured status marker; CSV/JSON export is a bounded copy of the current records and does not become a Factor input.
+- Cross-version chart overlays, version ranking, Decision export, automatic Factor-to-Target Position adaptation and recomputation replay remain unimplemented.
 - Bar availability and trading-calendar semantics remain an explicit caller responsibility.
 - Adjustment identity is preserved, but the contract does not decide whether current split/dividend-adjusted history is point-in-time safe for a future backtest. That financial meaning requires explicit approval before a production factor uses adjusted data.

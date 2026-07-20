@@ -1,5 +1,17 @@
 # Change Proposals
 
+- [`PROPOSAL-014`](PROPOSAL-014-bounded-target-position-research-preview.md) — implemented/verified but disabled/unconsumed Phase 5A bounded Target Position definition and manual research preview: exact user-defined monotone finite-knot curves, explicit USD research inputs, structured calculation history, central SQLite Schema v6 and Target Position Laboratory; no values, automatic input adapters, TradeIntent, Risk or execution are approved.
+
+- [`PROPOSAL-013`](PROPOSAL-013-asset-state-cycle-history-foundation.md) — implemented/verified Phase 4A generic asset-state/trading-cycle history foundation with user-defined symbolic graphs, manual research transitions, deterministic replay, central SQLite Schema v5 and an Asset State Monitor; automatic state formulas and every trading consumer remain unapproved.
+
+- [`PROPOSAL-012`](PROPOSAL-012-capital-allocation-conservation-foundation.md) — implemented/verified Phase 3A research cash-bucket/conservation foundation with a separate planning owner, protected reserves, append-only asset-to-asset transfers, central SQLite Schema v4 and an audited Algorithm Control surface; no consumer or trading authority was added.
+
+- [`PROPOSAL-011`](PROPOSAL-011-factor-research-visualization-and-export.md) — implemented/verified Phase 2B exact-version Factor/source-price visualization, shared Plotly renderer and bounded CSV/JSON export; exact source-Bar gaps remain explicit and no Target Position or trading authority was added.
+
+- [`PROPOSAL-010`](PROPOSAL-010-factor-history-and-decision-trace.md) — implemented/verified Phase 2A Factor history/version comparison, durable Decision condition/sizing traces and central SQLite v2→v3 migration; `NO_EXECUTION` and explicit deferrals remain binding.
+
+- [`PROPOSAL-009`](PROPOSAL-009-unified-algorithm-run-history.md) — implemented/verified unified `NO_EXECUTION` Algorithm Run lifecycle, central SQLite v2 Factor/Decision/Risk history and Run History Explorer; no new algorithm, numerical Risk, accounting persistence or execution authority.
+
 - `PROPOSAL-007-asset-market-factor-decision-sizing.md`: approved Asset/Market Factor separation and Decision Sizing phase one.
 
 Current proposals:
@@ -11,7 +23,7 @@ Current proposals:
 - [`PROPOSAL-003`](PROPOSAL-003-safe-factor-authoring-and-decision-selection.md) — implemented-disabled restricted Factor authoring and exact Decision Factor-version selection; no arbitrary Python, policy, activation or order behavior.
 
 - [`PROPOSAL-002`](PROPOSAL-002-paper-live-execution-boundaries.md) — implemented-disabled Paper/Live sibling namespaces; no contracts, clients, accounts, orders or activation.
-- [`PROPOSAL-001`](PROPOSAL-001-central-sqlite-factor-history.md) — approved central SQLite Factor history; implementation remains inactive until a production Factor Pipeline is separately approved.
+- [`PROPOSAL-001`](PROPOSAL-001-central-sqlite-factor-history.md) — original central SQLite Factor-history decision, now extended by PROPOSAL-009/010 for active local `NO_EXECUTION` preview evidence; production activation remains unapproved.
 
 This directory is the canonical **pre-implementation admission record** for significant new ideas. ADRs record accepted long-term decisions; proposals classify and test an idea before it becomes an approved decision. A proposal is required for a new major component, public contract, authority, external integration, financial meaning, activation default, cross-layer change, or system-wide change.
 

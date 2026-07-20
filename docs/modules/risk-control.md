@@ -147,7 +147,7 @@ broker or submit an order.
 - All numerical risk rules are Not implemented pending explicit user values.
 - Account, portfolio and open-order providers are Protocols only; no account is connected.
 - Market-open and duplicate-order checks have reason-code categories but no approved rules.
-- Risk decisions are not persisted; audit events use the existing runtime log.
+- Local Dry Run RiskDecision and per-rule evidence remains immutable in central Schema v4 (introduced in v2/v3-era research storage) and linked to its source TradeIntent and top-level Run/Stage. It remains research evidence, not execution authorization; runtime logs continue to record operational errors.
 - Emergency de-risking can pause new intents only. Automatic liquidation is Not implemented.
 - Algorithm Control can display a transient local Risk dry-run result. With no approved numerical Risk policies, a proposed intent is conservatively marked for manual review and never reaches execution.
 

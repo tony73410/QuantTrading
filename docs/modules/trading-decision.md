@@ -32,6 +32,8 @@ The layer does not download or calculate Market Data, reimplement factors, acces
 - `DecisionInput`, `DecisionContext`, `DecisionParameter`
 - `PortfolioSnapshot` (neutral trace envelope only)
 - `DecisionResult`, `DecisionStatus`, `TradeIntent`, `DecisionAction`
+- `DecisionConditionTrace`, `DecisionTraceStatus`, `DecisionSizingInputTrace`
+- `DecisionHistoryQueryService`, `DecisionHistoryQuery`, `DecisionHistoryRecord`
 
 ## Inputs
 
@@ -40,6 +42,8 @@ The layer does not download or calculate Market Data, reimplement factors, acces
 ## Outputs
 
 `DecisionResult` references all Factor snapshot IDs and the selected policy/version. `TradeIntent` can express an action label and optional explicitly unit-bearing exposure fields, but it has no broker, order ID, execution status, endpoint, or submission method.
+
+For new restricted-policy previews, `DecisionResult` records one immutable `DecisionConditionTrace` per evaluated condition: exact Factor component/name/version/snapshot, input value/unit/status, operator, Decimal threshold and boolean result. Sizing records the exact typed values actually read from approved namespaces. Invalid/stale inputs blocked before policy evaluation use `not_evaluated`; migrated Schema-v2 results use `trace_not_captured`. Neither status permits later reconstruction or guessing.
 
 `DecisionAction` defines vocabulary: `INCREASE`, `DECREASE`, `HOLD`, `EXIT`, `NO_DECISION`. A restricted user-authored `SafeRuleDecisionPolicy` may select one of these labels from exact Factor values using numeric comparisons and explicit `ALL`/`ANY` combination. It never supplies quantity, target exposure, confidence, order type, or broker behavior.
 
@@ -70,10 +74,11 @@ Immutable Decision definition versions persist locally under `runtime/algorithm_
 
 ## Tests
 
-`tests/unit/decision/` uses Fake Factor snapshots and Fake policies without Market Data Provider, SQLite, account, or broker access. Tests cover invalid/stale blocking, policy replacement, traceability, registry behavior, and absence of execution/order fields. Architecture tests restrict imports.
+`tests/unit/decision/` uses Fake Factor snapshots and Fake policies without Market Data Provider, SQLite, account, or broker access. Tests cover invalid/stale blocking, policy replacement, condition/sizing traceability, registry behavior, and absence of execution/order fields. SQLite adapter tests separately cover durable reload and legacy trace status. Architecture tests restrict imports.
 
 ## Known limitations
 
 - No approved production policy, thresholds, weights, portfolio-construction policy or risk model. Research-only notional sizing contracts exist but are not production activation.
-- No DecisionResult persistence; local dry-run results are transient. Any future store must reference Factor snapshots and remain separate from orders.
+- Local research DecisionResult/TradeIntent evidence was introduced in Schema v3 and remains immutable/compatible in central Schema v4; it references exact Factor snapshots and top-level Run/Stage IDs and remains separate from orders. Production activation and execution are not implemented.
+- Algorithm Control's `历史与计算明细` subpanel displays persisted Factor inputs, condition outcomes, TradeIntent/sizing evidence and `Open Run` through a typed query service. It performs no Decision calculation or SQL.
 - Independent Risk contracts/engine now exist downstream, but no numerical Risk policy or execution layer exists. Decision output cannot bypass Risk or be executed directly.

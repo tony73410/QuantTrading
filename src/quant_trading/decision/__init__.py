@@ -2,7 +2,18 @@
 
 from .engine import TradingDecisionEngine
 from .definitions import ComparisonOperator, DecisionCondition, DecisionPolicyDefinition, RuleCombination, SizingDefinition, SizingMode
-from .interfaces import TradingDecisionPolicy
+from .interfaces import (
+    DecisionHistoryQueryService,
+    DecisionResultStore,
+    EmptyDecisionHistoryQueryService,
+    TradingDecisionPolicy,
+)
+from .history import (
+    DecisionFactorInputRecord,
+    DecisionHistoryQuery,
+    DecisionHistoryRecord,
+    DecisionIntentHistoryRecord,
+)
 from .models import (
     DecisionAction,
     DecisionContext,
@@ -10,6 +21,10 @@ from .models import (
     DecisionParameter,
     DecisionResult,
     DecisionStatus,
+    DecisionTraceStatus,
+    DecisionConditionTrace,
+    DecisionSizingInputSource,
+    DecisionSizingInputTrace,
     PortfolioContextStatus,
     PortfolioSnapshot,
     TradeIntent,
@@ -26,7 +41,18 @@ __all__ = [
     "DecisionParameter",
     "DecisionPolicyRegistry",
     "DecisionResult",
+    "DecisionResultStore",
+    "DecisionHistoryQuery",
+    "DecisionHistoryQueryService",
+    "DecisionHistoryRecord",
+    "DecisionFactorInputRecord",
+    "DecisionIntentHistoryRecord",
+    "EmptyDecisionHistoryQueryService",
     "DecisionStatus",
+    "DecisionTraceStatus",
+    "DecisionConditionTrace",
+    "DecisionSizingInputSource",
+    "DecisionSizingInputTrace",
     "PortfolioContextStatus",
     "PortfolioSnapshot",
     "TradeIntent",

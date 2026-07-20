@@ -31,6 +31,8 @@ class FactorCalculationRun:
     snapshot_id: UUID | None
     error_code: str | None
     error_summary: str | None
+    algorithm_run_id: UUID | None = None
+    stage_id: UUID | None = None
 
     def __post_init__(self) -> None:
         symbol = self.symbol.strip().upper()

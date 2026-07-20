@@ -34,14 +34,44 @@ from .decision_authoring_panel import DecisionManagementPanel
 from .execution_control_panel import ExecutionControlPanel
 from .idea_notebook_panel import IdeaNotebookPanel
 from .portfolio_ledger_panel import PortfolioLedgerPanel
+from .capital_allocation_panel import CapitalAllocationPanel
+from .asset_state_panel import AssetStatePanel
+from .target_position_panel import TargetPositionPanel
 from .simulation_strategy_panel import SimulationStrategyPanel
 from .market_factor_panel import MarketFactorPanel
+from .run_history_panel import RunHistoryPanel
 from .workers import TaskWorker
 from quant_trading.portfolio_accounting.queries.interfaces import (
     EmptyPortfolioAccountingQueryService,
     PortfolioAccountingQueryService,
 )
 from ..idea_notebook import IdeaNotebookService
+from quant_trading.run_history import (
+    EmptyRunHistoryQueryService,
+    RunHistoryQueryService,
+)
+from quant_trading.factors.interfaces import (
+    FactorHistoryQueryService,
+    FactorVisualizationQueryService,
+)
+from quant_trading.decision.interfaces import DecisionHistoryQueryService
+from quant_trading.capital_allocation import (
+    CapitalAllocationQueryService,
+    CapitalAllocationService,
+    EmptyCapitalAllocationQueryService,
+)
+from quant_trading.asset_state import (
+    AssetStateQueryService,
+    AssetStateService,
+    EmptyAssetStateQueryService,
+)
+from quant_trading.target_position import (
+    EmptyTargetPositionQueryService,
+    TargetPositionQueryService,
+    TargetPositionService,
+)
+
+from ..factor_history_export import FactorHistoryExportService
 
 
 logger = logging.getLogger(__name__)
@@ -56,9 +86,13 @@ ALGORITHM_CONTROL_PAGE_IDS: tuple[str, ...] = (
     "risk",
     "execution",
     "portfolio_ledger",
+    "capital_allocation",
+    "asset_state",
+    "target_position",
     "simulation_strategies",
     "pipeline",
     "conflicts",
+    "run_history",
     "audit",
 )
 
@@ -69,6 +103,20 @@ class AlgorithmControlPanel(QMainWindow):
         controller: AlgorithmControlController,
         portfolio_queries: PortfolioAccountingQueryService | None = None,
         idea_notebook: IdeaNotebookService | None = None,
+        run_history_queries: RunHistoryQueryService | None = None,
+        factor_history_queries: FactorHistoryQueryService | None = None,
+        decision_history_queries: DecisionHistoryQueryService | None = None,
+        factor_visualization_queries: FactorVisualizationQueryService | None = None,
+        factor_export_service: FactorHistoryExportService | None = None,
+        capital_allocation_service: CapitalAllocationService | None = None,
+        capital_allocation_queries: CapitalAllocationQueryService | None = None,
+        capital_session_id: str = "algorithm-control",
+        asset_state_service: AssetStateService | None = None,
+        asset_state_queries: AssetStateQueryService | None = None,
+        asset_state_session_id: str | None = None,
+        target_position_service: TargetPositionService | None = None,
+        target_position_queries: TargetPositionQueryService | None = None,
+        target_position_session_id: str | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -82,20 +130,47 @@ class AlgorithmControlPanel(QMainWindow):
         self.factor_page = FactorManagementPanel(
             controller,
             ComponentPanel(controller, ComponentType.FACTOR),
+            history_queries=factor_history_queries,
+            visualization_queries=factor_visualization_queries,
+            export_service=factor_export_service,
         )
         self.market_factor_page = MarketFactorPanel(controller)
         self.decision_page = DecisionManagementPanel(
             controller,
             ComponentPanel(controller, ComponentType.DECISION),
+            history_queries=decision_history_queries,
         )
         self.risk_page = ComponentPanel(controller, ComponentType.RISK)
         self.execution_page = ExecutionControlPanel(controller)
         self.portfolio_ledger_page = PortfolioLedgerPanel(
             portfolio_queries or EmptyPortfolioAccountingQueryService()
         )
+        self.capital_allocation_page = CapitalAllocationPanel(
+            capital_allocation_service,
+            capital_allocation_queries or EmptyCapitalAllocationQueryService(),
+            session_id=capital_session_id,
+        )
+        self.asset_state_page = AssetStatePanel(
+            asset_state_service,
+            asset_state_queries or EmptyAssetStateQueryService(),
+            session_id=asset_state_session_id or capital_session_id,
+        )
+        self.target_position_page = TargetPositionPanel(
+            target_position_service,
+            target_position_queries or EmptyTargetPositionQueryService(),
+            session_id=target_position_session_id or asset_state_session_id or capital_session_id,
+        )
         self.simulation_strategy_page = SimulationStrategyPanel(controller)
         self.pipeline = self._pipeline_page()
         self.conflict_center = self._conflict_page()
+        self.run_history_page = RunHistoryPanel(
+            run_history_queries or EmptyRunHistoryQueryService()
+        )
+        self.factor_page.open_run_requested.connect(self._open_run)
+        self.decision_page.open_run_requested.connect(self._open_run)
+        self.capital_allocation_page.open_run_requested.connect(self._open_run)
+        self.asset_state_page.open_run_requested.connect(self._open_run)
+        self.target_position_page.open_run_requested.connect(self._open_run)
         self.audit = self._audit_page()
         pages = (
             ("overview", "总览", self.overview),
@@ -106,9 +181,13 @@ class AlgorithmControlPanel(QMainWindow):
             ("risk", "风险检查层", self.risk_page),
             ("execution", "执行控制", self.execution_page),
             ("portfolio_ledger", "Portfolio & Ledger", self.portfolio_ledger_page),
+            ("capital_allocation", "Capital Allocation", self.capital_allocation_page),
+            ("asset_state", "Asset State", self.asset_state_page),
+            ("target_position", "Target Position", self.target_position_page),
             ("simulation_strategies", "Simulation Strategies", self.simulation_strategy_page),
             ("pipeline", "Pipeline", self.pipeline),
             ("conflicts", "冲突中心", self.conflict_center),
+            ("run_history", "Run History", self.run_history_page),
             ("audit", "审计记录", self.audit),
         )
         self._page_indexes: dict[str, int] = {}
@@ -132,6 +211,10 @@ class AlgorithmControlPanel(QMainWindow):
         except KeyError as exc:
             raise ValueError(f"unknown Algorithm Control page: {page_id}") from exc
         self.tabs.setCurrentIndex(index)
+
+    def _open_run(self, run_id) -> None:
+        self.tabs.setCurrentIndex(self._page_indexes["run_history"])
+        self.run_history_page.open_run(run_id)
 
     def _overview_page(self) -> QWidget:
         page = QWidget()
@@ -250,6 +333,10 @@ class AlgorithmControlPanel(QMainWindow):
                 self.audit_table.setItem(row, column, QTableWidgetItem(str(value)))
         self.execution_page.reload()
         self.portfolio_ledger_page.reload()
+        self.capital_allocation_page.reload()
+        self.asset_state_page.reload()
+        self.target_position_page.reload()
+        self.run_history_page.reload()
 
     def _factor_catalog_changed(self) -> None:
         self.factor_page.reload()
@@ -299,8 +386,11 @@ class AlgorithmControlPanel(QMainWindow):
         if task_id != self._active_task:
             return
         self._active_task = None
-        self.preview_result.setText(f"状态：{result.status.value}<br>{result.message}<br>执行资格：{result.execution_eligibility.value}<br>NO EXECUTION：是")
+        run_text = f"<br>Run ID：{result.run_id}" if result.run_id is not None else ""
+        self.preview_result.setText(f"状态：{result.status.value}<br>{result.message}<br>执行资格：{result.execution_eligibility.value}<br>NO EXECUTION：是{run_text}")
         self.refresh()
+        if result.run_id is not None:
+            self._open_run(result.run_id)
 
     def _preview_failed(self, task_id: str, exc: Exception) -> None:
         if task_id != self._active_task:

@@ -27,7 +27,7 @@ Alpaca 在本模块中仅承担 **Market Data Provider / 行情数据提供商**
 - 在后台线程执行网络/数据库加载，向 GUI 返回统一 `DataResult`。
 - 为每次加载生成 Request ID；已有结果时，快捷范围和粒度变化立即自动加载，自定义日期、复权和 Feed 变化经过短暂 debounce 后自动加载；加载期间发生的新数据选择会排队，并在当前任务结束后只使用最后选择自动重载。
 - 从标准化 Bar 构建 Plotly 图表。
-- 将完整离线 Plotly 页面写入自动清理的本地临时文件后交给 QWebEngine 加载，避免内嵌 `setHtml()` 页面大小限制；页面根容器绑定 WebView 可见高度，后续重绘使用 `Plotly.react`。Qt 端在布局稳定后执行延迟 resize，浏览器端使用 `ResizeObserver` 在 Chromium 实际收到 viewport 变化后再次同步，避免用户必须手动重新最大化窗口。
+- 通过公共的 presentation-only `quant_trading.visualization.PlotlyFigureView` 将完整离线 Plotly 页面写入自动清理的本地临时文件后交给 QWebEngine 加载，避免内嵌 `setHtml()` 页面大小限制；页面根容器绑定 WebView 可见高度，后续重绘使用 `Plotly.react`。Qt 端在布局稳定后执行延迟 resize，浏览器端使用 `ResizeObserver` 在 Chromium 实际收到 viewport 变化后再次同步，避免用户必须手动重新最大化窗口。Market History仍独立拥有Bar图表构建含义。
 
 ## Non-responsibilities
 
@@ -60,7 +60,7 @@ Alpaca 在本模块中仅承担 **Market Data Provider / 行情数据提供商**
 ## Dependencies
 
 - Python 3.11–3.14；当前验证 3.14.5。
-- PySide6 6.x（含 Qt WebEngine）、Plotly 6.x、alpaca-py 0.x、pandas 2.2–3.x。
+- PySide6 6.x（含 Qt WebEngine）、Plotly 6.x、alpaca-py 0.x、pandas 2.2–3.x，以及无业务语义的公共 `quant_trading.visualization` renderer。
 - Python 标准库：sqlite3、datetime、decimal、logging、threading。
 - pytest 仅为开发/测试依赖。
 
@@ -148,7 +148,7 @@ QUANT_TRADE_LOG_LEVEL                   default INFO
 
 ## Database design
 
-The existing `runtime/data/market_history.sqlite3` file is now the application's central physical SQLite database. Market History still owns only Bar/Coverage/Fetch History queries; the independent `quant_trading.persistence` adapter owns Factor-history SQL. Sharing one file does not permit either feature to call the other's private storage implementation. Schema version 1 adds `schema_migrations`, `factor_snapshots`, `factor_results`, and `factor_calculation_runs` without moving or rewriting existing Market rows.
+The existing `runtime/data/market_history.sqlite3` file is the application's central physical SQLite database. Market History still owns only Bar/Coverage/Fetch History queries; independent `quant_trading.persistence` adapters own Run/Factor/Decision/Risk evidence SQL. Sharing one file does not permit features to call each other's private storage implementation. Current Schema v3 remains additive and did not move or rewrite existing Market rows; the approved v1→v2 and v2→v3 migrations preserve 215,340 Bars and 365 Fetch History rows with verified backups.
 
 默认路径：`runtime/data/market_history.sqlite3`，已被 `.gitignore` 排除。
 
