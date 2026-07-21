@@ -22,6 +22,8 @@ from quant_trading.run_history import (
     RunMessage,
     RunMessageSeverity,
     RunQuery,
+    RunRelationship,
+    RunRelationshipType,
     RunStage,
     RunStageName,
     RunStageStatus,
@@ -33,6 +35,7 @@ from quant_trading.run_history import (
 NOW = datetime(2026, 7, 16, 20, 0, tzinfo=UTC)
 RUN_ID = UUID("00000000-0000-0000-0000-000000002001")
 STAGE_ID = UUID("00000000-0000-0000-0000-000000002002")
+RELATED_RUN_ID = UUID("00000000-0000-0000-0000-000000002005")
 
 
 def _detail() -> RunDetailView:
@@ -64,7 +67,14 @@ def _detail() -> RunDetailView:
         "manual_review_required", "Risk manual review for AAPL", NOW,
         (RunDisplayField("approved target", "—"),),
     )
-    return RunDetailView(summary, (stage,), (binding,), (message,), (artifact,))
+    return RunDetailView(
+        summary,
+        (stage,),
+        (binding,),
+        (message,),
+        (artifact,),
+        (RunRelationship(RunRelationshipType.SOURCE, RELATED_RUN_ID),),
+    )
 
 
 class FakeQueries:
@@ -97,5 +107,8 @@ def test_run_history_panel_filters_and_renders_typed_detail() -> None:
     assert panel.message_table.item(0, 2).text() == "TEST-WARN"
     assert "NO EXECUTION" not in panel.detail_header.text()
     assert "no_execution" in panel.detail_header.text()
+    assert panel.related_run_combo.count() == 1
+    assert str(RELATED_RUN_ID) in panel.related_run_combo.currentText()
+    assert panel.open_related_run_button.isEnabled()
     panel.close()
     assert app is not None

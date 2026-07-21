@@ -302,6 +302,9 @@ def test_algorithm_control_uses_only_public_factor_authoring_contracts() -> None
         "quant_trading.factors.models",
         "quant_trading.factors.storage_models",
         "quant_trading.factors.market",
+        "quant_trading.factors.standardized_state_interfaces",
+        "quant_trading.factors.standardized_state_models",
+        "quant_trading.factors.standardized_state_service",
     }
     violations = [
         f"{module} imports non-contract Factor module {target}"

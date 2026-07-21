@@ -29,6 +29,8 @@ class AlgorithmRunType(StrEnum):
     ALLOCATION_REBALANCE = "allocation_rebalance"
     ASSET_STATE_RESEARCH = "asset_state_research"
     TARGET_POSITION_PREVIEW = "target_position_preview"
+    STANDARDIZED_STATE_PREVIEW = "standardized_state_preview"
+    STANDARDIZED_TARGET_POSITION_PREVIEW = "standardized_target_position_preview"
 
 
 class AlgorithmRunStatus(StrEnum):
@@ -64,6 +66,7 @@ class RunStageName(StrEnum):
     ALLOCATION = "allocation"
     STATE = "state"
     TARGET_POSITION = "target_position"
+    STANDARDIZED_STATE = "standardized_state"
 
 
 class RunStageStatus(StrEnum):
@@ -94,6 +97,13 @@ class RunMessageSeverity(StrEnum):
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
+
+
+class RunRelationshipType(StrEnum):
+    PARENT = "parent"
+    CHILD = "child"
+    SOURCE = "source"
+    LINKED_PREVIEW = "linked_preview"
 
 
 @dataclass(frozen=True, slots=True)
@@ -330,9 +340,20 @@ class RunArtifactView:
 
 
 @dataclass(frozen=True, slots=True)
+class RunRelationship:
+    relationship_type: RunRelationshipType
+    run_id: UUID
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.relationship_type, RunRelationshipType):
+            raise ValueError("relationship_type must use RunRelationshipType")
+
+
+@dataclass(frozen=True, slots=True)
 class RunDetailView:
     summary: RunSummary
     stages: tuple[RunStage, ...]
     bindings: tuple[RunBinding, ...]
     messages: tuple[RunMessage, ...]
     artifacts: tuple[RunArtifactView, ...]
+    relationships: tuple[RunRelationship, ...] = ()

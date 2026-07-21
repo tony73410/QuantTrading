@@ -19,9 +19,9 @@ Market Data, SQLite, Factor calculation, Decision/Risk logic, configuration edit
 
 ## Public interfaces
 
-The trusted application catalog exposes Market History, Algorithm Control, and Backtesting & Simulation. A separate static shortcut catalog covers Idea Notebook, Asset Factor, Market Factor, Decision, Risk, Execution status, Portfolio & Ledger, Capital Allocation, Asset State, Target Position, Simulation Strategies, Pipeline, Conflict Center, Run History Explorer and Audit. Every shortcut opens the existing Algorithm Control process with a reviewed `--page` value; it does not reimplement the page.
+The trusted application catalog exposes Market History, Algorithm Control, and Backtesting & Simulation. A separate static shortcut catalog covers Idea Notebook, Asset Factor, Standardized State, Market Factor, Decision, Risk, Execution status, Portfolio & Ledger, Capital Allocation, Asset State, Target Position, Simulation Strategies, Pipeline, Conflict Center, Run History Explorer and Audit. Every shortcut opens the existing Algorithm Control process with a reviewed `--page` value; it does not reimplement the page.
 
-The existing Asset Factor and Decision shortcuts open owner pages whose research subtabs expose read-only history/comparison or calculation details and can navigate to `Open Run`. Phase 2B adds the exact Factor/source-price chart and export controls inside the existing Asset Factor history subpanel. Phase 3A adds `capital_allocation`, Phase 4A adds `asset_state`, and Phase 5A adds the reviewed `target_position` shortcut to its owner page. The launcher still contains no capital, state, target calculation or trading logic.
+The existing Asset Factor and Decision shortcuts open owner pages whose research subtabs expose read-only history/comparison or calculation details and can navigate to `Open Run`. Phase 2B adds the exact Factor/source-price chart and export controls inside the existing Asset Factor history subpanel. Phase 3A adds `capital_allocation`, Phase 4A adds `asset_state`, Phase 5A adds `target_position`, and Phase 5B adds the reviewed `standardized_state` shortcut to its owner page. The launcher still contains no Factor, capital, state, target or trading calculation logic.
 
 - `python -m quant_trading`
 - `python -m quant_trading.launcher`
@@ -54,7 +54,7 @@ No user-editable configuration. Future approved standalone GUI features must add
 
 ## Tests
 
-`tests/unit/launcher/test_main_launcher.py` verifies the three child applications, all fifteen core-page shortcuts, trusted-module/static-argument restrictions, detached command construction, direct-page selection and visible safety state.
+`tests/unit/launcher/test_main_launcher.py` verifies the three child applications, all sixteen core-page shortcuts, trusted-module/static-argument restrictions, detached command construction, direct-page selection and visible safety state.
 
 ## Known limitations
 

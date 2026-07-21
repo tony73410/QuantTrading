@@ -3,6 +3,8 @@
 from .engine import TargetPositionEngine
 from .errors import *
 from .interfaces import *
+from .linked_models import *
+from .linked_service import LinkedTargetPositionService
 from .models import *
 from .service import TargetPositionService
 

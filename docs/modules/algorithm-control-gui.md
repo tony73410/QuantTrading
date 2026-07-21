@@ -28,6 +28,8 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - Provide a Capital Allocation owner page over injected typed services: explicit research-plan creation, conserved bucket/snapshot inspection, manual asset-cash transfer history and `Open Run` navigation.
 - Provide an Asset State owner page over injected typed services: explicit symbolic definition creation, cycle start/close, manual allowed-edge transitions, immutable timeline/replay display and `Open Run` navigation.
 - Provide a Target Position owner page over injected typed services: explicit finite-knot definition creation, explicit manual scalar/USD preview inputs, immutable result/trace history, exact persisted curve chart and `Open Run` navigation.
+- In a visually separate linked Target Position mode, require explicit persisted Standardized State and exact curve selections, display immutable source evidence, collect only the two manual USD values/reason, and show linked history with source/parent/child `Open Run` navigation.
+- Provide a Standardized State owner page over injected typed Factor services: immutable fixed-formula definition creation, explicit manual USD price/reference/positive-scale previews, successful/invalid/failed history, structured trace and `Open Run` navigation.
 
 ## Non-responsibilities
 
@@ -38,13 +40,15 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - Portfolio/ledger mutation, direct SQL/broker access, or accounting calculation rules; the `Portfolio & Ledger` tab is a read-only Query Service scaffold.
 - Capital Decimal/conservation/transfer calculation, factual account inference, reserve movement or historical-event editing; the GUI delegates those rules to `CapitalAllocationService` and typed queries.
 - State-graph validation, transition authorization, automatic Factor evaluation, financial state meaning or history repair; the GUI delegates manual state commands and queries to `AssetStateService` and never computes a transition.
+- Standardized-state Decimal calculation, reference/scale estimation, Market Data lookup, FactorSnapshot publication or target/action/risk interpretation; the GUI delegates validation/calculation/persistence to typed Factor services.
+- Linked scalar/symbol/time propagation, curve calculation, source/default selection or relationship validation; the GUI delegates the exact command to application orchestration and contains no SQL or formula.
 - Treating Idea Notebook text as a Factor, Decision, strategy, proposal, Pipeline input, Backtest input, or execution instruction. There is no apply/activate/run conversion path.
 
 Qt按钮signal通过显式adapter与DecisionCondition等业务对象参数隔离；GUI异常进入Worker/global日志边界，不能因slot参数歧义静默继续。
 
 ## Public interfaces
 
-`AlgorithmComponentRegistry`, `ComponentMetadata`, `DataContractDeclaration`, `ChangeAdmissionService`, `ConflictAssessment`, `PipelineAdmissionResult`, `FeatureState`, `Capability`, `ParameterSchema`, `ConfigurationRecord`, `PreviewRequest`, `PreviewResult`, `ConfigurationService`, `ConfigurationValidator`, `PreviewService`, `AlgorithmControlController`, `IdeaNotebookService`, `IdeaNotebookPanel`, `RunHistoryPanel`, `FactorHistoryPanel`, `FactorHistoryChartBuilder`, `FactorHistoryExportService`, `DecisionHistoryPanel`, `CapitalAllocationPanel`, `AssetStatePanel`, `build_controller()`, `AlgorithmControlPanel`, and `AlgorithmControlPanel.select_page()`.
+`AlgorithmComponentRegistry`, `ComponentMetadata`, `DataContractDeclaration`, `ChangeAdmissionService`, `ConflictAssessment`, `PipelineAdmissionResult`, `FeatureState`, `Capability`, `ParameterSchema`, `ConfigurationRecord`, `PreviewRequest`, `PreviewResult`, `ConfigurationService`, `ConfigurationValidator`, `PreviewService`, `AlgorithmControlController`, `IdeaNotebookService`, `IdeaNotebookPanel`, `RunHistoryPanel`, `FactorHistoryPanel`, `FactorHistoryChartBuilder`, `FactorHistoryExportService`, `DecisionHistoryPanel`, `CapitalAllocationPanel`, `AssetStatePanel`, `TargetPositionPanel`, `build_controller()`, `AlgorithmControlPanel`, and `AlgorithmControlPanel.select_page()`.
 
 ## Inputs
 
@@ -52,11 +56,11 @@ Registered metadata, restricted Factor definitions, user configuration edits/Fac
 
 ## Outputs
 
-Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision history views, an exact-version Factor/source-price Figure, and explicit bounded Factor CSV/JSON copies. Tracked previews return a `run_id`; all three history surfaces can open the corresponding durable Run detail. A preview, persisted Run, chart or export is never an order or execution authorization.
+Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision/linked-target history views, an exact-version Factor/source-price Figure, and explicit bounded Factor CSV/JSON copies. Tracked previews return Run identity; linked target views open the exact source, parent and child Runs. A preview, persisted Run, chart or export is never an order or execution authorization.
 
 ## Dependencies
 
-May depend on public Factor/Decision/Risk result and history-query contracts, Run History query contracts, public Capital Allocation, Asset State and Target Position service/query contracts, public Market dimension enums, the presentation-only shared visualization view, Plotly in presentation adapters, application safety settings, Python standard library, and PySide6. It must not depend on SQLite adapters, Portfolio Accounting mutation services, Alpaca clients, market-history storage implementation, or broker/execution providers.
+May depend on public Factor/Decision/Risk result and history-query contracts, Run History query contracts, the public Phase 5C orchestration coordinator, public Capital Allocation, Asset State, Target Position and standardized-state service/query contracts, public Market dimension enums, the presentation-only shared visualization view, Plotly in presentation adapters, application safety settings, Python standard library, and PySide6. It must not depend on SQLite adapters, calculation engines, Portfolio Accounting mutation services, Alpaca clients, market-history storage implementation, or broker/execution providers.
 
 ## Side effects
 
@@ -108,7 +112,8 @@ The Main Launcher may add one reviewed `--page <stable_page_id>` argument to ope
 - Idea Notebook notes are plain local text only. They cannot be applied to Registry, Pipeline, Backtesting, Portfolio Accounting, Paper, or Live; see [`idea-notebook.md`](idea-notebook.md).
 - Capital Allocation is a separate inactive research branch: it does not feed Decision, Risk, Backtesting, Portfolio Accounting or Execution, and its GUI supplies no default amount, reserve ratio or active-plan concept.
 - Asset State remains a separate inactive research branch: labels are user-defined symbols, transitions are explicit manual actions, and no state automatically feeds Target Position or any trading module.
-- Target Position is a separate disabled/unconsumed research branch. Its state, capital basis and current position are manual inputs; it does not read Factor/State/Capital/Accounting, implement hysteresis, or feed Decision/Risk/Backtesting/Execution.
+- Target Position remains disabled/unconsumed. Manual mode accepts a manual scalar; linked mode accepts only one explicitly selected persisted Standardized State result while capital basis/current position remain manual. Neither mode implements automatic selection, factual Capital/Accounting input, hysteresis or any Decision/Risk/Backtesting/Execution consumer.
+- Standardized State remains disabled Factor research. Its price, reference and normalization scale are explicit manual inputs; it does not estimate values or publish a generic FactorSnapshot. Application orchestration may read one exact selected result for linked Target Position preview, but no automatic or trading consumer exists.
 # Simulation Strategy management
 
 The former Factor tab is labeled `单只股票因子`; `市场/宏观因子` is a separate sibling page. Decision authoring includes sizing mode, fixed-value input, a synchronized 1–100% slider/spin control, restricted expression and exact Market Factor selection. GUI code creates definitions only; calculation and sizing remain in their owning domains.

@@ -1,5 +1,9 @@
 # Change Proposals
 
+- [`PROPOSAL-016`](PROPOSAL-016-linked-standardized-state-target-position-preview.md) — implemented/verified but disabled/unconsumed Phase 5C exact-result adapter from one explicitly selected persisted dimensionless Standardized State result into one explicitly selected existing Target Position curve, with continued manual USD research context, parent/child `NO_EXECUTION` Runs and central SQLite Schema v8 typed provenance; no estimator, action, Risk or execution authority was added.
+
+- [`PROPOSAL-015`](PROPOSAL-015-manual-standardized-price-state-research.md) — implemented/verified but disabled/unconsumed Phase 5B Factor-owned manual standardized-price-state research: exact `(manual price - manual reference) / positive manual scale`, structured history, central SQLite Schema v7 and an owner inspector; no reference/scale estimator, automatic adapter, Target Position consumer, Risk or execution is approved.
+
 - [`PROPOSAL-014`](PROPOSAL-014-bounded-target-position-research-preview.md) — implemented/verified but disabled/unconsumed Phase 5A bounded Target Position definition and manual research preview: exact user-defined monotone finite-knot curves, explicit USD research inputs, structured calculation history, central SQLite Schema v6 and Target Position Laboratory; no values, automatic input adapters, TradeIntent, Risk or execution are approved.
 
 - [`PROPOSAL-013`](PROPOSAL-013-asset-state-cycle-history-foundation.md) — implemented/verified Phase 4A generic asset-state/trading-cycle history foundation with user-defined symbolic graphs, manual research transitions, deterministic replay, central SQLite Schema v5 and an Asset State Monitor; automatic state formulas and every trading consumer remain unapproved.

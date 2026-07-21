@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 8
 
 
 _SCHEMA_V1 = """
@@ -1025,6 +1025,260 @@ CREATE TABLE target_position_result_evidence (
 """
 
 
+_SCHEMA_V7 = """
+CREATE TABLE standardized_state_definitions (
+    definition_id TEXT PRIMARY KEY,
+    definition_version INTEGER NOT NULL CHECK (definition_version > 0),
+    predecessor_definition_id TEXT,
+    name TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    formula_id TEXT NOT NULL CHECK (
+        formula_id = 'price_minus_reference_over_positive_scale'
+    ),
+    price_currency TEXT NOT NULL CHECK (price_currency = 'USD'),
+    output_unit TEXT NOT NULL CHECK (output_unit = 'dimensionless'),
+    price_source TEXT NOT NULL CHECK (price_source = 'manual_research'),
+    reference_source TEXT NOT NULL CHECK (reference_source = 'manual_research'),
+    risk_scale_source TEXT NOT NULL CHECK (risk_scale_source = 'manual_research'),
+    status TEXT NOT NULL CHECK (status IN ('available', 'archived')),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (predecessor_definition_id)
+        REFERENCES standardized_state_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_standardized_state_definitions_list
+ON standardized_state_definitions (created_at_utc DESC, name, definition_version);
+
+CREATE TABLE standardized_state_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    operation_type TEXT NOT NULL CHECK (operation_type IN ('definition_save', 'preview')),
+    status TEXT NOT NULL CHECK (status IN ('completed', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    definition_name TEXT,
+    predecessor_definition_id TEXT,
+    requested_definition_id TEXT,
+    resolved_definition_id TEXT,
+    symbol TEXT,
+    manual_price_usd_text TEXT,
+    manual_reference_price_usd_text TEXT,
+    manual_risk_scale_usd_text TEXT,
+    as_of_utc TEXT,
+    result_calculation_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_definition_id)
+        REFERENCES standardized_state_definitions(definition_id) ON DELETE RESTRICT,
+    CHECK (
+        (status = 'completed' AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status <> 'completed' AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_standardized_state_completed_operation
+ON standardized_state_operations (operation_id) WHERE status = 'completed';
+
+CREATE INDEX idx_standardized_state_operations_lookup
+ON standardized_state_operations (
+    operation_id, symbol, requested_at_utc DESC, attempt_id
+);
+
+CREATE TABLE standardized_state_operation_evidence_inputs (
+    attempt_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 0),
+    evidence_kind TEXT NOT NULL CHECK (
+        evidence_kind IN ('algorithm_run', 'factor_calculation')
+    ),
+    evidence_id TEXT NOT NULL,
+    source_component TEXT,
+    source_version TEXT,
+    PRIMARY KEY (attempt_id, ordinal),
+    FOREIGN KEY (attempt_id)
+        REFERENCES standardized_state_operations(attempt_id) ON DELETE RESTRICT,
+    CHECK (source_version IS NULL OR source_component IS NOT NULL)
+);
+
+CREATE TABLE standardized_state_results (
+    calculation_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version > 0),
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    manual_price_usd_text TEXT NOT NULL,
+    manual_reference_price_usd_text TEXT NOT NULL,
+    manual_risk_scale_usd_text TEXT NOT NULL,
+    price_deviation_usd_text TEXT NOT NULL,
+    standardized_state_text TEXT NOT NULL,
+    formula_id TEXT NOT NULL CHECK (
+        formula_id = 'price_minus_reference_over_positive_scale'
+    ),
+    price_currency TEXT NOT NULL CHECK (price_currency = 'USD'),
+    output_unit TEXT NOT NULL CHECK (output_unit = 'dimensionless'),
+    price_source TEXT NOT NULL CHECK (price_source = 'manual_research'),
+    reference_source TEXT NOT NULL CHECK (reference_source = 'manual_research'),
+    risk_scale_source TEXT NOT NULL CHECK (risk_scale_source = 'manual_research'),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id)
+        REFERENCES standardized_state_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_standardized_state_results_list
+ON standardized_state_results (
+    symbol, definition_id, as_of_utc DESC, calculation_id
+);
+
+CREATE TABLE standardized_state_result_evidence (
+    calculation_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 0),
+    evidence_kind TEXT NOT NULL CHECK (
+        evidence_kind IN ('algorithm_run', 'factor_calculation')
+    ),
+    evidence_id TEXT NOT NULL,
+    source_component TEXT,
+    source_version TEXT,
+    PRIMARY KEY (calculation_id, ordinal),
+    FOREIGN KEY (calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT,
+    CHECK (source_version IS NULL OR source_component IS NOT NULL)
+);
+"""
+
+
+_SCHEMA_V8 = """
+CREATE TABLE target_position_linked_preview_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    parent_run_id TEXT NOT NULL UNIQUE,
+    source_stage_id TEXT NOT NULL,
+    target_stage_id TEXT,
+    child_run_id TEXT,
+    child_stage_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    requested_source_calculation_id TEXT NOT NULL,
+    requested_target_definition_id TEXT NOT NULL,
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_position_value_usd_text TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_source_run_id TEXT,
+    resolved_source_stage_id TEXT,
+    resolved_source_definition_id TEXT,
+    resolved_source_definition_version INTEGER CHECK (
+        resolved_source_definition_version IS NULL
+        OR resolved_source_definition_version > 0
+    ),
+    resolved_symbol TEXT,
+    resolved_source_as_of_utc TEXT,
+    resolved_standardized_state_text TEXT,
+    resolved_target_definition_id TEXT,
+    resolved_target_definition_version INTEGER CHECK (
+        resolved_target_definition_version IS NULL
+        OR resolved_target_definition_version > 0
+    ),
+    target_result_calculation_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (child_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_source_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_source_definition_id)
+        REFERENCES standardized_state_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_target_definition_id)
+        REFERENCES target_position_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_result_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    CHECK (
+        (status = 'completed' AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status <> 'completed' AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_target_position_linked_completed_operation
+ON target_position_linked_preview_operations (operation_id)
+WHERE status = 'completed';
+
+CREATE INDEX idx_target_position_linked_operations_lookup
+ON target_position_linked_preview_operations (
+    operation_id, resolved_symbol, requested_at_utc DESC, attempt_id
+);
+
+CREATE TABLE target_position_standardized_state_links (
+    link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    parent_run_id TEXT NOT NULL UNIQUE,
+    source_stage_id TEXT NOT NULL,
+    target_stage_id TEXT NOT NULL,
+    child_run_id TEXT NOT NULL UNIQUE,
+    child_stage_id TEXT NOT NULL,
+    source_calculation_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_result_stage_id TEXT NOT NULL,
+    source_definition_id TEXT NOT NULL,
+    source_definition_version INTEGER NOT NULL CHECK (source_definition_version > 0),
+    symbol TEXT NOT NULL,
+    source_as_of_utc TEXT NOT NULL,
+    standardized_state_text TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL UNIQUE,
+    target_definition_id TEXT NOT NULL,
+    target_definition_version INTEGER NOT NULL CHECK (target_definition_version > 0),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (child_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_stage_id)
+        REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_definition_id)
+        REFERENCES standardized_state_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_definition_id)
+        REFERENCES target_position_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_position_standardized_links_lookup
+ON target_position_standardized_state_links (
+    symbol, source_definition_id, target_definition_id,
+    source_as_of_utc DESC, link_id
+);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -1032,6 +1286,8 @@ _MIGRATIONS = {
     4: ("research capital allocation and conservation evidence", _SCHEMA_V4),
     5: ("manual asset-state definitions, cycles and replay evidence", _SCHEMA_V5),
     6: ("bounded target-position definitions and manual research previews", _SCHEMA_V6),
+    7: ("manual standardized-price-state definitions and structured previews", _SCHEMA_V7),
+    8: ("typed standardized-state to target-position research links", _SCHEMA_V8),
 }
 
 

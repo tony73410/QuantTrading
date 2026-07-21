@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Governed stock historical data browser plus an independent Algorithm Control Center with Phase 1–2B research observability, Phase 3A Research Capital Allocation, Phase 4A manual Asset State history and Phase 5A bounded Target Position research. Central Schema v6 preserves explicit conserved research cash, symbolic state history and exact manual target-level evidence. Portfolio Accounting remains an independent in-memory fact-replay scaffold. Paper/Live Execution remain declaration-only; no active production algorithm, broker account connection, order, or execution behavior exists.
+Governed stock historical data browser plus an independent Algorithm Control Center with Phase 1–2B research observability, Phase 3A Research Capital Allocation, Phase 4A manual Asset State history, Phase 5A bounded Target Position, Phase 5B manual standardized-price-state research and Phase 5C exact source-to-target linkage. Central Schema v8 preserves all prior evidence plus typed linked-operation/result provenance. Portfolio Accounting remains an independent in-memory fact-replay scaffold. Paper/Live Execution remain declaration-only; no active production algorithm, broker account connection, order, or execution behavior exists.
 
 ## Implemented capabilities
 
@@ -14,14 +14,16 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 - Historical Backtesting is `IMPLEMENTED_VERIFIED` for the approved research-only SMA20/50 baseline: all 110 locally cached symbols completed a one-year offline run, with isolated simulated trades, cash, holdings, equity curve, JSON results, GUI and CLI. Immutable records now reject inconsistent Decimal arithmetic, run identity, trace/journal evidence and result-file identity before display or persistence. It is not Paper Trading or production strategy evidence.
 - User-named Simulation Strategies are implemented as immutable local versions that select exact buy/sell Decision versions and their exact Factor dependencies. Saved versions are selectable from Backtesting; the first-phase universe/allocation/fill/cost semantics remain fixed and execution authority remains false.
 
-- QuantTrade主控制台：`python -m quant_trading`显示三个独立子GUI入口，并通过紧凑的可信目录直达Algorithm Control全部15个现有核心页签，包括Capital Allocation、Asset State、Target Position和Run History Explorer；子功能仍在独立进程及其所有者页面中运行，主菜单不包含业务/交易逻辑。
-- Central SQLite Schema v6 reuses `runtime/data/market_history.sqlite3` for independent Market/Run/Factor/Decision/Risk/Capital/State/Target evidence. Verified v1→v2→v3→v4→v5→v6 backups/migrations preserve 215,340 Market Bars plus 365 Fetch History rows. The v6 migration created no default Target Position definition, knot, preview or operation. No production Factor, capital, state or target consumer is active.
+- QuantTrade主控制台：`python -m quant_trading`显示三个独立子GUI入口，并通过紧凑的可信目录直达Algorithm Control全部16个现有核心页签，包括Standardized State、Capital Allocation、Asset State、Target Position和Run History Explorer；子功能仍在独立进程及其所有者页面中运行，主菜单不包含业务/交易逻辑。
+- Central SQLite Schema v8 reuses `runtime/data/market_history.sqlite3` for independent Market/Run/Factor/Decision/Risk/Capital/State/Target/standardized-state/link evidence. Verified v1→v2→v3→v4→v5→v6→v7→v8 migrations preserve 215,340 Market Bars plus 365 Fetch History rows. The v8 migration preserved all 49 pre-existing business-table counts and created no default linked operation/result relationship. No production consumer is active.
 - Unified Run History is `IMPLEMENTED_VERIFIED` for local research previews: Factor Preview, Decision Preview and full Pipeline Dry Run store ordered stages, exact bindings, software/Session/Request identity, warnings/errors and typed artifacts; Run History Explorer is read-only and every run is `NO_EXECUTION`.
 - Phase 2A Factor/Decision research inspection is `IMPLEMENTED_VERIFIED`: Factor history supports bounded filters over successful, invalid and failed attempts plus exact-version tabular comparison; restricted Decision evaluations persist condition and exact sizing-input traces; read-only GUI subtabs expose details and `Open Run`. Legacy rows without evidence remain `TRACE_NOT_CAPTURED` and are never reconstructed.
 - Phase 2B Factor research visualization/export is `IMPLEMENTED_VERIFIED`: one exact Factor version is overlaid only with the stored Bar at its exact `source_data_end_utc` and exact dimensions; invalid/failed/missing or valid non-numeric evidence remains gaps/typed status markers without coercion; CSV/JSON copies preserve Decimal/UTC/ID/status evidence and require explicit overwrite. Market History and Algorithm Control share a presentation-only Plotly view. Schema v3 is unchanged.
 - Phase 3A Research Capital Allocation is `IMPLEMENTED_VERIFIED` but disabled/unconsumed: user-entered `RESEARCH_INPUT` USD basis, exactly one protected locked reserve, one protected tactical reserve, unique asset cash buckets, exact Decimal conservation, manual asset-to-asset transfers, durable failures, Schema v4 restart reload, Allocation Runs, owner GUI and Launcher shortcut. It is not factual Accounting/broker cash and no downstream module reads it.
 - Phase 4A Asset State is `IMPLEMENTED_VERIFIED` but disabled/unconsumed: immutable user-defined symbolic graphs, one open cycle per symbol, explicit manual transitions, start/close events, durable invalid/failed attempts, idempotent operation identity, Schema v5 restart reload, deterministic replay, State Runs, owner GUI and Launcher shortcut. Labels have no built-in financial meaning and no downstream module reads them.
-- Phase 5A Target Position is `IMPLEMENTED_VERIFIED` but disabled/unconsumed: immutable user-defined monotone finite-knot curves, explicit manual scalar/USD basis/current value, exact Decimal clamp/interpolation, structured target/difference traces, durable invalid/failed attempts, Schema v6 restart reload, Target Position Runs, owner GUI/chart and Launcher shortcut. No upstream adapter or downstream module reads it.
+- Phase 5A Target Position is `IMPLEMENTED_VERIFIED` but disabled/unconsumed: immutable user-defined monotone finite-knot curves, explicit manual scalar/USD basis/current value, exact Decimal clamp/interpolation, structured target/difference traces, durable invalid/failed attempts, Schema v6 restart reload, Target Position Runs, owner GUI/chart and Launcher shortcut. Manual mode remains unchanged.
+- Phase 5B manual standardized price state is `IMPLEMENTED_VERIFIED` but disabled: immutable fixed-formula definitions, explicit positive Decimal USD price/reference/scale inputs, exact USD deviation and dimensionless state, structured traces, durable invalid/failed attempts, Schema v7 restart reload, Standardized State Runs, owner GUI and Launcher shortcut. No estimator or generic FactorSnapshot publication exists.
+- Phase 5C linked preview is `IMPLEMENTED_VERIFIED` but disabled/unconsumed: one explicit accepted standardized-state result and one exact existing curve are selected; scalar/symbol/UTC time copy exactly; two USD context values remain manual; the unchanged target engine runs under parent/child/source `NO_EXECUTION` evidence; durable operations/links reload from Schema v8; the existing Target Position page exposes linked history and three-way Open Run. No automatic selection or trading consumer exists.
 
 - 仓库级工作规则、文档索引、ADR 机制、编辑日志规范及目录职责说明。
 - 根目录 `PROJECT_COMPASS.md`：保存用户批准的 Stable Core、当前系统语义、Active Intent、Assumption Register、Open Decisions、漂移检测及 AI 实施前后审查规则；详见 ADR-0003。
@@ -46,18 +48,19 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 
 ## Active modules
 
-- `quant_trading.run_history` — neutral top-level Run lifecycle, ordered stage/binding/message and typed query contracts; see `docs/modules/run-history.md`.
-- `quant_trading.persistence` — shared SQLite Schema v6/migration boundary plus Run History, Factor, Decision, Risk, Capital Allocation, Asset State and Target Position evidence/query adapters; see `docs/modules/central-persistence.md`.
+- `quant_trading.run_history` — neutral top-level Run lifecycle, ordered stage/binding/message, parent/child/source relationships and typed query contracts; see `docs/modules/run-history.md`.
+- `quant_trading.persistence` — shared SQLite Schema v8/migration boundary plus independent Run History, Factor, Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked evidence/query adapters; see `docs/modules/central-persistence.md`.
 - `quant_trading.capital_allocation` — explicit research plans, protected buckets, exact conserved transfers/snapshots and public Store/query contracts; see `docs/modules/capital-allocation.md`.
 - `quant_trading.asset_state` — immutable symbolic definitions, per-symbol cycles, manual transitions, snapshots, attempts and replay contracts; see `docs/modules/asset-state.md`.
-- `quant_trading.target_position` — immutable bounded curve definitions, exact manual previews, structured traces, attempts and query contracts; see `docs/modules/target-position.md`.
+- `quant_trading.target_position` — immutable bounded curves, exact manual previews, source-neutral linked input/provenance, structured traces, attempts and query contracts; see `docs/modules/target-position.md`.
+- `quant_trading.factors.standardized_state_*` — fixed-formula manual standardized-state contracts, engine/service, structured evidence and typed Store/query ports; see `docs/modules/standardized-price-state.md`.
 - `quant_trading.visualization` — business-neutral responsive Plotly/QWebEngine Figure renderer used by Market History and Algorithm Control; see `docs/modules/visualization.md`.
 
 - `quant_trading.market_history` — 股票历史数据浏览器；见 `docs/modules/market-history.md`。
 - `quant_trading.factors` — 单资产因子合同、注册器和无公式引擎；见 `docs/modules/factors.md`。
 - `quant_trading.decision` — 非执行交易决策合同、注册器和无规则引擎；见 `docs/modules/trading-decision.md`。
 - `quant_trading.risk` — 独立风险合同、注册器、保守组合引擎和Risk-approved类型门；见 `docs/modules/risk-control.md`。
-- `quant_trading.orchestration` — Factor → Decision及Factor → Decision → Risk接口级编排；见 `docs/modules/analysis-decision-pipeline.md`。
+- `quant_trading.orchestration` — Factor → Decision → Risk及exact Standardized State → Target Position接口级编排；见 `docs/modules/analysis-decision-pipeline.md`。
 - `quant_trading.portfolio_accounting` — Trading Ledger事实、Accounting派生状态、Reconciliation和Query合同/内存骨架；见 `docs/modules/portfolio-accounting.md`、`docs/modules/trading-ledger.md`。
 - `quant_trading.execution.paper` / `.live` — 空白、禁用且互相隔离的未来模拟/真实执行边界；见 `docs/modules/execution-environments.md`。
 - `quant_trading.algorithm_control` — 组件元数据、版本配置、验证、安全预览、审计与独立桌面GUI；见 `docs/modules/algorithm-control-gui.md`。
@@ -69,7 +72,7 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 |---|---|---|
 | Market Data | `IMPLEMENTED_VERIFIED` | 模型/Provider/Service/GUI单元与集成测试、离线启动和本地加载 |
 | Local Storage | `IMPLEMENTED_VERIFIED` | SQLite schema/store测试、首次/既有数据库初始化、integrity check |
-| GUI | `IMPLEMENTED_VERIFIED` | 主Launcher、三个子GUI及Algorithm Control 15个核心直达入口的offscreen/GUI回归；物理显示QA仍未完成 |
+| GUI | `IMPLEMENTED_VERIFIED` | 主Launcher、三个子GUI及Algorithm Control 16个核心直达入口的offscreen/GUI回归；物理显示QA仍未完成 |
 | Charting | `IMPLEMENTED_VERIFIED` | Market/Factor Plotly builders、共享renderer、精确缺失gap与GUI集成测试 |
 | Configuration | `IMPLEMENTED_VERIFIED` | 缺凭据/缺目录/默认安全角色验证 |
 | Logging | `IMPLEMENTED_VERIFIED` | UTC轮转日志、异常hook、脱敏测试与实际错误堆栈 |
@@ -86,6 +89,8 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 | Research Capital Allocation | `IMPLEMENTED_VERIFIED` | 显式研究现金、受保护资金桶、精确守恒、Schema v4重载和GUI；inactive/unconsumed |
 | Research Asset State | `IMPLEMENTED_VERIFIED` | 用户定义图、每股单一开放周期、人工转换、Schema v5重载与确定性重放；inactive/unconsumed |
 | Research Target Position | `IMPLEMENTED_VERIFIED` | 用户定义单调有限节点曲线、显式人工USD研究输入、Schema v6重载与精确结构化轨迹；inactive/unconsumed |
+| Manual Standardized Price State | `IMPLEMENTED_VERIFIED` | Factor-owned positive manual USD P/R/K, exact deviation/state, Schema v7 reload and structured traces; disabled, with only explicit Phase 5C query consumption |
+| Linked Standardized State → Target Position | `IMPLEMENTED_VERIFIED` | exact explicit source/curve IDs, copied scalar/symbol/time, manual USD context, parent/child/source Runs and Schema v8 provenance; inactive/unconsumed |
 | Paper Trading | `NOT_IMPLEMENTED` | 无订单Provider或提交行为 |
 | Live Trading | `NOT_IMPLEMENTED` | disabled；无连接、凭据或订单行为 |
 | Order Construction / Execution Provider | `PLANNED` | 仅文档方向与Risk-approved类型门 |
@@ -96,10 +101,10 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 
 - Backtesting: `BacktestRequest`, `SimulatedTrade`, `EquityPoint`, `BacktestResult`, `DecisionJournalEntry`, `FactorTrace`, `ConditionTrace`, `JournalAction`, `JournalOutcome`; immutable contracts validate identity, UTC time and Decimal/arithmetic coherence, while the GUI exposes separate simulated-fill and daily-decision views. Implemented and verified for isolated research only.
 
-- Run History/Persistence: `AlgorithmRunService`, `RunHistoryRepository`, `RunHistoryQueryService`, `CentralSQLiteDatabase`, `SQLiteRunHistoryRepository`, `FactorSnapshotStore`, `SQLiteFactorSnapshotStore`, `SQLiteAlgorithmResultStore`, `SQLiteResearchHistoryQueryService`, `SQLiteCapitalAllocationStore`, `SQLiteAssetStateStore`, `SQLiteTargetPositionStore`, `FactorCalculationRun`, `FactorCalculationStatus`.
+- Run History/Persistence: `AlgorithmRunService`, `RunHistoryRepository`, `RunHistoryQueryService`, `RunRelationship`, `CentralSQLiteDatabase`, `SQLiteRunHistoryRepository`, `FactorSnapshotStore`, `SQLiteFactorSnapshotStore`, `SQLiteAlgorithmResultStore`, `SQLiteResearchHistoryQueryService`, `SQLiteCapitalAllocationStore`, `SQLiteAssetStateStore`, `SQLiteTargetPositionStore`, `FactorCalculationRun`, `FactorCalculationStatus`.
 - Capital Allocation: `CapitalAllocationService`, `CapitalAllocationStore`, `CapitalAllocationQueryService`, `CapitalPlan`, `CapitalSnapshot`, `CapitalAllocationTransferEvent`, `CapitalConservationResult`, `CapitalOperationAttempt` and typed commands/list/detail views.
 - Asset State: `AssetStateService`, `AssetStateStore`, `AssetStateQueryService`, `AssetStateMachineDefinition`, `TradingCycle`, `AssetStateTransitionEvent`, `AssetStateSnapshot`, `AssetStateOperationAttempt`, `StateReplayResult` and typed commands/queries.
-- Target Position: `TargetPositionService`, `TargetPositionEngine`, `TargetPositionStore`, `TargetPositionQueryService`, `TargetPositionCurveDefinition`, `TargetPositionResult`, `TargetPositionCalculationTrace`, `TargetPositionOperationAttempt` and typed commands/queries.
+- Target Position: `TargetPositionService`, `LinkedTargetPositionService`, `TargetPositionEngine`, `TargetPositionStore`, `TargetPositionQueryService`, `TargetPositionCurveDefinition`, `TargetPositionResult`, `TargetPositionCalculationTrace`, `TargetPositionOperationAttempt`, `LinkedTargetPositionOperationAttempt`, `StandardizedStateTargetPositionLink` and typed commands/queries.
 
 - Python：`HistoricalDataRequest`, `MarketBar`, `HistoricalDataService`, `HistoryController` 及 Provider/Store Protocol。
 - Desktop entry point：`quant-history` 或 `python -m quant_trading.market_history`。
@@ -107,7 +112,7 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 - Decision：`TradingDecisionPolicy`, `TradingDecisionEngine`, `DecisionResult`, `TradeIntent`, `DecisionConditionTrace`, `DecisionSizingInputTrace`, `DecisionHistoryQueryService`及历史详情合同。
 - Risk：`RiskPolicy`, `RiskEngine`, `RiskDecision`, `RiskApprovedTradeIntent`及中性上下文/Provider Protocol。
 - Portfolio Accounting：`LedgerRepository`, `PortfolioAccountingService`, `AccountSnapshot`, `PositionSnapshot`, `PortfolioSnapshot`, `DailyPnLSnapshot`, `ReconciliationService`, `PortfolioAccountingQueryService`。
-- Orchestration：`AnalysisDecisionPipeline`, `TradingEvaluationPipeline`。
+- Orchestration：`AnalysisDecisionPipeline`, `TradingEvaluationPipeline`, `StandardizedStateTargetPositionPreviewCoordinator`。
 - Algorithm Control：`AlgorithmComponentRegistry`, `ParameterSchema`, `ConfigurationService`, `AlgorithmControlController`, `AlgorithmControlPanel`；入口`quant-algorithm-control`或`python -m quant_trading.algorithm_control`。
 - Algorithm Idea Notebook：`IdeaNote`, `IdeaNoteStatus`, `IdeaNoteStore`, `JsonIdeaNoteStore`, `IdeaNotebookService`, `IdeaNotebookPanel`；仅供Algorithm Control本地笔记使用。
 - Factor authoring：`FactorDefinition`, `FactorDefinitionStore`, `SafeExpressionFactorCalculator`, `FactorDefinitionService`；见 `docs/modules/factor-authoring.md`。
@@ -116,7 +121,7 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 
 ## Current technology decisions
 
-- The existing ignored `runtime/data/market_history.sqlite3` is the central physical SQLite file. Market, Run History, Factor, Decision, Risk, Capital Allocation, Asset State and Target Position persistence keep separate public contracts; schema initialization is additive and versioned. Schema v2 is defined by PROPOSAL-009/ADR-0016, Schema v3 by PROPOSAL-010/ADR-0017, exact Bar visualization by PROPOSAL-011/ADR-0018, Schema v4 by PROPOSAL-012/ADR-0019, Schema v5 by PROPOSAL-013/ADR-0020, and Schema v6 bounded target research by PROPOSAL-014/ADR-0021.
+- The existing ignored `runtime/data/market_history.sqlite3` is the central physical SQLite file. Feature persistence keeps separate public contracts; schema initialization is additive and versioned. Schema v2 is defined by PROPOSAL-009/ADR-0016, v3 by PROPOSAL-010/ADR-0017, v4 by PROPOSAL-012/ADR-0019, v5 by PROPOSAL-013/ADR-0020, v6 by PROPOSAL-014/ADR-0021, v7 by PROPOSAL-015/ADR-0022 and v8 linked provenance by PROPOSAL-016/ADR-0023.
 
 - Python 支持范围为 3.11–3.14；当前实际验证版本为 3.14.5。
 - 历史数据模块采用 PySide6/QWebEngineView、Plotly、官方 `alpaca-py`、pandas、标准库 SQLite 和 pytest。
@@ -157,14 +162,22 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 - 正在执行的同步 Alpaca HTTP 请求无法安全中途取消，窗口关闭可能等待请求结束；见 KI-0006 / BUG-20260713-005。
 - 分钟/小时常规时段使用固定 09:30–16:00 纽约时间窗口，当前不能识别提前收盘日；见 KI-0007。
 - Factor/Decision/Risk已接入Algorithm Control的本地预览流程和统一Run History，但没有接入生产激活或执行流程。Factor/Decision/Risk dry-run结果会作为研究证据持久化；TradeIntent和RiskDecision都不是订单。
-- Schema-v2 Decision rows remain readable as `TRACE_NOT_CAPTURED`; Phase 2A does not infer or backfill condition outcomes. Phase 2B charts only one exact Factor version and exact stored source field; cross-version chart overlays/ranking, Decision export and recomputation replay remain unimplemented. Phase 5A Target Position is a separate manual-only research branch, not a Factor/Decision integration.
+- Schema-v2 Decision rows remain readable as `TRACE_NOT_CAPTURED`; Phase 2A does not infer or backfill condition outcomes. Phase 2B charts only one exact Factor version and exact stored source field. Phase 5C connects only one explicitly selected persisted standardized-state result to one exact curve; it is not automatic Factor/Decision integration.
 - 用户可保存多个禁用Factor和Decision版本。Pipeline Dry Run需要精确选择一个Decision版本和本地缓存数据；没有数值Risk规则时，任何交易意图都会停在人工审查状态。
 - Risk的Account/Portfolio/OpenOrders Provider只有抽象Protocol；没有账户连接。Emergency de-risking当前只会暂停新Intent，自动平仓Not implemented。
 - Portfolio Accounting仅使用内存Repository/Service；无持久化、Broker同步、市场估值或完整P&L。现有Decision/Risk trace-only Snapshot未被替换，未来运行接入需要显式adapter审查。
-- Capital Allocation、Asset State和Target Position都没有Active选择或自动消费者。Target Position只接受人工scalar/USD输入。行业层级、动态权重、储备借贷、自动状态公式/阈值/饱和重置、标准化状态、Capital/Accounting adapter、hysteresis、TradeIntent转换均未实现。
+- Capital Allocation、Asset State和Target Position都没有Active选择或交易消费者。Target Position manual mode接受人工scalar/USD；linked mode只复制显式选择的标准化状态scalar/symbol/time，USD资本与当前持仓仍为人工研究输入。行业层级、动态权重、储备借贷、自动状态公式/阈值/饱和重置、估计器、Capital/Accounting adapter、hysteresis、TradeIntent转换均未实现。
 - Idea Notebook currently provides plain text, tags and archive/restore only. It has no search, attachments, cloud sync, encryption, proposal conversion, or algorithm activation path.
 
 ## Implementation checkpoint — 2026-07-20
+
+- Phase 5C was implemented within approved PROPOSAL-016: exact persisted-result selection and scalar/symbol/time propagation into the unchanged bounded Target Position engine, with durable idempotent attempts, typed immutable links, parent/child/source Run navigation and a separate linked view inside the existing Target Position page.
+- Central SQLite migrated transactionally from v7 to v8. Verified backup `market_history.schema-v7-to-v8.20260721T002840650386Z.sqlite3` remains Schema v7; active is v8. Both report `integrity_check=ok` and zero foreign-key violations. All 49 pre-existing business-table counts are unchanged, including 215,340 Market Bars and 365 Fetch History rows; both new tables started empty.
+- Linked operations are `NO_EXECUTION`; USD basis/current position remain hypothetical manual inputs. No estimator, latest/default selection, actual capital/account source, Decision/Risk/Backtesting/Accounting/Execution consumer, network, broker, order, Paper or Live authority was added.
+
+- Phase 5B was implemented within PROPOSAL-015: exact manual `D=P-R` USD and dimensionless `S=D/K` Factor-owned research, with immutable definitions/results, durable failures, typed Run/GUI history and no estimator, generic FactorSnapshot publication or downstream consumer.
+- Central SQLite migrated transactionally from v6 to v7. Verified backup `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3` remains Schema v6; active is v7. Both report `integrity_check=ok` and zero foreign-key violations. All 44 existing business-table counts are unchanged, including 215,340 Market Bars and 365 Fetch History rows; all five new tables started empty.
+- Standardized-state operations are `NO_EXECUTION`. No network, account, broker, order, Paper or Live authority was used; automatic submission and Live remain disabled.
 
 - Phase 1、2A、2B、3A、4A和5A均按PROPOSAL-009/010/011/012/013/014批准边界实施；Phase 5A只计算显式人工研究目标，不进入Decision/Risk/Execution链。
 - 中央SQLite已从v5事务式迁移到Schema v6，备份`market_history.schema-v5-to-v6.20260720T221057524713Z.sqlite3`有效；迁移前后保留215,340条Market Bars和365条Fetch History，双方`integrity_check=ok`且无外键错误。所有新Target Position表为0行，没有默认定义/节点/预览/操作。
@@ -174,8 +187,8 @@ Governed stock historical data browser plus an independent Algorithm Control Cen
 
 ## Next approved work
 
-`PROPOSAL-014` Phase 5A is implemented and verified as disabled/unconsumed manual research. No further development slice is currently approved. Standardized-state formulas, automatic Factor/State inputs, Capital/Accounting adapters, hysteresis, target-to-Decision conversion, numerical Risk, full Backtesting consumption, accounting persistence, Paper execution, production activation and Live require separate scope and approval. Paper/Live Execution boundaries remain empty.
+`PROPOSAL-016` Phase 5C is implemented and verified as disabled/unconsumed exact linked research. No further development slice is currently approved. Automated reference/scale estimation, Market Data/FactorSnapshot publication, automatic source/curve selection, Asset State/Capital/Accounting adapters, hysteresis, target-to-Decision conversion, numerical Risk, full Backtesting consumption, accounting persistence, Paper execution, production activation and Live require separate scope and approval. Paper/Live Execution boundaries remain empty.
 
 ## Last verified date
 
-2026-07-20 (full suite 375 passed with one upstream warning; final architecture suite 45 passed; compileall and pip dependency integrity passed; diff whitespace status is recorded in EDIT-20260720-006; Target Position domain/SQLite/Run/GUI/chart/Launcher paths passed; central SQLite Schema v6 and verified v5 backup preserve 215,340 Market Bars and 365 Fetch History rows with integrity/FK checks clean and zero default Target Position rows; Main Launcher exposes three applications and fifteen trusted shortcuts; network/account/order access was not used; Live and automatic submission remain disabled.)
+2026-07-20 (full suite 401 passed with one upstream warning; architecture/governance suite 54 passed; linked target focused suite 6 passed; compileall, pip dependency integrity and diff whitespace checks passed. Central SQLite Schema v8 and verified v7 backup preserve all 49 existing business-table counts, including 215,340 Market Bars and 365 Fetch History rows, with integrity/FK checks clean and zero default linked rows. Main Launcher still exposes three applications and sixteen trusted shortcuts; Market Data/account/order access was not used; Live and automatic submission remain disabled. See EDIT-20260720-011.)

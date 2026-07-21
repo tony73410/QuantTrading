@@ -10,6 +10,9 @@ from .trading_evaluation_pipeline import (
     TradingEvaluationRequest,
     TradingEvaluationResult,
 )
+from .standardized_target_position_preview import (
+    StandardizedStateTargetPositionPreviewCoordinator,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -18,4 +21,5 @@ __all__ = [
     "TradingEvaluationPipeline",
     "TradingEvaluationRequest",
     "TradingEvaluationResult",
+    "StandardizedStateTargetPositionPreviewCoordinator",
 ]

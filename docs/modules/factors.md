@@ -4,7 +4,7 @@ This is explicitly the **Asset Factor Layer / 单只股票因子**. It calculate
 
 ## Status
 
-The restricted-expression definition/calculator extension is implemented and verified. Authored definitions are disabled by default; no default or automatically active production formula exists.
+The restricted-expression definition/calculator extension and the specialized manual standardized-price-state research contract are implemented and verified. Authored definitions are disabled by default; no default or automatically active production formula exists.
 
 **Partially implemented and verified.** Contracts, registry, strategy-neutral engine, time-safety validation, and Fake-driven tests exist. No production factor formula or implementation is registered.
 
@@ -20,6 +20,7 @@ Transform one symbol's standardized, completed Market Data into versioned, times
 - Run independently injected calculators through a registry, without factor-name `if/elif` dispatch.
 - Preserve factor name/version, parameters, unit, lookback, status, quality flags, source bounds, and calculation time.
 - Return explicit non-valid status with `value=None`; never use zero as missing data.
+- Own the separate manual standardized-price-state definition/engine/service contracts: exact positive Decimal USD price/reference/scale inputs, USD deviation and dimensionless `(price-reference)/scale` trace.
 
 ## Non-responsibilities
 
@@ -40,6 +41,7 @@ The layer does not decide buy/sell/increase/decrease, read portfolio/account sta
 - `FactorHistoryQueryService`, `FactorHistoryQuery`, `FactorHistoryRecord`
 - `FactorVisualizationQueryService`, `FactorVisualizationQuery`, `FactorVisualizationPoint`, `FactorVisualizationSeries`, `FactorSourcePriceStatus`
 - `FactorVersionComparisonQuery`, `FactorVersionComparison`, `FactorVersionValue`
+- `StandardizedPriceStateDefinition`, command/result/trace/operation/query models, `StandardizedPriceStateEngine`, `StandardizedPriceStateService`, and public Store/query Protocols
 
 Each calculator must declare a unique `factor_name`, `factor_version`, `minimum_observations`, `output_unit`, and `missing_input_policy`.
 
@@ -63,7 +65,7 @@ Forbidden: `quant_trading.decision`, `quant_trading.risk`, orchestration, execut
 
 ## Side effects
 
-The Factor Engine has no network, database, GUI, account, or order side effects. An independently injected infrastructure Store may persist its returned snapshot; the concrete SQLite adapter is not imported by this layer. The engine logs calculator exceptions and converts that calculator's result to `CALCULATION_ERROR` without inventing a value.
+The Factor Engine has no network, database, GUI, account, or order side effects. An independently injected infrastructure Store may persist its returned snapshot; the concrete SQLite adapter is not imported by this layer. The specialized standardized-state service may coordinate neutral `NO_EXECUTION` Run lifecycle and write through an injected public Store, but imports no concrete Persistence or trading consumer. The engine logs calculator exceptions and converts that calculator's result to `CALCULATION_ERROR` without inventing a value.
 
 The Factor domain also owns typed read-only history/query meaning. The concrete central-SQLite adapter lives in Persistence and returns successful, invalid, running and failed calculation evidence. Failed calculations contain no fabricated snapshot or value. Exact-version comparison aligns recorded values by symbol, `as_of_utc` and market dimensions, reports missing versions explicitly, and never ranks financial quality.
 
@@ -89,10 +91,11 @@ No configuration file or global factor dictionary exists. Factor parameters are 
 ## Known limitations
 
 - No approved factor formulas or production calculator implementations.
+- Phase 5B manual standardized-price-state definitions/results are specialized Factor-owned research evidence, not Active production calculators or generic `FactorSnapshot` values. Phase 5C application orchestration may read one explicitly selected accepted result through the public query contract; Factor imports no Target Position code. Reference/scale estimators and Market Data publication remain unimplemented.
 - No automatic Market History-to-`MarketDataWindow` adapter.
 - FactorSnapshot persistence is implemented behind an independent Protocol and is active for explicit local research previews so downstream evidence has durable inputs. No production Factor calculator is registered or activated.
 - Algorithm Control's `历史与比较` subpanel consumes only `FactorHistoryQueryService`, supports symbol/Factor/version/date/status filters and tabular exact-version comparison, and can open the owning Run. It contains no SQL or Factor calculation.
 - Algorithm Control now consumes the separate `FactorVisualizationQueryService` for one exact-version Factor/source-price chart. Invalid/failed/missing evidence remains a gap plus a structured status marker; CSV/JSON export is a bounded copy of the current records and does not become a Factor input.
-- Cross-version chart overlays, version ranking, Decision export, automatic Factor-to-Target Position adaptation and recomputation replay remain unimplemented.
+- Cross-version chart overlays, version ranking, Decision export, automatic/latest Factor-to-Target Position selection and recomputation replay remain unimplemented. The exact Phase 5C adapter is explicit and does not create a general automatic Factor consumer.
 - Bar availability and trading-calendar semantics remain an explicit caller responsibility.
 - Adjustment identity is preserved, but the contract does not decide whether current split/dividend-adjusted history is point-in-time safe for a future backtest. That financial meaning requires explicit approval before a production factor uses adjusted data.

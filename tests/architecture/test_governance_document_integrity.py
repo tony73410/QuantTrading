@@ -24,14 +24,14 @@ def test_canonical_architecture_invariants_are_monotonic_and_unique() -> None:
     assert numbers == list(range(1, len(numbers) + 1))
 
 
-def test_compass_verification_metadata_describes_current_phase_five_a_work() -> None:
+def test_compass_verification_metadata_describes_current_phase_five_c_work() -> None:
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
-    assert "Phase 5A bounded Target Position" in metadata
-    assert "central Schema v6" in metadata
-    assert "v5→v6 backup/migration" in metadata
-    assert "zero default Target Position rows" in metadata
+    assert "Phase 5C exact standardized-state-to-Target-Position adapter" in metadata
+    assert "central Schema v8" in metadata
+    assert "v7→v8 backup/migration" in metadata
+    assert "zero default linked rows" in metadata
 
 
 def test_compass_does_not_deny_verified_research_backtesting() -> None:

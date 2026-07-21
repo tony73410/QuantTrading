@@ -14,19 +14,23 @@ from quant_trading.persistence.sqlite_database import (
     _SCHEMA_V3,
     _SCHEMA_V4,
     _SCHEMA_V5,
+    _SCHEMA_V6,
+    _SCHEMA_V7,
 )
 
 
-NOW = datetime(2026, 7, 20, 20, 0, tzinfo=UTC)
+NOW = datetime(2026, 7, 20, 23, 0, tzinfo=UTC)
 
 
-def _create_v4_database(path: Path) -> None:
+def _create_v6_database(path: Path) -> None:
     with sqlite3.connect(path) as connection:
         for version, schema in (
             (1, _SCHEMA_V1),
             (2, _SCHEMA_V2),
             (3, _SCHEMA_V3),
             (4, _SCHEMA_V4),
+            (5, _SCHEMA_V5),
+            (6, _SCHEMA_V6),
         ):
             connection.executescript(schema)
             connection.execute(
@@ -45,49 +49,52 @@ def _create_v4_database(path: Path) -> None:
         connection.commit()
 
 
-def test_v4_to_v5_migration_backs_up_and_preserves_existing_rows(tmp_path: Path):
-    database_path = tmp_path / "central.sqlite3"
-    backup_path = tmp_path / "backups"
-    _create_v4_database(database_path)
+def test_v6_to_v7_migration_backs_up_preserves_and_creates_no_default(tmp_path: Path):
+    database = tmp_path / "central.sqlite3"
+    backups = tmp_path / "backups"
+    _create_v6_database(database)
 
-    CentralSQLiteDatabase(database_path, backup_directory=backup_path).initialize()
+    CentralSQLiteDatabase(database, backup_directory=backups).initialize()
 
-    backups = tuple(backup_path.glob("*.sqlite3"))
-    assert len(backups) == 1
-    assert ".schema-v4-to-v8." in backups[0].name
-    with sqlite3.connect(backups[0]) as backup:
-        assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 4
+    backup_files = tuple(backups.glob("*.sqlite3"))
+    assert len(backup_files) == 1
+    assert ".schema-v6-to-v8." in backup_files[0].name
+    with sqlite3.connect(backup_files[0]) as backup:
+        assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 6
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert backup.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
-    with sqlite3.connect(database_path) as connection:
+    with sqlite3.connect(database) as connection:
         assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
-        assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute(
-            "SELECT COUNT(*) FROM sqlite_master WHERE name = 'asset_state_cycles'"
-        ).fetchone()[0] == 1
-        assert connection.execute("SELECT COUNT(*) FROM asset_state_definitions").fetchone()[0] == 0
+            "SELECT COUNT(*) FROM target_position_standardized_state_links"
+        ).fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
+        for table in (
+            "standardized_state_definitions",
+            "standardized_state_operations",
+            "standardized_state_results",
+        ):
+            assert connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 
 
-def test_failed_v5_migration_rolls_back_to_intact_v4(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    database_path = tmp_path / "central.sqlite3"
-    backup_path = tmp_path / "backups"
-    _create_v4_database(database_path)
+def test_failed_v7_migration_rolls_back_to_intact_v6(tmp_path: Path, monkeypatch):
+    database = tmp_path / "central.sqlite3"
+    backups = tmp_path / "backups"
+    _create_v6_database(database)
     broken = dict(sqlite_database._MIGRATIONS)
-    broken[5] = ("intentionally broken v5", _SCHEMA_V5 + "\nINVALID SQL;")
+    broken[7] = ("intentionally broken v7", _SCHEMA_V7 + "\nINVALID SQL;")
     monkeypatch.setattr(sqlite_database, "_MIGRATIONS", broken)
 
     with pytest.raises(sqlite3.OperationalError):
-        CentralSQLiteDatabase(database_path, backup_directory=backup_path).initialize()
+        CentralSQLiteDatabase(database, backup_directory=backups).initialize()
 
-    assert len(tuple(backup_path.glob("*.sqlite3"))) == 1
-    with sqlite3.connect(database_path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 4
+    assert len(tuple(backups.glob("*.sqlite3"))) == 1
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 6
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute(
-            "SELECT COUNT(*) FROM sqlite_master WHERE name = 'asset_state_cycles'"
+            "SELECT COUNT(*) FROM sqlite_master WHERE name = 'standardized_state_results'"
         ).fetchone()[0] == 0
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"

@@ -107,6 +107,14 @@ class RunHistoryPanel(QWidget):
         self.detail_header = QLabel("选择一条运行查看完整链路。")
         self.detail_header.setWordWrap(True)
         detail_layout.addWidget(self.detail_header)
+        related_layout = QHBoxLayout()
+        related_layout.addWidget(QLabel("关联 Run"))
+        self.related_run_combo = QComboBox()
+        self.open_related_run_button = QPushButton("Open related Run")
+        self.open_related_run_button.setEnabled(False)
+        related_layout.addWidget(self.related_run_combo, 1)
+        related_layout.addWidget(self.open_related_run_button)
+        detail_layout.addLayout(related_layout)
         detail_tables = QSplitter(Qt.Orientation.Horizontal)
         self.chain_tree = QTreeWidget()
         self.chain_tree.setHeaderLabels(("阶段 / 结果", "状态", "摘要"))
@@ -132,6 +140,12 @@ class RunHistoryPanel(QWidget):
 
         self.refresh_button.clicked.connect(self.reload)
         self.run_table.itemSelectionChanged.connect(self._selection_changed)
+        self.related_run_combo.currentIndexChanged.connect(
+            lambda _index: self.open_related_run_button.setEnabled(
+                self.related_run_combo.currentData() is not None
+            )
+        )
+        self.open_related_run_button.clicked.connect(self._open_related_run)
 
     def reload(self) -> None:
         try:
@@ -217,10 +231,20 @@ class RunHistoryPanel(QWidget):
         run = detail.summary.run
         self.detail_header.setText(
             f"Run {run.run_id} · {run.run_type.value} · {run.status.value}<br>"
+            f"父 Run：{run.parent_run_id or '—'}<br>"
             f"执行模式：{run.execution_mode.value} · 数据截止："
             f"{run.market_data_as_of_utc.isoformat() if run.market_data_as_of_utc else '—'}<br>"
             f"软件：{run.software_version} · revision：{run.source_revision or '—'} · "
             f"worktree：{run.worktree_state.value}"
+        )
+        self.related_run_combo.clear()
+        for relationship in detail.relationships:
+            self.related_run_combo.addItem(
+                f"{relationship.relationship_type.value} · {relationship.run_id}",
+                str(relationship.run_id),
+            )
+        self.open_related_run_button.setEnabled(
+            self.related_run_combo.currentData() is not None
         )
         self.chain_tree.clear()
         stage_nodes: dict[str, QTreeWidgetItem] = {}
@@ -275,9 +299,16 @@ class RunHistoryPanel(QWidget):
             node.addChild(self._artifact_item(child))
         return node
 
+    def _open_related_run(self) -> None:
+        value = self.related_run_combo.currentData()
+        if value:
+            self.open_run(UUID(str(value)))
+
     def _clear_detail(self) -> None:
         self.detail_header.setText("选择一条运行查看完整链路。")
         self.chain_tree.clear()
+        self.related_run_combo.clear()
+        self.open_related_run_button.setEnabled(False)
         self.binding_table.setRowCount(0)
         self.message_table.setRowCount(0)
 

@@ -90,7 +90,7 @@ def test_schema_v1_to_current_migration_backs_up_and_preserves_rows(tmp_path: Pa
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 1
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 6
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"

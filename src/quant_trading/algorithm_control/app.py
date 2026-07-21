@@ -21,11 +21,17 @@ from quant_trading.persistence import (
     SQLiteResearchHistoryQueryService,
     SQLiteRunHistoryRepository,
     SQLiteTargetPositionStore,
+    SQLiteStandardizedPriceStateStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
 from quant_trading.asset_state import AssetStateService
 from quant_trading.target_position import TargetPositionService
+from quant_trading.target_position import LinkedTargetPositionService
+from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
+from quant_trading.orchestration import (
+    StandardizedStateTargetPositionPreviewCoordinator,
+)
 
 from .audit_service import AuditService
 from .factor_history_export import FactorHistoryExportService
@@ -157,6 +163,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         AlgorithmRunService(run_history_queries),
         software,
     )
+    standardized_state_store = SQLiteStandardizedPriceStateStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    standardized_state_store.initialize()
+    standardized_state_service = StandardizedPriceStateService(
+        standardized_state_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    linked_target_position_service = LinkedTargetPositionService(
+        target_position_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    linked_target_position_preview = (
+        StandardizedStateTargetPositionPreviewCoordinator(
+            standardized_state_store,
+            target_position_store,
+            linked_target_position_service,
+            AlgorithmRunService(run_history_queries),
+            software,
+        )
+    )
     panel = AlgorithmControlPanel(
         controller,
         InMemoryPortfolioAccountingQueryService(),
@@ -183,6 +212,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         target_position_service,
         target_position_store,
         session_id,
+        standardized_state_service,
+        standardized_state_store,
+        session_id,
+        linked_target_position_preview=linked_target_position_preview,
     )
     if options.page is not None:
         panel.select_page(options.page)

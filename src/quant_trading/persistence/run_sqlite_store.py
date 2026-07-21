@@ -20,6 +20,8 @@ from quant_trading.run_history.models import (
     RunExecutionMode,
     RunMessage,
     RunMessageSeverity,
+    RunRelationship,
+    RunRelationshipType,
     RunQuery,
     RunStage,
     RunStageName,
@@ -292,7 +294,50 @@ class SQLiteRunHistoryRepository:
                 )
             )
             artifacts = self._load_artifacts(connection, run_id)
-        return RunDetailView(summary, stages, bindings, messages, artifacts)
+            relationships = self._load_relationships(connection, summary.run)
+        return RunDetailView(
+            summary, stages, bindings, messages, artifacts, relationships
+        )
+
+    @staticmethod
+    def _load_relationships(connection, run) -> tuple[RunRelationship, ...]:
+        relationships: set[tuple[RunRelationshipType, UUID]] = set()
+        if run.parent_run_id is not None:
+            relationships.add((RunRelationshipType.PARENT, run.parent_run_id))
+        for row in connection.execute(
+            "SELECT run_id FROM algorithm_runs WHERE parent_run_id = ? ORDER BY run_id",
+            (str(run.run_id),),
+        ):
+            relationships.add((RunRelationshipType.CHILD, UUID(row["run_id"])))
+        link_rows = connection.execute(
+            """
+            SELECT parent_run_id, child_run_id, source_run_id
+            FROM target_position_standardized_state_links
+            WHERE parent_run_id = ? OR child_run_id = ? OR source_run_id = ?
+            """,
+            (str(run.run_id), str(run.run_id), str(run.run_id)),
+        ).fetchall()
+        for row in link_rows:
+            parent_id = UUID(row["parent_run_id"])
+            child_id = UUID(row["child_run_id"])
+            source_id = UUID(row["source_run_id"])
+            if source_id != run.run_id:
+                relationships.add((RunRelationshipType.SOURCE, source_id))
+            if parent_id != run.run_id:
+                relation = (
+                    RunRelationshipType.LINKED_PREVIEW
+                    if source_id == run.run_id
+                    else RunRelationshipType.PARENT
+                )
+                relationships.add((relation, parent_id))
+            if child_id != run.run_id and parent_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, child_id))
+        return tuple(
+            RunRelationship(kind, related_run_id)
+            for kind, related_run_id in sorted(
+                relationships, key=lambda item: (item[0].value, str(item[1]))
+            )
+        )
 
     @staticmethod
     def _run_from_row(row: sqlite3.Row) -> AlgorithmRun:
@@ -772,6 +817,171 @@ class SQLiteRunHistoryRepository:
                         _field("error", operation["error_summary"]),
                     ),
                     result_children,
+                )
+            )
+        standardized_rows = connection.execute(
+            """
+            SELECT * FROM standardized_state_operations
+            WHERE run_id = ? ORDER BY requested_at_utc, attempt_id
+            """,
+            (str(run_id),),
+        ).fetchall()
+        for operation in standardized_rows:
+            result_children: tuple[RunArtifactView, ...] = ()
+            if operation["result_calculation_id"]:
+                result = connection.execute(
+                    """
+                    SELECT * FROM standardized_state_results
+                    WHERE calculation_id = ?
+                    """,
+                    (operation["result_calculation_id"],),
+                ).fetchone()
+                if result is not None:
+                    result_children = (
+                        RunArtifactView(
+                            "standardized_price_state_result",
+                            result["calculation_id"],
+                            RunStageName.STANDARDIZED_STATE.value,
+                            result["symbol"],
+                            "valid",
+                            (
+                                f"{result['symbol']} standardized state = "
+                                f"{result['standardized_state_text']}"
+                            ),
+                            _datetime(result["created_at_utc"]),
+                            (
+                                _field("definition id", result["definition_id"]),
+                                _field("definition version", result["definition_version"]),
+                                _field("as of", result["as_of_utc"]),
+                                _field("manual price USD", result["manual_price_usd_text"]),
+                                _field(
+                                    "manual reference USD",
+                                    result["manual_reference_price_usd_text"],
+                                ),
+                                _field(
+                                    "manual risk scale USD",
+                                    result["manual_risk_scale_usd_text"],
+                                ),
+                                _field(
+                                    "price deviation USD",
+                                    result["price_deviation_usd_text"],
+                                ),
+                                _field(
+                                    "standardized state",
+                                    result["standardized_state_text"],
+                                ),
+                                _field("formula", result["formula_id"]),
+                                _field("input source", result["price_source"]),
+                            ),
+                        ),
+                    )
+            summary = (
+                f"Standardized-state definition: {operation['definition_name'] or '—'}"
+                if operation["operation_type"] == "definition_save"
+                else f"Manual standardized-state preview: {operation['symbol'] or '—'}"
+            )
+            artifacts.append(
+                RunArtifactView(
+                    "standardized_price_state_operation",
+                    operation["attempt_id"],
+                    RunStageName.STANDARDIZED_STATE.value,
+                    operation["symbol"],
+                    operation["status"],
+                    summary,
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field(
+                            "definition id",
+                            operation["resolved_definition_id"]
+                            or operation["requested_definition_id"],
+                        ),
+                        _field("manual price USD", operation["manual_price_usd_text"]),
+                        _field(
+                            "manual reference USD",
+                            operation["manual_reference_price_usd_text"],
+                        ),
+                        _field(
+                            "manual risk scale USD",
+                            operation["manual_risk_scale_usd_text"],
+                        ),
+                        _field("as of", operation["as_of_utc"]),
+                        _field("calculation id", operation["result_calculation_id"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    result_children,
+                )
+            )
+        linked_rows = connection.execute(
+            """
+            SELECT * FROM target_position_linked_preview_operations
+            WHERE parent_run_id = ? ORDER BY requested_at_utc, attempt_id
+            """,
+            (str(run_id),),
+        ).fetchall()
+        for operation in linked_rows:
+            link_children: tuple[RunArtifactView, ...] = ()
+            link = connection.execute(
+                """
+                SELECT * FROM target_position_standardized_state_links
+                WHERE operation_id = ?
+                """,
+                (operation["operation_id"],),
+            ).fetchone()
+            if link is not None:
+                link_children = (
+                    RunArtifactView(
+                        "standardized_state_target_position_link",
+                        link["link_id"],
+                        RunStageName.TARGET_POSITION.value,
+                        link["symbol"],
+                        "immutable",
+                        (
+                            f"{link['symbol']} state {link['standardized_state_text']} "
+                            f"→ Target Position calculation {link['target_calculation_id']}"
+                        ),
+                        _datetime(link["created_at_utc"]),
+                        (
+                            _field("source calculation", link["source_calculation_id"]),
+                            _field("source Run", link["source_run_id"]),
+                            _field("source definition", link["source_definition_id"]),
+                            _field("source definition version", link["source_definition_version"]),
+                            _field("source as of", link["source_as_of_utc"]),
+                            _field("target calculation", link["target_calculation_id"]),
+                            _field("target definition", link["target_definition_id"]),
+                            _field("target definition version", link["target_definition_version"]),
+                            _field("child Run", link["child_run_id"]),
+                        ),
+                    ),
+                )
+            artifacts.append(
+                RunArtifactView(
+                    "linked_target_position_operation",
+                    operation["attempt_id"],
+                    (
+                        RunStageName.TARGET_POSITION.value
+                        if operation["target_stage_id"]
+                        else RunStageName.STANDARDIZED_STATE.value
+                    ),
+                    operation["resolved_symbol"],
+                    operation["status"],
+                    "Exact persisted Standardized State → Target Position preview",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field("source calculation", operation["requested_source_calculation_id"]),
+                        _field("source Run", operation["resolved_source_run_id"]),
+                        _field("source state", operation["resolved_standardized_state_text"]),
+                        _field("target definition", operation["requested_target_definition_id"]),
+                        _field("capital basis USD", operation["research_capital_basis_usd_text"]),
+                        _field("current position USD", operation["current_position_value_usd_text"]),
+                        _field("child Run", operation["child_run_id"]),
+                        _field("target calculation", operation["target_result_calculation_id"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    link_children,
                 )
             )
         return tuple(artifacts)

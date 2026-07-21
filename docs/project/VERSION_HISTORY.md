@@ -98,3 +98,57 @@ This proposal is `DRAFT`. Saving it does not approve implementation. Bar-availab
 ### Rollback
 
 Use normal Git revert of the checkpoint commit; do not rewrite history. Runtime user data is ignored and is not deleted by reverting source code. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260721-002
+
+### Identity
+
+- Recorded at: 2026-07-21T17:29:42Z
+- Branch: `main`
+- Previous commit: `7ebe14b`
+- Checkpoint commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0`
+- Purpose: publish the approved Phase 5B manual standardized-price-state foundation and Phase 5C exact standardized-state-to-Target-Position link with their complete audit, migration and safety evidence.
+
+### Current user-visible behavior
+
+- Algorithm Control includes a Standardized State owner page for immutable fixed-formula definitions and explicit positive Decimal USD price/reference/scale previews. Results preserve exact deviation, dimensionless state, structured trace, failure status and `Open Run` navigation.
+- Target Position keeps its original fully manual mode and adds a visually separate linked mode. The user must explicitly select one accepted persisted Standardized State result and one exact existing Target Position curve.
+- Linked mode copies the source scalar, symbol and UTC observation time exactly, keeps research capital/current position as manual USD context, and displays immutable completed/invalid/failed history.
+- Run History exposes the linked parent Run, child Target Position Run and historical source Run without recalculating either domain.
+- The Main Launcher remains a static catalog of three applications and sixteen Algorithm Control shortcuts; no Phase 5C business logic was added to it.
+
+### Current mathematical and execution behavior
+
+- Standardized State remains the exact manual Factor-owned formula `D = P - R`, `S = D / K`, with positive Decimal USD inputs and a dimensionless output. It has no Market Data/reference/scale estimator.
+- Phase 5C uses the unchanged bounded finite-knot Target Position engine. It adds provenance and call order only; it does not add a curve, parameter, action, target-to-Decision policy or numerical Risk rule.
+- Capital basis and current-position value remain hypothetical manual research inputs, not Portfolio Accounting, broker or Capital Allocation facts.
+- Every new operation is `NO_EXECUTION`; linked results are disabled/unconsumed research evidence.
+- Paper and Live packages remain empty. Account access, order construction, order submission, automatic submission and Live Trading remain Not implemented/disabled.
+
+### Persistence checkpoint
+
+- The central local database contract is Schema v8 with additive v1→v2→v3→v4→v5→v6→v7→v8 migrations.
+- The ignored real database migrated from v7 to v8 after backup `runtime/data/backups/market_history.schema-v7-to-v8.20260721T002840650386Z.sqlite3`.
+- All 49 pre-existing business-table counts were preserved, including 215,340 Market Bars and 365 Fetch History rows.
+- Backup and active copies returned `integrity_check=ok` and zero foreign-key violations; both new Phase 5C tables began empty.
+- Runtime databases, backups, credentials, logs and local Algorithm Control state remain excluded from Git.
+
+### Validation evidence
+
+- `python -m pytest -q`: 401 passed; one existing upstream `websockets.legacy` deprecation warning.
+- `python -m pytest tests/architecture -q`: 54 passed.
+- Linked Target Position focused suite: 6 passed; broader affected domain/Run/GUI set: 113 passed.
+- `python -m compileall -q src tests`: passed.
+- `python -m pip check`: no broken requirements.
+- `git diff --check`: passed with Windows LF→CRLF conversion notices only.
+- `BUG-20260720-007`, `BUG-20260721-008` and `BUG-20260721-009` are fixed with regression evidence. No new unresolved Known Issue was created.
+
+### Current focus and unapproved work
+
+No further development slice is approved at this checkpoint. Reference/scale estimation, Market Data publication, automatic latest/default selection, Asset State or Capital/Accounting adapters, hysteresis, target-to-Decision conversion, numerical Risk, full Backtesting integration, Portfolio Accounting persistence, Paper execution and Live all require separate scope and approval.
+
+### Rollback
+
+Use normal Git revert for source and documentation; do not rewrite history. Feature-level rollback may disable linked composition while retaining readable Schema v8 history and both independent manual workflows. A physical database downgrade requires stopping writers, preserving the v8 database, restoring the named verified v7 backup and reverting the matching code together. Keep Live and automatic submission disabled throughout rollback.

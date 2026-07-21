@@ -94,6 +94,14 @@ DEFAULT_CORE_SHORTCUTS: tuple[LaunchTarget, ...] = (
         ("--page", "asset_factors"),
     ),
     LaunchTarget(
+        "standardized_state",
+        "Standardized State Laboratory",
+        "管理显式人工USD价格、参考价格与正尺度的无量纲Factor研究预览；不计算自动参考/波动率，不接入Target Position、Decision、Risk或订单，DISABLED / NO EXECUTION。",
+        "quant_trading.algorithm_control",
+        "打开 Standardized State Laboratory",
+        ("--page", "standardized_state"),
+    ),
+    LaunchTarget(
         "market_factors",
         "市场/宏观因子",
         "管理由明确股票集合和精确 Asset Factor 版本组成的 Market Factor。",

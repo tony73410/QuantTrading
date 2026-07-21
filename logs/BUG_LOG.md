@@ -3397,3 +3397,150 @@ Not added to `KNOWN_ISSUES.md` because it was fixed with domain/chart/GUI regres
 
 ### Rollback
 Revert the derived read-model property and marker only, which would knowingly restore the inspector omission while leaving stored canonical inputs/results unchanged.
+
+## BUG-20260720-007
+
+### Title
+Standardized-state SQLite adapter initially queried a non-existent Run-stage column
+
+### Status
+Fixed
+
+### Severity
+High
+
+### Area
+Phase 5B standardized-state persistence and Run provenance validation
+
+### Reproduction steps
+1. Initialize a temporary central Schema v7 database.
+2. Use `StandardizedPriceStateService` to save a valid manual definition.
+3. Observe the Store validating its terminal Run/stage before inserting the operation.
+
+### Expected behavior
+The Store validates the exact `STANDARDIZED_STATE_PREVIEW` Run and `STANDARDIZED_STATE` stage, then transactionally persists the accepted definition and completed operation.
+
+### Actual behavior
+The first implementation queried `algorithm_run_stages.name`, but the canonical Schema v2 contract names that column `stage_name`. SQLite raised `OperationalError`, so the accepted definition and even the attempted failure record could not be persisted.
+
+### Technical location
+`src/quant_trading/persistence/standardized_state_sqlite_store.py`
+
+### Root cause
+The new adapter duplicated a stage lookup and used the domain property name instead of the established SQL column name.
+
+### Fix
+The provenance query now selects and validates `s.stage_name`. The exact Run ID, stage ID, run type, stage name and `NO_EXECUTION` mode remain fail-closed.
+
+### Regression test
+`tests/unit/factors/test_standardized_state.py::test_definition_preview_trace_run_and_restart_are_exact` and the standardized-state GUI/repository suite exercise successful plus durable invalid/failed operations through the same check.
+
+### Validation
+The immediate focused rerun passed 8 tests; broader and final suite evidence is recorded in `EDIT-20260720-009`.
+
+### Risk
+Local research persistence only. The fix restores approved append-only evidence and cannot create an estimator, target, trade, Risk approval or order.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because it was fixed with regression coverage before Phase 5B handoff.
+
+### Rollback
+Disable standardized-state composition and revert Phase 5B code while retaining Schema v7 history; reverting only this fix would knowingly make all new writes fail.
+
+## BUG-20260721-008
+
+### Title
+Standardized-state Run History artifact used a mojibake empty-value placeholder
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Run History presentation adapter
+
+### Reproduction steps
+1. Open a Standardized State definition-save or preview Run in Run History Explorer.
+2. Inspect an artifact whose optional definition name or symbol is absent.
+3. Observe the fallback text in the artifact summary.
+
+### Expected behavior
+Missing optional values render with the normal em-dash placeholder `—`.
+
+### Actual behavior
+The adapter embedded the mojibake text `â€”`, which could be displayed literally.
+
+### Technical location
+`src/quant_trading/persistence/run_sqlite_store.py`
+
+### Root cause
+The Phase 5B artifact summary string was written with incorrectly decoded source text while adjacent structured fields used the correct placeholder helper.
+
+### Fix
+Replace both corrupted fallback literals with the canonical em dash. No persisted evidence, calculation, schema, financial meaning or Run identity changes.
+
+### Regression test
+The linked Target Position integration test reloads the exact source Run artifact and asserts that no artifact summary contains the mojibake sequence.
+
+### Validation
+The linked integration regression, complete suite (**401 passed**) and final architecture/governance suite (**54 passed**) succeeded; full evidence is recorded in `EDIT-20260720-011`.
+
+### Risk
+Read-only presentation text only. The fix cannot change a Factor value, Target Position, cash, holding, Risk result or order.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic local fix is included with regression coverage in the current approved implementation.
+
+### Rollback
+Reverting the two literal replacements would knowingly restore the visible artifact-summary corruption without affecting stored evidence.
+
+## BUG-20260721-009
+
+### Title
+Compass governance regression still asserted the Phase 5B verification checkpoint after Phase 5C completion
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Architecture/governance test metadata
+
+### Reproduction steps
+1. Complete the approved Phase 5C implementation and update the Compass verification metadata to Schema v8.
+2. Run `pytest tests/architecture -q`.
+3. Observe the governance test still requiring the former Phase 5B/Schema v7 metadata strings.
+
+### Expected behavior
+The regression protects the current Phase 5C exact-link checkpoint, Schema v8 migration evidence and zero default linked rows.
+
+### Actual behavior
+The stale assertion rejected truthful current metadata even though the full behavior suite had passed.
+
+### Technical location
+`tests/architecture/test_governance_document_integrity.py`
+
+### Root cause
+The implementation updated the governed metadata after the earlier test pass but did not update the checkpoint-specific assertion in the same edit step.
+
+### Fix
+Rename the test for Phase 5C and assert the current exact-adapter, Schema v8, v7→v8 backup/migration and zero-default-linked-row evidence strings.
+
+### Regression test
+The corrected governance test is itself the regression and remains part of the complete architecture suite.
+
+### Validation
+The final architecture/governance rerun and complete suite results are recorded in `EDIT-20260720-011`.
+
+### Risk
+Documentation/test consistency only. No runtime, persistence, financial calculation, GUI behavior or trading authority changed.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic local fix was completed immediately.
+
+### Rollback
+Reverting the assertion would knowingly make the governance suite reject the current truthful Phase 5C checkpoint.

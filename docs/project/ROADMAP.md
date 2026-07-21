@@ -12,6 +12,8 @@
 - 完成阶段 3A：独立研究资金规划模块、显式USD现金基础、受保护的保险/战术储备、股票专属现金、精确Decimal守恒、只允许股票现金间的零和转移、中央SQLite Schema v4、Allocation Run和Capital Allocation Manager。没有默认资金、自动消费者或交易权限。
 - 完成阶段 4A：独立Asset State研究模块、用户定义的符号状态图、每只股票最多一个开放周期、显式人工转换、不可变事件/快照/失败记录、确定性重放、中央SQLite Schema v5、State Run和Asset State Monitor。没有默认状态、自动Factor转换、金融状态含义或交易消费者。
 - 完成阶段 5A：独立Target Position研究模块、用户定义的单调有限节点曲线、显式人工scalar/USD资本基数/当前持仓值、精确Decimal边界截断与线性插值、结构化目标/差额轨迹、中央SQLite Schema v6、Target Position Run和Target Position Laboratory。没有默认曲线、自动输入adapter、hysteresis、TradeIntent、Risk或交易消费者。
+- 完成阶段 5B：Factor所有者内的人工标准化价格状态研究、显式正Decimal USD价格/参考/尺度、精确`D=P-R`与无量纲`S=D/K`、结构化轨迹、中央SQLite Schema v7、Standardized State Run和研究检查页。没有自动参考/尺度估计、Market Data adapter、generic FactorSnapshot、Target Position或交易消费者。
+- 完成阶段 5C：显式选择一个已保存的Standardized State结果和一个既有Target Position曲线，精确复制无量纲scalar/symbol/time，以人工USD资本/当前持仓为上下文调用未改变的曲线引擎，保存父/子/源`NO_EXECUTION` Run及中央SQLite Schema v8 typed provenance，并在既有Target Position页面提供linked history/Open Run。没有估计器、自动latest/default、事实资金adapter、Decision、数值Risk或交易消费者。
 
 ## Approved next
 
@@ -21,6 +23,6 @@
 
 - 是否配置 Alpaca Market Data 凭据并进行真实 API 手动验证。
 - 后续具体业务目标；不得从历史数据浏览器推断交易策略或实盘需求。
-- 跨版本图表/排名、Decision导出、行业资金、动态权重、储备借贷、自动状态公式/阈值/饱和重置、标准化状态、Target Position自动输入/adapter/hysteresis/Decision转换、数值 Risk、完整回测整合、Accounting 持久化、Paper/Live 均需要后续独立范围与批准；阶段 5A 的完成不自动授权这些能力。
+- 跨版本图表/排名、Decision导出、行业资金、动态权重、储备借贷、自动状态公式/阈值/饱和重置、参考/尺度估计器、Market Data adapter、自动source/curve选择、Capital/Accounting adapter、hysteresis/Decision转换、数值 Risk、完整回测整合、Accounting 持久化、Paper/Live 均需要后续独立范围与批准；阶段 5C 的完成不自动授权这些能力。
 
 未经用户明确要求，待决事项不得自动转为实施工作。

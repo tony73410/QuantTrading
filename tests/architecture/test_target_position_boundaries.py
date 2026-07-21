@@ -38,12 +38,22 @@ def test_target_position_gui_uses_typed_services_without_sql_or_financial_consum
     imports = _imports(path)
     forbidden = (
         "sqlite3", "quant_trading.persistence", "quant_trading.market_history",
-        "quant_trading.factors", "quant_trading.asset_state",
+        "quant_trading.asset_state",
         "quant_trading.capital_allocation", "quant_trading.portfolio_accounting",
         "quant_trading.decision", "quant_trading.risk", "quant_trading.backtesting",
         "quant_trading.execution",
     )
     assert not [name for name in imports if name.startswith(forbidden)]
+    allowed_factor_contracts = {
+        "quant_trading.factors.standardized_state_interfaces",
+        "quant_trading.factors.standardized_state_models",
+    }
+    assert not [
+        name
+        for name in imports
+        if name.startswith("quant_trading.factors")
+        and name not in allowed_factor_contracts
+    ]
     assert "TargetPositionService" in source
     assert "TargetPositionQueryService" in source
     assert "NO EXECUTION" in source

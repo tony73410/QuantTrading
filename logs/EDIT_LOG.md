@@ -3885,3 +3885,159 @@ The checkpoint includes unified Run History and durable Factor/Decision/Risk evi
 ### Compass audit
 
 Intent alignment: records and publishes the exact currently verified Phase 1–5A research state requested by the user. Architecture alignment: no module ownership, public dependency direction or persistence contract is changed. Safety alignment: release publication does not activate any registered component or execution path; Live and automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: only release-checkpoint metadata was advanced to version 26; Stable Core and project semantics are unchanged. Remaining drift risk: the package version is intentionally unchanged at `0.1.0`; future capability activation, financial integration, Paper or Live work still requires separate approval.
+
+## EDIT-20260720-008 — Phase 5B manual standardized-price-state admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after the verified Phase 1–5A Git checkpoint, performed a **DEEP proposal-only** admission review. The existing Factor owner already governs one-stock quantitative observations, while Target Position accepts only an untyped manual scalar and explicitly has no upstream adapter. Asset State owns symbolic manual history, and the independent Risk layer owns downstream constraint authority. Placing reference-relative price mathematics in Target Position, Asset State or Risk would duplicate or blur those responsibilities.
+
+Created `PROPOSAL-015` for the smallest Phase 5B foundation: an additive Factor-owned, disabled/unconsumed manual standardized-price-state research preview. The exact proposed interpretation is three explicit finite positive Decimal USD inputs—manual price `P`, manual reference `R` and manual normalization/risk scale `K`—with `deviation = P - R` and dimensionless `state = (P - R) / K`. No rounding, clamping, annualization, source lookup or hidden fallback is proposed. Negative/zero/positive states describe below/equal/above the manual reference only; they do not imply a target, action or Risk outcome.
+
+Reference-price estimation, risk-scale/volatility estimation, price field/window/adjustment/calendar semantics, generic FactorSnapshot publication, Target Position/Asset State/Capital/Accounting adapters, hysteresis, Decision/TradeIntent, numerical Risk, Backtesting, Paper, Live and orders remain explicitly deferred. No source code, public runtime contract, central SQLite schema/data, GUI runtime, component activation or execution permission changed in this proposal-only task.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; user approval is pending. Conflict result: `REQUIRES_MIGRATION`; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: compatible extension of `quant_trading.factors`; proposed secondary modules: Run History, Persistence, Algorithm Control and Launcher. No new top-level business owner is proposed.
+- Proposed additive contracts: immutable standardized-state definition, manual command, structured result/trace, durable attempt/query/Store contracts plus neutral Run type/stage values.
+- Proposed database/GUI: central SQLite v6→v7 with verified backup/rollback and zero default records; one typed owner page and reviewed Launcher shortcut. These are not implemented or authorized yet.
+- Approval would authorize only the exact manual USD formula/sign convention, structured history, Schema v7 and GUI scope. It would not authorize any actual price/reference/scale, estimator, automated input, downstream consumer or trading behavior.
+
+### Validation, bug audit and rollback
+
+The complete architecture/governance suite passed **45 tests**, and `git diff --check` passed with only existing Windows LF→CRLF notices. No new confirmed, suspected, deferred or cannot-reproduce Bug was found; `BUG_LOG` and `KNOWN_ISSUES` are unchanged. Roll back the proposal record by removing PROPOSAL-015 and its index/Roadmap pending-decision entries while preserving this append-only historical record; no source/database/runtime rollback is needed because implementation has not started.
+
+### Compass audit
+
+Intent alignment: advances the user's stated per-stock mathematical-state roadmap by exposing the smallest exact formula and every unresolved source decision before automation. Architecture alignment: the proposal reuses Factor ownership, keeps Run History neutral and reserves SQL/GUI work for their existing layers; it adds no parallel calculation authority. Safety alignment: all proposed records are manual, disabled, unconsumed and `NO_EXECUTION`; normalization scale is explicitly not numerical Risk authority, and Live/automatic submission remain disabled. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the USD inputs, positivity constraints and sign convention are pending user approval. Compass sections updated: none because current behavior, architecture and approved direction are unchanged. Remaining drift risk: implementing before approval, silently choosing a rolling reference/scale formula, or treating a standardized state as a Target Position/TradeIntent would be project drift.
+
+## EDIT-20260720-009 — Phase 5B manual standardized price state research
+
+### Scope and approved interpretation
+
+Implemented the user's explicit approval `批准 PROPOSAL-015` as a **DEEP, MULTI_MODULE, disabled/unconsumed research change**. The Factor owner now provides immutable fixed-formula definitions and explicit manual previews for finite positive Decimal USD price `P`, reference `R` and normalization scale `K`: exact USD deviation `D=P-R` and dimensionless state `S=D/K`. No rounding, clamping, annualization, estimator, source lookup or hidden fallback exists. Negative/zero/positive describes only below/equal/above the manual reference and cannot imply a target, action, Risk result or order.
+
+Automated reference/risk-scale formulas, Market Data adapters, generic FactorSnapshot publication, Target Position/Asset State/Capital Allocation/Portfolio Accounting consumers, Decision/TradeIntent, numerical Risk, Backtesting, Paper, Live and orders remain excluded. No component is Active and `execution.paper` / `.live` remain unchanged declaration-only boundaries.
+
+### Implementation
+
+- Added Factor-owned schema-v1 definition/command/result/trace/evidence/operation/query models, public Store/query Protocols, pure Decimal engine and service. Every explicit definition save and preview receives one terminal `STANDARDIZED_STATE_PREVIEW` / `STANDARDIZED_STATE` `NO_EXECUTION` Run. Accepted evidence is immutable; invalid and storage-failed attempts remain durable without an accepted result.
+- Added central SQLite Schema v7 with five normalized standardized-state definition/operation/evidence/result tables and `SQLiteStandardizedPriceStateStore`. The adapter revalidates exact raw command, definition/result arithmetic, evidence and Run/stage identity transactionally. Run History renders persisted operation/result artifacts without recalculating Factor meaning.
+- Added the service-backed `Standardized State` page to Algorithm Control and the sixteenth trusted Launcher shortcut. The GUI collects explicit inputs, displays definitions/results/attempts and the structured trace, filters history and opens the exact Run; it contains no Decimal formula, SQL, Market Data or trading consumer call.
+- Added targeted unit/repository/migration/GUI/Run/Launcher and architecture regression coverage. Updated current-schema expectations from v6 to v7 while retaining explicit failure rollback tests for every historical migration boundary.
+
+### Central database migration evidence
+
+The authorized ignored database `runtime/data/market_history.sqlite3` migrated transactionally from Schema v6 to v7. Verified backup: `runtime/data/backups/market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`. Backup remains Schema 6; active reports Schema 7. Both return `PRAGMA integrity_check=ok` and zero foreign-key violations. All 44 shared pre-existing business-table counts are identical, including 215,340 `market_bars` and 365 `fetch_history`; every new standardized-state table contains zero rows, proving no definition, value, operation or evidence was defaulted/backfilled.
+
+Rollback requires stopping writers, preserving the v7 database, restoring the named v6 backup and reverting Phase 5B code together. A code-only downgrade against Schema v7 is unsupported; future v7 history must never be silently deleted or reinterpreted.
+
+### Files changed
+
+- Factor/source: new `standardized_state_models.py`, `standardized_state_interfaces.py`, `standardized_state_engine.py`, `standardized_state_service.py`; updated Factor exports/errors and centralized error codes.
+- Persistence/Run: new `standardized_state_sqlite_store.py`; updated central schema/migrations, persistence exports, Run enum models and Run artifact adapter.
+- GUI/Launcher: new `standardized_state_panel.py`; updated Algorithm Control composition/page catalog and trusted Launcher shortcut.
+- Tests: new standardized-state domain/migration/GUI/architecture suites; updated Run/Factor/Launcher/current-schema/governance boundary expectations.
+- Governance/design: implemented PROPOSAL-015, ADR-0022, new standardized-state module document, Compass/architecture/module/dependency maps, Project State/Roadmap/Changelog/indexes and affected Factor/Persistence/Run/Algorithm Control/Launcher docs; appended BUG-20260720-007 and this record.
+
+### Validation and bug discovery audit
+
+- Complete suite: **389 passed, 0 failed**, with one existing upstream `websockets.legacy` deprecation warning, in 62.67 seconds.
+- Final architecture/governance suite: **49 passed**. Targeted migration/domain/Run/GUI/Launcher/current-boundary suite: **111 passed**.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF notices. Ruff was unavailable in the environment (`No module named ruff`) and was not claimed as passed.
+- Confirmed and fixed `BUG-20260720-007`: the first Store provenance query used non-existent `algorithm_run_stages.name` rather than canonical `stage_name`; focused regression tests now prove completed, invalid and failed evidence persists correctly. No deferred/cannot-reproduce Bug or new current Known Issue remains.
+- No network, credential, Market Data request, account, broker, order, Paper or Live path was used. Live and automatic submission remain disabled.
+
+### Change Impact Report
+
+Primary module: compatible `factors` extension. Secondary modules: Run History, Persistence, Algorithm Control and Launcher. Public contracts and neutral Run enum values are additive. Configuration and third-party dependencies are unchanged. Database impact is additive central v6→v7 with verified backup/rollback. GUI impact is one owner page and one static shortcut. Permission impact is local research SQLite writes only. Trading semantics add one hypothetical quantitative observation but no active FactorSnapshot, target, action, risk decision or order. Safety behavior is explicit positive manual inputs, immutable/fail-closed evidence and `NO_EXECUTION`. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: implements the approved smallest per-stock mathematical-state foundation and exposes every input/intermediate/version without choosing unresolved data estimators. Architecture alignment: Factor owns formula/units/result meaning, Persistence owns SQL, Run History owns lifecycle/navigation, Algorithm Control delegates typed services and architecture tests prove no consumer imports the specialized result. Safety alignment: no result can mutate a target, position, cash, Risk decision or order; every operation is explicit local `NO_EXECUTION`. Unapproved behavior added: none. Assumptions introduced: `ASM-022` records the user-approved manual USD normalization interpretation. Compass sections updated: Phase/evidence, capability/module inventory, approval, assumption, `INTENT-026`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future code must not treat manual values as Market Data, equate normalization scale with numerical Risk, publish a generic FactorSnapshot or connect Target/Decision/Execution without a separately approved adapter. Suggested commit message: `feat: add manual standardized price state research phase 5b`.
+
+## EDIT-20260720-010 — Phase 5C linked standardized-state to Target Position admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after verified Phase 5B, performed a **DEEP proposal-only** admission review. Phase 5B already persists an exact dimensionless Standardized Price State with source definition/version, symbol, `as_of`, Run and structured manual formula inputs. Phase 5A already maps a manually entered scalar through an explicitly selected bounded Target Position curve using manual USD research capital/current-position values. Both capabilities are disabled/unconsumed and remain available independently.
+
+The existing generic Target Position evidence binding is explanatory and does not transactionally prove that a referenced standardized-state result exists or that its scalar, symbol, time, definition and Run agree with the Target Position output. Directly connecting the two without a typed contract would therefore conflict with the project's reproducibility and audit requirements.
+
+### Proposed resolution and exact approval boundary
+
+Created `PROPOSAL-016` for the smallest Phase 5C bridge. A user would explicitly select one accepted persisted standardized-state `calculation_id` and one exact Target Position `definition_id`. Linked mode would copy the stored dimensionless scalar, symbol and `as_of` without editing or recalculation; retain explicit non-negative Decimal USD research capital/current-position inputs; delegate to the unchanged Target Position curve engine; and persist parent/child `NO_EXECUTION` Runs plus an immutable typed source/result link.
+
+The proposal recommends a narrow application coordinator, additive Target Position input/link contracts and central SQLite v7→v8 operation/link tables with transactional cross-object validation. Existing manual source and Target Position previews remain unchanged. Reference/scale estimation, Market Data lookup, automatic latest/default selection, Capital Allocation or Portfolio Accounting adapters, Asset State, Decision/TradeIntent, numerical Risk, Backtesting, Paper, Live and orders remain explicitly deferred.
+
+No source code, public runtime contract, database schema/data, GUI runtime, component activation or execution permission changed in this proposal-only task.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; user approval is pending. Conflict result: `REQUIRES_MIGRATION`; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: existing `quant_trading.orchestration`; secondary owners: Target Position accepted-input provenance, Factor standardized-state public query, Run History, Persistence and Algorithm Control.
+- Proposed public contracts: exact linked command/source/result/attempt/link/query/Store contracts, optional Target Position parent/symbol context and one neutral Run type.
+- Proposed database/GUI: additive central SQLite v7→v8 typed link/attempt tables, a separate linked mode inside the existing Target Position owner page and Run History source/parent/child navigation. These are not implemented or authorized yet.
+- Trading/safety meaning: only an exact persisted observation-to-hypothetical-target handoff; no cash, holding, state, action, Risk approval, account, order or Live effect.
+- Rollback at this proposal stage: remove the PROPOSAL-016 file and its proposal-index/Roadmap pending-decision entries while preserving this append-only historical record; no runtime or database rollback is required.
+
+### Validation and bug discovery audit
+
+The focused governance/dependency/Run/standardized-state boundary set passed **28 tests**, and the complete architecture/governance suite passed **49 tests**. `git diff --check` passed with only existing Windows LF→CRLF notices. The first test invocation selected the system Python, where pytest is not installed; the repository `.venv` was then used for both successful recorded runs. No confirmed, suspected, deferred or cannot-reproduce Bug was found during admission analysis; `BUG_LOG` and `KNOWN_ISSUES` are unchanged.
+
+### Compass audit
+
+Intent alignment: advances the stated mathematical chain by defining one observable source-to-target arrow without inventing reference/scale, capital/account or action semantics. Architecture alignment: Factor and Target Position retain their existing calculation ownership; application orchestration owns call order, Persistence would own SQL/cross-object checks and Run History remains neutral. Safety alignment: the proposed feature is explicit, local, disabled/unconsumed and `NO_EXECUTION`; manual modes and all execution boundaries remain unchanged. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the exact bridge and Schema v8 design await user approval. Compass sections updated: none because current capability and approved direction did not change. Remaining drift risk: implementing before approval, treating generic evidence as sufficient provenance, selecting latest results automatically, or presenting a linked target as a Decision/Risk/order would be project drift.
+
+## EDIT-20260720-011 — Phase 5C exact standardized-state to Target Position linkage
+
+### Scope and approved interpretation
+
+Implemented the user's explicit approval `批准 PROPOSAL-016` as a **DEEP, MULTI_MODULE, disabled/unconsumed research change**. The new path requires one exact accepted persisted standardized-state calculation ID and one exact existing Target Position definition ID. It copies the source schema-v1 dimensionless scalar, normalized symbol and UTC `as_of` without editing, rounding, recalculation or fallback, then delegates to the unchanged bounded Target Position curve engine. Research capital basis and current-position value remain explicit non-negative Decimal USD hypothetical inputs.
+
+Reference/risk-scale estimators, Market Data lookup, automatic latest/default/best source or curve selection, generic FactorSnapshot publication, Asset State, factual Capital Allocation/Portfolio Accounting adapters, Decision/TradeIntent, numerical Risk, Backtesting, fills, Paper, Live and orders remain excluded. Existing fully manual Standardized State and Target Position modes remain available and behaviorally unchanged. No component was activated and `execution.paper` / `.live` remain empty declaration-only boundaries.
+
+### Implementation
+
+- Added Target Position schema-v1 source-neutral linked command/input/result/operation/link/query contracts and `LinkedTargetPositionService`. The service delegates only to the existing `TargetPositionEngine`; the target package imports no Factor implementation.
+- Added `StandardizedStateTargetPositionPreviewCoordinator` in application orchestration. It resolves the exact public standardized-state query result, creates one top-level `STANDARDIZED_TARGET_POSITION_PREVIEW` `NO_EXECUTION` Run, delegates a valid request to one child `TARGET_POSITION_PREVIEW` Run, preserves the historical source Run, and durably handles missing, invalid, conflicting and storage-failed requests. Exact operation retries return the original terminal outcome.
+- Extended neutral Run History with typed parent/child/source/linked-preview relationships. The SQLite read adapter exposes linked operation/result artifacts and relationships without calculating domain meaning; Run History Explorer can open a selected related Run.
+- Added central SQLite Schema v8 tables `target_position_linked_preview_operations` and `target_position_standardized_state_links`. `SQLiteTargetPositionStore` saves accepted target result/operation/link evidence transactionally and independently revalidates source existence/schema/unit/value/symbol/time/definition/Run/stage, target definition/result and parent-child identity. Migration creates no default/backfilled row.
+- Extended the existing Target Position page with a visually separate linked mode. Source result and curve both require explicit selection; source inputs/formula/version are read-only; only manual USD basis/current value/reason are editable; completed/invalid/failed history and source/parent/child Open Run navigation are visible. GUI code contains no formula or SQL.
+
+### Central database migration evidence
+
+The authorized ignored database `runtime/data/market_history.sqlite3` migrated transactionally from Schema v7 to v8. Verified backup: `runtime/data/backups/market_history.schema-v7-to-v8.20260721T002840650386Z.sqlite3`. Backup remains Schema 7; active reports Schema 8. Both return `PRAGMA integrity_check=ok` and zero foreign-key violations. All 49 pre-existing business-table counts are identical, including 215,340 `market_bars` and 365 `fetch_history`; both new Phase 5C tables contain zero rows, proving no source selection, operation, link, result or definition was defaulted/backfilled.
+
+Rollback requires stopping writers, preserving the v8 database, restoring the named v7 backup and reverting Phase 5C code together. A code-only downgrade against Schema v8 is unsupported. Feature-level rollback may disable linked composition while retaining readable v8 history; both manual workflows continue independently.
+
+### Files changed
+
+- Target Position/orchestration: new `target_position/linked_models.py`, `target_position/linked_service.py` and `orchestration/standardized_target_position_preview.py`; updated target Store/query exports/contracts and orchestration exports.
+- Persistence/Run: updated central schema/migrations, Target Position SQLite Store, Run SQLite read adapter, Run enums/detail relationships and centralized error codes.
+- GUI/composition: updated Algorithm Control composition/main panel, Target Position panel and Run History Explorer. No Launcher catalog item or new top-level GUI was added because Phase 5C extends the existing Target Position owner page.
+- Tests: new linked target domain/repository/migration/Run and architecture suites; updated GUI/Run relationship/current-schema migration tests. No real network, account or order fixture was introduced.
+- Governance/design: implemented PROPOSAL-016, added ADR-0023, updated Compass/architecture/dependency/module maps, affected module docs, Project State/Roadmap/Changelog/indexes and this append-only record; finalized `BUG-20260721-008` evidence.
+
+### Validation and bug discovery audit
+
+- Complete suite: **401 passed, 0 failed**, with one existing upstream `websockets.legacy` deprecation warning, in the final 104.10-second rerun.
+- Final architecture/governance suite: **54 passed**. Linked target focused domain/repository/migration/Run suite: **6 passed**; the broader affected domain/Run/GUI set passed **113 tests**, and the final linked GUI/Run subset passed **10 tests** during implementation.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF notices.
+- Confirmed and fixed `BUG-20260721-008`: standardized-state Run History optional values now use the canonical em dash instead of mojibake; linked integration reload provides regression coverage. Confirmed and fixed `BUG-20260721-009`: the Compass governance checkpoint assertion now follows the truthful Phase 5C/Schema v8 metadata. No deferred/cannot-reproduce Bug or new current Known Issue remains.
+- Real central Schema v8 was rechecked after the full suite: `integrity_check=ok`, zero foreign-key violations and zero linked operation/link rows. No Market Data, credential, account, broker, order, Paper or Live path was used.
+
+### Change Impact Report
+
+Primary module: existing application `orchestration`. Secondary modules: Target Position accepted-input/provenance, public Factor standardized-state query, Run History, Persistence and Algorithm Control. Public contracts and neutral Run type/relationships are additive. Configuration, third-party dependencies and Launcher catalog are unchanged. Database impact is additive central v7→v8 with verified backup/rollback. GUI impact is a separate linked mode in the existing owner page plus related-Run navigation. Permission impact is local research SQLite reads/writes only. Trading semantics automate only the exact observation-to-hypothetical-target handoff; no action, Risk approval, account fact or order meaning is added. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: closes the first requested observable mathematical arrow while preserving exact inputs, versions, failures and Run relationships. Architecture alignment: Factor retains formula/result ownership, Target Position retains curve/result ownership, orchestration owns call order, Persistence owns SQL/cross-object validation, Run History remains neutral and GUI delegates typed services; 54 architecture/governance tests verify these boundaries. Safety alignment: every path is explicit `NO_EXECUTION`; USD context remains hypothetical, no downstream trading consumer exists, and Paper/Live/automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: `ASM-023` records the approved exact-result/manual-USD interpretation. Compass sections updated: phase/evidence, capabilities, architecture, approval, assumption, `INTENT-027`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future code must not choose latest sources, reinterpret manual USD as account truth, recalculate copied evidence or convert a target directly into an action/Risk/order without a separately approved adapter. Suggested commit message: `feat: link standardized state to target position preview`.
+
+## EDIT-20260721-012 — Phase 5B/5C publication checkpoint preparation
+
+At the user's explicit request to `commit + push 到 github一下，记得做记录`, added `CHECKPOINT-20260721-002` to the append-oriented Version History before Git delivery. The checkpoint binds the current `main` branch to previous commit `7ebe14b`, package version `0.1.0`, central Schema v8, the verified v7 backup, Phase 5B/5C user-visible behavior, complete validation evidence, safety state, deferred work and rollback procedure. The checkpoint commit is the Git commit containing that record; the exact immutable hash and remote push result are provided by Git and the delivery report.
+
+No source behavior, financial meaning, public contract, configuration, dependency, database content or runtime permission changed in this record-only step. The prior final evidence remains 401 complete tests, 54 architecture/governance tests, compileall, dependency integrity and diff checks; no new Bug or Known Issue was discovered. Runtime databases, backups, credentials, logs and local control state remain ignored and are not included in the publication.

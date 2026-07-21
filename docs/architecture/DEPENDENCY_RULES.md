@@ -32,7 +32,9 @@
 - 能归入现有职责的需求优先扩展现有模块；新增模块需先审批。
 - `algorithm_control`只管理公开元数据、配置版本、生命周期、验证、预览请求和审计；不得依赖具体Alpaca Provider、历史SQLite Store或未来Execution Provider。`orchestration`可通过窄Store工厂/公开接口组合本地预览，但不得联网或构造订单。
 - `launcher`只维护静态可信GUI入口并启动独立进程；不得导入功能GUI、Provider、Store、算法、Risk或Execution实现。未来独立GUI功能应登记入口和测试，不得把业务逻辑放进主菜单。
-- `target_position` owns only immutable bounded curve definitions and exact manual research previews. It may depend on neutral Run History contracts, but must not import Market/Factor/Asset State/Capital Allocation/Portfolio Accounting/Decision/Risk/Backtesting/Execution. No existing business or execution module may consume it automatically in Phase 5A.
+- `target_position` owns immutable bounded curve definitions, manual previews and source-neutral linked-input/result-provenance contracts. It may depend on neutral Run History contracts, but must not import Market/Factor/Asset State/Capital Allocation/Portfolio Accounting/Decision/Risk/Backtesting/Execution. Phase 5C application orchestration may supply one exact standardized-state DTO; no trading module consumes the target automatically.
+- The Factor-owned `standardized_state_*` contracts own only exact manual positive-USD reference normalization and may coordinate neutral Run History through the approved service. They must not import concrete Persistence/GUI/Market History/Target Position/Asset State/Capital/Accounting/Decision/Risk/Backtesting/Execution. Phase 5C orchestration may resolve one exact accepted result through the public query contract; Factor does not call or know Target Position.
+- The Phase 5C coordinator owns call order only: it must require exact source and target IDs, copy scalar/symbol/time without recalculation or fallback, delegate the unchanged Target Position engine through public services and persist typed parent/child/source evidence through injected ports. It must not select latest/default values, contain formulas/SQL or invoke Decision/Risk/Backtesting/Accounting/Execution.
 - 算法参数界面必须由`ParameterSchema`生成；不得按算法名称写`if/elif`并把公式或交易规则藏入GUI。
 
 ## Admission and capability enforcement

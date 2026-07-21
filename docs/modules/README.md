@@ -4,8 +4,9 @@
 
 - `factor-authoring.md` — restricted expression definitions, immutable disabled Factor versions, and exact Decision Factor-version selection.
 
-- `central-persistence.md` — shared local SQLite Schema v6, versioned migrations, independent Run/Factor/Decision/Risk/Capital/Asset State/Target Position persistence and typed research-query adapters.
-- `target-position.md` — bounded manual target-level research owner with immutable curve definitions, exact Decimal traces and no runtime consumer.
+- `central-persistence.md` — shared local SQLite Schema v8, versioned migrations, independent Run/Factor/Decision/Risk/Capital/Asset State/Target Position/standardized-state/link persistence and typed research-query adapters.
+- `standardized-price-state.md` — Factor-owned exact manual USD reference/positive-scale normalization with structured history; only explicit Phase 5C query consumption is allowed.
+- `target-position.md` — bounded target-level research owner with immutable curves, unchanged Decimal mathematics, manual mode and exact linked-source provenance; no trading consumer.
 - `capital-allocation.md` — immutable research cash plans, protected reserve/asset buckets, exact conservation, append-only transfers and typed Store/query contracts.
 - `asset-state.md` — versioned user-defined symbolic states, one open cycle per symbol, append-only manual transitions and deterministic replay; no automatic trading meaning.
 - `run-history.md` — neutral NO EXECUTION Run lifecycle/query owner, linked Factor/Decision research evidence and Run History Explorer contract.
@@ -17,7 +18,7 @@
 - `factors.md` — 单资产、策略中立的因子合同和无公式引擎；
 - `trading-decision.md` — 只消费FactorSnapshot的非执行决策合同和无规则引擎；
 - `risk-control.md` — 位于TradeIntent与未来Order Construction之间的独立风险合同和无数值规则引擎；
-- `analysis-decision-pipeline.md` — 只负责Factor → Decision或Factor → Decision → Risk调用顺序的编排边界。
+- `analysis-decision-pipeline.md` — 只负责已批准的跨所有者调用顺序，包括Factor → Decision → Risk与exact Standardized State → Target Position；不含公式。
 - `execution-environments.md` — Paper与Live两个同级、空白、禁用的未来执行环境边界；不含订单能力。
 - `algorithm-control-gui.md` — 只负责组件元数据、通用参数、配置版本、验证、安全预览和审计的独立GUI管理面。
 - `idea-notebook.md` — Algorithm Control内的被动本地想法笔记；不注册、不计算，也不进入回测或交易流程。

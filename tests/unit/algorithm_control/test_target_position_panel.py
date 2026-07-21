@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from decimal import Decimal
+from datetime import UTC, datetime
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QTWEBENGINE_CHROMIUM_FLAGS", "--disable-gpu")
@@ -11,8 +12,21 @@ from PySide6.QtWidgets import QApplication, QTableWidgetItem
 
 from quant_trading.algorithm_control.ui.target_position_panel import TargetPositionPanel
 from quant_trading.persistence import SQLiteRunHistoryRepository, SQLiteTargetPositionStore
+from quant_trading.persistence import SQLiteStandardizedPriceStateStore
 from quant_trading.run_history import AlgorithmRunService, SoftwareIdentity, WorktreeState
-from quant_trading.target_position import TargetPositionOperationStatus, TargetPositionService
+from quant_trading.target_position import (
+    LinkedTargetPositionService,
+    TargetPositionOperationStatus,
+    TargetPositionService,
+)
+from quant_trading.factors import (
+    CreateStandardizedPriceStateDefinitionCommand,
+    PreviewStandardizedPriceStateCommand,
+    StandardizedPriceStateService,
+)
+from quant_trading.orchestration import (
+    StandardizedStateTargetPositionPreviewCoordinator,
+)
 from quant_trading.visualization import PlotlyFigureView
 
 
@@ -105,4 +119,93 @@ def test_panel_invalid_preview_visible_and_read_only_disables_writes(tmp_path: P
     assert not readonly.save_definition_button.isEnabled()
     assert not readonly.preview_button.isEnabled()
     readonly.close()
+    assert app is not None
+
+
+def test_panel_links_exact_standardized_result_and_opens_three_runs(tmp_path: Path, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(PlotlyFigureView, "show_figure", lambda self, figure: None)
+    database = tmp_path / "linked.sqlite3"
+    runs = SQLiteRunHistoryRepository(database)
+    runs.initialize()
+    software = SoftwareIdentity("test", "abc123", WorktreeState.CLEAN)
+    source_store = SQLiteStandardizedPriceStateStore(database)
+    source_store.initialize()
+    source_service = StandardizedPriceStateService(
+        source_store, AlgorithmRunService(runs), software
+    )
+    source_definition = source_service.create_definition(
+        CreateStandardizedPriceStateDefinitionCommand(
+            "GUI source", "Exact GUI source", "GUI", "SOURCE-DEFINE", "gui-tester"
+        )
+    )
+    source = source_service.preview(
+        PreviewStandardizedPriceStateCommand(
+            source_definition.definition_id,
+            "AAPL",
+            "90",
+            "100",
+            "10",
+            datetime(2026, 7, 21, 1, 0, tzinfo=UTC),
+            "Exact GUI source result",
+            "GUI",
+            "SOURCE-PREVIEW",
+            "gui-tester",
+        )
+    )
+    target_store = SQLiteTargetPositionStore(database)
+    target_store.initialize()
+    target_service = TargetPositionService(
+        target_store, AlgorithmRunService(runs), software
+    )
+    linked_service = LinkedTargetPositionService(
+        target_store, AlgorithmRunService(runs), software
+    )
+    coordinator = StandardizedStateTargetPositionPreviewCoordinator(
+        source_store,
+        target_store,
+        linked_service,
+        AlgorithmRunService(runs),
+        software,
+    )
+    panel = TargetPositionPanel(
+        target_service,
+        target_store,
+        session_id="GUI",
+        created_by="gui-tester",
+        linked_preview_service=coordinator,
+        standardized_state_queries=source_store,
+    )
+    opened = []
+    panel.open_run_requested.connect(opened.append)
+    _fill_definition(panel)
+    panel.save_definition_button.click()
+
+    assert panel.linked_source_result.count() == 2
+    assert panel.linked_definition.count() == 2
+    assert not panel.linked_preview_button.isEnabled()
+    panel.linked_source_result.setCurrentIndex(1)
+    panel.linked_definition.setCurrentIndex(1)
+    assert str(source.calculation_id) in panel.linked_source_detail.text()
+    assert "state -1" in panel.linked_source_detail.text()
+    assert panel.linked_preview_button.isEnabled()
+    panel.linked_capital_basis.setText("100")
+    panel.linked_current_position.setText("60")
+    panel.linked_reason.setText("Exact GUI link")
+    panel.linked_preview_button.click()
+
+    assert panel.linked_operation_table.rowCount() == 1
+    assert panel.result_table.rowCount() == 1
+    link = target_store.list_standardized_state_links()[0]
+    result = target_store.get_result(link.target_calculation_id)
+    assert result.research_state_value == Decimal("-1")
+    assert result.target_fraction == Decimal("0.7")
+    assert panel.linked_operation_table.item(0, 2).text() == "AAPL"
+    assert panel.linked_operation_table.item(0, 3).text() == "-1"
+
+    panel.open_source_run_button.click()
+    panel.open_parent_run_button.click()
+    panel.open_child_run_button.click()
+    assert opened == [link.source_run_id, link.parent_run_id, link.child_run_id]
+    panel.close()
     assert app is not None

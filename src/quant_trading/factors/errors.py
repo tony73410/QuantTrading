@@ -23,3 +23,11 @@ class FactorStorageError(FactorError):
 
 class FactorDefinitionError(FactorError, ValueError):
     """A user-authored factor definition or expression is invalid."""
+
+
+class StandardizedPriceStateValidationError(FactorError, ValueError):
+    """A manual standardized-price-state definition or request is invalid."""
+
+
+class StandardizedPriceStateStorageError(FactorError):
+    """Structured standardized-price-state evidence could not be persisted."""

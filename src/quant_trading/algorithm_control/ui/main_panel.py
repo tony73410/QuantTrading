@@ -37,6 +37,7 @@ from .portfolio_ledger_panel import PortfolioLedgerPanel
 from .capital_allocation_panel import CapitalAllocationPanel
 from .asset_state_panel import AssetStatePanel
 from .target_position_panel import TargetPositionPanel
+from .standardized_state_panel import StandardizedPriceStatePanel
 from .simulation_strategy_panel import SimulationStrategyPanel
 from .market_factor_panel import MarketFactorPanel
 from .run_history_panel import RunHistoryPanel
@@ -70,6 +71,14 @@ from quant_trading.target_position import (
     TargetPositionQueryService,
     TargetPositionService,
 )
+from quant_trading.factors.standardized_state_interfaces import (
+    EmptyStandardizedPriceStateQueryService,
+    StandardizedPriceStateQueryService,
+)
+from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
+from quant_trading.orchestration import (
+    StandardizedStateTargetPositionPreviewCoordinator,
+)
 
 from ..factor_history_export import FactorHistoryExportService
 
@@ -81,6 +90,7 @@ ALGORITHM_CONTROL_PAGE_IDS: tuple[str, ...] = (
     "overview",
     "idea_notebook",
     "asset_factors",
+    "standardized_state",
     "market_factors",
     "decision",
     "risk",
@@ -117,6 +127,10 @@ class AlgorithmControlPanel(QMainWindow):
         target_position_service: TargetPositionService | None = None,
         target_position_queries: TargetPositionQueryService | None = None,
         target_position_session_id: str | None = None,
+        standardized_state_service: StandardizedPriceStateService | None = None,
+        standardized_state_queries: StandardizedPriceStateQueryService | None = None,
+        standardized_state_session_id: str | None = None,
+        linked_target_position_preview: StandardizedStateTargetPositionPreviewCoordinator | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -133,6 +147,16 @@ class AlgorithmControlPanel(QMainWindow):
             history_queries=factor_history_queries,
             visualization_queries=factor_visualization_queries,
             export_service=factor_export_service,
+        )
+        self.standardized_state_page = StandardizedPriceStatePanel(
+            standardized_state_service,
+            standardized_state_queries or EmptyStandardizedPriceStateQueryService(),
+            session_id=(
+                standardized_state_session_id
+                or target_position_session_id
+                or asset_state_session_id
+                or capital_session_id
+            ),
         )
         self.market_factor_page = MarketFactorPanel(controller)
         self.decision_page = DecisionManagementPanel(
@@ -159,6 +183,10 @@ class AlgorithmControlPanel(QMainWindow):
             target_position_service,
             target_position_queries or EmptyTargetPositionQueryService(),
             session_id=target_position_session_id or asset_state_session_id or capital_session_id,
+            linked_preview_service=linked_target_position_preview,
+            standardized_state_queries=(
+                standardized_state_queries or EmptyStandardizedPriceStateQueryService()
+            ),
         )
         self.simulation_strategy_page = SimulationStrategyPanel(controller)
         self.pipeline = self._pipeline_page()
@@ -167,6 +195,7 @@ class AlgorithmControlPanel(QMainWindow):
             run_history_queries or EmptyRunHistoryQueryService()
         )
         self.factor_page.open_run_requested.connect(self._open_run)
+        self.standardized_state_page.open_run_requested.connect(self._open_run)
         self.decision_page.open_run_requested.connect(self._open_run)
         self.capital_allocation_page.open_run_requested.connect(self._open_run)
         self.asset_state_page.open_run_requested.connect(self._open_run)
@@ -176,6 +205,7 @@ class AlgorithmControlPanel(QMainWindow):
             ("overview", "总览", self.overview),
             ("idea_notebook", "算法 Idea 笔记", self.idea_notebook_page),
             ("asset_factors", "单只股票因子", self.factor_page),
+            ("standardized_state", "Standardized State", self.standardized_state_page),
             ("market_factors", "市场/宏观因子", self.market_factor_page),
             ("decision", "交易决策层", self.decision_page),
             ("risk", "风险检查层", self.risk_page),
@@ -336,6 +366,7 @@ class AlgorithmControlPanel(QMainWindow):
         self.capital_allocation_page.reload()
         self.asset_state_page.reload()
         self.target_position_page.reload()
+        self.standardized_state_page.reload()
         self.run_history_page.reload()
 
     def _factor_catalog_changed(self) -> None:

@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+- `ADR-0023-linked-standardized-state-target-position-preview.md`: accepted an orchestration-owned exact-result adapter, typed immutable source-to-target provenance, parent/child `NO_EXECUTION` Runs and central Schema v8; no automatic selection, factual capital, action/risk or execution consumer.
+- `ADR-0022-manual-standardized-price-state-research.md`: accepted Factor ownership of exact positive-manual-USD reference normalization, Schema v7 evidence and a disabled/unconsumed inspector; no estimator, FactorSnapshot publication, target/action/risk or execution consumer.
 - `ADR-0021-bounded-target-position-research.md`: accepted a separate disabled target-level owner with explicit manual USD inputs, bounded finite-knot Decimal interpolation, Schema v6 evidence and no Factor/State/Capital/Accounting/Decision/Risk/Execution consumer.
 
 - `ADR-0020-manual-asset-state-history.md`: accepted a separate research state owner, user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay, Schema v5 evidence and no financial/trading consumer.
@@ -29,6 +31,8 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 `Status`、`Context`、`Options considered`、`Decision`、`Rationale`、`Consequences`、`Reversal`。
 
 ## Index
+
+- [ADR-0023: Link Exact Standardized-State Evidence to Target Position Through Orchestration](ADR-0023-linked-standardized-state-target-position-preview.md) — explicit source selection, exact scalar/symbol/time propagation, immutable Run/result relationships and no trading authority.
 
 - [ADR-0021: Separate Bounded Target Position Research from Decision and Input Authorities](ADR-0021-bounded-target-position-research.md) — manual bounded target-level evidence, exact trace and no automatic upstream/downstream authority.
 

@@ -2,11 +2,11 @@
 
 ## Status
 
-**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It contains no algorithm and never reaches execution.
+**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It also owns the Phase 5C exact standardized-state-to-Target-Position call-order adapter. It contains no formula and never reaches execution.
 
 ## Purpose
 
-Call Factor then Decision, and optionally Risk, in one explicit direction while keeping all three engines independently usable.
+Coordinate explicitly approved cross-owner research call order while keeping every domain engine independently usable. Current paths include Factor then Decision and optional Risk, plus exact persisted Standardized State into Target Position.
 
 ## Responsibilities
 
@@ -18,6 +18,8 @@ Call Factor then Decision, and optionally Risk, in one explicit direction while 
 - Optionally audit and persist the Factor calculation through an injected public `FactorSnapshotStore` before Decision evaluation.
 - For tracked Algorithm Control previews, record one top-level Run, ordered Market Data/Factor/Decision/Risk stages, exact definition bindings, and durable domain results through injected public Store contracts.
 - Restricted Decision evaluation records structured condition values/outcomes and exact sizing inputs at calculation time before persistence; orchestration forwards the immutable result without calculating or reconstructing the trace.
+- Resolve one exact accepted standardized-state calculation through its public query, create a top-level linked-preview Run, and delegate a source-neutral exact scalar/symbol/time input to the Target Position linked service.
+- Preserve source/parent/child Run identity, return idempotent exact retries, durably fail conflicts/missing evidence, and never select a latest/default result.
 
 ## Non-responsibilities
 
@@ -25,7 +27,7 @@ No Market Data loading, SQL, Factor formula, decision/risk rule, portfolio inter
 
 ## Public interfaces
 
-`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`.
+`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`, `StandardizedStateTargetPositionPreviewCoordinator`.
 
 ## Inputs
 
@@ -37,7 +39,7 @@ Analysis returns one `FactorSnapshot` and one non-executing `DecisionResult`; Tr
 
 ## Dependencies
 
-May depend on public Factor/Decision/Risk engines, models and the public Factor Store Protocol. Must not depend on the concrete SQLite adapter, calculators/policies/rules, Provider, Alpaca, GUI, or execution.
+May depend on public Factor/Decision/Risk engines and models, public Factor query/Store contracts, public Target Position application contracts and neutral Run History contracts. Must not depend on concrete SQLite adapters, target/factor engine internals, calculators/policies/rules, Provider, Alpaca, GUI, or execution.
 
 ## Side effects
 
@@ -53,8 +55,8 @@ None. It passes two separate immutable parameter contexts.
 
 ## Tests
 
-Fake integration tests verify Factor → Snapshot → Decision and Factor → Decision → Risk flows. Local-workbench tests verify that one full Dry Run reloads as Market Data → Factor → Decision → Risk under one Run ID and retains condition-level Decision causality. No real network or order path exists.
+Fake integration tests verify Factor → Snapshot → Decision and Factor → Decision → Risk flows. Local-workbench tests verify that one full Dry Run reloads as Market Data → Factor → Decision → Risk under one Run ID and retains condition-level Decision causality. Linked Target Position tests verify exact source propagation, parent/child/source Run relationships, durable invalid/failed attempts, idempotency and restart reload. No real network or order path exists.
 
 ## Known limitations
 
-The general pipelines accept a prebuilt Market Data window; the Algorithm Control adapter loads only local cached Bars. Numerical Risk policies, approved-order conversion, and execution are **Not implemented**. Current tracked previews persist their Factor result by default so later Decision/Risk evidence has a durable input reference.
+The general pipelines accept a prebuilt Market Data window; the Algorithm Control adapter loads only local cached Bars. Linked Target Position does not estimate or fetch standardized-state inputs and keeps both USD values manual. Numerical Risk policies, approved-order conversion, and execution are **Not implemented**. Current tracked previews persist their Factor result by default so later Decision/Risk evidence has a durable input reference.

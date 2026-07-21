@@ -16,6 +16,17 @@ def _imports(root: Path) -> set[str]:
     return imported
 
 
+def _file_imports(path: Path) -> set[str]:
+    imported: set[str] = set()
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported.add(node.module)
+    return imported
+
+
 def test_run_history_domain_is_neutral_and_has_no_sql_or_gui_dependency() -> None:
     imports = _imports(Path("src/quant_trading/run_history"))
     forbidden = (
@@ -30,8 +41,17 @@ def test_run_history_domain_is_neutral_and_has_no_sql_or_gui_dependency() -> Non
     assert not [name for name in imports if name.startswith(forbidden)]
 
 
-def test_factor_decision_and_risk_do_not_depend_on_run_history() -> None:
-    for module in ("factors", "decision", "risk"):
+def test_only_approved_factor_service_depends_on_neutral_run_history() -> None:
+    factor_root = Path("src/quant_trading/factors")
+    approved = factor_root / "standardized_state_service.py"
+    for path in factor_root.rglob("*.py"):
+        imports = _file_imports(path)
+        if path == approved:
+            assert "quant_trading.run_history" in imports
+        else:
+            assert "quant_trading.run_history" not in imports, str(path)
+
+    for module in ("decision", "risk"):
         assert "quant_trading.run_history" not in _imports(
             Path("src/quant_trading") / module
         )

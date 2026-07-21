@@ -13,6 +13,11 @@ from .models import (
     TargetPositionResult,
     TargetPositionResultQuery,
 )
+from .linked_models import (
+    LinkedTargetPositionOperationAttempt,
+    LinkedTargetPositionQuery,
+    StandardizedStateTargetPositionLink,
+)
 
 
 class TargetPositionStore(Protocol):
@@ -36,6 +41,32 @@ class TargetPositionStore(Protocol):
 
     def save_operation(self, operation: TargetPositionOperationAttempt) -> None: ...
 
+    def get_first_linked_operation(
+        self, operation_id: UUID
+    ) -> LinkedTargetPositionOperationAttempt | None: ...
+
+    def get_standardized_state_link(
+        self, operation_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None: ...
+
+    def save_linked_operation(
+        self, operation: LinkedTargetPositionOperationAttempt
+    ) -> None: ...
+
+    def save_linked_failure(
+        self,
+        target_operation: TargetPositionOperationAttempt,
+        linked_operation: LinkedTargetPositionOperationAttempt,
+    ) -> None: ...
+
+    def save_linked_preview(
+        self,
+        result: TargetPositionResult,
+        target_operation: TargetPositionOperationAttempt,
+        linked_operation: LinkedTargetPositionOperationAttempt,
+        link: StandardizedStateTargetPositionLink,
+    ) -> None: ...
+
 
 class TargetPositionQueryService(Protocol):
     def list_definitions(
@@ -51,6 +82,18 @@ class TargetPositionQueryService(Protocol):
     def list_operations(
         self, query: TargetPositionOperationQuery = TargetPositionOperationQuery()
     ) -> tuple[TargetPositionOperationAttempt, ...]: ...
+
+    def list_linked_operations(
+        self, query: LinkedTargetPositionQuery = LinkedTargetPositionQuery()
+    ) -> tuple[LinkedTargetPositionOperationAttempt, ...]: ...
+
+    def list_standardized_state_links(
+        self, query: LinkedTargetPositionQuery = LinkedTargetPositionQuery()
+    ) -> tuple[StandardizedStateTargetPositionLink, ...]: ...
+
+    def get_standardized_state_link(
+        self, operation_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None: ...
 
 
 class EmptyTargetPositionQueryService:
@@ -71,6 +114,21 @@ class EmptyTargetPositionQueryService:
         self, query: TargetPositionOperationQuery = TargetPositionOperationQuery()
     ) -> tuple[TargetPositionOperationAttempt, ...]:
         return ()
+
+    def list_linked_operations(
+        self, query: LinkedTargetPositionQuery = LinkedTargetPositionQuery()
+    ) -> tuple[LinkedTargetPositionOperationAttempt, ...]:
+        return ()
+
+    def list_standardized_state_links(
+        self, query: LinkedTargetPositionQuery = LinkedTargetPositionQuery()
+    ) -> tuple[StandardizedStateTargetPositionLink, ...]:
+        return ()
+
+    def get_standardized_state_link(
+        self, operation_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None:
+        return None
 
 
 __all__ = [
