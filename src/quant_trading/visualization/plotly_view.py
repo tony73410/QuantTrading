@@ -6,7 +6,7 @@ import json
 import re
 
 import plotly.io as pio
-from PySide6.QtCore import QDir, QTemporaryFile, QTimer, QUrl, Signal
+from PySide6.QtCore import QDir, QTemporaryFile, QTimer, QUrl, Signal, Slot
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QWidget
 
@@ -92,6 +92,7 @@ class PlotlyFigureView(QWebEngineView):
         # offline Plotly bundle is loaded from this auto-removed local file.
         self.load(QUrl.fromLocalFile(html_file.fileName()))
 
+    @Slot(bool)
     def _on_load_finished(self, success: bool) -> None:
         self._loading = False
         self._ready = success

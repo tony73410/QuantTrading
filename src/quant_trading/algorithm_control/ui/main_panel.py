@@ -41,6 +41,11 @@ from .standardized_state_panel import StandardizedPriceStatePanel
 from .simulation_strategy_panel import SimulationStrategyPanel
 from .market_factor_panel import MarketFactorPanel
 from .run_history_panel import RunHistoryPanel
+from .exposure_cap_panel import ExposureCapPanel
+from .research_cash_floor_panel import ResearchCashFloorPanel
+from .research_asset_cash_panel import ResearchAssetCashPanel
+from .risk_chain_panel import RiskChainExplorerPanel
+from .target_adjustment_risk_panel import RiskManagementPanel, TargetAdjustmentRiskPanel
 from .workers import TaskWorker
 from quant_trading.portfolio_accounting.queries.interfaces import (
     EmptyPortfolioAccountingQueryService,
@@ -56,6 +61,20 @@ from quant_trading.factors.interfaces import (
     FactorVisualizationQueryService,
 )
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
+from quant_trading.decision import TargetAdjustmentDecisionQueryService
+from quant_trading.risk import (
+    EmptyExposureCapQueryService,
+    EmptyResearchAssetCashQueryService,
+    EmptyResearchCashFloorQueryService,
+    EmptyTargetAdjustmentRiskQueryService,
+    ExposureCapQueryService,
+    ResearchAssetCashFloorService,
+    ResearchAssetCashQueryService,
+    ResearchCashFloorQueryService,
+    SingleAssetExposureCapService,
+    TargetAdjustmentRiskQueryService,
+)
+from ..risk_chain_inspection import RiskChainInspectionService
 from quant_trading.capital_allocation import (
     CapitalAllocationQueryService,
     CapitalAllocationService,
@@ -78,6 +97,11 @@ from quant_trading.factors.standardized_state_interfaces import (
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
 from quant_trading.orchestration import (
     StandardizedStateTargetPositionPreviewCoordinator,
+    TargetAdjustmentDecisionPreviewCoordinator,
+    TargetAdjustmentExposureCapPreviewCoordinator,
+    TargetAdjustmentResearchCashFloorPreviewCoordinator,
+    TargetAdjustmentResearchAssetCashPreviewCoordinator,
+    TargetAdjustmentRiskReviewCoordinator,
 )
 
 from ..factor_history_export import FactorHistoryExportService
@@ -131,6 +155,18 @@ class AlgorithmControlPanel(QMainWindow):
         standardized_state_queries: StandardizedPriceStateQueryService | None = None,
         standardized_state_session_id: str | None = None,
         linked_target_position_preview: StandardizedStateTargetPositionPreviewCoordinator | None = None,
+        target_adjustment_decision_preview: TargetAdjustmentDecisionPreviewCoordinator | None = None,
+        target_adjustment_decision_queries: TargetAdjustmentDecisionQueryService | None = None,
+        target_adjustment_risk_review: TargetAdjustmentRiskReviewCoordinator | None = None,
+        target_adjustment_risk_queries: TargetAdjustmentRiskQueryService | None = None,
+        exposure_cap_service: SingleAssetExposureCapService | None = None,
+        exposure_cap_preview: TargetAdjustmentExposureCapPreviewCoordinator | None = None,
+        exposure_cap_queries: ExposureCapQueryService | None = None,
+        research_cash_floor_service: ResearchAssetCashFloorService | None = None,
+        research_cash_floor_preview: TargetAdjustmentResearchCashFloorPreviewCoordinator | None = None,
+        research_cash_floor_queries: ResearchCashFloorQueryService | None = None,
+        research_asset_cash_preview: TargetAdjustmentResearchAssetCashPreviewCoordinator | None = None,
+        research_asset_cash_queries: ResearchAssetCashQueryService | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -163,8 +199,59 @@ class AlgorithmControlPanel(QMainWindow):
             controller,
             ComponentPanel(controller, ComponentType.DECISION),
             history_queries=decision_history_queries,
+            target_adjustment_preview=target_adjustment_decision_preview,
+            target_adjustment_queries=target_adjustment_decision_queries,
+            target_position_queries=(
+                target_position_queries or EmptyTargetPositionQueryService()
+            ),
+            session_id=(
+                target_position_session_id
+                or asset_state_session_id
+                or capital_session_id
+            ),
         )
-        self.risk_page = ComponentPanel(controller, ComponentType.RISK)
+        self.risk_page = RiskManagementPanel(
+            ComponentPanel(controller, ComponentType.RISK),
+            TargetAdjustmentRiskPanel(
+                target_adjustment_risk_review,
+                target_adjustment_risk_queries,
+                target_adjustment_decision_queries,
+                session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
+            ),
+            ExposureCapPanel(
+                exposure_cap_service,
+                exposure_cap_preview,
+                exposure_cap_queries,
+                target_adjustment_risk_queries,
+                session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
+            ),
+            ResearchCashFloorPanel(
+                research_cash_floor_service,
+                research_cash_floor_preview,
+                research_cash_floor_queries,
+                exposure_cap_queries,
+                target_position_queries,
+                session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
+            ),
+            ResearchAssetCashPanel(
+                research_asset_cash_preview,
+                research_asset_cash_queries,
+                research_cash_floor_queries,
+                capital_allocation_queries,
+                session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
+            ),
+            risk_chain_panel=RiskChainExplorerPanel(
+                RiskChainInspectionService(
+                    target_adjustment_risk_queries
+                    or EmptyTargetAdjustmentRiskQueryService(),
+                    exposure_cap_queries or EmptyExposureCapQueryService(),
+                    research_cash_floor_queries
+                    or EmptyResearchCashFloorQueryService(),
+                    research_asset_cash_queries
+                    or EmptyResearchAssetCashQueryService(),
+                )
+            ),
+        )
         self.execution_page = ExecutionControlPanel(controller)
         self.portfolio_ledger_page = PortfolioLedgerPanel(
             portfolio_queries or EmptyPortfolioAccountingQueryService()
@@ -197,6 +284,7 @@ class AlgorithmControlPanel(QMainWindow):
         self.factor_page.open_run_requested.connect(self._open_run)
         self.standardized_state_page.open_run_requested.connect(self._open_run)
         self.decision_page.open_run_requested.connect(self._open_run)
+        self.risk_page.open_run_requested.connect(self._open_run)
         self.capital_allocation_page.open_run_requested.connect(self._open_run)
         self.asset_state_page.open_run_requested.connect(self._open_run)
         self.target_position_page.open_run_requested.connect(self._open_run)

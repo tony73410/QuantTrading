@@ -4,7 +4,7 @@
 
 - `factor-authoring.md` — restricted expression definitions, immutable disabled Factor versions, and exact Decision Factor-version selection.
 
-- `central-persistence.md` — shared local SQLite Schema v8, versioned migrations, independent Run/Factor/Decision/Risk/Capital/Asset State/Target Position/standardized-state/link persistence and typed research-query adapters.
+- `central-persistence.md` — shared local SQLite Schema v11, versioned migrations, independent Run/Factor/Decision/Risk/Capital/Asset State/Target Position/standardized-state/link/target-adjustment/manual-review/exposure-cap persistence and typed research-query adapters.
 - `standardized-price-state.md` — Factor-owned exact manual USD reference/positive-scale normalization with structured history; only explicit Phase 5C query consumption is allowed.
 - `target-position.md` — bounded target-level research owner with immutable curves, unchanged Decimal mathematics, manual mode and exact linked-source provenance; no trading consumer.
 - `capital-allocation.md` — immutable research cash plans, protected reserve/asset buckets, exact conservation, append-only transfers and typed Store/query contracts.
@@ -16,9 +16,9 @@
 - `main-launcher.md` — QuantTrade主要桌面入口和未来独立GUI功能登记规则；
 - `market-history.md` — 历史行情、缓存和GUI；
 - `factors.md` — 单资产、策略中立的因子合同和无公式引擎；
-- `trading-decision.md` — 只消费FactorSnapshot的非执行决策合同和无规则引擎；
-- `risk-control.md` — 位于TradeIntent与未来Order Construction之间的独立风险合同和无数值规则引擎；
-- `analysis-decision-pipeline.md` — 只负责已批准的跨所有者调用顺序，包括Factor → Decision → Risk与exact Standardized State → Target Position；不含公式。
+- `trading-decision.md` — 既有FactorSnapshot策略合同，以及类型独立的linked-target adjustment研究预览；其唯一专用Risk消费者不能批准金额；
+- `risk-control.md` — 位于TradeIntent与未来Order Construction之间的独立风险合同、Phase 6A结构化人工审查门，以及Phase 6B/6C/6D三条有序、仍未批准的数值研究预览；
+- `analysis-decision-pipeline.md` — 只负责已批准的跨所有者调用顺序，包括Factor → Decision → Risk、exact Standardized State → Target Position、exact linked target → specialized Decision、specialized intent → structural Risk review及Phase 6A result → exposure-cap preview；不含公式/规则。
 - `execution-environments.md` — Paper与Live两个同级、空白、禁用的未来执行环境边界；不含订单能力。
 - `algorithm-control-gui.md` — 只负责组件元数据、通用参数、配置版本、验证、安全预览和审计的独立GUI管理面。
 - `idea-notebook.md` — Algorithm Control内的被动本地想法笔记；不注册、不计算，也不进入回测或交易流程。

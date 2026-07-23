@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified, disabled/unconsumed research capability.** PROPOSAL-012 and ADR-0019 define Phase 3A. The module has no account, order, Paper or Live authority.
+**Implemented and verified, disabled research capability with one explicit read-only Phase 6D consumer.** PROPOSAL-012/021 and ADR-0019/0028 define the boundary. The module has no account, order, Paper or Live authority.
 
 ## Purpose
 
@@ -20,7 +20,7 @@ Maintain an explicit user-entered USD research cash basis as immutable internal 
 
 ## Non-responsibilities
 
-Factual account cash, Ledger/Accounting mutation, deposits/withdrawals, holdings or market value, sector pools, strategic scores/weights, reserve lending/repayment, Target Position, state machine, Decision sizing, numerical Risk, Backtesting consumption, broker access, orders, Paper or Live.
+Factual account cash, Ledger/Accounting mutation, deposits/withdrawals, holdings or market value, sector pools, strategic scores/weights, reserve lending/repayment, Target Position, state machine, Decision sizing, Risk candidate classification/approval, cash reservation, Backtesting consumption, broker access, orders, Paper or Live.
 
 ## Public interfaces
 
@@ -45,7 +45,7 @@ Typed terminal operation result, immutable plan/transfer/snapshot evidence, exac
 
 The domain uses Python stdlib, shared error codes and neutral Run History contracts. It must not import Persistence, PySide6, Portfolio Accounting, Market History, Factor, Decision, Risk, Backtesting, broker or Execution modules.
 
-Concrete SQLite persistence is implemented by `SQLiteCapitalAllocationStore`; Algorithm Control receives the service/query interfaces by injection. Portfolio Accounting and Capital Allocation do not import each other.
+Concrete SQLite persistence is implemented by `SQLiteCapitalAllocationStore`; Algorithm Control receives the service/query interfaces by injection. Phase 6D orchestration may use only `CapitalAllocationQueryService` to resolve one explicitly selected plan and exact latest snapshot, require complete plan-matching bucket identity/metadata and unchanged protected reserve balances, then copy evidence into a Risk-neutral DTO. Capital Allocation does not import Risk, and Portfolio Accounting and Capital Allocation do not import each other.
 
 ## Side effects
 
@@ -61,7 +61,7 @@ No environment variable, credential, default cash, reserve target, active flag o
 
 ## GUI
 
-The Algorithm Control `Capital Allocation` page can create a plan, filter/list plans, display current buckets and conservation, submit an asset-to-asset transfer, inspect transfer/operation history and open the selected Run. The page does not calculate Decimal values, access SQL, infer factual cash, edit history or call Portfolio Accounting/Decision/Risk/Backtesting/Execution.
+The Algorithm Control `Capital Allocation` page can create a plan, filter/list plans, display current buckets and conservation, submit an asset-to-asset transfer, inspect transfer/operation history and open the selected Run. The separate Risk-page Phase 6D subtab can explicitly select one plan/current snapshot through the read-only query contract. Neither page calculates Risk arithmetic, reserves cash, accesses SQL, infers factual cash or calls Portfolio Accounting/Backtesting/Execution.
 
 ## Persistence and rollback
 
@@ -77,7 +77,7 @@ Coverage includes exact conservation, invalid/failure persistence, reserve prote
 
 ## Known limitations
 
-- Multiple plans are comparable history; none is Active or automatically consumed.
+- Multiple plans are comparable history; none is Active or automatically selected. Phase 6D can consume only an explicitly selected plan and its exact latest snapshot as non-reserving research evidence.
 - No reserve movement, sector hierarchy, allocation recommendation, weight calculation or tactical borrowing exists.
 - No Portfolio Accounting snapshot adapter exists; research cash must be entered explicitly.
 - No recomputation replay or automated retention/archival exists.

@@ -51,10 +51,30 @@ def test_only_approved_factor_service_depends_on_neutral_run_history() -> None:
         else:
             assert "quant_trading.run_history" not in imports, str(path)
 
-    for module in ("decision", "risk"):
-        assert "quant_trading.run_history" not in _imports(
-            Path("src/quant_trading") / module
-        )
+    decision_root = Path("src/quant_trading/decision")
+    approved_decision = {
+        decision_root / "target_adjustment_engine.py",
+        decision_root / "target_adjustment_service.py",
+    }
+    for path in decision_root.rglob("*.py"):
+        imports = _file_imports(path)
+        if path in approved_decision:
+            assert "quant_trading.run_history" in imports
+        else:
+            assert "quant_trading.run_history" not in imports, str(path)
+    risk_root = Path("src/quant_trading/risk")
+    approved_risk = {
+        risk_root / "target_adjustment_service.py",
+        risk_root / "exposure_cap_service.py",
+        risk_root / "research_cash_floor_service.py",
+        risk_root / "research_asset_cash_service.py",
+    }
+    for path in risk_root.rglob("*.py"):
+        imports = _file_imports(path)
+        if path in approved_risk:
+            assert "quant_trading.run_history" in imports
+        else:
+            assert "quant_trading.run_history" not in imports, str(path)
 
 
 def test_run_history_gui_uses_query_contract_not_sqlite_adapter() -> None:

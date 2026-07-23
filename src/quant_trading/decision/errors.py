@@ -11,3 +11,7 @@ class DecisionContractError(DecisionError, ValueError):
 
 class DecisionRegistryError(DecisionError):
     """A policy name is missing, duplicated, or unavailable."""
+
+
+class DecisionStorageError(DecisionError):
+    """Durable Decision research evidence could not be stored consistently."""

@@ -145,12 +145,12 @@ def test_schema_v2_to_current_migration_backs_up_and_marks_legacy_trace(
 
     backups = tuple(backup_path.glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v2-to-v8." in backups[0].name
+    assert ".schema-v2-to-v13." in backups[0].name
     with sqlite3.connect(backups[0]) as backup:
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 2
         assert backup.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 13
         trace = connection.execute(
             "SELECT trace_status FROM decision_results WHERE decision_id = ?",
             (str(LEGACY_DECISION_ID),),

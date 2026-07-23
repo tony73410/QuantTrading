@@ -370,6 +370,7 @@ def test_plotly_bundle_loads_from_local_file_and_executes_javascript():
     )
     view.resize(900, 600)
     view.show()
+    assert view.metaObject().indexOfSlot("_on_load_finished(bool)") >= 0
     loaded: list[bool] = []
     load_loop = QEventLoop()
     view.loadFinished.connect(
@@ -473,6 +474,8 @@ def test_plotly_applies_data_queued_while_initial_page_is_loading():
         observer_name="quantHistoryResizeObserver",
         temporary_file_prefix="quant-history-chart-test",
     )
+    view.resize(900, 600)
+    view.show()
     loaded: list[bool] = []
     load_loop = QEventLoop()
     view.loadFinished.connect(

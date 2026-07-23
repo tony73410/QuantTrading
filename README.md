@@ -68,13 +68,25 @@ python -m venv .venv
 → 停止：订单构建和执行尚未实现
 ```
 
-目前没有生产激活的因子/Decision、仓位规则或数值Risk Policy。算法控制中心可以用本地缓存预览用户保存的Factor，编辑受限Decision规则，并运行停在Risk层的NO EXECUTION Dry Run；它不会访问券商或提交订单。Factor不知道Decision/Risk，Decision不知道Risk，Risk不能扩大原始意图或调用券商。Live和自动提交仍关闭。详细边界见 `docs/modules/factors.md`、`docs/modules/trading-decision.md` 和 `docs/modules/risk-control.md`。
+目前没有生产激活的因子/Decision、完整Risk批准 Policy或执行路径。算法控制中心可以用本地缓存预览用户保存的Factor，编辑受限Decision规则，并运行停在Risk层的NO EXECUTION Dry Run；Phase 6B/6C只实现两条有序、未消费的数值Risk研究预览。系统不会访问券商或提交订单。Factor不知道Decision/Risk，Decision不知道Risk，Risk不能扩大原始意图或调用券商。Live和自动提交仍关闭。详细边界见 `docs/modules/factors.md`、`docs/modules/trading-decision.md` 和 `docs/modules/risk-control.md`。
 
 ## Algorithm Control Center / 算法控制中心
 
 在“因子层”页面可以使用**受限表达式**创建或修改Factor。每次保存都会创建不可变新版本，并且默认不启用。它不是任意Python代码编辑器：只能使用界面列出的行情字段、数值参数、算术和聚合函数，不能访问文件、网络、数据库或券商。
 
 在“交易决策层”页面，可以用精确Factor版本、数值比较条件、ALL/ANY组合和明确动作保存不可变Decision版本。新版本默认禁用，不包含股票数量、仓位或订单参数，也不会自动参与运行。
+
+同一页面中的“目标调整决策”子页签支持Phase 5D研究预览：必须显式选择一个已接受的Phase 5C linked target，系统只按其精确USD差额的正/负/零生成`INCREASE`/`DECREASE`/`HOLD`及专用非执行意图。结果保存在中央SQLite Schema v9并可沿Run链查看；它不是通用TradeIntent或Risk批准，不能进入Backtesting、Accounting、Paper、Live或订单路径。
+
+Risk页面中的“Target Adjustment Manual Review”子页签支持Phase 6A结构审查：必须显式选择一个非零Phase 5D专用intent，系统重验完整来源链和非执行安全状态，并持久化三条锁定规则。安全有效请求只会得到`MANUAL_REVIEW_REQUIRED`，不安全运行状态会被`BLOCKED`；Schema v10结果没有approved notional或Risk-approved intent，仍不能进入Backtesting、Accounting、Paper、Live或订单路径。
+
+同一Risk页面的“Single-Asset Exposure Cap”子页签支持Phase 6B：用户必须显式创建/选择同股票正Decimal USD上限版本，并选择一个Phase 6A人工复核结果。`MAX_TARGET_EXPOSURE_USD@1`只能保持、缩小或阻止原建议；正候选金额仍是`MANUAL_REVIEW_REQUIRED`，不是Risk批准。定义、尝试、结果、规则和来源链保存于Schema v11，且不存在默认上限、账户事实或下游交易消费者。
+
+同一Risk页面的“Research Asset Cash Floor”子页签支持Phase 6C：用户必须显式选择一个正Phase 6B候选和同股票有限非负Decimal USD底线版本；显式零是版本化值而非默认。`MIN_RESEARCH_ASSET_CASH_USD@1`只使用精确Phase 5C人工研究资金基数，并在继承的规则1之后作为规则2保持、缩小或阻止INCREASE，DECREASE保持。结果保存于Schema v12，仍需人工复核；该“研究现金”不是Capital Allocation、Portfolio Accounting或券商现金。
+
+同一Risk页面的“Research Asset Cash Availability”子页签支持Phase 6D：用户必须显式选择一个正Phase 6C候选、一个Phase 3A `RESEARCH_INPUT`计划及其精确最新守恒快照。`MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1`作为规则3只限制INCREASE到同股票`ASSET_CASH`规划余额，DECREASE保持；结果保存于Schema v13并始终记录`research_cash_reserved=false`。该余额不会被预留、转移或解释为账户/券商现金，正候选仍需人工复核且没有Backtesting/Accounting/Execution消费者。
+
+同一Risk页面的“Consolidated Risk Chain Explorer”提供Phase 6E只读观察：从已保存Phase 6D结果精确解析Phase 6A–6D链路，结构门与数值规则分开展示，可按含UTC as-of边界的条件筛选、对两个显式历史链进行精确A/B相等性比较，并打开完整相关Run。缺失或不一致证据不会被推断或重算；中央SQLite仍为Schema v13，页面不产生审批、资金预留、回测或执行行为。
 
 Factor定义、生命周期和Decision定义保存在忽略Git的 `runtime/algorithm_control/`。Factor页可以归档/弃用/恢复版本，并用本地SQLite行情预览；用户勾选保存结果时，Factor历史进入中央SQLite Store。Pipeline页可以运行Factor → Decision → Risk本地演练，但不会构造或提交订单。“执行控制”页只显示Paper/Live均未实现和关闭。详细说明见 [`docs/modules/factor-authoring.md`](docs/modules/factor-authoring.md)。
 
@@ -84,7 +96,7 @@ Factor定义、生命周期和Decision定义保存在忽略Git的 `runtime/algor
 .\.venv\Scripts\python.exe -m quant_trading.algorithm_control
 ```
 
-它可以查看已注册的因子、交易决策和风险组件，管理 Draft / Saved / Active 配置版本，检查依赖并查看审计记录。当前没有正式因子公式、交易规则或数值风险规则，所以对应列表会如实为空，Pipeline Dry Run 会保持不可运行。四项系统安全不变量会以锁定状态显示。
+它可以查看已注册的因子、交易决策和风险组件，管理 Draft / Saved / Active 配置版本，检查依赖并查看审计记录。当前没有正式因子公式、生产交易规则或完整数值Risk批准；Phase 6B/6C只是显式定义/选择的研究预览。Pipeline Dry Run 会保持不可执行。四项系统安全不变量会以锁定状态显示。
 
 这个窗口不会下载行情、读取账户或提交订单。所有预览都标为 **NO EXECUTION**；配置文件保存在 `runtime/algorithm_control/control_state.json`，与历史行情 SQLite 分开且不会提交 Git。
 

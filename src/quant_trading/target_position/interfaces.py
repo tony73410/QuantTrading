@@ -49,6 +49,10 @@ class TargetPositionStore(Protocol):
         self, operation_id: UUID
     ) -> StandardizedStateTargetPositionLink | None: ...
 
+    def get_standardized_state_link_by_id(
+        self, link_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None: ...
+
     def save_linked_operation(
         self, operation: LinkedTargetPositionOperationAttempt
     ) -> None: ...
@@ -95,6 +99,10 @@ class TargetPositionQueryService(Protocol):
         self, operation_id: UUID
     ) -> StandardizedStateTargetPositionLink | None: ...
 
+    def get_standardized_state_link_by_id(
+        self, link_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None: ...
+
 
 class EmptyTargetPositionQueryService:
     def list_definitions(
@@ -127,6 +135,11 @@ class EmptyTargetPositionQueryService:
 
     def get_standardized_state_link(
         self, operation_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None:
+        return None
+
+    def get_standardized_state_link_by_id(
+        self, link_id: UUID
     ) -> StandardizedStateTargetPositionLink | None:
         return None
 

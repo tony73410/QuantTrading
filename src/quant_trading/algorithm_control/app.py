@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 import logging
+from datetime import UTC, datetime
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Sequence
@@ -22,6 +23,11 @@ from quant_trading.persistence import (
     SQLiteRunHistoryRepository,
     SQLiteTargetPositionStore,
     SQLiteStandardizedPriceStateStore,
+    SQLiteTargetAdjustmentDecisionStore,
+    SQLiteExposureCapStore,
+    SQLiteResearchCashFloorStore,
+    SQLiteResearchAssetCashStore,
+    SQLiteTargetAdjustmentRiskStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -29,8 +35,21 @@ from quant_trading.asset_state import AssetStateService
 from quant_trading.target_position import TargetPositionService
 from quant_trading.target_position import LinkedTargetPositionService
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
+from quant_trading.decision import TargetAdjustmentDecisionService
+from quant_trading.risk import (
+    ResearchAssetCashFloorService,
+    ResearchAssetCashAvailabilityService,
+    RiskSafetyStateSnapshot,
+    SingleAssetExposureCapService,
+    TargetAdjustmentRiskService,
+)
 from quant_trading.orchestration import (
     StandardizedStateTargetPositionPreviewCoordinator,
+    TargetAdjustmentDecisionPreviewCoordinator,
+    TargetAdjustmentExposureCapPreviewCoordinator,
+    TargetAdjustmentResearchCashFloorPreviewCoordinator,
+    TargetAdjustmentResearchAssetCashPreviewCoordinator,
+    TargetAdjustmentRiskReviewCoordinator,
 )
 
 from .audit_service import AuditService
@@ -186,6 +205,114 @@ def main(argv: Sequence[str] | None = None) -> int:
             software,
         )
     )
+    target_adjustment_store = SQLiteTargetAdjustmentDecisionStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    target_adjustment_store.initialize()
+    target_adjustment_service = TargetAdjustmentDecisionService(
+        target_adjustment_store,
+        software,
+    )
+    target_adjustment_preview = TargetAdjustmentDecisionPreviewCoordinator(
+        standardized_state_store,
+        target_position_store,
+        target_adjustment_store,
+        target_adjustment_store,
+        target_adjustment_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    target_adjustment_risk_store = SQLiteTargetAdjustmentRiskStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    target_adjustment_risk_store.initialize()
+    target_adjustment_risk_service = TargetAdjustmentRiskService(
+        target_adjustment_risk_store,
+        software,
+    )
+    roles = controller.roles
+    def safety_snapshot_factory() -> RiskSafetyStateSnapshot:
+        return RiskSafetyStateSnapshot(
+            uuid4(),
+            roles.execution_environment,
+            roles.live_trading_enabled,
+            roles.automatic_order_submission,
+            roles.require_manual_confirmation,
+            False,
+            "application-role-settings@1",
+            software.package_version,
+            software.source_revision,
+            software.worktree_state.value,
+            datetime.now(UTC),
+        )
+
+    target_adjustment_risk_review = TargetAdjustmentRiskReviewCoordinator(
+        target_adjustment_store,
+        target_adjustment_risk_store,
+        target_adjustment_risk_store,
+        target_adjustment_risk_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+        safety_snapshot_factory,
+    )
+    exposure_cap_store = SQLiteExposureCapStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    exposure_cap_store.initialize()
+    exposure_cap_service = SingleAssetExposureCapService(
+        exposure_cap_store,
+        exposure_cap_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    exposure_cap_preview = TargetAdjustmentExposureCapPreviewCoordinator(
+        target_adjustment_risk_store,
+        exposure_cap_store,
+        exposure_cap_store,
+        exposure_cap_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+        safety_snapshot_factory,
+    )
+    research_cash_floor_store = SQLiteResearchCashFloorStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    research_cash_floor_store.initialize()
+    research_cash_floor_service = ResearchAssetCashFloorService(
+        research_cash_floor_store,
+        research_cash_floor_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    research_cash_floor_preview = TargetAdjustmentResearchCashFloorPreviewCoordinator(
+        exposure_cap_store,
+        target_position_store,
+        research_cash_floor_store,
+        research_cash_floor_store,
+        research_cash_floor_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+        safety_snapshot_factory,
+    )
+    research_asset_cash_store = SQLiteResearchAssetCashStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    research_asset_cash_store.initialize()
+    research_asset_cash_service = ResearchAssetCashAvailabilityService(
+        research_asset_cash_store,
+        research_asset_cash_store,
+        software,
+    )
+    research_asset_cash_preview = TargetAdjustmentResearchAssetCashPreviewCoordinator(
+        research_cash_floor_store,
+        capital_store,
+        research_asset_cash_store,
+        research_asset_cash_store,
+        research_asset_cash_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+        safety_snapshot_factory,
+    )
     panel = AlgorithmControlPanel(
         controller,
         InMemoryPortfolioAccountingQueryService(),
@@ -216,6 +343,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         standardized_state_store,
         session_id,
         linked_target_position_preview=linked_target_position_preview,
+        target_adjustment_decision_preview=target_adjustment_preview,
+        target_adjustment_decision_queries=target_adjustment_store,
+        target_adjustment_risk_review=target_adjustment_risk_review,
+        target_adjustment_risk_queries=target_adjustment_risk_store,
+        exposure_cap_service=exposure_cap_service,
+        exposure_cap_preview=exposure_cap_preview,
+        exposure_cap_queries=exposure_cap_store,
+        research_cash_floor_service=research_cash_floor_service,
+        research_cash_floor_preview=research_cash_floor_preview,
+        research_cash_floor_queries=research_cash_floor_store,
+        research_asset_cash_preview=research_asset_cash_preview,
+        research_asset_cash_queries=research_asset_cash_store,
     )
     if options.page is not None:
         panel.select_page(options.page)

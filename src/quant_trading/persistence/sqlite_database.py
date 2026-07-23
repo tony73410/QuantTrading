@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import closing
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 13
 
 
 _SCHEMA_V1 = """
@@ -1279,6 +1281,1002 @@ ON target_position_standardized_state_links (
 """
 
 
+_SCHEMA_V9 = """
+CREATE TABLE target_adjustment_decision_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    target_stage_id TEXT NOT NULL,
+    decision_stage_id TEXT,
+    status TEXT NOT NULL CHECK (
+        status IN ('intent_created', 'hold', 'invalid_input', 'failed')
+    ),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    requested_target_position_link_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_target_position_link_id TEXT,
+    resolved_linked_target_operation_id TEXT,
+    resolved_linked_parent_run_id TEXT,
+    resolved_linked_source_stage_id TEXT,
+    resolved_linked_target_stage_id TEXT,
+    resolved_target_child_run_id TEXT,
+    resolved_target_child_stage_id TEXT,
+    resolved_standardized_state_calculation_id TEXT,
+    resolved_standardized_state_run_id TEXT,
+    resolved_standardized_state_stage_id TEXT,
+    resolved_standardized_state_definition_id TEXT,
+    resolved_standardized_state_definition_version INTEGER CHECK (
+        resolved_standardized_state_definition_version IS NULL
+        OR resolved_standardized_state_definition_version > 0
+    ),
+    resolved_standardized_state_created_at_utc TEXT,
+    resolved_target_calculation_id TEXT,
+    resolved_target_definition_id TEXT,
+    resolved_target_definition_version INTEGER CHECK (
+        resolved_target_definition_version IS NULL
+        OR resolved_target_definition_version > 0
+    ),
+    resolved_target_created_at_utc TEXT,
+    resolved_symbol TEXT,
+    resolved_as_of_utc TEXT,
+    resolved_standardized_state_text TEXT,
+    resolved_research_capital_basis_usd_text TEXT,
+    resolved_current_position_value_usd_text TEXT,
+    resolved_target_fraction_text TEXT,
+    resolved_target_position_value_usd_text TEXT,
+    resolved_adjustment_value_usd_text TEXT,
+    resolved_source_direction TEXT CHECK (
+        resolved_source_direction IS NULL
+        OR resolved_source_direction IN ('increase', 'decrease', 'none')
+    ),
+    resolved_link_created_at_utc TEXT,
+    resolved_source_schema_version INTEGER,
+    resolved_target_schema_version INTEGER,
+    resolved_link_schema_version INTEGER,
+    resolved_currency TEXT,
+    resolved_state_unit TEXT,
+    resolved_input_schema_version INTEGER,
+    decision_result_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_target_position_link_id)
+        REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_linked_parent_run_id)
+        REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_target_child_run_id)
+        REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_standardized_state_run_id)
+        REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_standardized_state_calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT,
+    CHECK (
+        (status IN ('intent_created', 'hold')
+            AND decision_result_id IS NOT NULL
+            AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('invalid_input', 'failed')
+            AND decision_result_id IS NULL
+            AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_target_adjustment_decision_completed_operation
+ON target_adjustment_decision_operations (operation_id)
+WHERE status IN ('intent_created', 'hold');
+
+CREATE INDEX idx_target_adjustment_decision_operations_lookup
+ON target_adjustment_decision_operations (
+    operation_id, resolved_symbol, requested_at_utc DESC, attempt_id
+);
+
+CREATE TABLE target_adjustment_decision_results (
+    decision_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    target_position_link_id TEXT NOT NULL,
+    linked_target_operation_id TEXT NOT NULL,
+    linked_parent_run_id TEXT NOT NULL,
+    linked_source_stage_id TEXT NOT NULL,
+    linked_target_stage_id TEXT NOT NULL,
+    target_child_run_id TEXT NOT NULL,
+    target_child_stage_id TEXT NOT NULL,
+    standardized_state_calculation_id TEXT NOT NULL,
+    standardized_state_run_id TEXT NOT NULL,
+    standardized_state_stage_id TEXT NOT NULL,
+    standardized_state_definition_id TEXT NOT NULL,
+    standardized_state_definition_version INTEGER NOT NULL CHECK (
+        standardized_state_definition_version > 0
+    ),
+    standardized_state_created_at_utc TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    target_definition_id TEXT NOT NULL,
+    target_definition_version INTEGER NOT NULL CHECK (target_definition_version > 0),
+    target_created_at_utc TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    standardized_state_text TEXT NOT NULL,
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_position_value_usd_text TEXT NOT NULL,
+    target_fraction_text TEXT NOT NULL,
+    target_position_value_usd_text TEXT NOT NULL,
+    adjustment_value_usd_text TEXT NOT NULL,
+    source_direction TEXT NOT NULL CHECK (
+        source_direction IN ('increase', 'decrease', 'none')
+    ),
+    link_created_at_utc TEXT NOT NULL,
+    source_schema_version INTEGER NOT NULL CHECK (source_schema_version = 1),
+    target_schema_version INTEGER NOT NULL CHECK (target_schema_version = 1),
+    link_schema_version INTEGER NOT NULL CHECK (link_schema_version = 1),
+    currency TEXT NOT NULL CHECK (currency = 'USD'),
+    state_unit TEXT NOT NULL CHECK (state_unit = 'dimensionless'),
+    input_schema_version INTEGER NOT NULL CHECK (input_schema_version = 1),
+    status TEXT NOT NULL CHECK (status IN ('intent_created', 'hold')),
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease', 'hold')),
+    reason_codes_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL,
+    policy_id TEXT NOT NULL CHECK (policy_id = 'decision.target_adjustment_preview'),
+    policy_version TEXT NOT NULL CHECK (policy_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_position_link_id)
+        REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (linked_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    CHECK (
+        (status = 'hold' AND action = 'hold')
+        OR
+        (status = 'intent_created' AND action IN ('increase', 'decrease'))
+    )
+);
+
+CREATE INDEX idx_target_adjustment_decision_results_lookup
+ON target_adjustment_decision_results (
+    symbol, target_definition_id, target_definition_version,
+    as_of_utc DESC, decision_result_id
+);
+
+CREATE TABLE target_adjustment_trade_intents (
+    intent_id TEXT PRIMARY KEY,
+    decision_result_id TEXT NOT NULL UNIQUE,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    target_position_link_id TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    current_exposure_usd_text TEXT NOT NULL,
+    target_exposure_usd_text TEXT NOT NULL,
+    desired_change_usd_text TEXT NOT NULL,
+    requested_notional_usd_text TEXT NOT NULL,
+    reason_codes_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    policy_id TEXT NOT NULL CHECK (policy_id = 'decision.target_adjustment_preview'),
+    policy_version TEXT NOT NULL CHECK (policy_version = '1.0.0'),
+    currency TEXT NOT NULL CHECK (currency = 'USD'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (decision_result_id)
+        REFERENCES target_adjustment_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_position_link_id)
+        REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_trade_intents_lookup
+ON target_adjustment_trade_intents (symbol, action, as_of_utc DESC, intent_id);
+
+CREATE TABLE target_adjustment_decision_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    decision_result_id TEXT NOT NULL UNIQUE,
+    decision_run_id TEXT NOT NULL UNIQUE,
+    decision_stage_id TEXT NOT NULL,
+    target_position_link_id TEXT NOT NULL,
+    linked_target_operation_id TEXT NOT NULL,
+    linked_parent_run_id TEXT NOT NULL,
+    target_child_run_id TEXT NOT NULL,
+    standardized_state_run_id TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    standardized_state_calculation_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (decision_result_id)
+        REFERENCES target_adjustment_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_position_link_id)
+        REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (linked_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_decision_source_links_lookup
+ON target_adjustment_decision_source_links (
+    target_position_link_id, linked_parent_run_id, target_child_run_id,
+    standardized_state_run_id
+);
+"""
+
+
+_SCHEMA_V10 = """
+CREATE TABLE target_adjustment_risk_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    decision_stage_id TEXT NOT NULL,
+    risk_stage_id TEXT,
+    requested_intent_id TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('manual_review_required', 'blocked', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_source_json TEXT,
+    safety_snapshot_json TEXT,
+    resolved_symbol TEXT,
+    resolved_action TEXT CHECK (resolved_action IS NULL OR resolved_action IN ('increase', 'decrease')),
+    resolved_as_of_utc TEXT,
+    review_result_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    CHECK (
+        (status IN ('manual_review_required', 'blocked') AND risk_stage_id IS NOT NULL
+            AND resolved_source_json IS NOT NULL AND safety_snapshot_json IS NOT NULL
+            AND review_result_id IS NOT NULL AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('invalid_input', 'failed') AND review_result_id IS NULL
+            AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_target_adjustment_risk_completed_operation
+ON target_adjustment_risk_operations (operation_id)
+WHERE status IN ('manual_review_required', 'blocked');
+
+CREATE INDEX idx_target_adjustment_risk_operations_lookup
+ON target_adjustment_risk_operations (operation_id, resolved_symbol, status, requested_at_utc DESC);
+
+CREATE TABLE target_adjustment_risk_review_results (
+    review_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    source_json TEXT NOT NULL,
+    safety_snapshot_json TEXT NOT NULL,
+    safety_snapshot_id TEXT NOT NULL,
+    decision_result_id TEXT NOT NULL,
+    intent_id TEXT NOT NULL UNIQUE,
+    decision_run_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    current_exposure_usd_text TEXT NOT NULL,
+    target_exposure_usd_text TEXT NOT NULL,
+    desired_change_usd_text TEXT NOT NULL,
+    requested_notional_usd_text TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('manual_review_required', 'blocked')),
+    reason_codes_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    approved_notional_usd_text TEXT CHECK (approved_notional_usd_text IS NULL),
+    risk_approved_intent_id TEXT CHECK (risk_approved_intent_id IS NULL),
+    gate_id TEXT NOT NULL CHECK (gate_id = 'risk.target_adjustment_manual_review_gate'),
+    gate_version TEXT NOT NULL CHECK (gate_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id) REFERENCES target_adjustment_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id) REFERENCES target_adjustment_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_risk_results_lookup
+ON target_adjustment_risk_review_results (symbol, action, status, as_of_utc DESC, review_result_id);
+
+CREATE TABLE target_adjustment_risk_rule_results (
+    rule_result_id TEXT PRIMARY KEY,
+    review_result_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    stage_id TEXT NOT NULL,
+    rule_id TEXT NOT NULL CHECK (rule_id IN ('SOURCE_CHAIN_INTEGRITY', 'NON_EXECUTION_SAFETY_STATE', 'NUMERICAL_RISK_POLICY_AVAILABILITY')),
+    rule_version TEXT NOT NULL CHECK (rule_version = '1'),
+    rule_name TEXT NOT NULL,
+    evaluation_order INTEGER NOT NULL CHECK (evaluation_order BETWEEN 1 AND 3),
+    status TEXT NOT NULL CHECK (status IN ('passed', 'manual_review', 'blocked')),
+    input_summary TEXT NOT NULL,
+    expected_condition TEXT NOT NULL,
+    reason_codes_json TEXT NOT NULL,
+    severity TEXT NOT NULL CHECK (severity IN ('info', 'warning', 'critical')),
+    stop_processing INTEGER NOT NULL CHECK (stop_processing IN (0, 1)),
+    evaluated_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (review_result_id, evaluation_order),
+    UNIQUE (review_result_id, rule_id),
+    FOREIGN KEY (review_result_id) REFERENCES target_adjustment_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE target_adjustment_risk_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    review_result_id TEXT NOT NULL UNIQUE,
+    risk_run_id TEXT NOT NULL UNIQUE,
+    risk_stage_id TEXT NOT NULL,
+    decision_result_id TEXT NOT NULL,
+    intent_id TEXT NOT NULL UNIQUE,
+    decision_run_id TEXT NOT NULL,
+    linked_parent_run_id TEXT NOT NULL,
+    target_child_run_id TEXT NOT NULL,
+    standardized_state_run_id TEXT NOT NULL,
+    target_position_link_id TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    standardized_state_calculation_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (review_result_id) REFERENCES target_adjustment_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id) REFERENCES target_adjustment_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id) REFERENCES target_adjustment_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (linked_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_position_link_id) REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id) REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_calculation_id) REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_risk_source_links_lookup
+ON target_adjustment_risk_source_links (decision_run_id, linked_parent_run_id, target_child_run_id, standardized_state_run_id);
+"""
+
+
+_SCHEMA_V11 = """
+CREATE TABLE single_asset_exposure_cap_definitions (
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    predecessor_version INTEGER,
+    symbol TEXT NOT NULL,
+    max_target_exposure_usd_text TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('saved', 'archived')),
+    reason TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    currency TEXT NOT NULL CHECK (currency = 'USD'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (definition_id, definition_version),
+    FOREIGN KEY (definition_id, predecessor_version)
+        REFERENCES single_asset_exposure_cap_definitions(definition_id, definition_version)
+        ON DELETE RESTRICT,
+    CHECK (
+        (definition_version = 1 AND predecessor_version IS NULL)
+        OR predecessor_version = definition_version - 1
+    )
+);
+
+CREATE INDEX idx_single_asset_exposure_cap_definitions_lookup
+ON single_asset_exposure_cap_definitions
+    (symbol, status, definition_id, definition_version DESC);
+
+CREATE TABLE target_adjustment_exposure_cap_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    operation_type TEXT NOT NULL CHECK (operation_type IN ('definition_save', 'definition_archive', 'preview')),
+    status TEXT NOT NULL CHECK (status IN ('completed', 'blocked', 'invalid_input', 'failed')),
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    requested_review_result_id TEXT,
+    requested_definition_id TEXT,
+    requested_definition_version INTEGER,
+    requested_symbol TEXT,
+    requested_max_target_exposure_usd_text TEXT,
+    resolved_definition_id TEXT,
+    resolved_definition_version INTEGER,
+    resolved_source_json TEXT,
+    current_safety_snapshot_json TEXT,
+    resolved_symbol TEXT,
+    resolved_action TEXT CHECK (resolved_action IS NULL OR resolved_action IN ('increase', 'decrease')),
+    resolved_as_of_utc TEXT,
+    preview_result_id TEXT,
+    disposition TEXT CHECK (disposition IS NULL OR disposition IN ('manual_review_required', 'blocked_by_exposure_cap')),
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_definition_id, resolved_definition_version)
+        REFERENCES single_asset_exposure_cap_definitions(definition_id, definition_version)
+        ON DELETE RESTRICT,
+    CHECK (
+        (status = 'completed' AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('blocked', 'invalid_input', 'failed')
+            AND error_code IS NOT NULL AND error_summary IS NOT NULL
+            AND preview_result_id IS NULL AND disposition IS NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_target_adjustment_exposure_cap_terminal_operation
+ON target_adjustment_exposure_cap_operations (operation_id)
+WHERE status IN ('completed', 'blocked');
+
+CREATE INDEX idx_target_adjustment_exposure_cap_operations_lookup
+ON target_adjustment_exposure_cap_operations
+    (operation_id, operation_type, status, resolved_symbol, requested_at_utc DESC);
+
+CREATE TABLE target_adjustment_exposure_cap_results (
+    preview_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    source_json TEXT NOT NULL,
+    phase6a_review_result_id TEXT NOT NULL,
+    phase6a_run_id TEXT NOT NULL,
+    phase6a_stage_id TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    current_exposure_usd_text TEXT NOT NULL,
+    target_exposure_usd_text TEXT NOT NULL,
+    original_requested_notional_usd_text TEXT NOT NULL,
+    max_target_exposure_usd_text TEXT NOT NULL,
+    cap_constrained_candidate_notional_usd_text TEXT NOT NULL,
+    reduction_usd_text TEXT NOT NULL,
+    disposition TEXT NOT NULL CHECK (disposition IN ('manual_review_required', 'blocked_by_exposure_cap')),
+    reason_codes_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    component_id TEXT NOT NULL CHECK (component_id = 'risk.target_adjustment_single_asset_exposure_cap_preview'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_review_result_id)
+        REFERENCES target_adjustment_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id, definition_version)
+        REFERENCES single_asset_exposure_cap_definitions(definition_id, definition_version)
+        ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_exposure_cap_results_lookup
+ON target_adjustment_exposure_cap_results
+    (symbol, action, disposition, definition_id, definition_version, as_of_utc DESC);
+
+CREATE TABLE target_adjustment_exposure_cap_rule_results (
+    rule_result_id TEXT PRIMARY KEY,
+    preview_result_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL,
+    stage_id TEXT NOT NULL,
+    rule_id TEXT NOT NULL CHECK (rule_id = 'MAX_TARGET_EXPOSURE_USD'),
+    rule_version TEXT NOT NULL CHECK (rule_version = '1'),
+    evaluation_order INTEGER NOT NULL CHECK (evaluation_order = 1),
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    current_exposure_usd_text TEXT NOT NULL,
+    target_exposure_usd_text TEXT NOT NULL,
+    original_requested_notional_usd_text TEXT NOT NULL,
+    max_target_exposure_usd_text TEXT NOT NULL,
+    cap_constrained_candidate_notional_usd_text TEXT NOT NULL,
+    reduction_usd_text TEXT NOT NULL,
+    outcome TEXT NOT NULL CHECK (outcome IN ('passed_within_cap', 'reduced_to_cap', 'blocked_no_increase_capacity', 'preserved_risk_reducing_direction')),
+    reason_codes_json TEXT NOT NULL,
+    stop_processing INTEGER NOT NULL CHECK (stop_processing = 1),
+    evaluated_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (preview_result_id)
+        REFERENCES target_adjustment_exposure_cap_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE target_adjustment_exposure_cap_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    preview_result_id TEXT NOT NULL UNIQUE,
+    exposure_cap_run_id TEXT NOT NULL UNIQUE,
+    exposure_cap_stage_id TEXT NOT NULL,
+    phase6a_review_result_id TEXT NOT NULL,
+    phase6a_run_id TEXT NOT NULL,
+    phase6a_stage_id TEXT NOT NULL,
+    decision_run_id TEXT NOT NULL,
+    linked_parent_run_id TEXT NOT NULL,
+    target_child_run_id TEXT NOT NULL,
+    standardized_state_run_id TEXT NOT NULL,
+    decision_result_id TEXT NOT NULL,
+    intent_id TEXT NOT NULL,
+    target_position_link_id TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    standardized_state_calculation_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (preview_result_id)
+        REFERENCES target_adjustment_exposure_cap_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (exposure_cap_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (exposure_cap_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_review_result_id)
+        REFERENCES target_adjustment_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (linked_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id)
+        REFERENCES target_adjustment_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id)
+        REFERENCES target_adjustment_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_position_link_id)
+        REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_exposure_cap_source_links_lookup
+ON target_adjustment_exposure_cap_source_links
+    (phase6a_run_id, decision_run_id, linked_parent_run_id, target_child_run_id, standardized_state_run_id);
+"""
+
+
+_SCHEMA_V12 = """
+CREATE TABLE research_asset_cash_floor_definitions (
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    predecessor_version INTEGER,
+    symbol TEXT NOT NULL,
+    minimum_research_asset_cash_usd_text TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('saved', 'archived')),
+    reason TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    currency TEXT NOT NULL CHECK (currency = 'USD'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (definition_id, definition_version),
+    FOREIGN KEY (definition_id, predecessor_version)
+        REFERENCES research_asset_cash_floor_definitions(definition_id, definition_version)
+        ON DELETE RESTRICT,
+    CHECK (
+        (definition_version = 1 AND predecessor_version IS NULL)
+        OR predecessor_version = definition_version - 1
+    )
+);
+
+CREATE INDEX idx_research_asset_cash_floor_definitions_lookup
+ON research_asset_cash_floor_definitions
+    (symbol, status, definition_id, definition_version DESC);
+
+CREATE TABLE target_adjustment_cash_floor_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    operation_type TEXT NOT NULL CHECK (operation_type IN ('definition_save', 'definition_archive', 'preview')),
+    status TEXT NOT NULL CHECK (status IN ('completed', 'blocked', 'invalid_input', 'failed')),
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    requested_phase6b_result_id TEXT,
+    requested_definition_id TEXT,
+    requested_definition_version INTEGER,
+    requested_symbol TEXT,
+    requested_minimum_research_asset_cash_usd_text TEXT,
+    resolved_definition_id TEXT,
+    resolved_definition_version INTEGER,
+    resolved_source_json TEXT,
+    current_safety_snapshot_json TEXT,
+    resolved_symbol TEXT,
+    resolved_action TEXT CHECK (resolved_action IS NULL OR resolved_action IN ('increase', 'decrease')),
+    resolved_as_of_utc TEXT,
+    preview_result_id TEXT,
+    disposition TEXT CHECK (disposition IS NULL OR disposition IN ('manual_review_required', 'blocked_by_research_cash_floor')),
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_definition_id, resolved_definition_version)
+        REFERENCES research_asset_cash_floor_definitions(definition_id, definition_version)
+        ON DELETE RESTRICT,
+    CHECK (
+        (status = 'completed' AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('blocked', 'invalid_input', 'failed')
+            AND error_code IS NOT NULL AND error_summary IS NOT NULL
+            AND preview_result_id IS NULL AND disposition IS NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_target_adjustment_cash_floor_terminal_operation
+ON target_adjustment_cash_floor_operations (operation_id)
+WHERE status IN ('completed', 'blocked');
+
+CREATE INDEX idx_target_adjustment_cash_floor_operations_lookup
+ON target_adjustment_cash_floor_operations
+    (operation_id, operation_type, status, resolved_symbol, requested_at_utc DESC);
+
+CREATE TABLE target_adjustment_cash_floor_results (
+    preview_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    source_json TEXT NOT NULL,
+    phase6b_preview_result_id TEXT NOT NULL,
+    phase6b_run_id TEXT NOT NULL,
+    phase6b_stage_id TEXT NOT NULL,
+    phase6a_review_result_id TEXT NOT NULL,
+    phase6a_run_id TEXT NOT NULL,
+    phase6a_stage_id TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_exposure_usd_text TEXT NOT NULL,
+    phase6b_candidate_notional_usd_text TEXT NOT NULL,
+    minimum_research_asset_cash_usd_text TEXT NOT NULL,
+    pre_action_research_cash_usd_text TEXT NOT NULL,
+    cash_capacity_usd_text TEXT NOT NULL,
+    cash_floor_constrained_candidate_notional_usd_text TEXT NOT NULL,
+    post_action_research_cash_usd_text TEXT NOT NULL,
+    remaining_shortfall_usd_text TEXT NOT NULL,
+    reduction_usd_text TEXT NOT NULL,
+    disposition TEXT NOT NULL CHECK (disposition IN ('manual_review_required', 'blocked_by_research_cash_floor')),
+    reason_codes_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    component_id TEXT NOT NULL CHECK (component_id = 'risk.target_adjustment_research_asset_cash_floor_preview'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_preview_result_id)
+        REFERENCES target_adjustment_exposure_cap_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_review_result_id)
+        REFERENCES target_adjustment_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id, definition_version)
+        REFERENCES research_asset_cash_floor_definitions(definition_id, definition_version)
+        ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_cash_floor_results_lookup
+ON target_adjustment_cash_floor_results
+    (symbol, action, disposition, definition_id, definition_version, as_of_utc DESC);
+
+CREATE TABLE target_adjustment_cash_floor_rule_results (
+    rule_result_id TEXT PRIMARY KEY,
+    preview_result_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL,
+    stage_id TEXT NOT NULL,
+    rule_id TEXT NOT NULL CHECK (rule_id = 'MIN_RESEARCH_ASSET_CASH_USD'),
+    rule_version TEXT NOT NULL CHECK (rule_version = '1'),
+    evaluation_order INTEGER NOT NULL CHECK (evaluation_order = 2),
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_exposure_usd_text TEXT NOT NULL,
+    phase6b_candidate_notional_usd_text TEXT NOT NULL,
+    minimum_research_asset_cash_usd_text TEXT NOT NULL,
+    pre_action_research_cash_usd_text TEXT NOT NULL,
+    cash_capacity_usd_text TEXT NOT NULL,
+    cash_floor_constrained_candidate_notional_usd_text TEXT NOT NULL,
+    post_action_research_cash_usd_text TEXT NOT NULL,
+    remaining_shortfall_usd_text TEXT NOT NULL,
+    reduction_usd_text TEXT NOT NULL,
+    outcome TEXT NOT NULL CHECK (outcome IN ('passed_at_or_above_cash_floor', 'reduced_to_cash_floor', 'blocked_no_research_cash_capacity', 'preserved_research_cash_increasing_direction')),
+    reason_codes_json TEXT NOT NULL,
+    stop_processing INTEGER NOT NULL CHECK (stop_processing = 1),
+    evaluated_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (preview_result_id)
+        REFERENCES target_adjustment_cash_floor_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE target_adjustment_cash_floor_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    preview_result_id TEXT NOT NULL UNIQUE,
+    cash_floor_run_id TEXT NOT NULL UNIQUE,
+    cash_floor_stage_id TEXT NOT NULL,
+    phase6b_preview_result_id TEXT NOT NULL,
+    phase6b_run_id TEXT NOT NULL,
+    phase6b_stage_id TEXT NOT NULL,
+    phase6a_review_result_id TEXT NOT NULL,
+    phase6a_run_id TEXT NOT NULL,
+    phase6a_stage_id TEXT NOT NULL,
+    decision_run_id TEXT NOT NULL,
+    linked_parent_run_id TEXT NOT NULL,
+    target_child_run_id TEXT NOT NULL,
+    standardized_state_run_id TEXT NOT NULL,
+    decision_result_id TEXT NOT NULL,
+    intent_id TEXT NOT NULL,
+    target_position_link_id TEXT NOT NULL,
+    target_calculation_id TEXT NOT NULL,
+    standardized_state_calculation_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (preview_result_id)
+        REFERENCES target_adjustment_cash_floor_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (cash_floor_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (cash_floor_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_preview_result_id)
+        REFERENCES target_adjustment_exposure_cap_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_review_result_id)
+        REFERENCES target_adjustment_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (linked_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id)
+        REFERENCES target_adjustment_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id)
+        REFERENCES target_adjustment_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_position_link_id)
+        REFERENCES target_position_standardized_state_links(link_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_calculation_id)
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_calculation_id)
+        REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_cash_floor_source_links_lookup
+ON target_adjustment_cash_floor_source_links
+    (phase6b_run_id, phase6a_run_id, decision_run_id, linked_parent_run_id, target_child_run_id, standardized_state_run_id);
+"""
+
+
+_SCHEMA_V13 = """
+CREATE TABLE target_adjustment_research_asset_cash_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'blocked', 'invalid_input', 'failed')),
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    requested_phase6c_result_id TEXT NOT NULL,
+    requested_capital_plan_id TEXT NOT NULL,
+    requested_capital_snapshot_id TEXT NOT NULL,
+    resolved_source_json TEXT,
+    current_safety_snapshot_json TEXT,
+    resolved_symbol TEXT,
+    resolved_action TEXT CHECK (resolved_action IS NULL OR resolved_action IN ('increase', 'decrease')),
+    resolved_as_of_utc TEXT,
+    preview_result_id TEXT,
+    disposition TEXT CHECK (disposition IS NULL OR disposition IN ('manual_review_required', 'blocked_by_research_asset_cash')),
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    CHECK (
+        (status = 'completed' AND error_code IS NULL AND error_summary IS NULL
+            AND preview_result_id IS NOT NULL AND disposition IS NOT NULL)
+        OR
+        (status IN ('blocked', 'invalid_input', 'failed')
+            AND error_code IS NOT NULL AND error_summary IS NOT NULL
+            AND preview_result_id IS NULL AND disposition IS NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_target_adjustment_research_asset_cash_terminal_operation
+ON target_adjustment_research_asset_cash_operations (operation_id)
+WHERE status IN ('completed', 'blocked');
+
+CREATE INDEX idx_target_adjustment_research_asset_cash_operations_lookup
+ON target_adjustment_research_asset_cash_operations
+    (operation_id, status, resolved_symbol, requested_at_utc DESC);
+
+CREATE TABLE target_adjustment_research_asset_cash_results (
+    preview_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL,
+    source_json TEXT NOT NULL,
+    phase6c_preview_result_id TEXT NOT NULL,
+    phase6c_run_id TEXT NOT NULL,
+    phase6c_stage_id TEXT NOT NULL,
+    phase6b_run_id TEXT NOT NULL,
+    phase6a_run_id TEXT NOT NULL,
+    capital_plan_id TEXT NOT NULL,
+    capital_plan_version INTEGER NOT NULL,
+    capital_snapshot_id TEXT NOT NULL,
+    capital_snapshot_run_id TEXT NOT NULL,
+    asset_cash_bucket_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    phase6c_candidate_notional_usd_text TEXT NOT NULL,
+    selected_asset_cash_balance_usd_text TEXT NOT NULL,
+    asset_cash_constrained_candidate_notional_usd_text TEXT NOT NULL,
+    hypothetical_post_candidate_asset_cash_usd_text TEXT NOT NULL,
+    reduction_usd_text TEXT NOT NULL,
+    research_cash_reserved INTEGER NOT NULL CHECK (research_cash_reserved = 0),
+    disposition TEXT NOT NULL CHECK (disposition IN ('manual_review_required', 'blocked_by_research_asset_cash')),
+    reason_codes_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    component_id TEXT NOT NULL CHECK (component_id = 'risk.target_adjustment_research_asset_cash_availability_preview'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6c_preview_result_id)
+        REFERENCES target_adjustment_cash_floor_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6c_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6c_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_plan_id) REFERENCES capital_plans(plan_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_snapshot_id) REFERENCES capital_snapshots(snapshot_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_snapshot_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (asset_cash_bucket_id) REFERENCES capital_plan_buckets(bucket_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_snapshot_id, asset_cash_bucket_id)
+        REFERENCES capital_snapshot_balances(snapshot_id, bucket_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_research_asset_cash_results_lookup
+ON target_adjustment_research_asset_cash_results
+    (symbol, action, disposition, capital_plan_id, capital_snapshot_id, as_of_utc DESC);
+
+CREATE TABLE target_adjustment_research_asset_cash_rule_results (
+    rule_result_id TEXT PRIMARY KEY,
+    preview_result_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL,
+    stage_id TEXT NOT NULL,
+    rule_id TEXT NOT NULL CHECK (rule_id = 'MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD'),
+    rule_version TEXT NOT NULL CHECK (rule_version = '1'),
+    evaluation_order INTEGER NOT NULL CHECK (evaluation_order = 3),
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    phase6c_candidate_notional_usd_text TEXT NOT NULL,
+    selected_asset_cash_balance_usd_text TEXT NOT NULL,
+    pre_candidate_asset_cash_usd_text TEXT NOT NULL,
+    asset_cash_constrained_candidate_notional_usd_text TEXT NOT NULL,
+    hypothetical_post_candidate_asset_cash_usd_text TEXT NOT NULL,
+    reduction_usd_text TEXT NOT NULL,
+    outcome TEXT NOT NULL CHECK (outcome IN ('passed_within_research_asset_cash', 'reduced_to_research_asset_cash', 'blocked_no_research_asset_cash', 'preserved_research_asset_cash_increasing_direction')),
+    reason_codes_json TEXT NOT NULL,
+    research_cash_reserved INTEGER NOT NULL CHECK (research_cash_reserved = 0),
+    stop_processing INTEGER NOT NULL CHECK (stop_processing = 1),
+    evaluated_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (preview_result_id)
+        REFERENCES target_adjustment_research_asset_cash_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE target_adjustment_research_asset_cash_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    preview_result_id TEXT NOT NULL UNIQUE,
+    asset_cash_run_id TEXT NOT NULL UNIQUE,
+    asset_cash_stage_id TEXT NOT NULL,
+    phase6c_preview_result_id TEXT NOT NULL,
+    phase6c_run_id TEXT NOT NULL,
+    phase6c_stage_id TEXT NOT NULL,
+    phase6b_run_id TEXT NOT NULL,
+    phase6a_run_id TEXT NOT NULL,
+    decision_run_id TEXT NOT NULL,
+    linked_parent_run_id TEXT NOT NULL,
+    target_child_run_id TEXT NOT NULL,
+    standardized_state_run_id TEXT NOT NULL,
+    capital_plan_id TEXT NOT NULL,
+    capital_snapshot_id TEXT NOT NULL,
+    capital_snapshot_run_id TEXT NOT NULL,
+    asset_cash_bucket_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (preview_result_id)
+        REFERENCES target_adjustment_research_asset_cash_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (asset_cash_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (asset_cash_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6c_preview_result_id)
+        REFERENCES target_adjustment_cash_floor_results(preview_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6c_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6c_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6b_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (phase6a_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (linked_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_plan_id) REFERENCES capital_plans(plan_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_snapshot_id) REFERENCES capital_snapshots(snapshot_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_snapshot_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (asset_cash_bucket_id) REFERENCES capital_plan_buckets(bucket_id) ON DELETE RESTRICT,
+    FOREIGN KEY (capital_snapshot_id, asset_cash_bucket_id)
+        REFERENCES capital_snapshot_balances(snapshot_id, bucket_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_target_adjustment_research_asset_cash_source_links_lookup
+ON target_adjustment_research_asset_cash_source_links
+    (phase6c_run_id, phase6b_run_id, phase6a_run_id, capital_snapshot_run_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -1288,7 +2286,93 @@ _MIGRATIONS = {
     6: ("bounded target-position definitions and manual research previews", _SCHEMA_V6),
     7: ("manual standardized-price-state definitions and structured previews", _SCHEMA_V7),
     8: ("typed standardized-state to target-position research links", _SCHEMA_V8),
+    9: ("typed linked-target adjustment Decision research evidence", _SCHEMA_V9),
+    10: ("target-adjustment Risk manual-review evidence", _SCHEMA_V10),
+    11: ("single-asset exposure-cap definitions and numerical Risk preview evidence", _SCHEMA_V11),
+    12: ("research asset cash-floor definitions and order-2 Risk preview evidence", _SCHEMA_V12),
+    13: ("research capital-plan asset-cash order-3 Risk preview evidence", _SCHEMA_V13),
 }
+
+
+@dataclass(frozen=True, slots=True)
+class CentralSchemaInspection:
+    """Read-only comparison of one database with the application schema contract."""
+
+    supported_version: int
+    applied_versions: tuple[int, ...]
+    expected_tables: frozenset[str]
+    actual_tables: frozenset[str]
+
+    @property
+    def current_version(self) -> int:
+        return max(self.applied_versions, default=0)
+
+    @property
+    def expected_versions(self) -> tuple[int, ...]:
+        return tuple(range(1, self.supported_version + 1))
+
+    @property
+    def missing_tables(self) -> frozenset[str]:
+        return self.expected_tables - self.actual_tables
+
+    @property
+    def is_current_and_complete(self) -> bool:
+        return (
+            self.applied_versions == self.expected_versions
+            and not self.missing_tables
+        )
+
+
+@lru_cache(maxsize=None)
+def expected_schema_tables(target_version: int = SCHEMA_VERSION) -> frozenset[str]:
+    """Return table names produced through one persistence-owned schema version."""
+
+    if target_version < 0 or target_version > SCHEMA_VERSION:
+        raise ValueError("target schema version is outside the supported range")
+    with closing(sqlite3.connect(":memory:")) as connection:
+        for version_number in range(1, target_version + 1):
+            connection.executescript(_MIGRATIONS[version_number][1])
+        return frozenset(
+            row[0]
+            for row in connection.execute(
+                """
+                SELECT name FROM sqlite_master
+                WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+                """
+            )
+        )
+
+
+def inspect_central_schema(
+    connection: sqlite3.Connection,
+    *,
+    expected_version: int = SCHEMA_VERSION,
+) -> CentralSchemaInspection:
+    """Inspect migration history and required tables without modifying the database."""
+
+    actual_tables = frozenset(
+        row[0]
+        for row in connection.execute(
+            """
+            SELECT name FROM sqlite_master
+            WHERE type = 'table' AND name NOT LIKE 'sqlite_%'
+            """
+        )
+    )
+    applied_versions: tuple[int, ...] = ()
+    if "schema_migrations" in actual_tables:
+        applied_versions = tuple(
+            int(row[0])
+            for row in connection.execute(
+                "SELECT version FROM schema_migrations ORDER BY version"
+            )
+        )
+    return CentralSchemaInspection(
+        expected_version,
+        applied_versions,
+        expected_schema_tables(expected_version),
+        actual_tables,
+    )
 
 
 class CentralSQLiteDatabase:
@@ -1324,6 +2408,8 @@ class CentralSQLiteDatabase:
                 raise sqlite3.DatabaseError(
                     "database schema is newer than this application supports"
                 )
+            if existing_version:
+                self._validate_schema_contract(connection, existing_version)
             before_counts = self._table_counts(connection)
             if 0 < existing_version < SCHEMA_VERSION:
                 self._backup_before_migration(connection, existing_version)
@@ -1402,10 +2488,31 @@ class CentralSQLiteDatabase:
         return target
 
     @staticmethod
+    def _validate_schema_contract(
+        connection: sqlite3.Connection,
+        expected_version: int,
+    ) -> None:
+        schema = inspect_central_schema(
+            connection,
+            expected_version=expected_version,
+        )
+        if schema.applied_versions != schema.expected_versions:
+            raise sqlite3.DatabaseError(
+                "database schema migration history is incomplete: "
+                f"found {schema.applied_versions}, expected {schema.expected_versions}"
+            )
+        if schema.missing_tables:
+            raise sqlite3.DatabaseError(
+                "database schema is missing required tables: "
+                + ", ".join(sorted(schema.missing_tables))
+            )
+
+    @staticmethod
     def _validate_after_migration(
         connection: sqlite3.Connection,
         before_counts: dict[str, int],
     ) -> None:
+        CentralSQLiteDatabase._validate_schema_contract(connection, SCHEMA_VERSION)
         after_counts = CentralSQLiteDatabase._table_counts(connection)
         for table, count in before_counts.items():
             if after_counts.get(table) != count:

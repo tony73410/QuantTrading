@@ -58,13 +58,13 @@ def test_v6_to_v7_migration_backs_up_preserves_and_creates_no_default(tmp_path: 
 
     backup_files = tuple(backups.glob("*.sqlite3"))
     assert len(backup_files) == 1
-    assert ".schema-v6-to-v8." in backup_files[0].name
+    assert ".schema-v6-to-v13." in backup_files[0].name
     with sqlite3.connect(backup_files[0]) as backup:
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 6
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert backup.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     with sqlite3.connect(database) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 13
         assert connection.execute(
             "SELECT COUNT(*) FROM target_position_standardized_state_links"
         ).fetchone()[0] == 0

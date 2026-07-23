@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified through disabled/unconsumed Phase 5C research.** Phase 5A manual preview remains unchanged; Phase 5C can explicitly link one persisted standardized-state result into the same curve engine. Neither mode has a trading consumer or can create a `TradeIntent`, Risk approval, order, fill, cash movement or account mutation.
+**Implemented and verified through disabled/unconsumed Phase 5C research.** Phase 5A manual preview remains unchanged; Phase 5C can explicitly link one persisted standardized-state result into the same curve engine. Phase 5D may read only an exact completed Phase 5C link through public queries; Target Position itself still creates no action, intent, Risk approval, order, fill, cash movement or account mutation.
 
 ## Purpose
 
@@ -22,7 +22,7 @@ Own one explicit, bounded desired-holding calculation between future research ev
 
 ## Non-responsibilities
 
-Reference-state/risk-scale/standardized-price calculation, automatic source/curve selection, Factor or Asset State evaluation, Capital Allocation plan selection, Portfolio Accounting valuation, current-price lookup, hysteresis, stateful levels, TradeIntent creation, Decision, numerical Risk, Backtesting, Accounting persistence, broker/account access, Paper, Live or orders.
+Reference-state/risk-scale/standardized-price calculation, automatic source/curve selection, Factor or Asset State evaluation, Capital Allocation plan selection, Portfolio Accounting valuation, current-price lookup, hysteresis, stateful levels, TradeIntent creation, Decision mapping, numerical Risk, Backtesting, Accounting persistence, broker/account access, Paper, Live or orders.
 
 ## Public interfaces
 
@@ -33,6 +33,7 @@ Reference-state/risk-scale/standardized-price calculation, automatic source/curv
 - `TargetPositionResult`, `TargetPositionCalculationTrace`, `TargetPositionOperationAttempt`
 - `LinkedTargetPositionService`, `LinkedTargetPositionPreviewCommand`, `StandardizedStateTargetInput`
 - `LinkedTargetPositionPreviewResult`, `LinkedTargetPositionOperationAttempt`, `StandardizedStateTargetPositionLink`, `LinkedTargetPositionQuery`
+- exact public `get_standardized_state_link_by_id()` query used by Phase 5D orchestration; it performs no action mapping
 - definition/result/operation query contracts and enums
 
 ## Inputs
@@ -67,4 +68,4 @@ No environment or configuration-file settings and no Active definition. Definiti
 
 ## Known limitations
 
-Manual mode keeps all state, capital and current-position values manual. Linked mode supplies only the exact already-persisted standardized-state scalar/symbol/time; capital and current position remain hypothetical manual inputs. There is no estimator, automatic latest/default selection, factual account adapter, curve comparison/ranking, archive UI, hysteresis, target-to-Decision conversion, Risk review, simulation consumer or execution authority. Physical-display visual QA remains pending; offscreen regression is automated.
+Manual mode keeps all state, capital and current-position values manual. Linked mode supplies only the exact already-persisted standardized-state scalar/symbol/time; capital and current position remain hypothetical manual inputs. Phase 5D can explicitly resolve a completed link but does not alter or recalculate it; Phase 6A may only verify the persisted chain through its specialized manual-review gate. There is no estimator, automatic latest/default selection, factual account adapter, curve comparison/ranking, archive UI, hysteresis, numerical Risk approval, simulation consumer or execution authority. Physical-display visual QA remains pending; offscreen regression is automated.

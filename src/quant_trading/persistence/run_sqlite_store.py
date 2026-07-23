@@ -332,6 +332,145 @@ class SQLiteRunHistoryRepository:
                 relationships.add((relation, parent_id))
             if child_id != run.run_id and parent_id == run.run_id:
                 relationships.add((RunRelationshipType.CHILD, child_id))
+        decision_link_rows = connection.execute(
+            """
+            SELECT decision_run_id, linked_parent_run_id, target_child_run_id,
+                   standardized_state_run_id
+            FROM target_adjustment_decision_source_links
+            WHERE decision_run_id = ? OR linked_parent_run_id = ?
+               OR target_child_run_id = ? OR standardized_state_run_id = ?
+            """,
+            (str(run.run_id), str(run.run_id), str(run.run_id), str(run.run_id)),
+        ).fetchall()
+        for row in decision_link_rows:
+            decision_id = UUID(row["decision_run_id"])
+            parent_id = UUID(row["linked_parent_run_id"])
+            target_child_id = UUID(row["target_child_run_id"])
+            source_id = UUID(row["standardized_state_run_id"])
+            if decision_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, parent_id))
+                relationships.add((RunRelationshipType.SOURCE, target_child_id))
+                relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif run.run_id in {target_child_id, source_id}:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, decision_id))
+            elif run.run_id == parent_id:
+                relationships.add((RunRelationshipType.CHILD, decision_id))
+        risk_link_rows = connection.execute(
+            """
+            SELECT risk_run_id, decision_run_id, linked_parent_run_id,
+                   target_child_run_id, standardized_state_run_id
+            FROM target_adjustment_risk_source_links
+            WHERE risk_run_id = ? OR decision_run_id = ? OR linked_parent_run_id = ?
+               OR target_child_run_id = ? OR standardized_state_run_id = ?
+            """,
+            (str(run.run_id),) * 5,
+        ).fetchall()
+        for row in risk_link_rows:
+            risk_id = UUID(row["risk_run_id"])
+            decision_id = UUID(row["decision_run_id"])
+            upstream = {
+                UUID(row["linked_parent_run_id"]),
+                UUID(row["target_child_run_id"]),
+                UUID(row["standardized_state_run_id"]),
+            }
+            if risk_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, decision_id))
+                for source_id in upstream:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif decision_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, risk_id))
+            elif run.run_id in upstream:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, risk_id))
+        exposure_cap_rows = connection.execute(
+            """
+            SELECT exposure_cap_run_id, phase6a_run_id, decision_run_id,
+                   linked_parent_run_id, target_child_run_id, standardized_state_run_id
+            FROM target_adjustment_exposure_cap_source_links
+            WHERE exposure_cap_run_id = ? OR phase6a_run_id = ? OR decision_run_id = ?
+               OR linked_parent_run_id = ? OR target_child_run_id = ?
+               OR standardized_state_run_id = ?
+            """,
+            (str(run.run_id),) * 6,
+        ).fetchall()
+        for row in exposure_cap_rows:
+            cap_id = UUID(row["exposure_cap_run_id"])
+            phase6a_id = UUID(row["phase6a_run_id"])
+            upstream = {
+                UUID(row["decision_run_id"]), UUID(row["linked_parent_run_id"]),
+                UUID(row["target_child_run_id"]), UUID(row["standardized_state_run_id"]),
+            }
+            if cap_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, phase6a_id))
+                for source_id in upstream:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif phase6a_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, cap_id))
+            elif run.run_id in upstream:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, cap_id))
+        cash_floor_rows = connection.execute(
+            """
+            SELECT cash_floor_run_id, phase6b_run_id, phase6a_run_id,
+                   decision_run_id, linked_parent_run_id, target_child_run_id,
+                   standardized_state_run_id
+            FROM target_adjustment_cash_floor_source_links
+            WHERE cash_floor_run_id = ? OR phase6b_run_id = ? OR phase6a_run_id = ?
+               OR decision_run_id = ? OR linked_parent_run_id = ?
+               OR target_child_run_id = ? OR standardized_state_run_id = ?
+            """,
+            (str(run.run_id),) * 7,
+        ).fetchall()
+        for row in cash_floor_rows:
+            cash_floor_id = UUID(row["cash_floor_run_id"])
+            phase6b_id = UUID(row["phase6b_run_id"])
+            upstream = {
+                UUID(row["phase6a_run_id"]), UUID(row["decision_run_id"]),
+                UUID(row["linked_parent_run_id"]), UUID(row["target_child_run_id"]),
+                UUID(row["standardized_state_run_id"]),
+            }
+            if cash_floor_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, phase6b_id))
+                for source_id in upstream:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif phase6b_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, cash_floor_id))
+            elif run.run_id in upstream:
+                relationships.add(
+                    (RunRelationshipType.LINKED_PREVIEW, cash_floor_id)
+                )
+        asset_cash_rows = connection.execute(
+            """
+            SELECT asset_cash_run_id, phase6c_run_id, phase6b_run_id,
+                   phase6a_run_id, decision_run_id, linked_parent_run_id,
+                   target_child_run_id, standardized_state_run_id,
+                   capital_snapshot_run_id
+            FROM target_adjustment_research_asset_cash_source_links
+            WHERE asset_cash_run_id = ? OR phase6c_run_id = ? OR phase6b_run_id = ?
+               OR phase6a_run_id = ? OR decision_run_id = ?
+               OR linked_parent_run_id = ? OR target_child_run_id = ?
+               OR standardized_state_run_id = ? OR capital_snapshot_run_id = ?
+            """,
+            (str(run.run_id),) * 9,
+        ).fetchall()
+        for row in asset_cash_rows:
+            asset_cash_id = UUID(row["asset_cash_run_id"])
+            phase6c_id = UUID(row["phase6c_run_id"])
+            upstream = {
+                UUID(row["phase6b_run_id"]), UUID(row["phase6a_run_id"]),
+                UUID(row["decision_run_id"]), UUID(row["linked_parent_run_id"]),
+                UUID(row["target_child_run_id"]),
+                UUID(row["standardized_state_run_id"]),
+                UUID(row["capital_snapshot_run_id"]),
+            }
+            if asset_cash_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, phase6c_id))
+                for source_id in upstream:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif phase6c_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, asset_cash_id))
+            elif run.run_id in upstream:
+                relationships.add(
+                    (RunRelationshipType.LINKED_PREVIEW, asset_cash_id)
+                )
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -982,6 +1121,534 @@ class SQLiteRunHistoryRepository:
                         _field("error", operation["error_summary"]),
                     ),
                     link_children,
+                )
+            )
+        target_adjustment_rows = connection.execute(
+            """
+            SELECT * FROM target_adjustment_decision_operations
+            WHERE run_id = ? ORDER BY requested_at_utc, attempt_id
+            """,
+            (str(run_id),),
+        ).fetchall()
+        for operation in target_adjustment_rows:
+            result_children: tuple[RunArtifactView, ...] = ()
+            if operation["decision_result_id"]:
+                result = connection.execute(
+                    """
+                    SELECT * FROM target_adjustment_decision_results
+                    WHERE decision_result_id = ?
+                    """,
+                    (operation["decision_result_id"],),
+                ).fetchone()
+                if result is not None:
+                    intent = connection.execute(
+                        """
+                        SELECT * FROM target_adjustment_trade_intents
+                        WHERE decision_result_id = ?
+                        """,
+                        (result["decision_result_id"],),
+                    ).fetchone()
+                    intent_children: tuple[RunArtifactView, ...] = ()
+                    if intent is not None:
+                        intent_children = (
+                            RunArtifactView(
+                                "target_adjustment_trade_intent",
+                                intent["intent_id"],
+                                RunStageName.DECISION.value,
+                                intent["symbol"],
+                                "research_only",
+                                (
+                                    f"{intent['action']} {intent['requested_notional_usd_text']} "
+                                    "USD requested; not Risk-approved"
+                                ),
+                                _datetime(intent["created_at_utc"]),
+                                (
+                                    _field("current exposure USD", intent["current_exposure_usd_text"]),
+                                    _field("target exposure USD", intent["target_exposure_usd_text"]),
+                                    _field("signed desired change USD", intent["desired_change_usd_text"]),
+                                    _field("requested notional USD", intent["requested_notional_usd_text"]),
+                                    _field("policy", intent["policy_id"]),
+                                    _field("policy version", intent["policy_version"]),
+                                    _field("Risk admission", "not admitted"),
+                                ),
+                            ),
+                        )
+                    result_children = (
+                        RunArtifactView(
+                            "target_adjustment_decision_result",
+                            result["decision_result_id"],
+                            RunStageName.DECISION.value,
+                            result["symbol"],
+                            result["status"],
+                            (
+                                f"Target adjustment: {result['action']}; "
+                                f"difference {result['adjustment_value_usd_text']} USD"
+                            ),
+                            _datetime(result["created_at_utc"]),
+                            (
+                                _field("source link", result["target_position_link_id"]),
+                                _field("source standardized-state Run", result["standardized_state_run_id"]),
+                                _field("Phase 5C parent Run", result["linked_parent_run_id"]),
+                                _field("Target Position child Run", result["target_child_run_id"]),
+                                _field("target calculation", result["target_calculation_id"]),
+                                _field("target definition", result["target_definition_id"]),
+                                _field("target definition version", result["target_definition_version"]),
+                                _field("as of", result["as_of_utc"]),
+                                _field("capital basis USD", result["research_capital_basis_usd_text"]),
+                                _field("current position USD", result["current_position_value_usd_text"]),
+                                _field("target fraction", result["target_fraction_text"]),
+                                _field("target position USD", result["target_position_value_usd_text"]),
+                                _field("signed adjustment USD", result["adjustment_value_usd_text"]),
+                                _field("reason codes", result["reason_codes_json"]),
+                            ),
+                            intent_children,
+                        ),
+                    )
+            artifacts.append(
+                RunArtifactView(
+                    "target_adjustment_decision_operation",
+                    operation["attempt_id"],
+                    (
+                        RunStageName.DECISION.value
+                        if operation["decision_stage_id"]
+                        else RunStageName.TARGET_POSITION.value
+                    ),
+                    operation["resolved_symbol"],
+                    operation["status"],
+                    "Exact linked Target Position → Decision research preview",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field("requested source link", operation["requested_target_position_link_id"]),
+                        _field("target calculation", operation["resolved_target_calculation_id"]),
+                        _field("current position USD", operation["resolved_current_position_value_usd_text"]),
+                        _field("target position USD", operation["resolved_target_position_value_usd_text"]),
+                        _field("signed adjustment USD", operation["resolved_adjustment_value_usd_text"]),
+                        _field("decision result", operation["decision_result_id"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    result_children,
+                )
+            )
+        risk_rows = connection.execute(
+            "SELECT * FROM target_adjustment_risk_operations WHERE run_id = ? ORDER BY requested_at_utc, attempt_id",
+            (str(run_id),),
+        ).fetchall()
+        for operation in risk_rows:
+            result_children: tuple[RunArtifactView, ...] = ()
+            if operation["review_result_id"]:
+                result = connection.execute(
+                    "SELECT * FROM target_adjustment_risk_review_results WHERE review_result_id = ?",
+                    (operation["review_result_id"],),
+                ).fetchone()
+                if result is not None:
+                    rule_rows = connection.execute(
+                        "SELECT * FROM target_adjustment_risk_rule_results WHERE review_result_id = ? ORDER BY evaluation_order",
+                        (result["review_result_id"],),
+                    ).fetchall()
+                    rule_children = tuple(
+                        RunArtifactView(
+                            "target_adjustment_risk_rule_result",
+                            row["rule_result_id"],
+                            RunStageName.RISK.value,
+                            result["symbol"],
+                            row["status"],
+                            f"{row['evaluation_order']}. {row['rule_name']}",
+                            _datetime(row["evaluated_at_utc"]),
+                            (
+                                _field("rule", row["rule_id"]),
+                                _field("version", row["rule_version"]),
+                                _field("input", row["input_summary"]),
+                                _field("expected", row["expected_condition"]),
+                                _field("reason codes", row["reason_codes_json"]),
+                                _field("stop processing", row["stop_processing"]),
+                            ),
+                        )
+                        for row in rule_rows
+                    )
+                    result_children = (
+                        RunArtifactView(
+                            "target_adjustment_risk_review_result",
+                            result["review_result_id"],
+                            RunStageName.RISK.value,
+                            result["symbol"],
+                            result["status"],
+                            f"{result['action']} {result['requested_notional_usd_text']} USD remains unapproved",
+                            _datetime(result["created_at_utc"]),
+                            (
+                                _field("Decision result", result["decision_result_id"]),
+                                _field("source intent", result["intent_id"]),
+                                _field("current exposure USD", result["current_exposure_usd_text"]),
+                                _field("target exposure USD", result["target_exposure_usd_text"]),
+                                _field("signed change USD", result["desired_change_usd_text"]),
+                                _field("requested notional USD", result["requested_notional_usd_text"]),
+                                _field("approved notional USD", result["approved_notional_usd_text"]),
+                                _field("Risk-approved intent", result["risk_approved_intent_id"]),
+                                _field("gate", result["gate_id"]),
+                                _field("gate version", result["gate_version"]),
+                            ),
+                            rule_children,
+                        ),
+                    )
+            artifacts.append(
+                RunArtifactView(
+                    "target_adjustment_risk_operation",
+                    operation["attempt_id"],
+                    RunStageName.RISK.value if operation["risk_stage_id"] else RunStageName.DECISION.value,
+                    operation["resolved_symbol"],
+                    operation["status"],
+                    "Target adjustment structural Risk review; NO EXECUTION / NO RISK APPROVAL",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field("requested intent", operation["requested_intent_id"]),
+                        _field("action", operation["resolved_action"]),
+                        _field("review result", operation["review_result_id"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    result_children,
+                )
+            )
+        exposure_rows = connection.execute(
+            """SELECT * FROM target_adjustment_exposure_cap_operations
+               WHERE run_id=? ORDER BY requested_at_utc,attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in exposure_rows:
+            children: tuple[RunArtifactView, ...] = ()
+            if operation["preview_result_id"]:
+                result = connection.execute(
+                    """SELECT * FROM target_adjustment_exposure_cap_results
+                       WHERE preview_result_id=?""",
+                    (operation["preview_result_id"],),
+                ).fetchone()
+                rule = connection.execute(
+                    """SELECT * FROM target_adjustment_exposure_cap_rule_results
+                       WHERE preview_result_id=?""",
+                    (operation["preview_result_id"],),
+                ).fetchone()
+                if result is not None and rule is not None:
+                    rule_artifact = RunArtifactView(
+                        "target_adjustment_exposure_cap_rule_result",
+                        rule["rule_result_id"], RunStageName.RISK.value,
+                        result["symbol"], rule["outcome"],
+                        "1. MAX_TARGET_EXPOSURE_USD@1",
+                        _datetime(rule["evaluated_at_utc"]),
+                        (
+                            _field("action", rule["action"]),
+                            _field("current exposure USD", rule["current_exposure_usd_text"]),
+                            _field("target exposure USD", rule["target_exposure_usd_text"]),
+                            _field("original requested USD", rule["original_requested_notional_usd_text"]),
+                            _field("maximum target exposure USD", rule["max_target_exposure_usd_text"]),
+                            _field("cap-constrained candidate USD", rule["cap_constrained_candidate_notional_usd_text"]),
+                            _field("reduction USD", rule["reduction_usd_text"]),
+                            _field("reason codes", rule["reason_codes_json"]),
+                        ),
+                    )
+                    children = (
+                        RunArtifactView(
+                            "target_adjustment_exposure_cap_preview_result",
+                            result["preview_result_id"], RunStageName.RISK.value,
+                            result["symbol"], result["disposition"],
+                            f"{result['action']} candidate {result['cap_constrained_candidate_notional_usd_text']} USD; not Risk approval",
+                            _datetime(result["created_at_utc"]),
+                            (
+                                _field("Phase 6A review", result["phase6a_review_result_id"]),
+                                _field("definition", result["definition_id"]),
+                                _field("definition version", result["definition_version"]),
+                                _field("original requested USD", result["original_requested_notional_usd_text"]),
+                                _field("maximum target exposure USD", result["max_target_exposure_usd_text"]),
+                                _field("candidate USD", result["cap_constrained_candidate_notional_usd_text"]),
+                                _field("reduction USD", result["reduction_usd_text"]),
+                                _field("component", result["component_id"]),
+                                _field("component version", result["component_version"]),
+                            ),
+                            (rule_artifact,),
+                        ),
+                    )
+            elif operation["resolved_definition_id"]:
+                definition = connection.execute(
+                    """SELECT * FROM single_asset_exposure_cap_definitions
+                       WHERE definition_id=? AND definition_version=?""",
+                    (operation["resolved_definition_id"], operation["resolved_definition_version"]),
+                ).fetchone()
+                if definition is not None:
+                    children = (
+                        RunArtifactView(
+                            "single_asset_exposure_cap_definition",
+                            f"{definition['definition_id']}:{definition['definition_version']}",
+                            RunStageName.RISK.value, definition["symbol"], definition["status"],
+                            f"Maximum target exposure {definition['max_target_exposure_usd_text']} USD",
+                            _datetime(definition["created_at_utc"]),
+                            (
+                                _field("definition", definition["definition_id"]),
+                                _field("version", definition["definition_version"]),
+                                _field("predecessor version", definition["predecessor_version"]),
+                                _field("currency", definition["currency"]),
+                                _field("reason", definition["reason"]),
+                            ),
+                        ),
+                    )
+            artifacts.append(
+                RunArtifactView(
+                    "target_adjustment_exposure_cap_operation",
+                    operation["attempt_id"], RunStageName.RISK.value,
+                    operation["resolved_symbol"] or operation["requested_symbol"],
+                    operation["status"],
+                    "Single-asset exposure-cap research operation; candidate is not Risk approval; NO EXECUTION",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field("operation type", operation["operation_type"]),
+                        _field("requested Phase 6A review", operation["requested_review_result_id"]),
+                        _field("requested definition", operation["requested_definition_id"]),
+                        _field("requested definition version", operation["requested_definition_version"]),
+                        _field("preview result", operation["preview_result_id"]),
+                        _field("disposition", operation["disposition"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    children,
+                )
+            )
+        cash_floor_rows = connection.execute(
+            """SELECT * FROM target_adjustment_cash_floor_operations
+               WHERE run_id=? ORDER BY requested_at_utc,attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in cash_floor_rows:
+            children: tuple[RunArtifactView, ...] = ()
+            if operation["preview_result_id"]:
+                result = connection.execute(
+                    """SELECT * FROM target_adjustment_cash_floor_results
+                       WHERE preview_result_id=?""",
+                    (operation["preview_result_id"],),
+                ).fetchone()
+                rule = connection.execute(
+                    """SELECT * FROM target_adjustment_cash_floor_rule_results
+                       WHERE preview_result_id=?""",
+                    (operation["preview_result_id"],),
+                ).fetchone()
+                if result is not None and rule is not None:
+                    inherited_rule = RunArtifactView(
+                        "target_adjustment_exposure_cap_rule_reference",
+                        result["phase6b_preview_result_id"],
+                        RunStageName.RISK.value,
+                        result["symbol"],
+                        "persisted_source",
+                        "1. MAX_TARGET_EXPOSURE_USD@1 (inherited Phase 6B evidence)",
+                        _datetime(result["created_at_utc"]),
+                        (
+                            _field("Phase 6B result", result["phase6b_preview_result_id"]),
+                            _field("Phase 6B candidate USD", result["phase6b_candidate_notional_usd_text"]),
+                        ),
+                    )
+                    cash_rule = RunArtifactView(
+                        "target_adjustment_research_cash_floor_rule_result",
+                        rule["rule_result_id"], RunStageName.RISK.value,
+                        result["symbol"], rule["outcome"],
+                        "2. MIN_RESEARCH_ASSET_CASH_USD@1",
+                        _datetime(rule["evaluated_at_utc"]),
+                        (
+                            _field("action", rule["action"]),
+                            _field("research capital basis USD", rule["research_capital_basis_usd_text"]),
+                            _field("current exposure USD", rule["current_exposure_usd_text"]),
+                            _field("minimum research asset cash USD", rule["minimum_research_asset_cash_usd_text"]),
+                            _field("pre-action research cash USD", rule["pre_action_research_cash_usd_text"]),
+                            _field("cash capacity USD", rule["cash_capacity_usd_text"]),
+                            _field("candidate after rule USD", rule["cash_floor_constrained_candidate_notional_usd_text"]),
+                            _field("post-action research cash USD", rule["post_action_research_cash_usd_text"]),
+                            _field("remaining shortfall USD", rule["remaining_shortfall_usd_text"]),
+                            _field("reduction USD", rule["reduction_usd_text"]),
+                            _field("reason codes", rule["reason_codes_json"]),
+                        ),
+                    )
+                    children = (
+                        RunArtifactView(
+                            "target_adjustment_research_cash_floor_preview_result",
+                            result["preview_result_id"], RunStageName.RISK.value,
+                            result["symbol"], result["disposition"],
+                            f"{result['action']} candidate {result['cash_floor_constrained_candidate_notional_usd_text']} USD; not Risk approval",
+                            _datetime(result["created_at_utc"]),
+                            (
+                                _field("Phase 6B result", result["phase6b_preview_result_id"]),
+                                _field("definition", result["definition_id"]),
+                                _field("definition version", result["definition_version"]),
+                                _field("research capital basis USD", result["research_capital_basis_usd_text"]),
+                                _field("minimum research asset cash USD", result["minimum_research_asset_cash_usd_text"]),
+                                _field("candidate USD", result["cash_floor_constrained_candidate_notional_usd_text"]),
+                                _field("component", result["component_id"]),
+                                _field("component version", result["component_version"]),
+                            ),
+                            (inherited_rule, cash_rule),
+                        ),
+                    )
+            elif operation["resolved_definition_id"]:
+                definition = connection.execute(
+                    """SELECT * FROM research_asset_cash_floor_definitions
+                       WHERE definition_id=? AND definition_version=?""",
+                    (
+                        operation["resolved_definition_id"],
+                        operation["resolved_definition_version"],
+                    ),
+                ).fetchone()
+                if definition is not None:
+                    children = (
+                        RunArtifactView(
+                            "research_asset_cash_floor_definition",
+                            f"{definition['definition_id']}:{definition['definition_version']}",
+                            RunStageName.RISK.value, definition["symbol"],
+                            definition["status"],
+                            f"Minimum hypothetical research asset cash {definition['minimum_research_asset_cash_usd_text']} USD",
+                            _datetime(definition["created_at_utc"]),
+                            (
+                                _field("definition", definition["definition_id"]),
+                                _field("version", definition["definition_version"]),
+                                _field("predecessor version", definition["predecessor_version"]),
+                                _field("currency", definition["currency"]),
+                                _field("reason", definition["reason"]),
+                            ),
+                        ),
+                    )
+            artifacts.append(
+                RunArtifactView(
+                    "target_adjustment_research_cash_floor_operation",
+                    operation["attempt_id"], RunStageName.RISK.value,
+                    operation["resolved_symbol"] or operation["requested_symbol"],
+                    operation["status"],
+                    "Research asset cash-floor operation; candidate is not Risk approval; NO EXECUTION",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field("operation type", operation["operation_type"]),
+                        _field("requested Phase 6B result", operation["requested_phase6b_result_id"]),
+                        _field("requested definition", operation["requested_definition_id"]),
+                        _field("requested definition version", operation["requested_definition_version"]),
+                        _field("preview result", operation["preview_result_id"]),
+                        _field("disposition", operation["disposition"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    children,
+                )
+            )
+        asset_cash_rows = connection.execute(
+            """SELECT * FROM target_adjustment_research_asset_cash_operations
+               WHERE run_id=? ORDER BY requested_at_utc,attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in asset_cash_rows:
+            children: tuple[RunArtifactView, ...] = ()
+            if operation["preview_result_id"]:
+                result = connection.execute(
+                    """SELECT * FROM target_adjustment_research_asset_cash_results
+                       WHERE preview_result_id=?""",
+                    (operation["preview_result_id"],),
+                ).fetchone()
+                rule = connection.execute(
+                    """SELECT * FROM target_adjustment_research_asset_cash_rule_results
+                       WHERE preview_result_id=?""",
+                    (operation["preview_result_id"],),
+                ).fetchone()
+                phase6c = None
+                if result is not None:
+                    phase6c = connection.execute(
+                        """SELECT * FROM target_adjustment_cash_floor_results
+                           WHERE preview_result_id=?""",
+                        (result["phase6c_preview_result_id"],),
+                    ).fetchone()
+                if result is not None and rule is not None and phase6c is not None:
+                    inherited_exposure_rule = RunArtifactView(
+                        "target_adjustment_exposure_cap_rule_reference",
+                        phase6c["phase6b_preview_result_id"],
+                        RunStageName.RISK.value, result["symbol"],
+                        "persisted_source",
+                        "1. MAX_TARGET_EXPOSURE_USD@1 (inherited Phase 6B evidence)",
+                        _datetime(result["created_at_utc"]),
+                        (
+                            _field("Phase 6B result", phase6c["phase6b_preview_result_id"]),
+                            _field("Phase 6B candidate USD", phase6c["phase6b_candidate_notional_usd_text"]),
+                        ),
+                    )
+                    inherited_cash_floor_rule = RunArtifactView(
+                        "target_adjustment_research_cash_floor_rule_reference",
+                        result["phase6c_preview_result_id"],
+                        RunStageName.RISK.value, result["symbol"],
+                        "persisted_source",
+                        "2. MIN_RESEARCH_ASSET_CASH_USD@1 (inherited Phase 6C evidence)",
+                        _datetime(result["created_at_utc"]),
+                        (
+                            _field("Phase 6C result", result["phase6c_preview_result_id"]),
+                            _field("Phase 6C candidate USD", result["phase6c_candidate_notional_usd_text"]),
+                        ),
+                    )
+                    asset_cash_rule = RunArtifactView(
+                        "target_adjustment_research_asset_cash_rule_result",
+                        rule["rule_result_id"], RunStageName.RISK.value,
+                        result["symbol"], rule["outcome"],
+                        "3. MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1",
+                        _datetime(rule["evaluated_at_utc"]),
+                        (
+                            _field("action", rule["action"]),
+                            _field("Phase 6C candidate USD", rule["phase6c_candidate_notional_usd_text"]),
+                            _field("selected asset cash USD", rule["selected_asset_cash_balance_usd_text"]),
+                            _field("pre-candidate asset cash USD", rule["pre_candidate_asset_cash_usd_text"]),
+                            _field("candidate after rule USD", rule["asset_cash_constrained_candidate_notional_usd_text"]),
+                            _field("hypothetical post-candidate asset cash USD", rule["hypothetical_post_candidate_asset_cash_usd_text"]),
+                            _field("reduction USD", rule["reduction_usd_text"]),
+                            _field("research cash reserved", bool(rule["research_cash_reserved"])),
+                            _field("reason codes", rule["reason_codes_json"]),
+                        ),
+                    )
+                    children = (
+                        RunArtifactView(
+                            "target_adjustment_research_asset_cash_preview_result",
+                            result["preview_result_id"], RunStageName.RISK.value,
+                            result["symbol"], result["disposition"],
+                            f"{result['action']} candidate {result['asset_cash_constrained_candidate_notional_usd_text']} USD; no cash reserved; not Risk approval",
+                            _datetime(result["created_at_utc"]),
+                            (
+                                _field("Phase 6C result", result["phase6c_preview_result_id"]),
+                                _field("capital plan", result["capital_plan_id"]),
+                                _field("capital plan version", result["capital_plan_version"]),
+                                _field("capital snapshot", result["capital_snapshot_id"]),
+                                _field("capital snapshot run", result["capital_snapshot_run_id"]),
+                                _field("asset cash bucket", result["asset_cash_bucket_id"]),
+                                _field("selected asset cash USD", result["selected_asset_cash_balance_usd_text"]),
+                                _field("candidate USD", result["asset_cash_constrained_candidate_notional_usd_text"]),
+                                _field("research cash reserved", bool(result["research_cash_reserved"])),
+                                _field("warnings", result["warnings_json"]),
+                                _field("component", result["component_id"]),
+                                _field("component version", result["component_version"]),
+                            ),
+                            (
+                                inherited_exposure_rule,
+                                inherited_cash_floor_rule,
+                                asset_cash_rule,
+                            ),
+                        ),
+                    )
+            artifacts.append(
+                RunArtifactView(
+                    "target_adjustment_research_asset_cash_operation",
+                    operation["attempt_id"], RunStageName.RISK.value,
+                    operation["resolved_symbol"], operation["status"],
+                    "Research capital-plan asset-cash operation; no cash is reserved; candidate is not Risk approval; NO EXECUTION",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("operation id", operation["operation_id"]),
+                        _field("operation type", "preview"),
+                        _field("requested Phase 6C result", operation["requested_phase6c_result_id"]),
+                        _field("requested capital plan", operation["requested_capital_plan_id"]),
+                        _field("requested capital snapshot", operation["requested_capital_snapshot_id"]),
+                        _field("preview result", operation["preview_result_id"]),
+                        _field("disposition", operation["disposition"]),
+                        _field("reason", operation["reason"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    children,
                 )
             )
         return tuple(artifacts)

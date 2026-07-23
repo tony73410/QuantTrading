@@ -23,6 +23,13 @@ from .models import (
 )
 from .registry import AlgorithmComponentRegistry
 from .proposal_registry import ChangeProposalRegistry
+from .risk_chain_inspection import (
+    RiskChainComparisonField,
+    RiskChainInspectionError,
+    RiskChainInspectionService,
+    TargetAdjustmentRiskChainComparison,
+    TargetAdjustmentRiskChainView,
+)
 
 __all__ = [
     "AlgorithmComponentRegistry",
@@ -44,4 +51,9 @@ __all__ = [
     "PreviewRequest",
     "PreviewResult",
     "Responsibility",
+    "RiskChainComparisonField",
+    "RiskChainInspectionError",
+    "RiskChainInspectionService",
+    "TargetAdjustmentRiskChainComparison",
+    "TargetAdjustmentRiskChainView",
 ]

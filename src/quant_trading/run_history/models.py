@@ -31,6 +31,11 @@ class AlgorithmRunType(StrEnum):
     TARGET_POSITION_PREVIEW = "target_position_preview"
     STANDARDIZED_STATE_PREVIEW = "standardized_state_preview"
     STANDARDIZED_TARGET_POSITION_PREVIEW = "standardized_target_position_preview"
+    TARGET_ADJUSTMENT_DECISION_PREVIEW = "target_adjustment_decision_preview"
+    TARGET_ADJUSTMENT_RISK_REVIEW = "target_adjustment_risk_review"
+    TARGET_ADJUSTMENT_EXPOSURE_CAP_PREVIEW = "target_adjustment_exposure_cap_preview"
+    TARGET_ADJUSTMENT_RESEARCH_CASH_FLOOR_PREVIEW = "target_adjustment_research_cash_floor_preview"
+    TARGET_ADJUSTMENT_RESEARCH_ASSET_CASH_PREVIEW = "target_adjustment_research_asset_cash_preview"
 
 
 class AlgorithmRunStatus(StrEnum):

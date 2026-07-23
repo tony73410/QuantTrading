@@ -90,7 +90,7 @@ def test_schema_v1_to_current_migration_backs_up_and_preserves_rows(tmp_path: Pa
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 1
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 13
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
@@ -124,6 +124,82 @@ def test_failed_v2_migration_rolls_back_to_intact_v1(
             "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'algorithm_runs'"
         ).fetchone()[0] == 0
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+
+
+def test_current_schema_initialization_rejects_a_missing_required_table(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "central.sqlite3"
+    database = CentralSQLiteDatabase(database_path)
+    database.initialize()
+    missing_table = "target_adjustment_research_asset_cash_rule_results"
+    with sqlite3.connect(database_path) as connection:
+        connection.execute(f'DROP TABLE "{missing_table}"')
+        connection.commit()
+
+    with pytest.raises(
+        sqlite3.DatabaseError,
+        match=f"database schema is missing required tables: {missing_table}",
+    ):
+        database.initialize()
+
+
+def test_incomplete_old_schema_is_rejected_before_any_forward_migration(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "central.sqlite3"
+    with sqlite3.connect(database_path) as connection:
+        connection.executescript(_SCHEMA_V1)
+        connection.execute(
+            "INSERT INTO schema_migrations VALUES (1, ?, ?)",
+            (NOW.isoformat(), "test v1"),
+        )
+        connection.execute("DROP TABLE factor_results")
+        connection.commit()
+
+    with pytest.raises(
+        sqlite3.DatabaseError,
+        match="database schema is missing required tables: factor_results",
+    ):
+        CentralSQLiteDatabase(database_path).initialize()
+
+    with sqlite3.connect(database_path) as connection:
+        assert connection.execute(
+            "SELECT MAX(version) FROM schema_migrations"
+        ).fetchone()[0] == 1
+        assert connection.execute(
+            """
+            SELECT COUNT(*) FROM sqlite_master
+            WHERE type = 'table' AND name = 'algorithm_runs'
+            """
+        ).fetchone()[0] == 0
+
+
+def test_current_schema_initialization_rejects_a_migration_history_gap(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "central.sqlite3"
+    database = CentralSQLiteDatabase(database_path)
+    database.initialize()
+    with sqlite3.connect(database_path) as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE version = 7")
+        connection.commit()
+
+    with pytest.raises(
+        sqlite3.DatabaseError,
+        match="database schema migration history is incomplete",
+    ):
+        database.initialize()
+
+    with sqlite3.connect(database_path) as connection:
+        versions = tuple(
+            row[0]
+            for row in connection.execute(
+                "SELECT version FROM schema_migrations ORDER BY version"
+            )
+        )
+    assert 7 not in versions
+    assert versions[-1] == 13
 
 
 def _start_run(repository: SQLiteRunHistoryRepository):

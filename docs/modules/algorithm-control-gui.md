@@ -29,6 +29,10 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - Provide an Asset State owner page over injected typed services: explicit symbolic definition creation, cycle start/close, manual allowed-edge transitions, immutable timeline/replay display and `Open Run` navigation.
 - Provide a Target Position owner page over injected typed services: explicit finite-knot definition creation, explicit manual scalar/USD preview inputs, immutable result/trace history, exact persisted curve chart and `Open Run` navigation.
 - In a visually separate linked Target Position mode, require explicit persisted Standardized State and exact curve selections, display immutable source evidence, collect only the two manual USD values/reason, and show linked history with source/parent/child `Open Run` navigation.
+- In a separate Decision Inspector mode, require explicit selection of one completed Phase 5C link, display copied target/source evidence, collect only a reason, delegate the target-adjustment preview and show accepted/invalid/failed history with four-way `Open Run` navigation.
+- In a separate Risk-page subtab, require explicit selection of one completed nonzero Phase 5D intent, display immutable unapproved amounts/source/safety evidence, collect only a reason, delegate the structural manual-review gate, and show accepted/blocked/invalid/failed history, locked rules and related Runs.
+- In ordered Risk-page subtabs, manage explicit Phase 6B cap/Phase 6C floor definitions and Phase 6D exact Phase6C/Capital-plan/latest-snapshot selection. Display persisted three-rule evidence, hypothetical asset-cash before/after, `research_cash_reserved=false`, history and all upstream/Capital Snapshot Runs without calculating or mutating cash.
+- Provide a read-only Consolidated Risk Chain Explorer in the existing Risk page. It delegates bounded Phase 6D queries and exact Phase 6A–6D source-link resolution to `RiskChainInspectionService`, displays structural gates separately from numerical rules 1–3, compares two explicit stored chains using exact values/equality only, surfaces missing/inconsistent evidence and opens all related Runs.
 - Provide a Standardized State owner page over injected typed Factor services: immutable fixed-formula definition creation, explicit manual USD price/reference/positive-scale previews, successful/invalid/failed history, structured trace and `Open Run` navigation.
 
 ## Non-responsibilities
@@ -42,13 +46,17 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - State-graph validation, transition authorization, automatic Factor evaluation, financial state meaning or history repair; the GUI delegates manual state commands and queries to `AssetStateService` and never computes a transition.
 - Standardized-state Decimal calculation, reference/scale estimation, Market Data lookup, FactorSnapshot publication or target/action/risk interpretation; the GUI delegates validation/calculation/persistence to typed Factor services.
 - Linked scalar/symbol/time propagation, curve calculation, source/default selection or relationship validation; the GUI delegates the exact command to application orchestration and contains no SQL or formula.
+- Target-difference sign/action/absolute-notional calculation, Risk admission or intent conversion; the linked-target Decision panel displays typed results and never calculates sign, absolute value or a fallback.
+- Structural Risk rule reconstruction, safety-setting override, financial approval/reduction or Risk-approved-object creation; the specialized Risk panel displays typed persisted outcomes only.
+- Numerical Risk arithmetic, Capital plan/snapshot selection defaults, cash reservation/transfer, factual Accounting/broker cash or approved-object construction; the Phase 6B/6C/6D panels delegate typed commands and display persisted outcomes only.
+- Risk-chain recalculation, source repair/inference, financial deltas/ranking, approval, reservation, rerun or export; the Phase 6E explorer is a presentation-only read consumer and creates no algorithm Run/result.
 - Treating Idea Notebook text as a Factor, Decision, strategy, proposal, Pipeline input, Backtest input, or execution instruction. There is no apply/activate/run conversion path.
 
 Qt按钮signal通过显式adapter与DecisionCondition等业务对象参数隔离；GUI异常进入Worker/global日志边界，不能因slot参数歧义静默继续。
 
 ## Public interfaces
 
-`AlgorithmComponentRegistry`, `ComponentMetadata`, `DataContractDeclaration`, `ChangeAdmissionService`, `ConflictAssessment`, `PipelineAdmissionResult`, `FeatureState`, `Capability`, `ParameterSchema`, `ConfigurationRecord`, `PreviewRequest`, `PreviewResult`, `ConfigurationService`, `ConfigurationValidator`, `PreviewService`, `AlgorithmControlController`, `IdeaNotebookService`, `IdeaNotebookPanel`, `RunHistoryPanel`, `FactorHistoryPanel`, `FactorHistoryChartBuilder`, `FactorHistoryExportService`, `DecisionHistoryPanel`, `CapitalAllocationPanel`, `AssetStatePanel`, `TargetPositionPanel`, `build_controller()`, `AlgorithmControlPanel`, and `AlgorithmControlPanel.select_page()`.
+`AlgorithmComponentRegistry`, `ComponentMetadata`, `DataContractDeclaration`, `ChangeAdmissionService`, `ConflictAssessment`, `PipelineAdmissionResult`, `FeatureState`, `Capability`, `ParameterSchema`, `ConfigurationRecord`, `PreviewRequest`, `PreviewResult`, `ConfigurationService`, `ConfigurationValidator`, `PreviewService`, `AlgorithmControlController`, `IdeaNotebookService`, `IdeaNotebookPanel`, `RunHistoryPanel`, `FactorHistoryPanel`, `FactorHistoryChartBuilder`, `FactorHistoryExportService`, `DecisionHistoryPanel`, `TargetAdjustmentDecisionPanel`, `TargetAdjustmentRiskPanel`, `RiskChainInspectionService`, `TargetAdjustmentRiskChainView`, `RiskChainExplorerPanel`, `ResearchAssetCashPanel`, `RiskManagementPanel`, `CapitalAllocationPanel`, `AssetStatePanel`, `TargetPositionPanel`, `build_controller()`, `AlgorithmControlPanel`, and `AlgorithmControlPanel.select_page()`.
 
 ## Inputs
 
@@ -56,11 +64,11 @@ Registered metadata, restricted Factor definitions, user configuration edits/Fac
 
 ## Outputs
 
-Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision/linked-target history views, an exact-version Factor/source-price Figure, and explicit bounded Factor CSV/JSON copies. Tracked previews return Run identity; linked target views open the exact source, parent and child Runs. A preview, persisted Run, chart or export is never an order or execution authorization.
+Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision/linked-target/target-adjustment history views, an exact-version Factor/source-price Figure, and explicit bounded Factor CSV/JSON copies. Tracked previews return Run identity; Phase 5D views open Decision, Phase 5C parent, Target child and source Runs. A preview, persisted Run, intent, chart or export is never Risk approval, an order or execution authorization.
 
 ## Dependencies
 
-May depend on public Factor/Decision/Risk result and history-query contracts, Run History query contracts, the public Phase 5C orchestration coordinator, public Capital Allocation, Asset State, Target Position and standardized-state service/query contracts, public Market dimension enums, the presentation-only shared visualization view, Plotly in presentation adapters, application safety settings, Python standard library, and PySide6. It must not depend on SQLite adapters, calculation engines, Portfolio Accounting mutation services, Alpaca clients, market-history storage implementation, or broker/execution providers.
+May depend on public Factor/Decision/Risk result and history-query contracts, Run History query contracts, the public Phase 5C/5D orchestration coordinators, public Capital Allocation, Asset State, Target Position and standardized-state service/query contracts, public Market dimension enums, the presentation-only shared visualization view, Plotly in presentation adapters, application safety settings, Python standard library, and PySide6. It must not depend on SQLite adapters, calculation engines, Portfolio Accounting mutation services, Alpaca clients, market-history storage implementation, or broker/execution providers.
 
 ## Side effects
 
@@ -102,7 +110,7 @@ The Main Launcher may add one reviewed `--page <stable_page_id>` argument to ope
 - The Conflict Center is read-only; it does not automatically resolve high-risk conflicts or approve proposals.
 - Proposal authoring remains file-based under `docs/proposals/`; the GUI displays admission conflicts but is not an arbitrary Python/source-code editor or approval authority.
 
-- No Factor or Decision is active automatically. Restricted user Decision definitions are preview-only; no numerical Risk implementation is registered.
+- No Factor or Decision is active automatically. Restricted user Decision definitions are preview-only. The Phase 6B exposure-cap, Phase 6C research-cash-floor and Phase 6D research-asset-cash services are research-only and unconsumed; none is registered as a complete/active Risk policy.
 - Preview reads only local SQLite Market Bars. It never triggers Alpaca, account, broker or order APIs.
 - Execution Control is status-only; it cannot build, approve or submit an order.
 - Expression validation does not fetch Market Data. Explicit preview uses only already cached local Bars and persists research evidence; it does not activate the definition.
@@ -110,9 +118,11 @@ The Main Launcher may add one reviewed `--page <stable_page_id>` argument to ope
 - Run History supports view replay only. Factor charts show one exact version and its exact stored final source-Bar field; cross-version charts, statistical comparison/ranking, Decision export, recomputation replay, retention and archive controls remain later phases.
 - No execution, account connection, order construction, or order submission exists.
 - Idea Notebook notes are plain local text only. They cannot be applied to Registry, Pipeline, Backtesting, Portfolio Accounting, Paper, or Live; see [`idea-notebook.md`](idea-notebook.md).
-- Capital Allocation is a separate inactive research branch: it does not feed Decision, Risk, Backtesting, Portfolio Accounting or Execution, and its GUI supplies no default amount, reserve ratio or active-plan concept.
+- Capital Allocation is a separate inactive research branch: only explicit Phase 6D orchestration may read one selected plan/latest snapshot; it does not feed Decision, complete Risk approval, Backtesting, Portfolio Accounting or Execution, and its GUI supplies no default amount, reserve ratio or active-plan concept.
 - Asset State remains a separate inactive research branch: labels are user-defined symbols, transitions are explicit manual actions, and no state automatically feeds Target Position or any trading module.
 - Target Position remains disabled/unconsumed. Manual mode accepts a manual scalar; linked mode accepts only one explicitly selected persisted Standardized State result while capital basis/current position remain manual. Neither mode implements automatic selection, factual Capital/Accounting input, hysteresis or any Decision/Risk/Backtesting/Execution consumer.
+- Phase 5D target adjustment remains disabled except for the isolated Phase 6A structural review and ordered Phase 6B/6C/6D numerical previews. The Risk page explicitly manages immutable same-symbol cap/floor versions and exact Phase 6A/positive-Phase6B/positive-Phase6C/plan/latest-snapshot selections, displays persisted three-rule inputs/candidates/hypothetical balances/non-reservation/dispositions and opens the full related Run chain. It supplies no default plan/amount, GUI arithmetic, Capital mutation/reservation, factual Accounting/broker cash, approved output, `EXIT`, rounding, quantity, Backtesting or Execution behavior; positive candidates still require manual review.
+- Phase 6E adds observation only. Its consolidated view fails closed on missing/inconsistent referenced rows, computes no candidate or numerical delta, writes nothing, preserves Schema v13 and is reached through the existing Risk shortcut rather than a new Launcher entry.
 - Standardized State remains disabled Factor research. Its price, reference and normalization scale are explicit manual inputs; it does not estimate values or publish a generic FactorSnapshot. Application orchestration may read one exact selected result for linked Target Position preview, but no automatic or trading consumer exists.
 # Simulation Strategy management
 

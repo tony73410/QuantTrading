@@ -106,6 +106,19 @@ class SQLiteTargetPositionStore:
             ).fetchone()
             return self._link_from_row(row) if row else None
 
+    def get_standardized_state_link_by_id(
+        self, link_id: UUID
+    ) -> StandardizedStateTargetPositionLink | None:
+        with closing(self._database.connect()) as connection:
+            row = connection.execute(
+                """
+                SELECT * FROM target_position_standardized_state_links
+                WHERE link_id = ?
+                """,
+                (str(link_id),),
+            ).fetchone()
+            return self._link_from_row(row) if row else None
+
     def save_operation(self, operation: TargetPositionOperationAttempt) -> None:
         with closing(self._database.connect()) as connection:
             try:

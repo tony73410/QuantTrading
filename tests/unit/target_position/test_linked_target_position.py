@@ -360,7 +360,7 @@ def _create_v7_database(path: Path) -> None:
         connection.commit()
 
 
-def test_v7_to_v8_migration_backs_up_preserves_and_creates_no_links(tmp_path: Path):
+def test_v7_to_current_migration_backs_up_preserves_and_creates_no_links(tmp_path: Path):
     database = tmp_path / "central.sqlite3"
     backups = tmp_path / "backups"
     _create_v7_database(database)
@@ -369,18 +369,21 @@ def test_v7_to_v8_migration_backs_up_preserves_and_creates_no_links(tmp_path: Pa
 
     backup_files = tuple(backups.glob("*.sqlite3"))
     assert len(backup_files) == 1
-    assert ".schema-v7-to-v8." in backup_files[0].name
+    assert ".schema-v7-to-v13." in backup_files[0].name
     with sqlite3.connect(backup_files[0]) as backup:
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 7
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
     with sqlite3.connect(database) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 13
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute(
             "SELECT COUNT(*) FROM target_position_linked_preview_operations"
         ).fetchone()[0] == 0
         assert connection.execute(
             "SELECT COUNT(*) FROM target_position_standardized_state_links"
+        ).fetchone()[0] == 0
+        assert connection.execute(
+            "SELECT COUNT(*) FROM target_adjustment_decision_results"
         ).fetchone()[0] == 0
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"

@@ -4041,3 +4041,529 @@ Intent alignment: closes the first requested observable mathematical arrow while
 At the user's explicit request to `commit + push 到 github一下，记得做记录`, added `CHECKPOINT-20260721-002` to the append-oriented Version History before Git delivery. The checkpoint binds the current `main` branch to previous commit `7ebe14b`, package version `0.1.0`, central Schema v8, the verified v7 backup, Phase 5B/5C user-visible behavior, complete validation evidence, safety state, deferred work and rollback procedure. The checkpoint commit is the Git commit containing that record; the exact immutable hash and remote push result are provided by Git and the delivery report.
 
 No source behavior, financial meaning, public contract, configuration, dependency, database content or runtime permission changed in this record-only step. The prior final evidence remains 401 complete tests, 54 architecture/governance tests, compileall, dependency integrity and diff checks; no new Bug or Known Issue was discovered. Runtime databases, backups, credentials, logs and local control state remain ignored and are not included in the publication.
+
+## EDIT-20260721-013 — Phase 5D target-adjustment Decision admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after the verified and published Phase 5B/5C checkpoint, performed a **DEEP proposal-only** admission review. Phase 5C already persists one exact linked Target Position result with trustworthy symbol, UTC time, current USD exposure, target USD exposure and signed adjustment. The existing Factor-policy `DecisionResult` and `TradeIntent` instead require generic `FactorSnapshot` identities, while Phase 5B was deliberately not published as a generic FactorSnapshot. Reusing those contracts unchanged would therefore fabricate provenance; loosening them would migrate the already verified Factor → Decision → Risk path.
+
+Created `PROPOSAL-017` for the smallest Phase 5D Decision-owned bridge. It accepts only one explicitly selected completed Phase 5C link; application orchestration copies its exact source-neutral target evidence; and a specialized Decision mapper interprets a positive difference as `INCREASE`, a negative difference as `DECREASE`, and exact zero as `HOLD` with no intent. A non-zero result creates exactly one type-distinct research intent whose positive requested USD notional is the absolute difference while retaining the original signed desired change.
+
+The proposal deliberately adds no `EXIT`, minimum threshold, tolerance, rounding, quantity, price, fee, confidence, cash check, account truth, Risk admission or execution consumer. Existing Factor-policy Decision/TradeIntent and Risk contracts remain unchanged. No source code, runtime public contract, central SQLite schema/data, GUI behavior, component activation or trading permission changed in this proposal-only task.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; user approval is pending. Conflict result: `REQUIRES_MIGRATION`; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: compatible specialized extension of `quant_trading.decision`; proposed secondary modules: application orchestration, Target Position public query, Run History, central Persistence and Algorithm Control.
+- Proposed additive contracts: explicit command, source-neutral linked-target input, specialized result/intent/attempt/source-link/query/Store contracts and one neutral Run type. Existing Factor-policy contracts are not changed.
+- Proposed database/GUI: central SQLite v8→v9 with four specialized evidence tables and zero backfill/default rows; a separate mode in the existing Decision Inspector plus exact source/parent/child Run navigation. No new Launcher shortcut is proposed.
+- Approval would authorize only the exact Phase 5C-source sign mapping, positive absolute requested notional, specialized non-Risk intent, durable Schema v9 history and read-only research GUI scope. It would not authorize generic Decision migration, Risk admission or numerical Risk, Portfolio Accounting/Capital facts, Backtesting, Paper, Live, orders or fills.
+
+### Validation, bug audit and rollback
+
+The complete architecture/governance suite passed **54 tests**. `git diff --check` passed with only existing Windows LF→CRLF notices. No confirmed, suspected, deferred or cannot-reproduce Bug was found during this admission analysis; `BUG_LOG` and `KNOWN_ISSUES` are unchanged. Roll back the proposal record by removing PROPOSAL-017 and its proposal-index/Roadmap pending-decision entries while preserving this append-only historical record; no source/database/runtime rollback is needed because implementation has not started.
+
+### Compass audit
+
+Intent alignment: advances the approved observable chain from exact desired position toward Decision while exposing the necessary financial interpretation before implementation. Architecture alignment: Target Position retains desired-level mathematics, Decision owns action/notional meaning, orchestration would own source resolution/call order, Persistence would own SQL validation and Run History remains neutral. Safety alignment: the proposed result is explicit local `NO_EXECUTION` evidence, type-distinct from current Risk inputs, disabled/unconsumed and unable to construct or submit an order. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the exact sign/notional mapping and Schema v9 await user approval. Compass sections updated: none because current behavior, architecture and approved state remain Phase 5C/Schema v8. Remaining drift risk: implementing before approval, fabricating generic Factor evidence, silently adding an EXIT/threshold/rounding rule, or admitting the specialized intent to Risk/Execution would be project drift.
+
+## EDIT-20260721-014 — Phase 5D exact Target Adjustment Decision preview
+
+### Scope and approved interpretation
+
+Implemented the user's explicit approval `批准 PROPOSAL-017` as a **DEEP, MULTI_MODULE, disabled/unconsumed research change**. The user must explicitly select one accepted Phase 5C `target_position_link_id`. Application orchestration resolves its exact immutable linked Target result and source evidence, then copies the persisted signed `target_position_difference_usd` into a source-neutral Decision input. The Decision owner maps positive to `INCREASE`, negative to `DECREASE`, and exact zero to `HOLD`; a nonzero specialized intent has requested USD equal to the exact absolute difference, while `HOLD` creates no intent.
+
+The existing generic Factor-policy `DecisionResult`/`TradeIntent` and current Risk contracts remain unchanged. No tolerance, minimum size, rounding, `EXIT`, quantity, price, fee, cash/account fact, Risk admission or numerical Risk rule was added. Backtesting, Portfolio Accounting persistence, Paper, Live, orders and fills remain excluded. No component was activated, and every new Run is `NO_EXECUTION`.
+
+### Implementation
+
+- Added Decision-owned schema-v1 source-neutral command/input/result/specialized-intent/operation/source-link/query contracts, Store/query Protocols, an exact pure mapper and service. Exact operation retries return their original terminal result; conflicting reuse and missing/inconsistent source evidence fail closed and remain durable.
+- Added `TargetAdjustmentDecisionPreviewCoordinator`. It requires an explicit Phase 5C link, resolves the exact link/Target/Standardized State evidence through public queries, creates a `TARGET_ADJUSTMENT_DECISION_PREVIEW` Run whose accepted parent is the Phase 5C Run, binds exact definitions/versions, delegates mapping to Decision and records Target/source relationships without performing sign or absolute-value arithmetic.
+- Added central SQLite Schema v9 with `target_adjustment_decision_operations`, `target_adjustment_decision_results`, `target_adjustment_trade_intents` and `target_adjustment_decision_source_links`. `SQLiteTargetAdjustmentDecisionStore` transactionally revalidates Run/stage identity, Phase 5C link/source/Target evidence, versions, exact arithmetic and zero-or-one intent cardinality. Migration creates no default or backfilled row.
+- Extended Run History with the specialized Run type, Decision/Phase5C/Target/source relationships and typed artifacts. Added a separate Target Adjustment Decision subtab inside the existing Decision owner page with explicit placeholder selection, bounded history, exact persisted inputs/outputs and related-Run navigation. GUI code contains no Decimal/sign/absolute-value calculation, SQL, Risk or execution logic; no Launcher shortcut was added.
+
+### Central database migration evidence
+
+The authorized ignored database `runtime/data/market_history.sqlite3` migrated transactionally from Schema v8 to v9. Verified backup: `runtime/data/backups/market_history.schema-v8-to-v9.20260721T190602679599Z.sqlite3`. Backup remains Schema 8; active reports Schema 9. Both return `PRAGMA integrity_check=ok` and zero foreign-key violations. All 51 pre-existing business-table counts are identical, including 215,340 `market_bars` and 365 `fetch_history`; all four new Phase 5D tables contain zero rows, proving no link selection, Decision, intent or source relationship was defaulted/backfilled.
+
+Rollback requires stopping writers, preserving the v9 database, restoring the named v8 backup and reverting Phase 5D code together. A code-only downgrade against Schema v9 is unsupported. Feature-level rollback may disable new preview commands while retaining readable v9 history; Phase 5A/5B/5C and generic Factor-policy Decision paths remain independently available.
+
+### Files changed
+
+- Source contracts/services: `src/quant_trading/decision/__init__.py`, `errors.py`, `target_adjustment_models.py`, `target_adjustment_interfaces.py`, `target_adjustment_engine.py`, `target_adjustment_service.py`; `src/quant_trading/error_codes.py`; `src/quant_trading/target_position/interfaces.py`.
+- Orchestration/Run/Persistence: `src/quant_trading/orchestration/__init__.py`, `target_adjustment_decision_preview.py`; `src/quant_trading/run_history/models.py`; `src/quant_trading/persistence/__init__.py`, `sqlite_database.py`, `run_sqlite_store.py`, `target_position_sqlite_store.py`, `target_adjustment_decision_sqlite_store.py`.
+- GUI/composition: `src/quant_trading/algorithm_control/app.py`, `ui/main_panel.py`, `ui/decision_authoring_panel.py`, `ui/target_adjustment_decision_panel.py`.
+- Tests: `tests/unit/decision/test_target_adjustment_decision.py`, `test_sqlite_target_adjustment_decision.py`; `tests/unit/algorithm_control/test_target_adjustment_decision_panel.py`; `tests/architecture/test_target_adjustment_decision_boundaries.py`, `test_run_history_boundaries.py`, `test_governance_document_integrity.py`; current-schema/relationship expectations in `tests/unit/asset_state/test_sqlite_asset_state.py`, `tests/unit/capital_allocation/test_sqlite_capital_allocation.py`, `tests/unit/factors/test_sqlite_standardized_state.py`, `tests/unit/run_history/test_research_history.py`, `tests/unit/run_history/test_sqlite_run_history.py`, `tests/unit/target_position/test_linked_target_position.py`, `tests/unit/target_position/test_sqlite_target_position.py`.
+- Governance/design/user docs: `PROJECT_COMPASS.md`, `README.md`, `CHANGELOG.md`, `docs/INDEX.md`, `docs/architecture/OVERVIEW.md`, `MODULE_MAP.md`, `DEPENDENCY_RULES.md`, `docs/decisions/README.md`, `ADR-0024-target-adjustment-decision-preview.md`, `docs/proposals/README.md`, `PROPOSAL-017-target-adjustment-decision-preview.md`, `docs/modules/README.md`, `algorithm-control-gui.md`, `analysis-decision-pipeline.md`, `central-persistence.md`, `main-launcher.md`, `run-history.md`, `target-position.md`, `trading-decision.md`, `docs/project/GLOSSARY.md`, `PROJECT_STATE.md`, `ROADMAP.md`, and `logs/EDIT_LOG.md`.
+
+### Validation and bug discovery audit
+
+- Complete suite: **418 passed, 0 failed**, with one existing upstream `websockets.legacy` deprecation warning, in 98.74 seconds.
+- Final architecture/governance suite: **59 passed**. Phase 5D focused Decision/repository/GUI suite: **12 passed**; earlier targeted affected suite passed **37 tests**.
+- `python -m compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with only existing Windows LF→CRLF notices.
+- Real central Schema v9 and named v8 backup were rechecked after the full suite: both `integrity_check=ok`, both have zero foreign-key violations, active retains 215,340 Market Bars/365 Fetch History rows and all four Phase 5D tables remain empty.
+- No confirmed, suspected, deferred or cannot-reproduce Bug was discovered in this implementation; `BUG_LOG` and `KNOWN_ISSUES` are unchanged. No network, credential, Market Data request, account, broker, order, Paper or Live path was used.
+
+### Change Impact Report
+
+Primary module: compatible specialized extension of existing `quant_trading.decision`. Secondary modules: orchestration, public Target Position query, neutral Run History, central Persistence and Algorithm Control. Public contracts, Run type and query relationships are additive; existing generic Decision/Risk contracts are unchanged. Configuration, third-party dependencies and Launcher catalog are unchanged. Database impact is additive central v8→v9 with verified backup/rollback and no backfill. GUI impact is one separate subtab inside the existing Decision owner page. Permission impact is local research SQLite reads/writes only. Trading semantics add only the user-approved exact sign/notional interpretation and specialized non-Risk intent; no account, Risk-approved or order meaning is added. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: closes the approved Target Position → Decision observability arrow using one exact accepted Phase 5C source and persists inputs, intermediate identity, action, intent cardinality, versions and failures. Architecture alignment: Target Position retains desired-level math, Decision owns action/notional meaning, orchestration owns resolution/call order, Persistence owns SQL/cross-object validation, Run History remains neutral and GUI delegates typed services; 59 architecture/governance tests verify the boundaries. Safety alignment: specialized types cannot enter current Risk/Backtesting/Accounting/Execution, all operations are explicit `NO_EXECUTION`, and Paper/Live/automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: `ASM-024` records the approved exact mapping and type isolation. Compass sections updated: evolving phase/evidence, capability/module inventory, approval, non-capabilities, assumption, `INTENT-028`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future code must not select a latest link, add tolerance/rounding/EXIT, reinterpret manual USD as account truth, cast the specialized intent to generic `TradeIntent`, or admit it to Risk/trading without a separately approved contract and migration. Suggested commit message: `feat: add target adjustment decision preview phase 5d`.
+
+## EDIT-20260721-015 — Phase 6A specialized Risk manual-review gate admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after verified Phase 5D, performed a **DEEP proposal-only** admission review. The existing generic `RiskEngine` already owns conservative Risk composition, but it accepts only generic Factor-policy `TradeIntent` with exact FactorSnapshot and neutral account/portfolio/market/system context. Phase 5D deliberately emits a different `TargetAdjustmentTradeIntent`; architecture tests currently ensure it cannot enter Risk. Casting it, fabricating Factor evidence or making generic Risk fields optional would weaken already verified provenance and approval gates.
+
+Created `PROPOSAL-018` for the smallest next observable arrow: a Risk-owned, type-distinct Target-Adjustment Manual-Review Gate. It would accept only one explicitly selected completed Phase 5D specialized intent, copy/revalidate the complete Decision/Phase5C/Target/standardized-state chain, capture the existing locked non-execution safety state and persist three ordered structural gate results: source-chain integrity, non-execution safety state and absence of an approved numerical Risk policy. A valid request would always stop at `MANUAL_REVIEW_REQUIRED`; unsafe state would block; invalid sources and failures would remain durable. HOLD results have no intent and would remain ineligible.
+
+The proposal recommends additive central SQLite v9→v10 evidence and a separate subtab inside the existing Risk page. It explicitly forbids an approved notional, `RiskApprovedTradeIntent`, numerical limit/reduction, account/portfolio/capital/reconciliation facts, pause mutation, Backtesting, Paper, Live, orders or fills. No source code, runtime public contract, database schema/data, GUI behavior, Compass truth, component activation or trading permission changed in this proposal-only task.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; user approval is pending. Conflict result: `REQUIRES_MIGRATION` with a type adapter; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: application orchestration, public Decision/Target queries, Run History, Persistence and Algorithm Control.
+- Proposed public contracts: explicit command, source-neutral Risk input, immutable safety snapshot, specialized final review/rule/attempt/source/query/Store contracts and one neutral Run type. Existing generic Decision/Risk/Risk-approved contracts remain unchanged.
+- Proposed database/GUI: four additive central Schema v10 evidence tables and a separate mode in the existing Risk owner page; no backfill/default rows and no new Launcher shortcut.
+- Trading/safety meaning: records only that a hypothetical request reached a structural Risk boundary and lacks numerical approval. It cannot approve, reduce, execute or alter exposure.
+- Rollback at this proposal stage: remove PROPOSAL-018 and its proposal-index/Roadmap entry while preserving this append-only record; no runtime/database rollback is required.
+
+### Validation and bug discovery audit
+
+The complete architecture/governance suite passed **59 tests**. `git diff --check` passed with only existing Windows LF→CRLF notices. No runtime, database migration, network, account, broker or order path was invoked. No confirmed, suspected, deferred or cannot-reproduce Bug was identified during the admission analysis; `BUG_LOG` and `KNOWN_ISSUES` remain unchanged.
+
+### Compass audit
+
+Intent alignment: proposes the next Risk observability arrow while refusing to invent financial limits or approval authority. Architecture alignment: Decision retains source/action meaning, Risk would own structural gate/rule/disposition meaning, orchestration would resolve exact sources, Persistence would own SQL validation and Run History would remain neutral. Safety alignment: the proposed gate is manual-review/block-only, produces no approved object and retains `NO_EXECUTION`, Live-disabled and automatic-submission-disabled boundaries. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the specialized eligibility, locked rule order, manual-review-only outcome and Schema v10 await explicit approval. Compass sections updated: none because current capability and approved direction remain Phase 5D/Schema v9. Remaining drift risk: implementing before approval, weakening generic Risk provenance, treating structural checks as numerical approval, emitting a Risk-approved type or connecting Backtesting/Execution would be project drift.
+
+## EDIT-20260721-016 — Phase 6A Target Adjustment Risk manual-review gate
+
+### Summary
+
+Implemented the user's explicit approval `批准 PROPOSAL-018` as a **DEEP, MULTI_MODULE, disabled/unconsumed research change**. One explicit completed nonzero Phase 5D `TargetAdjustmentTradeIntent` may now reach a type-distinct Risk-owned structural gate. The gate revalidates exact Phase 5D/Phase5C/Target/standardized-state identities, versions, times and copied Decimal arithmetic, captures immutable application non-execution safety/software identity, and records three locked rules in this order: `SOURCE_CHAIN_INTEGRITY@1`, `NON_EXECUTION_SAFETY_STATE@1`, `NUMERICAL_RISK_POLICY_AVAILABILITY@1`.
+
+A valid source under safe local settings always returns `MANUAL_REVIEW_REQUIRED`; unsafe Live/automatic/execution-capability/manual-confirmation metadata returns `BLOCKED`. Missing/corrupt/conflicting source is durable invalid/failed evidence. HOLD remains ineligible because Phase 5D creates no intent. `TargetAdjustmentRiskReviewResult` is type-distinct from generic Risk and permanently enforces `approved_notional_usd=None` and `risk_approved_intent_id=None`.
+
+### Implementation and contracts
+
+- Added Risk-owned source/safety/command/rule/result/operation/source-link/query/Store contracts, the pure locked structural engine and `TargetAdjustmentRiskService`. Existing generic `RiskEngine`, `RiskDecision`, `RiskRuleResult` and `RiskApprovedTradeIntent` were not changed.
+- Added the additive public Decision query `get_target_adjustment_intent(intent_id)` so orchestration resolves exactly one requested durable intent rather than selecting latest/default evidence.
+- Added `TargetAdjustmentRiskReviewCoordinator`, `TARGET_ADJUSTMENT_RISK_REVIEW`, ordered Decision/Risk stages, exact Decision/Risk/configuration bindings, idempotent retry, durable query/storage failures and Decision/Phase5C/Target/standardized-state Run relationships. Orchestration contains no rule outcome or amount arithmetic.
+- Added central SQLite Schema v10 tables `target_adjustment_risk_operations`, `target_adjustment_risk_review_results`, `target_adjustment_risk_rule_results` and `target_adjustment_risk_source_links`; `SQLiteTargetAdjustmentRiskStore` validates Run/stage/source/version/time/arithmetic/safety/rule/no-approval evidence transactionally and exposes bounded typed reload queries.
+- Extended Run History artifacts/relationships with the specialized operation, accepted review, ordered rule pipeline, absent approval fields and upstream Run navigation.
+- Added a separate SQL-free `Target Adjustment Manual Review` subtab inside the existing Risk page. It requires explicit intent selection/reason, displays immutable unapproved source/safety/rule/history evidence and has no approval or settings-override control. The existing Launcher Risk shortcut remains the correct entry; no shortcut was added.
+
+### Database migration and rollback
+
+The authorized ignored database `runtime/data/market_history.sqlite3` migrated transactionally from Schema v9 to v10. Verified backup: `runtime/data/backups/market_history.schema-v9-to-v10.20260721T211811897487Z.sqlite3`. The backup remains Schema 9; active reports Schema 10. Both return `PRAGMA integrity_check=ok` and zero foreign-key violations. All 55 pre-existing business-table counts were preserved; the four new Phase 6A tables contain zero rows, proving that no review, rule or approval evidence was defaulted/backfilled.
+
+Feature rollback may disable the specialized review command/GUI while retaining readable v10 history. Physical downgrade requires stopping writers, preserving v10, restoring the named v9 backup and reverting to matching v9 code. Code-only downgrade against Schema v10 is unsupported.
+
+### Files changed
+
+- Risk/domain: `src/quant_trading/risk/target_adjustment_models.py`, `target_adjustment_interfaces.py`, `target_adjustment_engine.py`, `target_adjustment_service.py`, `risk/__init__.py`, and `src/quant_trading/error_codes.py`.
+- Orchestration/query/composition: `src/quant_trading/orchestration/target_adjustment_risk_review.py`, `orchestration/__init__.py`, `src/quant_trading/decision/target_adjustment_interfaces.py`, `src/quant_trading/persistence/target_adjustment_decision_sqlite_store.py`, and `src/quant_trading/algorithm_control/app.py`.
+- Persistence/Run: `src/quant_trading/persistence/sqlite_database.py`, `target_adjustment_risk_sqlite_store.py`, `run_sqlite_store.py`, `persistence/__init__.py`, and `src/quant_trading/run_history/models.py`.
+- GUI: `src/quant_trading/algorithm_control/ui/target_adjustment_risk_panel.py` and `main_panel.py`.
+- Tests: new Risk domain/repository/migration/GUI/architecture suites plus current-schema and governance expectation updates under `tests/`.
+- Governance/design/user docs: `PROJECT_COMPASS.md` v30, canonical architecture v26/invariants 64–68, ADR-0025, PROPOSAL-018 status, README/CHANGELOG/indexes, affected Risk/Decision/Orchestration/Persistence/Run/Algorithm Control/Launcher/Target module docs, Project State/Roadmap/Glossary and this append-only Edit Log.
+
+### Validation and bug discovery audit
+
+- Full suite: **434 passed**, one existing third-party `websockets.legacy` deprecation warning.
+- Architecture/governance suite: **63 passed**.
+- Final affected Risk/domain/repository/GUI/architecture suite passed, including source-query failure persistence and transaction-time Phase 5D tamper rejection.
+- `python -m compileall -q src tests`: passed.
+- `python -m pip check`: passed (`No broken requirements found`).
+- `git diff --check`: passed; output contains only repository line-ending conversion notices.
+- Final active/backup database integrity and foreign-key checks: clean; all four Phase 6A tables remain empty.
+
+No confirmed, suspected, deferred or cannot-reproduce product Bug was discovered during this task; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged. The initial shell quoting/time-limit diagnostics were tooling-command issues, not repository defects.
+
+### Change Impact Report
+
+Primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: orchestration, additive Decision query, neutral Run History, central Persistence and Algorithm Control. Public contracts and Run type are additive; generic Risk contracts and Phase 5D financial mapping are unchanged. Configuration is read-only capture of existing safety settings; no financial setting/default was added. Database impact is additive v9→v10 with verified backup/rollback and zero backfill. GUI impact is one subtab inside the existing Risk owner page; Launcher catalog is unchanged. Permissions are local SQLite research reads/writes only. Trading semantics record only that an unapproved hypothetical adjustment reached structural review and still lacks numerical approval. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: closes the approved Decision → Risk observability arrow for one exact specialized intent while preserving all inputs, rules, versions, failures and relationships. Architecture alignment: Decision retains action/source meaning, Risk owns structural disposition/rule meaning, orchestration owns exact resolution/call order, Persistence owns SQL/cross-object validation, Run History remains neutral and GUI delegates typed services; architecture invariants 64–68 and 63 tests verify this. Safety alignment: valid results always require manual review, unsafe execution metadata blocks, approval fields are structurally absent, every Run is `NO_EXECUTION`, and Live/automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: `ASM-025` records the approved specialized eligibility, locked rule order and no-approval invariant. Compass sections updated: evolving phase/evidence, capability/module inventory, approval, assumption, `INTENT-029`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future work must not treat structural checks as numerical approval, weaken source/safety provenance, add values or account facts, cast to generic Risk-approved types, or connect Backtesting/Accounting/Execution without a separately approved contract and migration. Suggested commit message: `feat: add target adjustment risk manual review phase 6a`.
+
+## EDIT-20260721-017 — Phase 6B single-asset exposure-cap admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after verified Phase 6A, performed a **DEEP proposal-only** admission review. Phase 6A already provides a type-distinct structural Risk gate that accepts one explicit nonzero Phase 5D specialized intent, preserves the exact Phase5C/Target/standardized-state chain and always stops a safe valid request at `MANUAL_REVIEW_REQUIRED`. Its three locked rules contain no values and must not be edited or reinterpreted as numerical approval. The generic Factor-policy Risk path remains a different provenance and approval contract.
+
+Created `PROPOSAL-019` for the smallest recommended next numerical slice: one immutable, symbol-specific, user-entered positive Decimal USD `max_target_exposure_usd` version evaluated against one explicitly selected completed Phase 6A manual-review result. The proposed locked `MAX_TARGET_EXPOSURE_USD@1` rule preserves an INCREASE within the cap, reduces an INCREASE crossing the cap to exact remaining headroom, blocks an INCREASE when current exposure is already at/above the cap, and preserves a DECREASE under the existing long-only research-source invariant. Exact equality, Decimal, no-tolerance/no-rounding and non-expansion/non-reversal semantics are stated explicitly.
+
+A positive output is named only `cap_constrained_candidate_notional_usd` and still ends at `MANUAL_REVIEW_REQUIRED`; it is never approved notional and cannot create a generic or specialized Risk-approved object. The proposal includes no cap value/default/active selection, account or broker facts, multi-rule/comprehensive Risk approval, Backtesting, Accounting persistence, Paper, Live, orders or fills. It recommends additive central SQLite v10→v11 definition/operation/result/rule/source-link evidence and an `Exposure Cap Laboratory` subtab inside the existing Risk page, both pending approval. No source code, public contract, runtime behavior, database schema/data, component activation, Compass truth or trading permission changed in this proposal-only task.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; explicit user approval is pending because the exact cap formula and DECREASE treatment change financial meaning. Conflict result: `REQUIRES_MIGRATION`; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: orchestration, Phase 6A public query, neutral Run History, central Persistence and Algorithm Control.
+- Proposed public contracts: immutable cap-definition versions, explicit preview command, source-neutral linked input, one numerical rule result, final manual-review/block result, operation/source/query/Store contracts and one neutral Run type. Existing Phase 6A and generic Risk contracts remain unchanged.
+- Proposed database/GUI: five additive central Schema v11 tables with zero backfill, plus one subtab under the existing Risk page; no new Launcher shortcut.
+- Trading/safety meaning: this would be the first explicit numerical Risk constraint, but it uses hypothetical research exposure and can only preserve/reduce/block the original direction. One positive candidate still requires manual review and proves no other Risk rule.
+- Rollback at this proposal stage: remove PROPOSAL-019 and its proposal-index/Roadmap entry while preserving this append-only record; no runtime/database rollback is required.
+
+### Validation and bug discovery audit
+
+Proposal wording and governance references were reviewed against the verified Phase 6A contracts before editing. The complete architecture/governance suite passed **63 tests**. `git diff --check` passed with only repository line-ending conversion notices. The first test command selected system Python without pytest; rerunning with the project's `.venv` succeeded, so this was a tooling-environment invocation issue rather than a repository defect. No runtime, database migration, network, account, broker or order path was invoked. No confirmed, suspected, deferred or cannot-reproduce Bug was identified during this admission analysis; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Compass audit
+
+Intent alignment: proposes the next observable numerical Risk step while requiring the user to decide the actual financial semantics and supplying no value/default. Architecture alignment: Decision and Phase 6A history stay immutable; Risk would own the cap definition/formula/result, orchestration exact resolution, Persistence SQL validation, Run History neutral relationships and GUI presentation only. Safety alignment: the proposed result is manual-review/block-only, non-expanding/non-reversing, type-distinct, `NO_EXECUTION` and unable to reach Backtesting/Accounting/Execution. Unapproved behavior added: none; proposal only. Assumptions introduced: none as current truth—the symbol scope, exact branches/equality behavior, DECREASE preservation, Schema v11 and GUI await explicit approval. Compass sections updated: none because the current implemented capability remains Phase 6A/Schema v10. Remaining drift risk: implementing before approval, inventing a cap/default, calling a candidate approved, mutating Phase 6A rules or adding account/downstream consumers would be project drift.
+
+## EDIT-20260721-018 — Phase 6B single-asset exposure-cap preview
+
+### Summary
+
+Implemented the user's explicit approval `批准 PROPOSAL-019` as a **DEEP, MULTI_MODULE, disabled/unconsumed research change**. The Risk owner now supports immutable symbol-specific positive exact Decimal USD exposure-cap definition versions and one locked `MAX_TARGET_EXPOSURE_USD@1` preview over one explicitly selected exact Phase 6A `MANUAL_REVIEW_REQUIRED` result for the same symbol.
+
+For `INCREASE`, an exact target at/below the cap preserves the original request, a target crossing the cap reduces the candidate to exact `cap - current`, and current exposure at/above the cap produces exact zero and `BLOCKED_BY_EXPOSURE_CAP`. A `DECREASE` preserves the existing long-only risk-reducing request. Exact equality applies; no tolerance, rounding, price/quantity/lot conversion or account-derived input exists. The candidate is structurally constrained to `[0, original]` and cannot reverse direction. Every positive candidate remains `MANUAL_REVIEW_REQUIRED`; no approved notional, Risk-approved intent or downstream executable object exists.
+
+### Implementation and contracts
+
+- Added Risk-owned definition/command/input/rule/result/operation/source-link/query/Store contracts, pure exact-Decimal `SingleAssetExposureCapEngine` and `SingleAssetExposureCapService`. Saving a new/edit definition appends an immutable version; archive appends an immutable `ARCHIVED` successor and prevents future use. There is no default value, `ACTIVE` state or automatic version selection.
+- Added `TargetAdjustmentExposureCapPreviewCoordinator`: it resolves one exact Phase 6A result/source link and exact current cap version through public ports, captures current non-execution safety, parents a new `TARGET_ADJUSTMENT_EXPOSURE_CAP_PREVIEW` Run to Phase 6A, delegates all formula work to Risk and records exact upstream Run bindings/relationships. It contains no cap arithmetic.
+- Added central SQLite Schema v11 tables `single_asset_exposure_cap_definitions`, `target_adjustment_exposure_cap_operations`, `target_adjustment_exposure_cap_results`, `target_adjustment_exposure_cap_rule_results` and `target_adjustment_exposure_cap_source_links`. `SQLiteExposureCapStore` transactionally revalidates immutable current definition, Phase 6A result/rules/source chain, Run/stage parentage, exact formula, non-expansion and disposition. Accepted, invalid, blocked and failed attempts are durable; no old result is backfilled or reinterpreted.
+- Extended Run History with the neutral Run type, exact parent/source relationships and nested definition/operation/result/rule artifacts. Existing Phase 6A and generic Risk contracts remain unchanged.
+- Added the SQL/arithmetic-free `Single-Asset Exposure Cap` subtab inside the existing Risk owner page. It requires placeholder-first exact definition/Phase 6A selection and reasons, delegates definition save/archive/preview commands, shows structured source/formula/result/history evidence and opens the Phase 6B/6A/Decision/Phase5C/Target/standardized-state Runs. The existing Risk Launcher shortcut remains sufficient; the application and sixteen-shortcut catalogs are unchanged.
+
+### Database migration and rollback
+
+The authorized ignored database `runtime/data/market_history.sqlite3` migrated transactionally from Schema v10 to v11. Verified backup: `runtime/data/backups/market_history.schema-v10-to-v11.20260721T232152196311Z.sqlite3`. The backup remains Schema 10; active reports Schema 11. Both return `PRAGMA integrity_check=ok` and zero foreign-key violations. An independent table-by-table comparison confirmed all 59 pre-existing business-table counts unchanged; all five new Phase 6B tables contain zero rows.
+
+Feature rollback may disable/hide definition and preview commands while retaining readable v11 history. Physical downgrade requires stopping writers, preserving v11, restoring the named v10 backup and using matching v10 code. Code-only downgrade against Schema v11 is unsupported.
+
+### Files changed
+
+- Risk/domain: `src/quant_trading/risk/exposure_cap_models.py`, `exposure_cap_interfaces.py`, `exposure_cap_engine.py`, `exposure_cap_service.py`, `risk/__init__.py`, and `src/quant_trading/error_codes.py`.
+- Orchestration/Run/Persistence: `src/quant_trading/orchestration/target_adjustment_exposure_cap_preview.py`, `orchestration/__init__.py`, `src/quant_trading/run_history/models.py`, `src/quant_trading/persistence/exposure_cap_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py`, and `persistence/__init__.py`.
+- GUI/composition: `src/quant_trading/algorithm_control/ui/exposure_cap_panel.py`, `target_adjustment_risk_panel.py`, `main_panel.py`, and `src/quant_trading/algorithm_control/app.py`.
+- Tests: `tests/unit/risk/test_exposure_cap.py`, `test_sqlite_exposure_cap.py`; `tests/unit/algorithm_control/test_exposure_cap_panel.py`; `tests/architecture/test_exposure_cap_boundaries.py`, `test_run_history_boundaries.py`, `test_governance_document_integrity.py`; current-Schema migration expectations in Capital Allocation, Asset State, standardized state, Target Position, linked Target Position, specialized Decision/Risk and Run History suites.
+- Governance/design/user docs: `PROJECT_COMPASS.md` v31, canonical architecture v27/invariants 69–73, ADR-0026, PROPOSAL-019 status/approval, README/CHANGELOG/indexes, affected Risk/Decision/Orchestration/Persistence/Run/Algorithm Control/Launcher module docs, Project State/Roadmap/Glossary and this append-only Edit Log.
+
+### Validation and bug discovery audit
+
+- Full suite: **455 passed**, one existing third-party `websockets.legacy` deprecation warning, in 102.89 seconds.
+- Architecture/governance suite: **68 passed**. Schema migration/legacy-domain regression subset: **52 passed**. Phase 6B domain/repository/GUI/architecture suites include exact branches/equalities, DECREASE, archive, idempotency, unsafe fail-closed, definition tamper, source-query failure, Run artifacts/relationships and v10→v11 rollback.
+- `python -m compileall -q src`: passed. `python -m pip check`: `No broken requirements found`. `git diff --check`: passed with only normal Windows LF→CRLF notices.
+- Final active/backup checks: versions 11/10, integrity `ok`, zero foreign-key violations and active v11 cap-table counts `0|0|0|0|0`.
+- No network, credential, Market Data request, account, broker, order, Paper or Live path was used.
+
+No confirmed, suspected, deferred or cannot-reproduce product Bug was discovered. The initial full-suite 120-second timeout and PowerShell verification quoting errors were tooling-command issues; the complete rerun and independent SQLite comparison passed. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+### Change Impact Report
+
+Primary module: compatible specialized extension of existing `quant_trading.risk`. Secondary modules: exact-source orchestration, neutral Run History, central Persistence and Algorithm Control. Public contracts and Run type are additive; generic Risk and locked Phase 6A contracts are unchanged. Configuration has no financial default or new file. Database impact is additive v10→v11 with verified backup/rollback and zero backfill. GUI impact is one subtab inside the existing Risk page; Launcher catalog is unchanged. Permissions are local SQLite research reads/writes only. Trading semantics add exactly the user-approved one-symbol hypothetical USD cap rule, but one rule remains incomplete/unapproved for execution. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: implements the first explicit numerical Risk constraint while preserving every input, version, intermediate rule, failure and upstream Run relationship. Architecture alignment: Decision/Phase 6A retain immutable source meaning, Risk owns definition/formula/disposition, orchestration owns exact resolution/call order, Persistence owns SQL/cross-object validation, Run History remains neutral and GUI delegates typed services; architecture invariants 69–73 and 68 tests verify the boundaries. Safety alignment: the candidate can only preserve/reduce/block, positive candidates still require manual review, approval fields/types and downstream consumers are absent, every Run is `NO_EXECUTION`, and Live/automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: `ASM-026` records the approved exact source/version/formula/no-approval interpretation; no cap amount was assumed. Compass sections updated: evolving phase/evidence, capability/module inventory, approval, DEC-007 clarification, assumption, `INTENT-030`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future work must not invent/select a cap value, treat Phase 5D USD as account truth, call a one-rule candidate approved, add a latest/default selector, mutate Phase 6A, compose extra rules or connect Backtesting/Accounting/Execution without separate approval. Suggested commit message: `feat: add single-asset exposure cap preview phase 6b`.
+
+## EDIT-20260721-019 — End-of-day handoff checkpoint
+
+### Recorded state
+
+- Recorded at `2026-07-21T17:29:04-07:00`. Current governed capability is Phase 6B from approved `PROPOSAL-019`: the single-asset exposure-cap preview is implemented and verified, but remains disabled/unconsumed and `NO_EXECUTION`. `docs/project/PROJECT_STATE.md` already carries the current product state, limitations and evidence; this checkpoint does not change behavior.
+- Central SQLite is Schema v11. The most recent migration row is v11 (`single-asset exposure-cap definitions and numerical Risk preview evidence`). `PRAGMA integrity_check` returns `ok`, `PRAGMA foreign_key_check` returns no rows, and all five Phase 6B tables currently contain zero rows. The verified rollback backup remains `runtime/data/backups/market_history.schema-v10-to-v11.20260721T232152196311Z.sqlite3` at Schema v10.
+- Latest completed verification remains: full suite **455 passed** with one existing third-party warning; architecture/governance suite **68 passed**; migration/legacy-domain subset **52 passed**; compileall, dependency check and diff check passed. Tests were not rerun for this record-only checkpoint because no code, schema, configuration or financial semantics changed.
+- Git branch is `main`; latest committed revision is `34e4f69 feat: add standardized state and linked target preview`. The working tree is intentionally **uncommitted** with 84 entries (45 modified, 39 untracked), including the cumulative approved Phase 5D/6A/6B work for `PROPOSAL-017`, `PROPOSAL-018` and `PROPOSAL-019`. No commit or push was authorized or performed in this checkpoint.
+- No cap definition/value/default exists, no approved Risk object or complete multi-rule Risk approval exists, and no Portfolio Accounting persistence, Backtesting consumer, broker/account access, order, Paper or Live behavior was added. Automatic submission and Live remain disabled.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was discovered during this checkpoint. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Resume instructions
+
+1. Read `AGENTS.md`, `PROJECT_COMPASS.md` v31, `docs/architecture/OVERVIEW.md` v27, `docs/project/PROJECT_STATE.md`, and the latest `EDIT-20260721-018` / `EDIT-20260721-019` entries.
+2. Inspect `git status` before editing and preserve all existing modified/untracked files; they are the current cumulative approved implementation, not disposable scratch changes.
+3. Do not infer Phase 6C, invent a cap value/default, reinterpret one-rule preview output as approval, or connect Accounting/Backtesting/Execution. No further development slice is currently approved.
+4. If the user asks for a repository checkpoint, review the full diff and secret safety, then commit/push only under that explicit authorization. If the user asks to continue product development, begin with the proposal/admission process for the exact user-selected next slice.
+
+### Compass audit
+
+Intent alignment: preserves a precise daily continuation point and distinguishes completed implementation from committed repository state. Architecture and safety alignment: no source, contract, database, GUI, configuration, financial meaning or execution authority changed. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: none; the current truth is already recorded in Compass v31 and Project State. Remaining drift risk: the uncommitted cumulative work must be preserved, and future work must not proceed beyond Phase 6B without explicit scope and approval.
+
+## EDIT-20260722-001 — Phase 6C research asset cash-floor admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after the verified Phase 6B checkpoint, performed a **DEEP proposal-only** admission review. Phase 6B already owns one exact symbol-specific maximum-target-exposure rule over a Phase 6A manual-review result; it preserves/reduces/blocks a specialized candidate but cannot approve it. Phase 5C already persists an explicit hypothetical `research_capital_basis_usd`, while Research Capital Allocation separately owns inactive planning buckets and Portfolio Accounting remains in-memory. Neither existing cash domain was treated as factual input or modified.
+
+Created `PROPOSAL-020` for the smallest recommended compatible extension: a disabled/unconsumed Phase 6C second numerical Risk preview that consumes one explicit **positive** Phase 6B manual-review candidate and one explicit current same-symbol immutable minimum research-cash definition. The new locked `MIN_RESEARCH_ASSET_CASH_USD@1` rule is order 2 after the immutable Phase 6B `MAX_TARGET_EXPOSURE_USD@1` source evidence. It uses the exact persisted manual Phase 5C research basis, not Capital Allocation, Portfolio Accounting, Buying Power or broker cash.
+
+For an `INCREASE`, the proposed exact capacity is `max(research basis - current exposure - floor, 0)` and the new candidate is the minimum of that capacity and the Phase 6B candidate. Exact equality at the floor passes; positive smaller capacity reduces; zero capacity blocks. For a verified long-only `DECREASE`, the Phase 6B candidate is preserved because it increases the hypothetical remainder. The proposed definition accepts a finite non-negative Decimal USD value; explicit zero is a versioned rule value meaning a zero residual floor, not an absent/default value. No amount is supplied.
+
+Every positive candidate would still be `MANUAL_REVIEW_REQUIRED`; zero increase would be `BLOCKED_BY_RESEARCH_CASH_FLOOR`. The proposal permanently excludes approved-notional/approved-intent output, factual cash, complete Risk approval, Backtesting, Accounting persistence, Paper, Live, orders and fills. It proposes additive central SQLite v11→v12 definition/operation/result/rule/source-link evidence and one subtab inside the existing Risk page, both pending approval. No code, public contract, runtime behavior, database schema/data, Compass truth, component activation or trading permission changed.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; explicit user approval is pending because the cash-source meaning, non-negative/explicit-zero definition, exact formula/equality behavior, cap-first rule order and DECREASE treatment change financial semantics.
+- Conflict result: `REQUIRES_MIGRATION` plus `NEEDS_USER_DECISION`; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: orchestration, public Phase 6B/Target queries, neutral Run History, central Persistence and Algorithm Control.
+- Proposed database/GUI: five additive central Schema v12 tables with zero backfill/default rows, plus one subtab under the existing Risk page; no Launcher shortcut.
+- Trading/safety meaning: the rule may only preserve/reduce/block the inherited same-direction candidate. Passing two rules remains incomplete and cannot create generic Risk approval, an order or execution authority.
+- Rollback at this proposal stage: remove PROPOSAL-020 and its proposal-index/Roadmap entry while preserving this append-only record; no runtime/database rollback is required.
+
+### Files changed
+
+- `docs/proposals/PROPOSAL-020-target-adjustment-research-asset-cash-floor.md`
+- `docs/proposals/README.md`
+- `docs/project/ROADMAP.md`
+- `logs/EDIT_LOG.md`
+
+### Validation and bug discovery audit
+
+- Complete architecture/governance suite: **68 passed**.
+- `git diff --check` for the proposal, proposal index and Roadmap: passed; output contains only normal Windows LF→CRLF notices.
+- No runtime, schema migration, database mutation, network, account, broker, order, Paper or Live path was invoked.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was identified. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Compass audit
+
+Intent alignment: proposes the next observable Risk constraint while preserving the user's staged, transparent and versioned research direction. Architecture alignment: Risk would own the formula/result, orchestration exact public-source resolution, Persistence SQL validation, Run History neutral relationships and GUI typed presentation; existing Phase 6B, Capital Allocation and Portfolio Accounting owners remain unchanged. Safety alignment: the proposed result is non-expanding/non-reversing, manual-review/block-only, `NO_EXECUTION`, disabled and unable to reach Backtesting/Accounting/Execution. Unapproved behavior added: none; proposal only. Assumptions introduced: none as implemented truth—the hypothetical-basis interpretation, explicit-zero meaning, formula, order, Schema v12 and GUI await approval. Compass sections updated: none because Phase 6B/Schema v11 remains the latest implemented state. Remaining drift risk: implementing before approval, calling the hypothetical remainder actual Asset Cash, composing two rules into approval, changing Phase 6B, choosing a value/default or adding a downstream consumer would be project drift.
+
+## EDIT-20260722-002 — Implement approved Phase 6C research asset cash-floor preview
+
+### Approval, scope and result
+
+- The user explicitly approved `PROPOSAL-020` on 2026-07-22. Implemented the approved **DEEP**, `MULTI_MODULE` Phase 6C slice as a compatible extension of the existing Risk owner, exact-source orchestration, neutral Run History, central Persistence and existing Algorithm Control Risk page.
+- Added immutable symbol-specific finite non-negative Decimal USD research-cash-floor definition versions. Explicit zero is valid and stored; no value, Active selection or default is supplied. Definition update/archive creates immutable successors and historical results continue to reference their exact versions.
+- Added locked order-2 `MIN_RESEARCH_ASSET_CASH_USD@1` after immutable Phase 6B `MAX_TARGET_EXPOSURE_USD@1` evidence. The source is exactly one positive Phase 6B `MANUAL_REVIEW_REQUIRED` result and the exact persisted Phase 5C hypothetical `research_capital_basis_usd`; no Capital Allocation, Portfolio Accounting, account, broker, settled cash or Buying Power is read.
+- For `INCREASE`, exact Decimal capacity is `max(B-C-F, 0)` and candidate is `min(N, capacity)`. Equality passes; positive lower capacity reduces; zero capacity yields `BLOCKED_BY_RESEARCH_CASH_FLOOR`. Long-only `DECREASE` preserves `N` and records exact pre/post residual and shortfall. No tolerance, rounding, quantity, price, fee or currency conversion was introduced.
+- Every positive result remains `MANUAL_REVIEW_REQUIRED`. The Phase 6C result is type-distinct, has no approved-notional/approved-intent field and has no downstream Backtesting, Accounting or Execution consumer. All Runs remain `NO_EXECUTION`; Live and automatic submission remain disabled.
+- Added durable definition/operation/result/order-2-rule/source-link evidence and exact Run relationships. Exact retries are idempotent; conflicting operation reuse, missing/unsafe/archived sources, definition/source tamper and storage failures fail closed while attempts remain searchable.
+- Added one presentation-only subtab inside the existing Risk page for definition lifecycle, explicit eligible-source selection, persisted two-rule chain, hypothetical residual/shortfall, history/filtering and `Open Run`. No Launcher application or shortcut was added.
+
+### Central SQLite v11→v12 migration
+
+- Migrated the ignored real central database `runtime/data/market_history.sqlite3` transactionally from Schema v11 to v12 after creating `runtime/data/backups/market_history.schema-v11-to-v12.20260722T182459956607Z.sqlite3`.
+- Schema v12 adds exactly five additive tables: `research_asset_cash_floor_definitions`, `target_adjustment_cash_floor_operations`, `target_adjustment_cash_floor_results`, `target_adjustment_cash_floor_rule_results` and `target_adjustment_cash_floor_source_links` plus their indexes/constraints. No historical row was backfilled or reinterpreted.
+- Final verification: active database version 12 and backup version 11; both `integrity_check=ok`, both have zero foreign-key violations, all 64 pre-existing business-table row counts match exactly, and every new Phase 6C table contains zero rows.
+- Rollback requires stopping writers, retaining the v12 file and restoring the verified v11 backup with matching v11 code. Code rollback alone is not a database downgrade.
+
+### Files changed for Phase 6C
+
+- Risk/domain: `src/quant_trading/risk/research_cash_floor_models.py`, `research_cash_floor_engine.py`, `research_cash_floor_interfaces.py`, `research_cash_floor_service.py`, `risk/__init__.py`, and `src/quant_trading/error_codes.py`.
+- Orchestration/query contracts: `src/quant_trading/orchestration/target_adjustment_research_cash_floor_preview.py`, `orchestration/__init__.py`, and `src/quant_trading/target_position/interfaces.py`.
+- Persistence/Run History: `src/quant_trading/persistence/research_cash_floor_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py`, `persistence/__init__.py`, and `src/quant_trading/run_history/models.py`.
+- GUI/composition: `src/quant_trading/algorithm_control/ui/research_cash_floor_panel.py`, `target_adjustment_risk_panel.py`, `main_panel.py`, and `src/quant_trading/algorithm_control/app.py`.
+- Tests: `tests/unit/risk/test_research_cash_floor.py`, `test_sqlite_research_cash_floor.py`, `tests/unit/algorithm_control/test_research_cash_floor_panel.py`, `tests/architecture/test_research_cash_floor_boundaries.py`, plus governed Run-history/current-schema/migration regression updates under `tests/architecture/` and the affected legacy-domain SQLite test files.
+- Governance/design/user docs: `PROJECT_COMPASS.md` v32, canonical architecture v28/invariants 74–78, ADR-0027, approved/implemented PROPOSAL-020, README/CHANGELOG/indexes, affected Risk/Target/Decision/Orchestration/Persistence/Run/Algorithm Control/Launcher module docs, Project State/Roadmap/Glossary and this append-only Edit Log.
+
+### Validation and bug discovery audit
+
+- Complete suite: **475 passed**, with one existing third-party `websockets.legacy` deprecation warning, in 161.67 seconds.
+- Architecture/governance suite: **73 passed**. Focused Phase 6C domain/repository/GUI/architecture/governance suite: **25 passed**. Coverage includes exact increase/equality/reduce/block and DECREASE behavior, explicit zero and invalid/non-finite values, restart reload, idempotency/conflict, definition version/archive, durable missing/unsafe/failed attempts, tamper rejection, ordered Run artifacts/relationships and v11→v12 backup/rollback.
+- `python -m compileall -q src`: passed. `python -m pip check`: `No broken requirements found`. `git diff --check`: passed with only normal Windows LF→CRLF notices.
+- No network, credential, Market Data request, account, broker, order, Paper or Live path was used.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was discovered. The initial system-Python `pytest` invocation and two PowerShell verification quoting attempts were tooling-command errors; reruns with the project virtual environment and safer read-only query passed. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+### Change Impact Report
+
+Primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: exact-source orchestration, neutral Run History, central Persistence and Algorithm Control. Public contracts and Run type are additive; Phase 5C/6A/6B historical meaning and generic Risk contracts are unchanged. Configuration adds no financial default or credential. Database impact is additive v11→v12 with verified backup/rollback and zero backfill. GUI impact is one subtab inside the existing Risk page; Launcher catalog remains three applications/sixteen shortcuts. Permissions are local SQLite research reads/writes only. Trading semantics add exactly the user-approved hypothetical research-cash-floor formula as a second non-expanding rule, but do not compose complete approval. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: advances the observable Risk chain from one to two exact ordered numerical research constraints while persisting inputs, versions, intermediate rules, failures and complete provenance. Architecture alignment: Risk owns definition/formula/disposition, orchestration owns exact public-source resolution and call order, Persistence owns SQL/cross-object validation, Run History remains neutral and GUI delegates typed services; canonical invariants 74–78 and 73 architecture/governance tests protect these boundaries. Safety alignment: the result can only preserve/reduce/block and cannot reverse direction; positive candidates remain manual-review-only, approval fields/types/consumers are absent, every Run is `NO_EXECUTION`, and Live/automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: only `ASM-027`, recording the explicitly approved hypothetical-basis, explicit-zero, formula/order and no-approval semantics; no amount was assumed. Compass sections updated: metadata/current phase, capability/module inventory, user approval, DEC-007 clarification, `ASM-027`, `INTENT-031`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future work must not invent/select a floor value, call the hypothetical residual actual cash, treat two rules as complete approval, add factual Capital/Accounting/broker adapters, alter Phase 6B, or connect Backtesting/Accounting/Execution without a separately approved proposal. Suggested commit message: `feat: add research cash floor preview phase 6c`.
+
+## EDIT-20260722-003 — Phase 6D research asset-cash availability admission proposal
+
+### Scope and existing-work reminder
+
+In response to the user's request to continue development after the verified Phase 6C checkpoint, performed a **DEEP proposal-only** admission review. Phase 6C already owns a second ordered numerical Risk preview over a manual Phase 5C hypothetical per-asset basis. Phase 3A separately owns conserved `RESEARCH_INPUT` Capital Plans containing one protected locked reserve, one protected tactical reserve and symbol-specific `ASSET_CASH` buckets; these plans are inactive planning evidence and are not Portfolio Accounting or broker facts. Portfolio Accounting remains an in-memory factual-domain scaffold.
+
+Created `PROPOSAL-021` for the smallest recommended compatible bridge: a disabled/unconsumed Phase 6D third numerical Risk preview that explicitly pairs one positive Phase 6C manual-review candidate with one user-selected Phase 3A plan and its exact latest conserved snapshot. `MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1` would limit `INCREASE` to the same-symbol research `ASSET_CASH` balance, preserve long-only `DECREASE`, keep all arithmetic exact Decimal and retain the complete Phase 6C/upstream plus Capital Snapshot Run provenance.
+
+The proposal makes the critical limitation explicit: a preview does **not** reserve or move cash. It records `research_cash_reserved=false`, warns that multiple previews can reuse the same balance, never appends a Capital transfer/snapshot, and cannot become complete Risk approval or execution. This avoids creating a second cash authority or making Phase 3A look factual.
+
+### Change Impact Report and approval status
+
+- Proposal status: `PROPOSED`; explicit user approval is pending because the Capital snapshot meaning, formula/equality, latest-snapshot condition, DECREASE treatment and non-reservation behavior change financial semantics.
+- Conflict result: `COMPATIBLE_EXTENSION` + `REQUIRES_ADAPTER` + `REQUIRES_MIGRATION` + `NEEDS_USER_DECISION`; expected implementation blast radius: `MULTI_MODULE`.
+- Proposed primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: exact-source orchestration, public read-only Capital Allocation query use, neutral Run History, central Persistence and Algorithm Control.
+- Proposed database/GUI: four additive central Schema v13 operation/result/rule/source-link tables with zero backfill/default rows, plus one subtab under the existing Risk page; no Launcher shortcut.
+- Trading/safety meaning: the third rule may only preserve/reduce/block and cannot reserve funds, mutate Capital Allocation, create an approved object or reach Backtesting/Accounting/Execution.
+- Alternatives rejected for this slice: reusing the already-constrained Phase 5C basis again, reading non-persistent Accounting/broker cash, letting Risk mutate/reserve Phase 3A cash, or presenting the protected research reserve as factual insurance cash.
+- Rollback at this proposal stage: remove PROPOSAL-021 and its proposal-index/Roadmap entries while preserving this append-only record; no runtime/database rollback is required.
+
+### Files changed
+
+- `docs/proposals/PROPOSAL-021-target-adjustment-research-asset-cash-availability.md`
+- `docs/proposals/README.md`
+- `docs/project/ROADMAP.md`
+- `logs/EDIT_LOG.md`
+
+### Validation and bug discovery audit
+
+- No runtime code, public contract, schema, database data, GUI behavior, Compass truth, component activation or trading permission changed.
+- Architecture/governance and diff checks are recorded after this proposal edit.
+- No network, account, broker, order, Paper or Live path was invoked.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was identified. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Compass audit
+
+Intent alignment: proposes a transparent bridge from existing stock-specific research funding evidence into the ordered Risk preview without claiming factual cash. Architecture alignment: Capital Allocation retains plan/bucket/conservation/mutation ownership; Risk would own candidate limitation; orchestration would resolve the public evidence; Persistence would validate exact source links; GUI would only delegate and display. Safety alignment: the proposed candidate is non-expanding/non-reversing, non-reserving, manual-review/block-only, `NO_EXECUTION`, disabled and unable to reach Backtesting/Accounting/Execution. Unapproved behavior added: none; proposal only. Assumptions introduced: none as implemented truth—the selected latest snapshot, exact formula and non-reservation semantics await approval. Compass sections updated: none because Phase 6C/Schema v12 remains current implemented truth. Remaining drift risk: implementing before approval, auto-selecting a plan, calling research cash factual, mutating/reserving a bucket, composing three rules into approval or adding a downstream consumer would be project drift.
+
+## EDIT-20260722-004 — Implement approved Phase 6D research asset-cash availability preview
+
+### Approval, scope and result
+
+- The user explicitly approved `PROPOSAL-021` on 2026-07-22. Implemented the approved **DEEP**, `MULTI_MODULE` Phase 6D slice as a compatible extension of the existing Risk owner, exact-source orchestration, public read-only Capital Allocation queries, neutral Run History, central Persistence and the existing Algorithm Control Risk page.
+- Added locked order-3 `MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1` after immutable Phase 6B order-1 and Phase 6C order-2 evidence. The source is exactly one positive Phase 6C `MANUAL_REVIEW_REQUIRED` result, one explicitly selected Phase 3A `RESEARCH_INPUT` USD plan, and that plan's exact latest conserved snapshot with a same-symbol `ASSET_CASH` balance.
+- For `INCREASE`, exact Decimal candidate is `min(N, A)`, where `N` is the Phase 6C candidate and `A` is the selected asset-cash balance. Equality passes; a lower positive balance reduces; zero balance yields `BLOCKED_BY_RESEARCH_ASSET_CASH`. Long-only `DECREASE` preserves `N` and records hypothetical post cash `A + N`. No rounding, tolerance, quantity, price, fee or currency conversion was introduced.
+- Every positive result remains `MANUAL_REVIEW_REQUIRED`. Every result records `research_cash_reserved=false` and a repeated-preview warning: this read-only preview does not reserve, transfer or otherwise mutate Capital Allocation cash, so independent previews may reuse the same balance.
+- Added durable operation/result/order-3-rule/source-link evidence, including the inherited order-1/order-2 chain and exact Run relationships. Exact retries are idempotent; conflicting operation reuse, missing/unsafe/non-latest/non-conserved/mismatched sources, incomplete snapshot bucket coverage, source tamper and storage failures fail closed while attempts remain searchable.
+- Added one presentation-only subtab inside the existing Risk page for explicit Phase 6C/plan/latest-snapshot selection, stored inputs/results, ordered rule evidence, non-reservation warning, history/filtering and `Open Run`. The GUI performs no formula, SQL, Capital mutation or implicit plan selection. No Launcher application or shortcut was added.
+- No complete Risk approval, Risk-approved intent, Capital reservation, factual cash claim, transfer, new trading formula, Backtesting integration, Portfolio Accounting persistence, Paper, Live, order or fill behavior was added.
+
+### Central SQLite v12→v13 migration
+
+- Migrated the ignored real central database `runtime/data/market_history.sqlite3` transactionally from Schema v12 to v13 after creating `runtime/data/backups/market_history.schema-v12-to-v13.20260722T195926466864Z.sqlite3` (60,342,272 bytes).
+- Schema v13 adds exactly four additive tables: `target_adjustment_research_asset_cash_operations`, `target_adjustment_research_asset_cash_results`, `target_adjustment_research_asset_cash_rule_results` and `target_adjustment_research_asset_cash_source_links`, with their constraints/indexes. No historical row was backfilled or reinterpreted.
+- Pre-migration verification: Schema v12, 70 non-internal tables, 216,055 rows, `integrity_check=ok`, zero foreign-key violations. Final verification: Schema v13, 74 non-internal tables, 216,056 rows including the schema-version row, `integrity_check=ok`, zero foreign-key violations, and all four new Phase 6D tables contain zero rows.
+- Rollback requires stopping writers, retaining the v13 file and restoring the verified v12 backup with matching v12 code. Disabling/hiding the Phase 6D subtab and command is the non-destructive application rollback; code rollback alone is not a database downgrade.
+
+### Files changed for Phase 6D
+
+- Risk/domain: `src/quant_trading/risk/research_asset_cash_models.py`, `research_asset_cash_engine.py`, `research_asset_cash_interfaces.py`, `research_asset_cash_service.py`, `risk/__init__.py`, and `src/quant_trading/error_codes.py`.
+- Orchestration/query contracts: `src/quant_trading/orchestration/target_adjustment_research_asset_cash_preview.py` and `orchestration/__init__.py`, using existing public Capital Allocation queries without introducing a Risk→Capital dependency.
+- Persistence/Run History: `src/quant_trading/persistence/research_asset_cash_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py`, `persistence/__init__.py`, and `src/quant_trading/run_history/models.py`.
+- GUI/composition: `src/quant_trading/algorithm_control/ui/research_asset_cash_panel.py`, `target_adjustment_risk_panel.py`, `main_panel.py`, and `src/quant_trading/algorithm_control/app.py`.
+- Tests: `tests/unit/risk/test_research_asset_cash.py`, `test_sqlite_research_asset_cash.py`, `tests/unit/algorithm_control/test_research_asset_cash_panel.py`, `tests/architecture/test_research_asset_cash_boundaries.py`, plus affected current-schema, migration, Run-history, architecture and legacy persistence regression tests.
+- Governance/design/user docs: `PROJECT_COMPASS.md` v33, canonical architecture v29/invariants 79–83, ADR-0028, approved/implemented PROPOSAL-021, README/CHANGELOG/indexes, affected Risk/Capital/Decision/Orchestration/Persistence/Run/Algorithm Control/Launcher module docs, Project State/Roadmap/Glossary, Bug Log and this append-only Edit Log.
+
+### Validation and bug discovery audit
+
+- Complete suite: **495 passed**, with one existing third-party `websockets.legacy` deprecation warning (`KI-0005`), in 208.75 seconds.
+- Architecture/governance suite: **79 passed** in 14.35 seconds. Focused Phase 6D domain/repository/GUI/architecture tests passed; coverage includes exact increase/equality/reduce/block and DECREASE behavior, zero/invalid values, restart reload, idempotency/conflict, durable invalid/failed attempts, source/latest/conservation/coverage/tamper rejection, ordered Run artifacts/relationships and v12→v13 backup/rollback.
+- `python -m compileall -q src tests`: passed. `python -m pip check`: `No broken requirements found`. `git diff --check`: passed with only normal Windows LF→CRLF notices.
+- The real central database, verified backup and all runtime data remain ignored and untracked. No network, credential, Market Data request, account, broker, order, Paper or Live path was used.
+- Discovered and fixed `BUG-20260722-001`: stale Run History documentation incorrectly said Phase 5D had no Risk consumer; it now truthfully documents the disabled 6A→6B→6C→6D research chain and absence of complete approval/execution.
+- Discovered and fixed `BUG-20260722-002`: initial source validation allowed a conserved snapshot to omit a plan bucket while shifting its balance to another existing bucket. Orchestration and transactional persistence now require exact plan-bucket/snapshot-balance identity, with a regression test proving durable `INVALID_INPUT` and no result for tampered coverage.
+- No new Bug remains deferred or cannot-reproduce; `KNOWN_ISSUES.md` needs no new current issue entry.
+
+### Change Impact Report
+
+Primary module: compatible specialized extension of `quant_trading.risk`. Secondary modules: exact-source orchestration, public read-only Capital Allocation queries, neutral Run History, central Persistence and Algorithm Control. Public contracts and Run type are additive; Phase 3A/5C/6A/6B/6C historical meaning and generic Risk contracts remain unchanged. Configuration adds no financial default, amount, credential or activation. Database impact is additive v12→v13 with verified backup/rollback and zero backfill. GUI impact is one subtab inside the existing Risk page; Launcher catalog remains unchanged. Permissions are local SQLite research reads/writes only. Trading semantics add exactly the approved third non-expanding read-only constraint while retaining manual review and non-reservation; no downstream execution authority is created. Blast radius: `MULTI_MODULE` as approved.
+
+### Compass audit
+
+Intent alignment: completes the approved observable third-stage Risk preview by tying a positive Phase 6C candidate to exact stock-specific research cash evidence and persisting all inputs, versions, intermediate rules, failures and provenance. Architecture alignment: Risk owns formula/disposition, orchestration resolves exact public sources, Capital Allocation retains plan/bucket/conservation/mutation authority, Persistence enforces cross-object truth, Run History remains neutral and GUI only delegates/displays; architecture/governance tests protect these boundaries. Safety alignment: order 3 can only preserve/reduce/block an existing candidate, cannot reverse direction, never reserves or moves cash, keeps positive results manual-review-only, exposes no approval field/type/consumer, and every Run remains `NO_EXECUTION`; Live and automatic submission remain disabled. Unapproved behavior added: none. Assumptions introduced: only approved `ASM-028`, recording explicit-source/latest/conserved/same-symbol/exact-Decimal/non-reservation semantics; no plan, balance or amount is auto-selected or invented. Compass sections updated: metadata/current phase, capability and module inventory, user approval/evidence, DEC-007 three-rule clarification, `ASM-028`, `INTENT-032`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future work must not call research cash factual or reserved, auto-select a plan, treat three previews as complete approval, mutate Capital Allocation from Risk, add factual Accounting/broker adapters, or connect Backtesting/Accounting/Execution without a separately approved proposal. Suggested commit message: `feat: add research asset cash preview phase 6d`. No commit or push was performed.
+
+## EDIT-20260722-005 — Harden Phase 6D Capital evidence and propose a consolidated Risk explorer
+
+### Request interpretation and admission result
+
+- The user asked to continue development after the verified PROPOSAL-021 checkpoint. The task was classified `STANDARD`: first identify the smallest safe next slice, preserve the uncommitted Phase 5D–6D worktree and stop before any unapproved financial/authority change.
+- Repository evidence confirmed that Phase 6A–6D already persist one structural gate and three ordered numerical research previews, but no later slice was approved. Creating another Risk formula, selecting real/default values, composing complete approval, reserving cash or adding a Backtesting/Execution consumer would exceed current authority.
+- Created `PROPOSAL-022`, status `PROPOSED`, for the smallest compatible observability extension: a read-only consolidated Risk Chain Explorer in the existing Risk page. It would reuse exact Phase 6A–6D query/results, add optional inclusive UTC bounds to the Phase 6D read query, display stored structural/numerical chains, compare two exact results side by side and preserve all Open Run links. It explicitly excludes recalculation, new persistence, approval, acknowledgement, reservation, export, Backtesting, Accounting, Paper, Live, orders and execution.
+- Proposal impact is `LIMITED`, has no Schema migration and requires explicit user approval before implementation. Roadmap and Proposal index now record it as pending, not approved.
+
+### Phase 6D integrity hardening
+
+- Discovered and fixed `BUG-20260722-003`: exact bucket-ID coverage plus total conservation did not detect a manually tampered snapshot that moved money out of a protected reserve into asset cash while preserving every ID and the total.
+- Phase 6D orchestration now validates every snapshot balance's bucket type, currency and symbol against its immutable plan definition and requires locked/tactical reserve balances to equal their protected initial values.
+- `SQLiteResearchAssetCashStore` independently repeats the same full metadata and protected-reserve validation inside the completed-result transaction. Existing asset-to-asset transfers remain valid; no candidate formula, Capital row, public result contract or database schema changed.
+- Added two regressions: one requires durable `INVALID_INPUT` and no accepted result for a conserved protected-reserve tamper; the other directly proves the transaction-time revalidation rejects a source captured before the tamper.
+- Discovered and fixed `BUG-20260722-004`: Compass B17 still named PROPOSAL-020 instead of latest completed PROPOSAL-021. Added a governance regression for the exact Phase 6D checkpoint.
+- Discovered and fixed `BUG-20260722-005`: the queued Plotly load test did not show its QWebEngine view and deterministically missed `loadFinished` in the current offscreen environment. The test now uses the same resize/show lifecycle as the adjacent production-like test while preserving the original timeout and assertions; no production visualization code changed.
+
+### Files changed
+
+- Runtime validation: `src/quant_trading/orchestration/target_adjustment_research_asset_cash_preview.py`, `src/quant_trading/persistence/research_asset_cash_sqlite_store.py`.
+- Regression tests: `tests/unit/risk/test_sqlite_research_asset_cash.py`, `tests/architecture/test_governance_document_integrity.py`, `tests/unit/market_history/test_history_panel_roles.py`.
+- Proposal/governance: new `docs/proposals/PROPOSAL-022-consolidated-risk-chain-explorer.md`, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `PROJECT_COMPASS.md` v34, canonical architecture v30, `docs/project/PROJECT_STATE.md`, Risk/Capital/Persistence module docs, `logs/BUG_LOG.md` and this append-only record.
+
+### Validation and bug discovery audit
+
+- Focused Phase 6D SQLite suite: **7 passed**, including coordinator and transaction-level protected-reserve tamper regressions.
+- First complete-suite run: **497 passed, 1 failed**, plus the existing `KI-0005` warning. The only failure was the unrelated QWebEngine lifecycle test recorded as `BUG-20260722-005`; the exact neighboring Plotly test passed and isolated reproduction confirmed the missing-show cause.
+- After the test-lifecycle correction, the formerly failing test passed in isolation and the second complete suite passed **498 tests** with one existing upstream warning in 157.49 seconds.
+- Final architecture/governance suite: **80 passed**. `python -m compileall -q src tests` passed. `git diff --check` passed with only expected Windows LF→CRLF notices.
+- No real central database migration or row mutation occurred. Schema remains v13. No network, Market Data request, credential, account, broker, order, fill, Paper or Live path was used.
+- Bugs discovered/fixed: `BUG-20260722-003`, `BUG-20260722-004`, `BUG-20260722-005`. No new Bug remains deferred or cannot-reproduce; no new Known Issue was added.
+
+### Change Impact Report
+
+Primary implemented impact: exact-source orchestration and central Persistence validation for the existing Phase 6D Risk preview. Secondary impact: tests and truthful governance/module documentation. Implemented public contracts, configuration, Schema v13, GUI behavior, candidate formulas, Risk dispositions, Capital transfer semantics and trading permissions are unchanged. The proposed-only impact would be Algorithm Control presentation plus a backward-compatible read-query extension; it remains unimplemented. Database migration: none. Permissions: local read-only/write-existing-research-evidence behavior only. Trading semantics: unchanged. Safety behavior is stricter against tampered planning evidence. Implemented blast radius: `LIMITED`; proposed blast radius: `LIMITED`. Rollback of the bug fix is not recommended because it would knowingly restore protected-reserve acceptance; PROPOSAL-022 can be removed from pending indexes without runtime rollback because no implementation exists.
+
+### Compass audit
+
+Intent alignment: preserves the user's observable connected-research goal while selecting a presentation-only next proposal instead of inventing another financial rule. Architecture alignment: Capital Allocation remains the plan/reserve owner; orchestration and Persistence only validate copied public evidence; the proposed Explorer remains in Algorithm Control and Run History stays neutral. Safety alignment: the implemented fix only fails closed on tampered protected reserves; Phase 6D remains manual-review/block-only, non-reserving and `NO_EXECUTION`. Unapproved behavior added: none—PROPOSAL-022 is explicitly proposed/pending and has no runtime code. Assumptions introduced: none; the fix enforces already approved protected-reserve semantics and the proposal awaits the user's choice. Compass sections updated: metadata/version, Phase 6D verification detail, B17 latest completed proposal and verification evidence; Stable Core is unchanged. Remaining drift risk: a future Explorer must not recompute rules, infer missing evidence, create approval/acknowledgement semantics or become a trading consumer. Suggested commit message: `fix: harden phase 6d capital evidence validation`. No commit or push was performed.
+
+## EDIT-20260722-006 — Implement approved Phase 6E consolidated Risk chain explorer
+
+### Approval, scope and result
+
+- The user explicitly approved `PROPOSAL-022` on 2026-07-22. Implemented the approved **STANDARD**, `LIMITED` presentation/read-query slice inside the existing Algorithm Control and Risk boundaries.
+- Added `RiskChainInspectionService` and presentation-only `TargetAdjustmentRiskChainView@1`. Resolution starts from persisted Phase 6D results and retrieves exact Phase 6C, Phase 6B and Phase 6A results/source links through their public query ports. Embedded and linked identities are cross-checked; missing or inconsistent evidence raises a visible inspection error and no completed chain view.
+- Extended `ResearchAssetCashResultQuery@1` with optional inclusive timezone-aware `as_of_from_utc` / `as_of_to_utc` bounds. The SQLite read adapter applies them to stored `as_of_utc`; central Schema remains v13 and no table, migration, backfill, result or write path was added.
+- Added the `Consolidated Risk Chain Explorer` as a subtab of the existing Risk page. It provides symbol/action/plan/snapshot/disposition/rule-outcome/warning/date filters, exact persisted source/capital/version details, Phase 6A structural gates separated from numerical rules 1–3, and all nine related Open Run paths.
+- Added explicit side-by-side selection for two persisted Phase 6D chains. It displays exact A/B values and equality/difference markers only; it calculates no financial delta, ranking, score or preferred result.
+- The explorer exposes no edit, acknowledgement, approval, reservation, rerun, export, Backtesting, Accounting, Paper, Live, order or execution control. It creates no algorithm Run/result and adds no Launcher entry.
+
+### Files changed
+
+- Presentation adapter/GUI: `src/quant_trading/algorithm_control/risk_chain_inspection.py`, `algorithm_control/__init__.py`, `algorithm_control/ui/risk_chain_panel.py`, `ui/target_adjustment_risk_panel.py`, `ui/main_panel.py`.
+- Public query/read adapter: `src/quant_trading/risk/research_asset_cash_models.py`, `src/quant_trading/persistence/research_asset_cash_sqlite_store.py`.
+- Tests: `tests/unit/algorithm_control/test_risk_chain_inspection.py`, `test_risk_chain_panel.py`, `tests/unit/risk/test_sqlite_research_asset_cash.py`, `tests/architecture/test_risk_chain_explorer_boundaries.py`, `test_governance_document_integrity.py`.
+- Governance/user docs: `PROJECT_COMPASS.md` v35, canonical architecture v31/invariants 84–87, approved/implemented `PROPOSAL-022`, Proposal index, README, CHANGELOG, Module Map, Algorithm Control/Risk/Persistence/Launcher docs, Project State/Roadmap, Bug Log and this append-only Edit Log.
+
+### Validation and bug discovery audit
+
+- Complete suite after all corrections: **508 passed**, with one existing third-party `websockets.legacy` deprecation warning (`KI-0005`), in 268.65 seconds.
+- One preceding complete-suite run passed 507 tests and failed only the queued Plotly callback with Qt's explicit missing-slot error; this produced and was corrected as `BUG-20260722-008` before the final clean run.
+- Architecture/governance suite: **83 passed**. Focused Phase 6E/query suite: **17 passed**. Coverage includes inclusive/exclusive date edges, aware-UTC/range validation, prior positional-limit and GUI-parent compatibility, exact Phase 6D→6A reload, missing and tampered source rejection, real differing-chain equality markers, GUI structural/numerical separation, filters/comparison and nine Open Run signals.
+- `python -m compileall -q src tests`, `python -m pip check`, and `git diff --check` are recorded after final documentation synchronization.
+- No real central database, runtime row, network, Market Data request, credential, account, broker, order, fill, Paper or Live path was used. Live and automatic submission remain disabled.
+- Discovered and fixed `BUG-20260722-006`: the initial additive query-field order could reinterpret an existing eighth positional `limit` argument as a date. The final contract keeps `limit` in its prior position and appends the optional dates, with a compatibility regression.
+- Discovered and fixed `BUG-20260722-007`: the initial explorer parameter placement could reinterpret the existing sixth positional `RiskManagementPanel` parent argument. The final explorer argument is keyword-only and composition passes it explicitly. No current Known Issue was added; no Bug remains deferred or cannot-reproduce.
+- Discovered and fixed `BUG-20260722-008`: a long full-suite QWebEngine lifecycle showed that `_on_load_finished(bool)` was not registered in the Qt meta-object, so queued Plotly data was not applied. The callback is now an explicit `@Slot(bool)` and its registration plus both production-like Plotly paths are tested. No current Known Issue was added; no Bug remains deferred or cannot-reproduce.
+
+### Change Impact Report
+
+Primary module: `quant_trading.algorithm_control` presentation adapter and existing Risk page. Secondary modules: additive public Phase 6D query DTO and SQLite read adapter. Public contract impact is backward-compatible optional UTC bounds plus a presentation-only view; configuration is unchanged. Database impact: none—Schema v13, tables, rows and write paths are unchanged. GUI impact: one existing-page subtab; Launcher remains three applications/sixteen shortcuts. Permissions remain local read-only research history. Trading and safety semantics are unchanged. Migration: none. Rollback: remove the explorer from `RiskManagementPanel` composition and stop constructing its presenter; the optional query fields can remain inert and compatible. Blast radius: `LIMITED` as approved.
+
+### Compass audit
+
+Intent alignment: turns the persisted Phase 6A–6D process into one searchable, explainable and comparable view while retaining exact historical evidence. Architecture alignment: Algorithm Control owns presentation aggregation, every Risk stage keeps its result meaning, public query ports mediate reads, Persistence alone owns SQL and Run History remains neutral; architecture invariants 84–87 and 83 tests protect those boundaries. Safety alignment: inspection is read-only, missing evidence fails closed, comparison has no derived financial delta and the GUI cannot approve/reserve/recalculate/execute; Phase 6D candidates remain manual-review/block-only and non-reserved. Unapproved behavior added: none. Assumptions introduced: only `ASM-029`, directly recording the approved exact-source/read-only/equality-only boundary; no financial amount or rule was inferred. Compass sections updated: metadata/current phase, approved capability, `ASM-029`, `INTENT-033`, limitations and next direction; Stable Core is unchanged. Remaining drift risk: future UI work must not reconstruct missing history, move rule meaning into presentation, treat comparison as ranking, or add acknowledgement/approval/reservation/downstream execution without a separately approved proposal. Suggested commit message: `feat: add consolidated risk chain explorer`. No commit or push was performed.
+
+## EDIT-20260722-007 — Whole-program diagnostic sweep and central-schema fail-closed repair
+
+### Task mode, scope and result
+
+- Classified the user's whole-program debugging request as **DEEP** because it crosses application entries, diagnostics, central persistence, GUI composition and the existing v1→v13 migration boundary. Primary repair modules are `quant_trading.persistence` and `quant_trading.diagnostics`; secondary scope is regression tests and current-state/governance documentation. Blast radius is `MULTI_MODULE` for inspection evidence but `LIMITED` for runtime behavior.
+- Preserved the existing Phase 1–6E working tree and all user/uncommitted changes. No new financial formula, Risk amount/rule, Portfolio Accounting persistence, Paper/Live content, account/order behavior, dependency version or Schema migration was added.
+- Confirmed and fixed `BUG-20260722-009`: read-only diagnostics had a stale `central_sqlite_v1` literal and inspected only the seven Phase-1 tables. It now reports the exact supported/applied version, verifies every required logical table and reports foreign-key status.
+- Confirmed and fixed `BUG-20260722-010`: a current-version database missing a later table could pass `CentralSQLiteDatabase.initialize()`. Persistence now derives the exact expected table set from its own migrations, rejects migration-history gaps/missing current-version tables, performs the same check before upgrading an existing older database, and revalidates the full current contract afterward. It never auto-repairs or deletes a damaged database.
+- Refreshed the local editable installation so all five declared commands exist: `quant-trade`, `quant-history`, `quant-diagnostics`, `quant-algorithm-control`, and `quant-backtest`. The isolated build downloaded only its declared setuptools build backend; `pip check` remains clean and project dependency versions were not changed.
+
+### Files changed in this debugging slice
+
+- Runtime: `src/quant_trading/persistence/sqlite_database.py`, `persistence/__init__.py`, `src/quant_trading/diagnostics.py`.
+- Regression tests: `tests/unit/test_diagnostics.py`, `tests/unit/run_history/test_sqlite_run_history.py`.
+- Documentation/governance: `PROJECT_COMPASS.md` v36, `docs/architecture/OVERVIEW.md` v32, `docs/modules/central-persistence.md`, `docs/development/DEBUGGING.md`, `docs/project/PROJECT_STATE.md`, `CHANGELOG.md`, `logs/BUG_LOG.md`, and this append-only Edit Log.
+
+### Validation and debugging evidence
+
+- Final complete suite: **512 passed**, with only the existing transitive `websockets.legacy` deprecation warning (`KI-0005`), in 177.31 seconds.
+- Architecture/governance suite: **83 passed**. Final combined architecture plus exact diagnostics/persistence suite: **93 passed**. Exact diagnostics/persistence suite: **10 passed**.
+- One pre-final combined run exposed and immediately fixed `BUG-20260722-011`: the broader Compass verification summary had dropped the still-true Phase 6E `no persistent write path changed` phrase protected by the governance test. The final 93-test run passed after restoring that evidence; runtime behavior was never affected.
+- `python -m compileall -q src tests`, `python -m pip check` and `git diff --check` passed; diff check emitted only expected Windows LF→CRLF notices.
+- Four formal GUI compositions—Launcher, Market History, Backtesting and Algorithm Control opened directly on Risk—constructed, entered an offscreen Qt event loop and closed normally in separate temporary roots with exit code 0. The first common failure was proven to be the external smoke driver's incorrect binding of static Qt `exec`, not product behavior, and was not recorded as a Bug.
+- Real central SQLite inspection used URI `mode=ro`: applied migrations are exactly 1–13, all 74 required tables exist, `integrity_check=ok`, foreign-key violations are zero, Market Bars remain 215,340 and Fetch History remains 365. Existing algorithm/risk research result tables checked in this database remain empty. No database migration, repair or business-row mutation occurred.
+- Default diagnostics performed no network check and ended `SYSTEM_HEALTH UNKNOWN automatic_execution_allowed=false` because the optional Market Data request was deliberately skipped. Credentials were checked only for presence and never printed. Runtime log review found only older already-fixed Bugs or deliberate failure-smoke entries; no new unresolved runtime defect was found.
+
+### Change Impact Report
+
+Primary module: central Persistence schema ownership/validation. Secondary modules: read-only diagnostics, package exports, tests and truthful docs. Public contracts add read-only `CentralSchemaInspection`, `inspect_central_schema` and `expected_schema_tables`; existing Store/result contracts are unchanged. Configuration and Schema remain unchanged at v13. GUI behavior is unchanged beyond verified startup. Permissions remain local file/diagnostic access; no Market Data network, account, broker, order, Paper or Live authority was used. Trading semantics and Risk candidates are unchanged. Migration: none. Rollback: revert the three runtime files, two regression-test additions and corresponding docs; no database downgrade is required. Blast radius: `LIMITED` runtime, `MULTI_MODULE` validation evidence.
+
+### Compass audit
+
+Intent alignment: the sweep improves whole-program reliability and truthful observability without starting an unapproved development phase. Architecture alignment: persistence remains the sole schema owner; diagnostics consumes its public read-only contract and neither GUI nor business domains gain SQL. Safety alignment: corrupt/incomplete schemas now fail earlier, diagnostics remains read-only, and UNKNOWN health still cannot authorize execution. Unapproved behavior added: none. Assumptions introduced: none; the supported version/table set is derived from the actual approved migrations. Compass sections updated: metadata/current verified central-persistence and diagnostics evidence only; Stable Core is unchanged. Remaining drift risk: current validation proves migration history and table presence but does not attempt automatic repair or independently fingerprint every column/index definition; such repair or deeper migration semantics would require separate scope. Bugs discovered/fixed: `BUG-20260722-009`, `BUG-20260722-010`, `BUG-20260722-011`; deferred/cannot-reproduce Bugs: none. Existing KI-0004 through KI-0008 remain unchanged. Suggested commit message: `fix: validate complete central sqlite schema`. No commit or push was performed.

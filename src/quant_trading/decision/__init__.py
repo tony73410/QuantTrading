@@ -33,6 +33,24 @@ from .models import (
 )
 from .registry import DecisionPolicyRegistry
 from .rule_policy import SafeRuleDecisionPolicy
+from .target_adjustment_engine import TargetAdjustmentDecisionEngine
+from .target_adjustment_interfaces import (
+    EmptyTargetAdjustmentDecisionQueryService,
+    TargetAdjustmentDecisionQueryService,
+    TargetAdjustmentDecisionStore,
+)
+from .target_adjustment_models import (
+    LinkedTargetDecisionInput,
+    TargetAdjustmentDecisionOperationAttempt,
+    TargetAdjustmentDecisionPreviewCommand,
+    TargetAdjustmentDecisionPreviewResult,
+    TargetAdjustmentDecisionQuery,
+    TargetAdjustmentDecisionResult,
+    TargetAdjustmentDecisionSourceLink,
+    TargetAdjustmentDecisionStatus,
+    TargetAdjustmentTradeIntent,
+)
+from .target_adjustment_service import TargetAdjustmentDecisionService
 
 __all__ = [
     "DecisionAction",
@@ -64,4 +82,18 @@ __all__ = [
     "RuleCombination",
     "SafeRuleDecisionPolicy",
     "SizingDefinition", "SizingMode", "SizingContext", "SizingReference",
+    "EmptyTargetAdjustmentDecisionQueryService",
+    "LinkedTargetDecisionInput",
+    "TargetAdjustmentDecisionEngine",
+    "TargetAdjustmentDecisionOperationAttempt",
+    "TargetAdjustmentDecisionPreviewCommand",
+    "TargetAdjustmentDecisionPreviewResult",
+    "TargetAdjustmentDecisionQuery",
+    "TargetAdjustmentDecisionQueryService",
+    "TargetAdjustmentDecisionResult",
+    "TargetAdjustmentDecisionService",
+    "TargetAdjustmentDecisionSourceLink",
+    "TargetAdjustmentDecisionStatus",
+    "TargetAdjustmentDecisionStore",
+    "TargetAdjustmentTradeIntent",
 ]

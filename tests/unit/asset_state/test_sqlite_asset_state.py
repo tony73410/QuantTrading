@@ -54,13 +54,13 @@ def test_v4_to_v5_migration_backs_up_and_preserves_existing_rows(tmp_path: Path)
 
     backups = tuple(backup_path.glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v4-to-v8." in backups[0].name
+    assert ".schema-v4-to-v13." in backups[0].name
     with sqlite3.connect(backups[0]) as backup:
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 4
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert backup.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 13
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute(
             "SELECT COUNT(*) FROM sqlite_master WHERE name = 'asset_state_cycles'"

@@ -1,5 +1,10 @@
 # Architecture Decision Records
 
+- `ADR-0028-research-capital-asset-cash-risk-preview.md`: accepted the explicit read-only Phase 3A plan/latest-snapshot adapter and type-distinct order-3 asset-cash Risk preview; no cash is reserved or made factual and no approval/execution authority exists.
+- `ADR-0027-research-asset-cash-floor-preview.md`: accepted the type-distinct Phase 6C order-2 minimum hypothetical research-cash rule over the exact Phase 5C manual basis; positive outputs remain manual-review-only and no factual cash or execution authority exists.
+- `ADR-0026-single-asset-exposure-cap-preview.md`: accepted one explicit symbol-specific exact-USD `MAX_TARGET_EXPOSURE_USD@1` preview, immutable v11 evidence and manual-review/block-only outcomes; it remains type-distinct from complete Risk approval and execution.
+- `ADR-0025-target-adjustment-risk-manual-review-gate.md`: accepted a type-distinct Phase 6A structural Risk gate, locked source/safety/policy-availability rules, manual-review/block-only outcomes and central Schema v10; no numerical approval or downstream execution meaning.
+- `ADR-0024-target-adjustment-decision-preview.md`: accepted a type-distinct exact-sign Decision preview, parent/source Run evidence and central Schema v9; Phase 6A may inspect it only through ADR-0025's non-approving gate.
 - `ADR-0023-linked-standardized-state-target-position-preview.md`: accepted an orchestration-owned exact-result adapter, typed immutable source-to-target provenance, parent/child `NO_EXECUTION` Runs and central Schema v8; no automatic selection, factual capital, action/risk or execution consumer.
 - `ADR-0022-manual-standardized-price-state-research.md`: accepted Factor ownership of exact positive-manual-USD reference normalization, Schema v7 evidence and a disabled/unconsumed inspector; no estimator, FactorSnapshot publication, target/action/risk or execution consumer.
 - `ADR-0021-bounded-target-position-research.md`: accepted a separate disabled target-level owner with explicit manual USD inputs, bounded finite-knot Decimal interpolation, Schema v6 evidence and no Factor/State/Capital/Accounting/Decision/Risk/Execution consumer.
@@ -31,6 +36,10 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 `Status`、`Context`、`Options considered`、`Decision`、`Rationale`、`Consequences`、`Reversal`。
 
 ## Index
+
+- [ADR-0026: Keep the First Numerical Risk Rule a Type-Distinct Exposure-Cap Preview](ADR-0026-single-asset-exposure-cap-preview.md) — explicit immutable symbol/cap versions, exact non-expanding rule math, manual-review/block-only evidence and no approval/execution consumer.
+
+- [ADR-0024: Keep Linked-Target Adjustment as a Type-Distinct Decision Preview](ADR-0024-target-adjustment-decision-preview.md) — exact sign/action/notional mapping with immutable Phase 5C provenance and no current Risk/execution admission.
 
 - [ADR-0023: Link Exact Standardized-State Evidence to Target Position Through Orchestration](ADR-0023-linked-standardized-state-target-position-preview.md) — explicit source selection, exact scalar/symbol/time propagation, immutable Run/result relationships and no trading authority.
 

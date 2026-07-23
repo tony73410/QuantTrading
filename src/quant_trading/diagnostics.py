@@ -16,6 +16,7 @@ from pathlib import Path
 from .market_history.config import AppSettings
 from .market_history.models import Adjustment, DataFeed, HistoricalDataRequest, Timeframe
 from .market_history.providers import AlpacaHistoricalMarketDataProvider
+from .persistence.sqlite_database import SCHEMA_VERSION, inspect_central_schema
 from .error_codes import ErrorCode
 from .validation import (
     HealthCheckResult,
@@ -41,17 +42,6 @@ class DiagnosticResult:
 
 
 _DEPENDENCIES = ("PySide6", "plotly", "pandas", "alpaca-py")
-_EXPECTED_TABLES = {
-    "schema_migrations",
-    "market_bars",
-    "data_coverage",
-    "fetch_history",
-    "factor_snapshots",
-    "factor_results",
-    "factor_calculation_runs",
-}
-
-
 def _dependency_checks() -> list[DiagnosticResult]:
     results: list[DiagnosticResult] = []
     for package in _DEPENDENCIES:
@@ -91,12 +81,10 @@ def _database_checks(path: Path) -> list[DiagnosticResult]:
         uri = f"file:{path.as_posix()}?mode=ro"
         with sqlite3.connect(uri, uri=True, timeout=5) as connection:
             integrity = connection.execute("PRAGMA quick_check").fetchone()[0]
-            tables = {
-                row[0]
-                for row in connection.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'"
-                )
-            }
+            foreign_key_errors = connection.execute(
+                "PRAGMA foreign_key_check"
+            ).fetchall()
+            schema = inspect_central_schema(connection)
     except sqlite3.Error as exc:
         return [
             DiagnosticResult(
@@ -105,7 +93,17 @@ def _database_checks(path: Path) -> list[DiagnosticResult]:
                 f"{type(exc).__name__}: {exc}",
             )
         ]
-    missing = _EXPECTED_TABLES - tables
+    schema_problems: list[str] = []
+    if schema.applied_versions != schema.expected_versions:
+        schema_problems.append(
+            f"migration versions {schema.applied_versions}; "
+            f"expected 1..{SCHEMA_VERSION}"
+        )
+    if schema.missing_tables:
+        missing = sorted(schema.missing_tables)
+        schema_problems.append(
+            f"missing tables ({len(missing)}): {', '.join(missing)}"
+        )
     return [
         DiagnosticResult(
             "sqlite_connection",
@@ -114,13 +112,22 @@ def _database_checks(path: Path) -> list[DiagnosticResult]:
         ),
         DiagnosticResult(
             "sqlite_schema",
-            DiagnosticStatus.FAIL if missing else DiagnosticStatus.PASS,
-            f"missing tables: {sorted(missing)}" if missing else "central_sqlite_v1",
+            DiagnosticStatus.FAIL if schema_problems else DiagnosticStatus.PASS,
+            "; ".join(schema_problems)
+            if schema_problems
+            else f"central_sqlite_v{schema.current_version}; tables={len(schema.actual_tables)}",
         ),
         DiagnosticResult(
             "sqlite_integrity",
             DiagnosticStatus.PASS if integrity == "ok" else DiagnosticStatus.FAIL,
             str(integrity),
+        ),
+        DiagnosticResult(
+            "sqlite_foreign_keys",
+            DiagnosticStatus.FAIL if foreign_key_errors else DiagnosticStatus.PASS,
+            f"{len(foreign_key_errors)} violation(s)"
+            if foreign_key_errors
+            else "ok",
         ),
     ]
 

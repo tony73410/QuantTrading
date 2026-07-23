@@ -5,11 +5,11 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v8 database, independent Store contracts, migrations and immutable algorithm/link evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v13 database, independent Store contracts, migrations and immutable algorithm/link/target-adjustment/manual-review/exposure-cap/cash-floor/asset-cash evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
-- [Target Position Research](modules/target-position.md) — immutable bounded finite-knot curves, manual and exact linked-source previews, structured Decimal traces and Schema v8 provenance; disabled with no trading consumer.
+- [Target Position Research](modules/target-position.md) — immutable bounded finite-knot curves, manual and exact linked-source previews, structured Decimal traces and Schema v8 provenance; only explicit Phase 5D research consumption is allowed.
 - [Manual Standardized Price State](modules/standardized-price-state.md) — Factor-owned exact manual USD price/reference/positive-scale normalization and Schema v7 history; Phase 5C may read one explicitly selected result without recalculation.
 
 - [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
@@ -30,9 +30,9 @@
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
 | Market history | `modules/market-history.md` | 股票历史数据浏览器、缓存、GUI、配置与测试 |
 | Single-asset factors | `modules/factors.md` | 策略中立Factor合同、时间安全、注册器、无公式引擎与边界 |
-| Trading decision | `modules/trading-decision.md` | 只消费FactorSnapshot的非执行决策合同、注册器、无规则引擎与边界 |
-| Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同、优先级和无数值规则引擎 |
-| Application orchestration | `modules/analysis-decision-pipeline.md` | Factor → Decision → Risk及exact Standardized State → Target Position的单向编排和Execution停止边界 |
+| Trading decision | `modules/trading-decision.md` | 既有FactorSnapshot决策合同与类型独立的linked-target adjustment研究合同；均无执行 authority |
+| Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同，Phase 6A结构门及Phase 6B/6C/6D三条有序数值研究预览；候选金额仍未批准且不预留资金 |
+| Application orchestration | `modules/analysis-decision-pipeline.md` | Factor → Decision → Risk、exact Standardized State → Target Position、linked target → specialized Decision、specialized intent → structural Risk、Phase 6A → exposure cap → research cash floor的单向编排 |
 | Algorithm run history | `modules/run-history.md` | Searchable Run IDs, ordered stages, exact version bindings, persistent Factor/Decision/Risk evidence, Decision traces, migrations and read-only Explorer |
 | Execution environments | `modules/execution-environments.md` | Paper与Live两个同级、空白、禁用的未来执行环境边界 |
 | Portfolio accounting | `modules/portfolio-accounting.md` | 统一会计领域、派生快照、核对与只读Query边界 |

@@ -3544,3 +3544,539 @@ Not added to `KNOWN_ISSUES.md` because the deterministic local fix was completed
 
 ### Rollback
 Reverting the assertion would knowingly make the governance suite reject the current truthful Phase 5C checkpoint.
+
+## BUG-20260722-001
+
+### Title
+Run History limitations incorrectly said Phase 5D had no Risk consumer after Phase 6A–6C existed
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Run History module documentation
+
+### Reproduction steps
+1. Read the Run History known-limitations section after the verified Phase 6A–6C implementations.
+2. Compare it with the same document's current orchestration list and persisted source relationships.
+3. Observe that the limitation still says Phase 5D has no current Risk consumer.
+
+### Expected behavior
+The document states that Phase 5D is consumed only by the disabled specialized Risk research chain and still has no complete approval or trading consumer.
+
+### Actual behavior
+One stale sentence described the pre-Phase-6A state and contradicted verified code, tests and adjacent documentation.
+
+### Technical location
+`docs/modules/run-history.md`
+
+### Root cause
+The known-limitations sentence was not advanced when the specialized Phase 6A and later ordered previews were documented.
+
+### Fix
+Replace the stale sentence with the exact disabled Phase 6A→6B→6C→6D consumer boundary and preserve the absence of complete Risk approval, Backtesting, Accounting and Execution consumers.
+
+### Regression test
+Governance/document integrity and full-suite validation cover the current canonical phase and document references; the implementation edit record captures the corrected statement.
+
+### Validation
+Final Phase 6D documentation and full-suite validation are recorded in the corresponding implementation Edit Log entry.
+
+### Risk
+Documentation accuracy only. No runtime contract, formula, persisted row or trading authority changed.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic local documentation fix is included immediately.
+
+### Rollback
+Reverting the sentence would knowingly restore a contradiction about the current specialized Risk consumer chain.
+
+## BUG-20260722-002
+
+### Title
+Phase 6D source validation did not explicitly require complete Capital plan/snapshot bucket identity
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Phase 6D orchestration and SQLite cross-object validation
+
+### Reproduction steps
+1. Create a valid research Capital Plan with multiple asset-cash buckets and a conserved snapshot.
+2. Outside the supported Capital service, delete one asset balance and move its amount to another existing plan asset bucket so the stored snapshot total remains conserved.
+3. Request a Phase 6D preview for an unaffected symbol.
+
+### Expected behavior
+Phase 6D fails closed because the latest snapshot no longer contains exactly the full bucket identity defined by its Capital Plan.
+
+### Actual behavior
+The initial implementation verified that every present balance belonged to the plan and revalidated the selected reserves/same-symbol bucket, but did not explicitly compare the complete plan and snapshot bucket-ID sets.
+
+### Technical location
+`src/quant_trading/orchestration/target_adjustment_research_asset_cash_preview.py`, `src/quant_trading/persistence/research_asset_cash_sqlite_store.py`
+
+### Root cause
+Subset membership plus exact conservation was treated as sufficient even though a malicious/manual database edit can redistribute a missing bucket's amount into another existing plan bucket.
+
+### Fix
+Require exact equality between all plan bucket IDs and all snapshot balance bucket IDs both during orchestration resolution and again inside the result-persistence transaction.
+
+### Regression test
+The Phase 6D SQLite integration suite tampers a latest snapshot while preserving its total and asserts a durable `INVALID_INPUT` attempt with no accepted result.
+
+### Validation
+Targeted and full-suite evidence is recorded in the Phase 6D implementation Edit Log entry.
+
+### Risk
+Research evidence integrity only; supported Capital service writes were already complete. The fix is fail-closed and cannot change a candidate, Capital balance, factual account or order.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic local fix and regression test are included immediately.
+
+### Rollback
+Reverting the two equality checks would knowingly restore acceptance of semantically incomplete tampered snapshots.
+
+## BUG-20260722-003
+
+### Title
+Phase 6D could accept a conserved Capital snapshot whose protected reserve balance was tampered
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Phase 6D orchestration and SQLite cross-object validation
+
+### Reproduction steps
+1. Create a valid Phase 3A research Capital Plan with locked reserve, tactical reserve and asset-cash buckets.
+2. Outside the supported Capital service, reduce the latest snapshot's locked-reserve balance and add the same amount to an asset-cash balance, preserving every bucket ID and the exact total.
+3. Request a Phase 6D preview against that plan/latest snapshot.
+
+### Expected behavior
+Phase 6D fails closed because protected reserve balances must remain equal to their immutable plan definitions, and every snapshot balance must retain the plan bucket's type, currency and symbol identity.
+
+### Actual behavior
+The Phase 6D coordinator and transactional Store checked exact bucket-ID coverage, total conservation and the selected locked/tactical/asset evidence, but did not compare protected reserve balances or every balance's metadata to the immutable plan bucket definitions.
+
+### Technical location
+`src/quant_trading/orchestration/target_adjustment_research_asset_cash_preview.py`, `src/quant_trading/persistence/research_asset_cash_sqlite_store.py`
+
+### Root cause
+The earlier complete-bucket fix treated exact IDs plus total conservation as complete plan/snapshot identity. That does not detect redistribution out of a protected reserve or metadata tampering while IDs and totals remain unchanged.
+
+### Fix
+Validate every snapshot balance's bucket type, currency and symbol against its immutable plan definition, and require locked/tactical reserve balances to equal their initial plan balances, both during orchestration and again inside the result-persistence transaction.
+
+### Regression test
+SQLite regressions preserve IDs and total while moving one USD from the locked reserve to the selected asset-cash bucket. The coordinator path requires durable `INVALID_INPUT` with no accepted result, and a separate transaction-level check rejects a source captured before the tamper.
+
+### Validation
+The focused Phase 6D repository suite passed 7 tests; the complete suite passed 498 tests and the architecture/governance suite passed 80 tests. No real database row was modified.
+
+### Risk
+Research evidence integrity only. Supported Phase 3A transfers already forbid reserve mutation. The fix must fail closed without changing a candidate, factual account, order or trading authority.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic local fix and regression tests completed in this task.
+
+### Rollback
+Reverting the definition/balance identity checks would knowingly restore acceptance of tampered protected reserves.
+
+## BUG-20260722-004
+
+### Title
+Compass next-direction checkpoint still named PROPOSAL-020 after PROPOSAL-021 completion
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Project governance documentation
+
+### Reproduction steps
+1. Read `PROJECT_COMPASS.md` B17 after the verified Phase 6D implementation.
+2. Compare the current phase and approved-capability sections with the next-direction paragraph.
+3. Observe that the paragraph says `PROPOSAL-020 is complete` although PROPOSAL-021 is the latest completed proposal.
+
+### Expected behavior
+The checkpoint names PROPOSAL-021 as complete and accurately states that no later development slice is approved.
+
+### Actual behavior
+One stale proposal number remained from the Phase 6C checkpoint.
+
+### Technical location
+`PROJECT_COMPASS.md` B17
+
+### Root cause
+The Phase 6D semantic update advanced the phase description and exclusions but missed the proposal identifier in one next-direction sentence.
+
+### Fix
+Replace only the stale identifier and keep the no-further-approved-work boundary unchanged.
+
+### Regression test
+The governance document-integrity suite now requires the Phase 6D/PROPOSAL-021 checkpoint and rejects the stale Phase 6C sentence.
+
+### Validation
+The architecture/governance suite passed 80 tests and the complete suite passed 498 tests.
+
+### Risk
+Documentation accuracy only; no runtime, database, financial formula or trading authority is affected.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic correction completed in this task.
+
+### Rollback
+Reverting the correction would knowingly restore a false project checkpoint.
+
+## BUG-20260722-005
+
+### Title
+Offscreen Plotly queued-data test did not reliably start hidden QWebEngine navigation
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Market History shared Plotly/QWebEngine presentation test
+
+### Reproduction steps
+1. Run the complete pytest suite in the current Phase 6D working tree.
+2. Observe `test_plotly_applies_data_queued_while_initial_page_is_loading` wait ten seconds for the initial page load.
+3. In the observed run, `loadFinished` was not received and `loaded` remained empty.
+
+### Expected behavior
+The offscreen QWebEngine page loads and the test observes one successful `loadFinished` event before checking queued Plotly data.
+
+### Actual behavior
+One complete-suite run reported `loaded == []`; 497 other tests passed. No Risk/Capital code path calls this presentation component.
+
+### Technical location
+`tests/unit/market_history/test_history_panel_roles.py::test_plotly_applies_data_queued_while_initial_page_is_loading`
+
+### Root cause
+The queued-load test created a `QWebEngineView` but never resized or showed it. The adjacent normal Plotly test uses the real QWidget lifecycle and passed; the hidden offscreen view did not reliably start navigation, so neither `loadFinished` nor the later JavaScript callback arrived.
+
+### Fix
+Resize and show the view before starting the queued-load scenario, matching the adjacent production-like WebEngine test. The original ten-second limits, queued-data behavior and assertions remain unchanged; production code was not modified.
+
+### Regression test
+The formerly failing exact test passed in isolation after the lifecycle correction.
+
+### Validation
+The second complete-suite run passed all 498 tests with only the existing `KI-0005` upstream warning.
+
+### Risk
+Potential test reliability or GUI-load timing issue only. No evidence currently shows a production behavior regression, financial calculation change or trading impact.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the deterministic test-lifecycle correction completed and the full suite passed.
+
+### Rollback
+Reverting the test lifecycle correction would restore the deterministic offscreen timeout without changing production behavior.
+
+## BUG-20260722-006
+
+### Title
+Initial Phase 6D date-query field placement could break positional limit callers
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Risk public read-query compatibility
+
+### Reproduction steps
+1. Construct `ResearchAssetCashResultQuery` using the pre-PROPOSAL-022 eighth positional argument for `limit`.
+2. Observe that the initial additive field order interpreted that value as `as_of_from_utc`.
+
+### Expected behavior
+The approved optional UTC bounds are backward-compatible; an existing positional `limit` argument keeps its meaning.
+
+### Actual behavior
+During implementation review, the two new optional date fields were initially placed before `limit`.
+
+### Technical location
+`quant_trading.risk.research_asset_cash_models.ResearchAssetCashResultQuery`
+
+### Root cause
+The first draft preserved keyword construction compatibility but did not preserve dataclass positional field order.
+
+### Fix
+Keep `limit` in its existing eighth position and append `as_of_from_utc` / `as_of_to_utc` after it.
+
+### Regression test
+The Phase 6D repository test constructs the query with the original positional `limit` position and verifies the value remains `123`.
+
+### Validation
+Targeted Risk-chain and Phase 6D tests pass after the correction; final full-suite evidence is recorded in the corresponding Edit Log entry.
+
+### Risk
+Read-query construction compatibility only. The draft was corrected before task completion; no database row, financial result or trading behavior was affected.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the compatibility defect was corrected in the same implementation task.
+
+### Rollback
+Reverting the field-order correction would restore the positional-constructor incompatibility.
+
+## BUG-20260722-007
+
+### Title
+Initial Risk-chain subtab parameter placement could reinterpret a positional parent
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Algorithm Control GUI composition compatibility
+
+### Reproduction steps
+1. Construct the existing `RiskManagementPanel` using its previous sixth positional `parent` argument.
+2. In the initial Phase 6E draft, that value occupied the newly inserted `risk_chain_panel` position instead.
+
+### Expected behavior
+Existing positional construction keeps the same parent semantics; the additive explorer is supplied explicitly by keyword.
+
+### Actual behavior
+The first draft inserted the optional explorer argument before `parent`.
+
+### Technical location
+`quant_trading.algorithm_control.ui.target_adjustment_risk_panel.RiskManagementPanel`
+
+### Root cause
+The additive composition parameter was initially inserted into the existing positional portion of the constructor.
+
+### Fix
+Retain `parent` in its prior position, make `risk_chain_panel` keyword-only, and pass it by keyword from `AlgorithmControlPanel`.
+
+### Regression test
+Existing Algorithm Control construction tests plus the Phase 6E GUI suite exercise both default/no-service composition and explicit explorer wiring.
+
+### Validation
+Targeted Algorithm Control and final complete-suite evidence are recorded in EDIT-20260722-006.
+
+### Risk
+GUI constructor compatibility only. The draft was corrected before task completion; no persisted data, calculation or trading behavior was affected.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the compatibility issue was corrected in the same implementation task.
+
+### Rollback
+Reverting the signature correction would restore positional-parent incompatibility.
+
+## BUG-20260722-008
+
+### Title
+Plotly load-finished callback was not registered as a native Qt slot
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Shared Plotly/QWebEngine presentation lifecycle
+
+### Reproduction steps
+1. Run the complete suite after the Phase 6E compatibility regression was added.
+2. Observe the queued-data Plotly test receive `loadFinished=True` but then time out waiting for the queued `Plotly.react` result.
+3. Qt reports `AttributeError: Slot 'PlotlyFigureView::_on_load_finished(bool)' not found.`
+
+### Expected behavior
+The internal load-finished callback is present in the Qt meta-object, applies the latest queued figure after initial navigation and allows later JavaScript callbacks to complete.
+
+### Actual behavior
+The callback was connected as an undecorated Python method. Under one long full-suite QWebEngine lifecycle it was not found as a Qt slot, so the queued figure was not applied and the JavaScript callback did not return.
+
+### Technical location
+`quant_trading.visualization.plotly_view.PlotlyFigureView._on_load_finished`
+
+### Root cause
+The cross-language signal callback relied on PySide's dynamic method connection instead of declaring the stable `bool` slot in the Qt meta-object.
+
+### Fix
+Decorate `_on_load_finished` with `@Slot(bool)` and assert its Qt meta-object registration in the production-like Plotly test.
+
+### Regression test
+Both the full local-file Plotly/resize-observer test and queued-during-load test pass together; the former verifies `indexOfSlot("_on_load_finished(bool)") >= 0`.
+
+### Validation
+The two exact Plotly tests pass after the correction. Final complete-suite evidence is recorded in EDIT-20260722-006.
+
+### Risk
+Presentation callback/lifecycle only. No chart data meaning, financial formula, database or trading behavior changed.
+
+### Known Issues disposition
+Not added to `KNOWN_ISSUES.md` because the meta-object registration defect was confirmed and fixed locally. This supersedes the incomplete lifecycle-only explanation in BUG-20260722-005.
+
+### Rollback
+Reverting the slot declaration would restore reliance on the unstable dynamic callback registration.
+
+## BUG-20260722-009
+
+### Title
+Read-only diagnostics reported every current central database as Schema v1
+
+### Status
+Fixed
+
+### Severity
+Medium
+
+### Area
+Diagnostics / central SQLite observability
+
+### Reproduction steps
+1. Run `python -m quant_trading.diagnostics` against the verified central Schema v13 database.
+2. Observe the successful `sqlite_schema` result.
+
+### Expected behavior
+The diagnostic reports the actual migration version, compares it with the application-supported version and verifies the tables required by that version.
+
+### Actual behavior
+The diagnostic reports `central_sqlite_v1` and checks only the seven Phase-1 tables even though the database and application are at Schema v13.
+
+### Technical location
+`quant_trading.diagnostics._database_checks`
+
+### Root cause
+Diagnostics retained a private Phase-1 table list and literal label instead of reading the schema version and current schema contract owned by central persistence.
+
+### Fix
+Added the persistence-owned `CentralSchemaInspection` / `inspect_central_schema` contract. Diagnostics now reads exact migration history, compares it with the supported version, verifies the complete required table set and reports `PRAGMA foreign_key_check` separately. A healthy current database reports `central_sqlite_v13; tables=74`.
+
+### Regression test
+`test_diagnostics_are_read_only_safe_and_skip_network_by_default` verifies the supported version/table message and foreign-key result. `test_diagnostics_fail_when_current_schema_is_missing_a_required_table` drops one late v13 table in a temporary database and requires `sqlite_schema=FAIL` plus blocked health.
+
+### Validation
+The exact diagnostics/persistence suite passed 10 tests; the final complete suite passed 512 tests with only existing KI-0005. The real database read-only diagnostic reports v13, 74 tables, physical integrity `ok` and foreign keys `ok`.
+
+### Risk
+The database is not modified by diagnostics, but the false success label can mislead operators and hide missing post-v1 tables until a feature query fails.
+
+### Known Issues disposition
+Not added because the deterministic defect is fixed and fully covered.
+
+### Rollback
+Reverting the diagnostic integration would restore the false v1 label and post-v1 schema blind spot; no database rollback is involved.
+
+## BUG-20260722-010
+
+### Title
+Central SQLite initialization accepted a current-version database missing later business tables
+
+### Status
+Fixed
+
+### Severity
+High
+
+### Area
+Central SQLite schema validation
+
+### Reproduction steps
+1. Initialize a temporary central database to Schema v13.
+2. Drop `target_adjustment_research_asset_cash_rule_results` while leaving all migration rows intact.
+3. Call `CentralSQLiteDatabase.initialize()` again.
+
+### Expected behavior
+Initialization fails closed because the current Schema v13 contract is incomplete.
+
+### Actual behavior
+Initialization completes successfully; the migration version remains 13 and the required table remains absent.
+
+### Technical location
+`quant_trading.persistence.sqlite_database.CentralSQLiteDatabase._validate_after_migration`
+
+### Root cause
+Post-initialization validation checks SQLite integrity, foreign keys and pre-existing row counts, but it does not compare `sqlite_master` with the complete table set defined by migrations.
+
+### Fix
+Derive the expected logical table set through any supported version from the persistence-owned migrations. Existing databases are checked for contiguous migration history and all tables required at their current version before any forward migration; the final current contract is checked again after migration. Missing/gapped databases fail closed and are not automatically repaired, deleted or overwritten.
+
+### Regression test
+Three central-persistence regressions require rejection of a current v13 database missing a late table, rejection of an incomplete v1 database before any v2+ migration, and rejection of a current database with a migration-history gap. The old-schema test verifies that `algorithm_runs` was never added after preflight failure.
+
+### Validation
+The exact diagnostics/persistence suite passed 10 tests; the final complete suite passed 512 tests and the architecture/governance suite passed 83. The real database was inspected read-only and is complete; no migration or business row was created.
+
+### Risk
+A locally damaged or manually altered database can pass startup validation and fail later inside a feature repository. The proposed fix changes only fail-closed validation; it does not migrate, repair or delete user data.
+
+### Known Issues disposition
+Not added because the deterministic defect is fixed and fully covered.
+
+### Rollback
+Code rollback removes the stricter fail-closed check but does not downgrade or change Schema v13. Reverting is not recommended because it would knowingly accept incomplete logical schemas again.
+
+## BUG-20260722-011
+
+### Title
+Whole-program verification summary dropped the protected Phase 6E no-write-path phrase
+
+### Status
+Fixed
+
+### Severity
+Low
+
+### Area
+Compass verification metadata / governance test
+
+### Reproduction steps
+1. Replace the prior Phase 6E-only `last_verified_commit_or_working_tree_state` with the whole-program sweep summary.
+2. Run `tests/architecture/test_governance_document_integrity.py`.
+3. Observe the exact Phase 6E assertion fail because `no persistent write path changed` is no longer present.
+
+### Expected behavior
+The broader verification summary retains the still-true Phase 6E no-persistent-write-path statement required by canonical governance evidence.
+
+### Actual behavior
+The summary retained Schema v13 and execution-safety facts but omitted that exact protected statement.
+
+### Technical location
+`PROJECT_COMPASS.md` YAML metadata and `test_compass_verification_metadata_describes_current_phase_six_e_work`.
+
+### Root cause
+The diagnostic-sweep summary replaced rather than extended the existing Phase 6E evidence sentence.
+
+### Fix
+Restored the accurate Phase 6E phrase inside the broader whole-program verification summary without removing the new v13 schema-validation evidence.
+
+### Regression test
+The existing governance test requires the exact Phase 6E identity, Schema v13 and no-persistent-write-path statements in Compass metadata.
+
+### Validation
+Final governance/diagnostics/persistence validation passed 93 tests after the correction.
+
+### Risk
+Documentation/test compatibility only. No runtime, database, financial result or trading authority is affected.
+
+### Known Issues disposition
+Not added because the deterministic documentation regression was fixed immediately.
+
+### Rollback
+Reverting the one-line metadata correction would knowingly restore the governance failure and incomplete verification statement.

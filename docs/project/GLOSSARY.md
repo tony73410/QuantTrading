@@ -18,6 +18,14 @@
 - **Factor / 因子**：截至指定时间、只描述单一资产量化特征的版本化结果；它不是买卖建议。
 - **FactorSnapshot / 因子快照**：记录股票、as-of时间、粒度、因子名称/版本/参数/状态和数据范围的稳定合同，是Factor层与Decision层之间唯一通信边界。
 - **TradeIntent / 交易意图**：Decision层输出的可追溯建议方向；不是订单、风险批准、已提交交易或成交。
+- **Target Adjustment Decision / 目标调整决策**：Phase 5D把一个显式选中的Phase 5C目标持仓差额按精确正/负/零映射为`INCREASE`/`DECREASE`/`HOLD`的专用研究结果；不含容差、舍入或EXIT规则。
+- **TargetAdjustmentTradeIntent / 目标调整专用意图**：Phase 5D对非零精确差额保存的专用不可变研究证据；其金额等于差额绝对值。它不是通用`TradeIntent`；只有Phase 6A非批准结构门可读取，Backtesting、Accounting和Execution不能消费。
+- **Target Adjustment Risk Manual-Review Gate / 目标调整风险人工审查门**：Phase 6A对一个显式Phase 5D专用intent执行来源链、非执行安全状态和数值Risk策略缺失检查的类型独立研究边界；安全有效结果固定要求人工审查，不产生批准金额或批准意图。
+- **Single-Asset Exposure-Cap Definition / 单股暴露上限定义**：Phase 6B中用户显式保存的某股票正Decimal USD最大目标暴露不可变版本；无默认金额、Active版本或账户派生含义。
+- **Cap-constrained candidate / 上限约束候选金额**：`MAX_TARGET_EXPOSURE_USD@1`保持、缩小或将原Phase 5D建议归零后的研究输出；它始终不大于原建议，正数时仍须人工审查，不是`approved_notional_usd`或可执行对象。
+- **Research Asset Cash-Floor Definition / 研究资产现金底线定义**：Phase 6C中用户显式保存的某股票有限非负Decimal USD假设研究剩余底线不可变版本；显式零是有效版本值，不是缺省值，也不是账户、Accounting或Broker现金。
+- **Research Asset-Cash Availability / 研究股票现金可用量**：Phase 6D从用户显式选择的Phase 3A计划精确最新守恒快照复制的同股票`ASSET_CASH`规划余额。它只用于第三条研究Risk约束，`research_cash_reserved=false`，不是账户、券商、已结算或可执行现金。
+- **Cash-floor-constrained candidate / 底线约束候选金额**：`MIN_RESEARCH_ASSET_CASH_USD@1`在不重算Phase 6B规则1的前提下，使用精确Phase 5C人工研究资金基数保持、缩小或阻止原正候选；正数仍须人工审查，它不是完整Risk批准或可执行对象。
 - **RiskDecision / 风险裁决**：Risk层对一个不可变TradeIntent给出的可追溯批准、降低、延迟、人工审查或阻止结果；不是订单或成交。
 - **RiskApprovedTradeIntent / 已通过风险审查的交易意图**：供未来Order Construction识别风险门已通过的类型合同；仍需人工确认和后续安全检查，不是执行授权。
 - **Risk authority / 风险权限**：安全否决和降低风险的权限；不代表Risk可以扩大交易、生成Alpha、修改Factor/Decision或直接下单。
