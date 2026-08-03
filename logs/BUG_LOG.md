@@ -4080,3 +4080,333 @@ Not added because the deterministic documentation regression was fixed immediate
 
 ### Rollback
 Reverting the one-line metadata correction would knowingly restore the governance failure and incomplete verification statement.
+
+## BUG-20260731-001
+
+### Title
+Alpaca plural corporate-action category was falsely classified as unsupported
+
+### Status
+Fixed and verified
+
+### Severity
+Medium
+
+### Area
+Market History / read-only Alpaca corporate-action evidence
+
+### Reproduction steps
+1. Use the approved read-only validation to request AAPL corporate actions for 2026-01-01 through 2026-07-30.
+2. Observe Alpaca return two cash-dividend events whose category is `cash_dividends`.
+3. Convert them with `AlpacaCorporateActionProvider`.
+
+### Expected behavior
+The provider-specific plural category is normalized to the project-owned canonical `cash_dividend` action type and remains supported evidence. Dividend evidence is preserved but does not dividend-adjust the Factor price series.
+
+### Actual behavior
+Both events retain `cash_dividends` and are marked unsupported, which would fail closed and unnecessarily block a P23-1 evidence bundle.
+
+### Technical location
+`quant_trading.market_history.providers.alpaca_corporate_actions.AlpacaCorporateActionProvider._convert_event`
+
+### Root cause
+The initial adapter compared the returned provider string only with singular SDK enum values and did not normalize Alpaca response-group plural names.
+
+### Fix
+Added an explicit, closed provider-to-domain action-type mapping for singular and Alpaca response-group plural categories. Unknown categories remain unsupported.
+
+### Regression test
+`tests/unit/market_history/test_research_evidence.py` covers plural cash-dividend normalization.
+
+### Validation
+The deterministic provider tests and the approved read-only AAPL corporate-action request both passed. The second live response contained two `cash_dividend` events, both supported; no account, position, order or fill client was used.
+
+### Risk
+Research availability only. The defect cannot submit trades or alter accounts, but it would incorrectly reject otherwise valid Daily evidence.
+
+### Known Issues disposition
+Not added because the confirmed defect was fixed, covered and revalidated in the same implementation task.
+
+### Rollback
+Reverting the closed mapping would restore false rejection of supported Alpaca corporate-action evidence and is not recommended.
+
+## BUG-20260731-002
+
+### Title
+Short-window spectral segment points used window-local instead of bundle source ordinals
+
+### Status
+Fixed and verified
+
+### Severity
+Medium
+
+### Area
+Factor / P23-1 spectral source lineage
+
+### Reproduction steps
+1. Calculate W60, W120 and W250 from one 250-observation frozen bundle.
+2. Inspect `SpectralSeriesPoint.source_ordinal` for the W60 leading segment.
+3. Observe values 1..40 instead of the exact source observation ordinals 191..230.
+
+### Expected behavior
+Every non-padding series point identifies the exact `ResearchBarObservation.ordinal` in the frozen bundle, while segment start/end indexes separately retain window-local calculation bounds.
+
+### Actual behavior
+Segment points identify only their location inside the selected window. Numerical FFT inputs and results remain correct, but persisted source navigation for W60/W120 is inaccurate.
+
+### Technical location
+`quant_trading.factors.spectral_engine.SpectralVolatilityEngine._spectrum`
+
+### Root cause
+One integer was reused for two distinct meanings: window-local segment start and bundle-level source observation ordinal.
+
+### Fix
+Passed the exact first bundle observation ordinal separately from the window-local segment bound and preserved zero-padding as null lineage.
+
+### Regression test
+`tests/unit/factors/test_spectral_volatility.py` requires W60 to reference exact bundle ordinals 191 through 250, including 191 through 230 for its leading 40-observation segment.
+
+### Validation
+The targeted P23-1 suite and full project suite passed; stored numerical values are unchanged while the source links now identify the correct frozen observations.
+
+### Risk
+Audit/replay lineage only; calculated prices, power, periods and statuses are unchanged. No downstream trading consumer exists.
+
+### Known Issues disposition
+Not added because the lineage defect was fixed and covered in the same implementation task.
+
+### Rollback
+Reverting the ordinal separation would knowingly make W60/W120 audit lineage inaccurate.
+
+## BUG-20260731-003
+
+### Title
+Initial P23-1 engine did not enforce recognized evaluation session and adjustment reconciliation
+
+### Status
+Fixed and verified
+
+### Severity
+High
+
+### Area
+Market History evidence validation / P23-1 Factor input gate
+
+### Reproduction steps
+1. Build a bundle whose `as_of_utc` falls on a weekend, or label later-captured evidence as `POINT_IN_TIME_OBSERVED`.
+2. Alternatively provide raw/split prices whose ratio changes without a matching frozen split event.
+3. Calculate the P23-1 windows.
+
+### Expected behavior
+An evaluation date must be a completed recognized XNYS session; point-in-time labels must agree with observed timestamps; `UNVERIFIED_ADJUSTMENT` is invalid; raw/split ratios must be piecewise consistent with frozen forward/reverse splits; dividends remain unadjusted warnings; unsupported reorganizations invalidate only crossing windows.
+
+### Actual behavior
+The initial implementation accepted a weekend as-of and did not yet evaluate adjustment ratios. It also rejected an unsupported action globally in the bundle builder instead of preserving the event and assigning the exact per-window status.
+
+### Technical location
+`quant_trading.market_history.research_evidence.SpectralMarketEvidenceBuilder` and `quant_trading.factors.spectral_engine.SpectralVolatilityEngine`
+
+### Root cause
+The first implementation slice established typed provenance before all approved R1 validation gates were connected to the per-window engine path.
+
+### Fix
+Added closed evidence-mode/time checks, completed-recognized-session validation, common-feed validation, exact Decimal raw/split ratio reconciliation, dividend warnings and per-window unsupported-action invalidation.
+
+### Regression test
+`tests/unit/factors/test_spectral_volatility.py` covers weekend/unrecognized as-of, unverified adjustment, valid and invalid split reconciliation, dividend warnings and unsupported actions that invalidate only crossing windows.
+
+### Validation
+The direct numerical, market-evidence, repository and full project suites passed, including deterministic holiday/early-close/temporary-closure fixtures.
+
+### Risk
+Research correctness and reproducibility. No Decision, Risk, account or execution consumer exists, but invalid evidence could otherwise be presented as valid research.
+
+### Known Issues disposition
+Not added because the high-severity evidence gate was completed fail-closed and verified before handoff.
+
+### Rollback
+Reverting these gates would allow invalid or non-reproducible market evidence to appear valid and is not recommended.
+
+## BUG-20260731-004
+
+### Title
+Adding test package markers broke existing top-level conftest imports
+
+### Status
+Fixed and verified
+
+### Severity
+Low
+
+### Area
+Test organization
+
+### Reproduction steps
+1. Add `__init__.py` under `tests/` and `tests/unit/` to support a new relative fixture import.
+2. Run the full pytest suite.
+3. Observe eight existing Market History tests fail collection because their established `from conftest import ...` import no longer resolves as before.
+
+### Expected behavior
+New P23-1 test helpers do not change the import context of existing tests.
+
+### Actual behavior
+Package markers changed test-module import semantics before any production test ran.
+
+### Technical location
+New test package marker files and P23-1 test helper imports.
+
+### Fix
+Removed the package markers, exposed only the dedicated Factor test-helper directory through pytest's test-only `pythonpath`, and retained plain helper imports.
+
+### Regression test
+The full suite exercises the established Market History `conftest` imports together with the new P23-1 tests.
+
+### Validation
+The final full project suite passed 531 tests with one pre-existing upstream WebSocket deprecation warning.
+
+### Risk
+Test collection only; no runtime, database, financial or trading behavior is affected.
+
+### Known Issues disposition
+Not added because the collection regression was fixed and the complete suite passed.
+
+### Rollback
+Re-adding the package markers would restore the collection failure and is not recommended.
+
+## BUG-20260802-001
+
+### Title
+Retrospective spectral evidence is still filtered by historical observation time
+
+### Status
+Open — confirmed during PROPOSAL-025 pre-implementation audit
+
+### Severity
+High
+
+### Area
+P23-1 spectral Factor evidence admission
+
+### Reproduction steps
+1. Build a valid `RETROSPECTIVE_ADJUSTED` P23-1 evidence bundle for a completed historical XNYS session.
+2. Preserve the truthful Bar `first_observed_at_utc` later than the historical evaluation close, as required for newly fetched history.
+3. Run `SpectralVolatilityEngine.calculate`.
+4. Observe that `_window` unconditionally requires `available_at_utc < as_of_utc`, so every retrospectively fetched observation is excluded and the windows cannot calculate.
+
+### Expected behavior
+`POINT_IN_TIME_OBSERVED` uses only observations available before the historical as-of. Explicitly labeled `RETROSPECTIVE_ADJUSTED` research may use the frozen later-observed Bars while retaining their real observation times and the retrospective warning. It must not be represented as point-in-time/backtest-safe.
+
+### Actual behavior
+Both evidence modes use the point-in-time availability filter. A truthful weekend or later-date manual preview over freshly fetched data therefore becomes unusable even though the approved retrospective mode exists specifically to preserve and label that research case.
+
+### Technical location
+`src/quant_trading/factors/spectral_engine.py`, `SpectralVolatilityEngine._window`.
+
+### Planned fix
+Make the observation-admission predicate explicitly mode-dependent without changing any spectral formula, window size or missing-session rule. Add a regression test proving that the same late-observed input is rejected for `POINT_IN_TIME_OBSERVED` and admitted only when explicitly labeled `RETROSPECTIVE_ADJUSTED`.
+
+### Risk
+Research correctness and availability semantics. The current behavior blocks the approved manual runner; an over-broad fix could introduce look-ahead into point-in-time results. The fix must retain the strict point-in-time gate and retrospective warning.
+
+### Known Issues disposition
+Not added while the approved PROPOSAL-025 implementation is actively fixing and validating the defect. Add to `KNOWN_ISSUES.md` if it remains unresolved at handoff.
+
+### Rollback
+Not applicable until a fix is implemented.
+
+### Verification update — 2026-08-02 (BUG-20260802-001/002/003)
+
+All three PROPOSAL-025 defects are verified **Fixed**:
+
+- `BUG-20260802-001`: `SpectralVolatilityEngine` now keeps strict availability admission for `POINT_IN_TIME_OBSERVED` while admitting truthfully later-observed frozen Bars only for explicit `RETROSPECTIVE_ADJUSTED` evidence. Regression: `test_retrospective_mode_admits_truthfully_late_evidence_only_with_label`.
+- `BUG-20260802-002`: `SpectralVolatilityService` now persists the exact non-point-in-time evidence mode in operation warnings and Run messages. Regression: `test_retrospective_warning_is_persisted_and_visible_in_run_messages` plus coordinator reload assertions.
+- `BUG-20260802-003`: the concrete Market History factory remains in `quant_trading.market_history.composition`, is no longer imported through the lightweight package root, and Algorithm Control imports the explicit composition module. Regression: `test_algorithm_control_app_imports_in_a_fresh_process`.
+
+The P25 targeted suite passed 29 tests; the final full suite passed 547 tests with one pre-existing upstream WebSocket warning. Compilation passed. The single approved end-to-end AAPL read-only validation completed after the cold-start fix and reloaded its exact Run/operation from a fresh process; SQLite reported `integrity_check=ok` and zero foreign-key violations. No Trading client/account/position/order/fill operation occurred. None of these bugs remains a current Known Issue.
+
+Rollback: restore strict rejection of the P23-1E-A runner as a whole while retaining immutable stored definitions/Runs/results for inspection. Do not weaken point-in-time admission, remove the retrospective warning, or restore the eager package-root composition export.
+
+## BUG-20260802-003
+
+### Title
+Exporting the Market History composition factory from the package root creates a cold-start import cycle
+
+### Status
+Open — confirmed before the approved external validation made any network request
+
+### Severity
+High
+
+### Area
+P23-1E-A application composition and package boundaries
+
+### Reproduction steps
+1. Import the Algorithm Control application in a fresh Python process after adding the P25 Market History composition factory to `quant_trading.market_history.__init__`.
+2. Observe `market_history.__init__ → composition → storage → persistence → decision → factors → market_history`.
+3. Import fails because `quant_trading.decision` is only partially initialized.
+
+### Expected behavior
+All formal application modules import successfully from a clean process. Market History may own its concrete composition factory without forcing every import of the lightweight public Market History models through Persistence and Decision.
+
+### Actual behavior
+The package-root re-export eagerly imports the concrete composition path and creates a cycle. The approved AAPL validation stopped at import time; no provider/client request, AAPL Run or result was created.
+
+### Technical location
+`src/quant_trading/market_history/__init__.py` package-root export and the Algorithm Control import of that export.
+
+### Planned fix
+Keep the concrete factory in `quant_trading.market_history.composition`, remove it from the lightweight package root and import the explicit composition module only from the Algorithm Control composition root. Add a fresh-subprocess import regression test.
+
+### Risk
+Application startup availability. No financial, database, Market Data or trading behavior occurred before failure.
+
+### Known Issues disposition
+Not added while the current task is actively fixing and validating it. Add to `KNOWN_ISSUES.md` if unresolved at handoff.
+
+### Rollback
+Remove the P25 application composition until the cycle is fixed; retaining the eager root export is unsafe.
+
+## BUG-20260802-002
+
+### Title
+Retrospective spectral mode marks warning status without preserving its warning code
+
+### Status
+Open — confirmed during PROPOSAL-025 GUI integration
+
+### Severity
+Medium
+
+### Area
+P23-1 spectral operation and Run observability
+
+### Reproduction steps
+1. Run `SpectralVolatilityService.preview` with a valid `RETROSPECTIVE_ADJUSTED` bundle.
+2. Observe that the Market Data stage and operation status become warning-bearing.
+3. Reload the operation and inspect `operation.warnings` and Run messages.
+
+### Expected behavior
+The exact `RETROSPECTIVE_ADJUSTED` warning is preserved in the immutable operation warning array and Run messages so restart/replay/export does not rely on interpreting status or another field indirectly.
+
+### Actual behavior
+The service uses the evidence mode when choosing warning status but constructs the stored warning tuple only from window warnings/statuses. A valid retrospective operation can therefore be `COMPLETED_WITH_WARNINGS` with no explicit retrospective warning string.
+
+### Technical location
+`src/quant_trading/factors/spectral_service.py`, successful preview warning construction.
+
+### Planned fix
+Add the non-point-in-time evidence mode as an explicit operation/Run warning before window warnings and add service/repository regression assertions.
+
+### Risk
+Audit clarity only; no calculation, state, position, Risk or execution behavior changes. Omitting the warning could still cause a user to overstate historical point-in-time validity.
+
+### Known Issues disposition
+Not added while the current approved implementation is actively fixing it. Add to `KNOWN_ISSUES.md` if unresolved at handoff.
+
+### Rollback
+Not applicable until a fix is implemented.
+
+### Final verification update — 2026-08-02
+
+`BUG-20260802-001`, `BUG-20260802-002` and `BUG-20260802-003` are all **Fixed** with the regression and full-suite evidence recorded in the earlier consolidated verification update. This later append is authoritative over each original `Open` discovery status. No current Known Issue remains from these three defects.

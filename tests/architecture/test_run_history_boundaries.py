@@ -43,10 +43,13 @@ def test_run_history_domain_is_neutral_and_has_no_sql_or_gui_dependency() -> Non
 
 def test_only_approved_factor_service_depends_on_neutral_run_history() -> None:
     factor_root = Path("src/quant_trading/factors")
-    approved = factor_root / "standardized_state_service.py"
+    approved = {
+        factor_root / "standardized_state_service.py",
+        factor_root / "spectral_service.py",
+    }
     for path in factor_root.rglob("*.py"):
         imports = _file_imports(path)
-        if path == approved:
+        if path in approved:
             assert "quant_trading.run_history" in imports
         else:
             assert "quant_trading.run_history" not in imports, str(path)
@@ -137,3 +140,91 @@ def test_factor_visualization_preserves_presentation_and_query_boundaries() -> N
     assert "quant_trading.persistence" not in factor_panel
     assert "PlotlyFigureView" in factor_panel
     assert "PlotlyFigureView" in market_panel
+
+
+def test_spectral_research_preserves_factor_and_provider_boundaries() -> None:
+    factor_files = (
+        Path("src/quant_trading/factors/spectral_models.py"),
+        Path("src/quant_trading/factors/spectral_engine.py"),
+        Path("src/quant_trading/factors/spectral_interfaces.py"),
+    )
+    forbidden = (
+        "quant_trading.decision",
+        "quant_trading.risk",
+        "quant_trading.persistence",
+        "quant_trading.algorithm_control",
+        "quant_trading.execution",
+        "alpaca",
+        "sqlite3",
+        "PySide6",
+    )
+    for path in factor_files:
+        imports = _file_imports(path)
+        assert not [name for name in imports if name.startswith(forbidden)], str(path)
+
+    provider_imports = _file_imports(
+        Path("src/quant_trading/market_history/providers/alpaca_corporate_actions.py")
+    )
+    assert not [name for name in provider_imports if name.startswith("alpaca.trading")]
+
+
+def test_spectral_gui_is_typed_presentation_only() -> None:
+    source = Path(
+        "src/quant_trading/algorithm_control/ui/spectral_volatility_panel.py"
+    ).read_text(encoding="utf-8")
+    forbidden_text = (
+        "sqlite3",
+        "quant_trading.persistence",
+        "SpectralVolatilityEngine",
+        "AlpacaCorporateActionProvider",
+        "alpaca.",
+        "numpy",
+    )
+    assert not [value for value in forbidden_text if value in source]
+    assert "SpectralVolatilityQueryService" in source
+
+
+def test_manual_spectral_runner_preserves_owner_boundaries() -> None:
+    evidence_imports = _file_imports(
+        Path("src/quant_trading/market_history/spectral_preview_evidence.py")
+    )
+    forbidden_evidence = (
+        "quant_trading.factors",
+        "quant_trading.orchestration",
+        "quant_trading.persistence",
+        "quant_trading.algorithm_control",
+        "quant_trading.execution",
+        "alpaca",
+        "sqlite3",
+        "PySide6",
+    )
+    assert not [
+        name for name in evidence_imports if name.startswith(forbidden_evidence)
+    ]
+
+    coordinator_imports = _file_imports(
+        Path("src/quant_trading/orchestration/manual_spectral_preview.py")
+    )
+    forbidden_coordinator = (
+        "quant_trading.algorithm_control",
+        "quant_trading.persistence",
+        "quant_trading.decision",
+        "quant_trading.risk",
+        "quant_trading.portfolio_accounting",
+        "quant_trading.execution",
+        "alpaca",
+        "sqlite3",
+        "PySide6",
+    )
+    assert not [
+        name
+        for name in coordinator_imports
+        if name.startswith(forbidden_coordinator)
+    ]
+
+    panel_source = Path(
+        "src/quant_trading/algorithm_control/ui/spectral_volatility_panel.py"
+    ).read_text(encoding="utf-8")
+    assert "ManualSpectralPreviewRunner" in panel_source
+    assert "HistoricalDataService" not in panel_source
+    assert "SpectralPreviewEvidencePreparationService" not in panel_source

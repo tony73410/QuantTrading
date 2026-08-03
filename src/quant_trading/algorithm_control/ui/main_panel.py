@@ -60,6 +60,9 @@ from quant_trading.factors.interfaces import (
     FactorHistoryQueryService,
     FactorVisualizationQueryService,
 )
+from quant_trading.factors.spectral_interfaces import SpectralVolatilityQueryService
+from quant_trading.factors.spectral_models import SpectralVolatilityDefinition
+from quant_trading.orchestration import ManualSpectralPreviewRunner
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
 from quant_trading.decision import TargetAdjustmentDecisionQueryService
 from quant_trading.risk import (
@@ -167,6 +170,9 @@ class AlgorithmControlPanel(QMainWindow):
         research_cash_floor_queries: ResearchCashFloorQueryService | None = None,
         research_asset_cash_preview: TargetAdjustmentResearchAssetCashPreviewCoordinator | None = None,
         research_asset_cash_queries: ResearchAssetCashQueryService | None = None,
+        spectral_volatility_queries: SpectralVolatilityQueryService | None = None,
+        manual_spectral_preview: ManualSpectralPreviewRunner | None = None,
+        spectral_definition: SpectralVolatilityDefinition | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -183,6 +189,15 @@ class AlgorithmControlPanel(QMainWindow):
             history_queries=factor_history_queries,
             visualization_queries=factor_visualization_queries,
             export_service=factor_export_service,
+            spectral_queries=spectral_volatility_queries,
+            manual_spectral_preview=manual_spectral_preview,
+            spectral_definition=spectral_definition,
+            spectral_session_id=(
+                standardized_state_session_id
+                or target_position_session_id
+                or asset_state_session_id
+                or capital_session_id
+            ),
         )
         self.standardized_state_page = StandardizedPriceStatePanel(
             standardized_state_service,

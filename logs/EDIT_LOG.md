@@ -4567,3 +4567,1059 @@ Primary module: central Persistence schema ownership/validation. Secondary modul
 ### Compass audit
 
 Intent alignment: the sweep improves whole-program reliability and truthful observability without starting an unapproved development phase. Architecture alignment: persistence remains the sole schema owner; diagnostics consumes its public read-only contract and neither GUI nor business domains gain SQL. Safety alignment: corrupt/incomplete schemas now fail earlier, diagnostics remains read-only, and UNKNOWN health still cannot authorize execution. Unapproved behavior added: none. Assumptions introduced: none; the supported version/table set is derived from the actual approved migrations. Compass sections updated: metadata/current verified central-persistence and diagnostics evidence only; Stable Core is unchanged. Remaining drift risk: current validation proves migration history and table presence but does not attempt automatic repair or independently fingerprint every column/index definition; such repair or deeper migration semantics would require separate scope. Bugs discovered/fixed: `BUG-20260722-009`, `BUG-20260722-010`, `BUG-20260722-011`; deferred/cannot-reproduce Bugs: none. Existing KI-0004 through KI-0008 remain unchanged. Suggested commit message: `fix: validate complete central sqlite schema`. No commit or push was performed.
+
+## EDIT-20260727-001 — Record approved volatility-aware cycle and target-position development plan
+
+### Approval, task mode and result
+
+- The user explicitly approved the complete discussed design direction on 2026-07-27 and requested documentation and planning only, with no development. Classified the work as **DEEP** because it records future financial/strategy semantics across several existing owners, while constraining the current change to governance documents.
+- Created `PROPOSAL-023`, status `PROPOSED`, with separate `DESIGN_TARGET_APPROVED` and `BLOCKED_PENDING_SEPARATE_APPROVAL` markers. It records cycle-start-relative price change, per-stock versioned volatility ranges, linear small-move adjustments, a finite accelerating established-regime region, two completed trading-day reversal confirmation, linear-only behavior during confirmation, new-cycle start at the second confirmation close, zero trading while frozen with continued observation, a per-stock one-or-two-trades-per-day maximum and distinct immutable definition/configuration/result versions.
+- Recorded the proposal as a planning umbrella over existing canonical owners rather than a new runtime authority. Existing manual Standardized State, Asset State, Target Position, Decision, Risk, Run History and central Persistence remain the reuse path and retain their current exact meanings.
+- Split future work into five separately approved slices: cycle-relative/volatility research, automatic cycle/reversal state, continuous bounded piecewise target position, Decision/Risk linkage and later full-chain historical simulation.
+- Preserved all unresolved financial decisions explicitly: volatility estimator/window/threshold mapping, price/adjustment/calendar/availability, initial cycle, exact linear/accelerating formulas and position limits, consecutive-session/missing-data treatment, second-opportunity scheduling, count-consumption event, freeze controls, simulation costs/fills and complete Risk/long-only semantics.
+- No source code, public runtime contract, configuration, central SQLite schema/data, GUI, Project State, architecture document, CHANGELOG, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and the currently verified runtime phase remains Phase 6E.
+
+### Files changed
+
+- New planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Governance/planning: `PROJECT_COMPASS.md` v37, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 9.73 seconds; the focused governance file also passed **6 tests**.
+- Relative Markdown-link check across the affected documents found no broken target. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- The first attempt used the system Python 3.14 interpreter, which did not have `pytest`; validation was rerun successfully with the repository `.venv`. This is an environment selection fact, not a QuantTrade product Bug.
+- No network, credential, Market Data request, central database write/migration, account, broker, order, fill, Paper or Live path was invoked.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was found. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is governance/planning documentation. There is no current secondary runtime module, public-contract, configuration, database, GUI, permission, migration, trading-result or safety-behavior impact. The design target has future `SYSTEM_WIDE` implications if implemented monolithically, so PROPOSAL-023 requires separately scoped owner-preserving slices instead. Current documentation blast radius is `LIMITED`. Rollback is documentation-only: remove PROPOSAL-023 and its Compass/Roadmap/Glossary/index references while retaining this append-only audit history; no database or runtime rollback would be required.
+
+### Compass audit
+
+Intent alignment: records exactly the user's agreed cycle, volatility, reversal, linear/accelerating, freeze, trade-cap and versioning direction without prematurely selecting formulas. Architecture alignment: future responsibilities remain with existing Market History, Factor, Asset State, Target Position, Decision, Risk, orchestration, Persistence/Run History and Backtesting owners; no GUI/business-logic or parallel-authority drift was introduced. Safety alignment: the proposal is planning-only, disabled, `execution_allowed=false`, `live_allowed=false`, and every runtime slice/value/activation still requires separate approval. Unapproved behavior added: none. Assumptions introduced: no hidden financial assumption; undecided semantics are registered as `DEC-009` through `DEC-011`, while `ASM-030` records only the user's approved design target and its non-implementation status. Compass sections updated: metadata/version, explicit non-capabilities, Open Decisions, Assumption Register, Active Intent Ledger, limitations and next direction; Stable Core and current verified runtime state are unchanged. Remaining drift risk: a later task could incorrectly treat planning approval as implementation authority, invent parameter defaults, create a cross-layer umbrella engine, count GUI actions as trades, or connect the design to execution without separate approval; PROPOSAL-023 explicitly prohibits these paths. Suggested commit message: `docs: plan volatility-aware cycle model`. No commit or push was performed.
+
+## EDIT-20260727-002 — Clarify PROPOSAL-023 activation time and confirmation-period attribution
+
+### User clarification and result
+
+- The user explicitly corrected the future reversal-cycle timing on 2026-07-27: two confirmation trading days remain operationally inside the old cycle, the new cycle formally starts on the third trading day, and a confirmed new cycle must nevertheless include both confirmation-day observations in its accelerating mathematical progress. If confirmation fails, that provisional new-cycle attribution is ignored.
+- Amended `PROPOSAL-023` from planning revision `1.0` to `1.1`. The proposal now separates `cycle operational activation` from the `cycle mathematical movement reference`: day 3 is the new operational state, while the fixed mathematical reference is the prior-cycle qualifying high for a downward reversal or qualifying low for an upward reversal.
+- Confirmation-day observations enter a provisional buffer. On successful confirmation they become immutable new-cycle mathematical evidence, and day-3 accelerating progress uses the actual change from the reversal extreme through confirmation day 2 rather than summing daily percentages. On failed confirmation only the proposed new-cycle attribution is discarded.
+- Explicitly preserved historical causality: confirmation days 1 and 2 may use only the old-cycle linear region, and no successful or failed confirmation may retrospectively relabel or rewrite their Decision, Risk or future fill evidence.
+- Preserved the prior wording in the proposal revision history as superseded rather than hiding the correction. No implementation authorization was added.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized planning/governance: `PROJECT_COMPASS.md` v38, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 10.19 seconds.
+- Relative Markdown-link check passed. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact content checks confirmed planning revision 1.1, day-3 activation, prior reversal-extreme reference and prohibition on retrospective action rewriting.
+- No source code, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was found. This was a user clarification of an unimplemented planning document, not a runtime defect; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 planning semantics; secondary impact is synchronized governance terminology. Runtime public contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future implementation must represent separate activation/reference timestamps plus provisional attribution evidence, but those contracts remain unimplemented and require separate approval. Documentation blast radius is `LIMITED`; future implementation remains `MULTI_MODULE` by separately approved slices. Rollback would restore planning revision 1.0 wording in the proposal and related governance references while retaining this append-only clarification record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: captures exactly the user's distinction between delayed operational confirmation and inclusive mathematical acceleration. Architecture alignment: future Asset State owns activation/reference/buffer state, Factor owns observations, Target Position owns the curve, and historical Decision/Risk/fill facts remain immutable; no umbrella engine or GUI logic was introduced. Safety alignment: preventing retrospective action rewrites avoids look-ahead behavior, and the proposal remains planning-only, disabled and without execution authority. Unapproved behavior added: none. Assumptions introduced: none—the day-3 activation, reversal-extreme reference, successful attribution and failed-candidate discard are user-approved; remaining session-gap, formula/value and trade-count details stay open under `DEC-009` through `DEC-011`. Compass sections updated: metadata/version, DEC-011, `ASM-030`, `INTENT-034` and PROPOSAL-023 limitation summary; Stable Core/current runtime state are unchanged. Remaining drift risk: future code could wrongly backdate operational state, sum daily returns, use the day-2 close as a zero point, erase failed-candidate observations, or retrospectively alter confirmation-period actions; revision 1.1 explicitly forbids each case. Suggested commit message: `docs: clarify cycle confirmation attribution`. No commit or push was performed.
+
+## EDIT-20260727-003 — Record Fourier/Welch volatility research direction in PROPOSAL-023
+
+### User approval and result
+
+- The user proposed using a Fourier transform to find each stock's volatility pattern, accepted the recommendation to treat it as bounded research evidence rather than a direct reversal/trading rule, and asked that the direction be recorded.
+- Amended `PROPOSAL-023` from planning revision `1.1` to `1.2`. The approved research comparison now contains a non-spectral volatility baseline, a trailing rolling Fourier/Welch candidate and a later time-localized wavelet candidate, all evaluated on identical completed historical evidence before any method may be selected.
+- The planned spectral Factor records exact source observations/transform/window/version plus dominant-period candidate, amplitude, concentration/stability, residual-volatility evidence and explicit invalid/insufficient/no-stable-cycle status. It cannot directly switch Asset State, choose a target position, create an intent or bypass two-day reversal confirmation.
+- Recorded mandatory causal safeguards: trailing completed data only, no centered/future observations, no forced frequency peak, immutable daily results and explicit residual variation rather than treating a spectral peak as the entire normal volatility range.
+- Kept every formula and parameter open: baseline estimator, detrending/return transformation, Fourier/Welch role, lookback, segmentation/window function, frequency range, peak/stability test, residual scale, warm-up, outliers, minimum scale, threshold multiplier and eventual method selection.
+- Added primary/official research references to the proposal for spectral smoothing/resolution, Fourier financial-volatility research and non-stationary wavelet comparison. This research approval does not admit implementation.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v39, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 10.23 seconds.
+- Relative Markdown-link check passed. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact content checks confirmed planning revision 1.2, trailing-only inputs, explicit no-stable-cycle status, no direct state/target/intent authority and all three candidate research families.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was found. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 Factor-research planning; secondary impact is synchronized governance terminology. Runtime public contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 implementation would affect Factor, exact Market History input adaptation, Persistence/Run History and Algorithm Control inspection, but remains separately unapproved. Current documentation blast radius is `LIMITED`; future approved P23-1 would be `MULTI_MODULE`. Rollback would restore planning revision 1.1 and related planning references while retaining this append-only record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: preserves the user's Fourier idea while turning it into a testable per-stock rhythm/volatility research Factor rather than overstating predictive certainty. Architecture alignment: Factor owns transformations and evidence, Asset State remains the only future cycle evaluator, Decision/Risk authority is unchanged, Persistence stores rather than calculates and GUI only configures/displays. Safety alignment: trailing-only data, no forced peak, explicit residual/no-stable-cycle evidence and no direct trading consumer prevent look-ahead and authority bypass; implementation and execution remain unapproved. Unapproved behavior added: none. Assumptions introduced: only user-approved `ASM-031`; no algorithm family is selected as production and every mathematical parameter remains open under DEC-009. Compass sections updated: metadata/version, DEC-009, `ASM-031`, `INTENT-034`, limitations and next direction; Stable Core/current runtime state are unchanged. Remaining drift risk: future work could treat an FFT peak as stable/predictive, omit residual volatility, use centered data, silently fall back to a made-up period, or let raw spectral evidence switch state; PROPOSAL-023 revision 1.2 explicitly forbids those paths. Suggested commit message: `docs: plan spectral volatility research`. No commit or push was performed.
+
+## EDIT-20260727-004 — Record approved initial P23-1 spectral research parameters
+
+### User decisions and result
+
+- At the user's request, durably recorded the current question-and-answer decisions before continuing. Amended `PROPOSAL-023` from planning revision `1.2` to `1.3`; implementation remains explicitly unapproved.
+- Approved input direction: completed Daily closes transformed to log-price scale, with a straight-line trend fitted from trailing data only and removed before spectral analysis; daily log returns supply the residual-variation input.
+- Approved three separate research windows: 60, 120 and 250 trading days. Each result/version remains independently visible and no automatic best window is selected.
+- Approved eligible-period rule: minimum 4 trading days and maximum one third of the window, producing initial research ranges 4–20, 4–40 and 4–83 trading days.
+- Approved stability direction: a single window records only a recent/candidate rhythm; at least two windows must support similar periods, with an initial 20% similarity range, before the result is relatively stable.
+- Approved initial dominance classes: below 15% is weak/no reliable cycle, 15%–30% is candidate and above 30% is strong. Only evidence at or above 15% participates in cross-window support.
+- Approved MAD for residual volatility so a single extreme observation does not define normal variation; source observations remain immutable and are never deleted.
+- Approved normal-range composition direction: combine a periodic-amplitude term with a residual-MAD buffer. When no stable cycle exists, no spectral amplitude is forced and the non-spectral/residual path remains available.
+- Preserved unresolved details under DEC-009: exact line fitting, Welch segmentation/window, peak neighborhood/dominance equation, exact 20% comparison formula/edges, Raw/Adjusted and missing-session semantics, raw/scaled MAD, periodic-amplitude meaning, MAD multiplier/combination equation, threshold mapping and eventual method selection.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v40, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 18.20 seconds.
+- Relative Markdown-link check passed. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact content checks confirmed planning revision 1.3, all three windows/period ranges, two-window/20% stability, 15%/30% dominance and MAD-plus-periodic combination direction.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No confirmed, suspected, deferred or cannot-reproduce product Bug was found. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 research planning; secondary impact is synchronized governance terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future implementation would affect Factor, exact Market History input adaptation, Persistence/Run History and Algorithm Control inspection and would require separate dependency/migration approval. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.2 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: preserves every user-confirmed research choice in plain-language and structured planning form before continuing the design discussion. Architecture alignment: all spectral, detrending, residual and classification calculations remain future Factor responsibility; Asset State/Decision/Risk/GUI/Persistence boundaries are unchanged. Safety alignment: all windows are trailing, weak/no-cycle evidence remains explicit, no automatic winner or spectral trade exists, and no runtime implementation/activation is admitted. Unapproved behavior added: none. Assumptions introduced: only user-approved `ASM-032`; exact equations/source semantics and production selection remain open rather than being inferred. Compass sections updated: metadata/version, DEC-009, `ASM-032`, `INTENT-034`, limitations and next direction; Stable Core/current runtime state are unchanged. Remaining drift risk: future work could silently choose an adjustment, line-fit/window/peak formula, MAD scale/multiplier or threshold mapping, or misrepresent research classifications as trading authority; DEC-009 and revision 1.3 keep these choices explicit. Suggested commit message: `docs: record spectral research parameters`. No commit or push was performed.
+
+## EDIT-20260727-005 — Preserve parallel amplitude and MAD evidence in PROPOSAL-023
+
+### User decisions and result
+
+- The user explicitly approved saving both the spectral half-amplitude (trend center to peak/trough) and the full peak-to-trough amplitude, without allowing the Factor to choose which one a later state/reversal policy uses.
+- The user explicitly approved saving both raw MAD and a standardized MAD representation, while leaving the MAD buffer or reversal-threshold multiplier to a later versioned policy decision.
+- Amended `PROPOSAL-023` from planning revision `1.3` to `1.4`. Exact spectral-amplitude normalization/units and the exact standardized-MAD transformation/constant remain open because the user approved preserving both representations, not a hidden calculation convention.
+- No implementation admission was added. P23-1 code, dependency additions, public contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v41, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 28.83 seconds.
+- Relative Markdown-link check across the affected documents passed with zero broken local targets. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact content checks confirmed planning revision 1.4, both half/full amplitude fields, both raw/standardized MAD fields, absence of an implicit downstream variant/multiplier selection and the continued implementation block.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 evidence planning; secondary impact is synchronized governance terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must preserve the parallel evidence fields, but the exact calculations and consumers remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.3 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records both user-approved dual-evidence choices without discarding information or prematurely choosing a trading interpretation. Architecture alignment: the future Factor may calculate and expose evidence, while any later Asset State/reversal selection remains a separately approved consumer policy. Safety alignment: no measurement variant or multiplier silently changes turnover, state or Risk behavior, and implementation/execution remain disabled and unapproved. Unapproved behavior added: none. Assumptions introduced: `ASM-033` records only the approved dual-evidence requirement; exact normalization, standardization constant, downstream selection and multiplier remain open. Compass sections updated: metadata/version, DEC-009, `ASM-033`, `INTENT-034`, limitations and next direction; Stable Core/current runtime state are unchanged. Remaining drift risk: future code could label an unstated scaled-MAD constant as standard, select full versus half amplitude implicitly, or turn either evidence value into a reversal threshold without separate approval. Suggested commit message: `docs: preserve amplitude and MAD evidence`. No commit or push was performed.
+
+## EDIT-20260727-006 — Approve the P23-1 trailing least-squares trend objective
+
+### User decision and result
+
+- The user explicitly accepted the recommended straight-line calculation: fit the line that minimizes the total squared vertical distance from the window's completed log-close observations.
+- Amended `PROPOSAL-023` from planning revision `1.4` to `1.5`. Each 60/120/250-observation window has its own unweighted ordinary least-squares fit; coefficients, fitted values and point-by-point residuals remain visible evidence.
+- Preserved trailing-only causality and prohibited an unstated shared cross-window line, observation deletion or hidden reweighting.
+- Did not infer whether the horizontal coordinate is sequential trading-observation number or elapsed calendar time. That coordinate/origin and its missing-session behavior remain open under DEC-009.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v42, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 30.73 seconds.
+- Relative Markdown-link check across the affected documents passed with zero broken local targets. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact-content checks confirmed planning revision 1.5, separate unweighted least-squares fits, preserved coefficients/fitted values/residuals, the unresolved horizontal coordinate and the continued implementation block.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 detrending planning; secondary impact is synchronized governance terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must reproduce the approved least-squares objective and traces, but the exact coordinate and all consumers remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.4 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted straight-line recommendation as a precise, reproducible research objective. Architecture alignment: detrending remains future Factor responsibility; Persistence stores evidence and GUI only displays it. Safety alignment: trailing-only independent fits avoid future leakage, while leaving the coordinate/gap choice open prevents a hidden time-semantics change. Unapproved behavior added: none. Assumptions introduced: `ASM-034` records only the approved least-squares objective and evidence; the horizontal coordinate/origin remains explicit and unresolved. Compass sections updated: metadata/version, DEC-009, `ASM-034`, `INTENT-034`, limitations and next direction; Stable Core/current runtime state are unchanged. Remaining drift risk: a later implementation could silently use calendar time, trading index, weighting, robust regression or cross-window coefficients without approval. Suggested commit message: `docs: define trailing least-squares trend`. No commit or push was performed.
+
+## EDIT-20260728-001 — Approve the P23-1 trading-observation-index coordinate
+
+### User decision and result
+
+- The user explicitly approved the recommended least-squares horizontal coordinate: completed trading-session observations in a valid window are sorted chronologically and indexed `0,1,2,...`.
+- Amended `PROPOSAL-023` from planning revision `1.5` to `1.6`. The fitted intercept now has a precise coordinate meaning at index zero, and the fitted slope is log-price change per trading observation.
+- Weekends and recognized exchange closures consume no index position; exact source session dates and Bar identities remain preserved for explanation and replay.
+- Did not infer how to handle an expected trading session whose Bar is missing. Such a gap cannot be silently called a closure or compressed into an apparently complete window; invalidation, retry and continuation semantics remain open under DEC-009.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v43, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 17.09 seconds.
+- Relative Markdown-link check across the affected documents passed with zero broken local targets. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact-content checks confirmed planning revision 1.6, chronological `0..n-1` trading-observation indexing, exact source-date retention, weekend/recognized-closure exclusion, the open missing-expected-session decision and the continued implementation block.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 detrending-coordinate planning; secondary impact is synchronized governance terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must reproduce the approved ordinal coordinate and preserve real session identities, but missing-expected-session behavior and all consumers remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.5 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's approved trading-day sequence in an exact, reproducible form. Architecture alignment: Factor owns the future coordinate/transformation, Market History remains the source of dated Bars, Persistence stores evidence and GUI only displays it. Safety alignment: weekends/closures are not mistaken for price-time movement, real dates remain traceable and unexplained missing sessions cannot be hidden. Unapproved behavior added: none. Assumptions introduced: `ASM-035` records only the approved coordinate; the missing-Bar decision remains open. Compass sections updated: metadata/version, DEC-009, `ASM-035`, `INTENT-034`, limitations and next direction; Stable Core/current runtime state are unchanged. Remaining drift risk: future code could compress a missing expected session, infer an exchange holiday without an approved calendar or discard exact Bar dates. Suggested commit message: `docs: define trading-observation coordinate`. No commit or push was performed.
+
+## EDIT-20260729-001 — Approve fail-visible per-window missing-Bar behavior for P23-1
+
+### User decision and result
+
+- The user explicitly approved the recommended handling for a required Bar missing from a known expected trading session.
+- Amended `PROPOSAL-023` from planning revision `1.6` to `1.7`: every window containing the gap stores a durable data-incomplete result and performs no valid detrending, spectral, amplitude or MAD calculation.
+- Prohibited interpolation, forward/back fill, invented prices and silent skip/compression. A complete window not containing the gap may still calculate independently.
+- After Market History repair, recalculation creates a new immutable Run/result; the original failure remains searchable. Data incompleteness remains distinct from a valid complete window with no stable spectral cycle.
+- Did not select an exchange-calendar dependency or exact public status/error enum. Those contract/dependency decisions remain open and require separate approval.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v44, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 19.32 seconds.
+- Relative Markdown-link check across the affected documents passed with zero broken local targets. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact-content checks confirmed planning revision 1.7, per-containing-window incomplete results, no interpolation/fill/skip, independent unaffected-window calculation, immutable repair reruns, distinct incomplete/no-stable-cycle meanings and the continued implementation block.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 missing-input planning; secondary impact is synchronized governance terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must fail visibly per containing window and preserve immutable repair reruns, but the session source/status contract and all consumers remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.6 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's approved missing-data behavior without fabricating market evidence or discarding usable independent windows. Architecture alignment: Market History owns source Bars/repair, Factor owns validation/calculation status, Persistence/Run History retain immutable evidence and GUI only displays it. Safety alignment: a data gap cannot masquerade as a stable calculation or no-cycle result, and repair cannot rewrite history. Unapproved behavior added: none. Assumptions introduced: `ASM-036` records only the approved behavior after a session is known expected; the calendar provider and exact status/error contract remain open. Compass sections updated: metadata/version, DEC-009, `ASM-036`, `INTENT-034`, limitations and next direction; Stable Core/current runtime state are unchanged. Remaining drift risk: future code could infer calendar sessions incorrectly, interpolate prices, skip a gap, invalidate unrelated windows or overwrite the original failure. Suggested commit message: `docs: define spectral missing-bar behavior`. No commit or push was performed.
+
+## EDIT-20260729-002 — Approve the versioned U.S. exchange-calendar direction for P23-1
+
+### User decision and result
+
+- The user explicitly approved using a formal versioned U.S. exchange calendar rather than a Monday-through-Friday heuristic.
+- Amended `PROPOSAL-023` from planning revision `1.7` to `1.8`. The planned calendar evidence covers regular sessions, holidays, temporary closures and early closes, and every Run binds its exact calendar definition/name/version plus applicable venue evidence.
+- Preserved the existing runtime limitation and approval boundary: no third-party package, external service, supported venue set, symbol-to-venue mapping, calendar update/freeze/correction policy or new dependency was selected or implemented.
+- Synchronized DEC-004 with the newly approved future direction while leaving its implementation choice open. The current fixed intraday filter and KI-0007 remain unchanged.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v45, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 14.64 seconds.
+- Relative Markdown-link check across the affected documents passed with zero broken local targets. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact-content checks confirmed planning revision 1.8, formal versioned U.S. exchange-calendar evidence, normal/holiday/temporary-closure/early-close coverage, exact Run binding, the open dependency/source/venue-mapping decisions and the continued implementation block.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; the existing early-close limitation remains documented as KI-0007/BUG-20260715-010. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 calendar planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must bind reproducible calendar evidence, but the dependency/source/mapping/contracts remain separately unapproved. Current documentation blast radius is `LIMITED`; future calendar implementation is `MULTI_MODULE` and dependency-sensitive. Rollback would restore planning revision 1.7 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's approved formal-calendar direction so “missing trading day” has a reproducible basis. Architecture alignment: a future Market History/calendar adapter owns session evidence, Factor consumes the public dated-session contract, Persistence/Run History stores exact version bindings and GUI only displays them. Safety alignment: weekday guesses cannot drive historical validity, temporary closures/early closes remain visible and no dependency or execution behavior is silently activated. Unapproved behavior added: none. Assumptions introduced: `ASM-037` records only the approved calendar capabilities; package, provider, venues, symbol mapping and lifecycle policy remain open. Compass sections updated: metadata/version, DEC-004/009/011, `ASM-037`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could select a package without approval, apply one venue calendar to every asset, mutate historical calendar results after a library update or confuse early close with missing data. Suggested commit message: `docs: define versioned exchange-calendar direction`. No commit or push was performed.
+
+## EDIT-20260729-003 — Approve split-adjusted input with raw evidence for the first P23-1 candidate
+
+### User decision and result
+
+- The user explicitly approved using split-adjusted Daily close for the first P23-1 calculation candidate so a mechanical split is not interpreted as a market crash.
+- Amended `PROPOSAL-023` from planning revision `1.8` to `1.9`. Exact raw and split-adjusted closes plus split event/effective-date/source/version/as-of evidence remain preserved and searchable.
+- The first candidate explicitly does not apply dividend adjustment. Raw close remains audit evidence rather than a silently interchangeable calculation input, and the adjustment adapter cannot rewrite source Market History Bars.
+- Did not select a split-event provider, point-in-time availability/revision-freeze policy or merger/spin-off/symbol-change/other corporate-action semantics. Missing or irreproducible required adjustment evidence must fail visibly in a future implementation.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v46, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 15.16 seconds.
+- Relative Markdown-link check across the affected documents passed with zero broken local targets. `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Exact-content checks confirmed planning revision 1.9, split-adjusted first-candidate calculation, raw/split-event provenance, explicit no-dividend adjustment, immutable source Bars, open provider/as-of/revision semantics and the continued implementation block.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 price-input planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must calculate the first candidate from split-adjusted close and preserve raw/adjustment evidence, but source/as-of/revision and broader corporate-action contracts remain separately unapproved. Current documentation blast radius is `LIMITED`; future adjustment implementation is `MULTI_MODULE` and point-in-time sensitive. Rollback would restore planning revision 1.8 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's approved protection against split-created false volatility while preserving the actual quoted prices for audit. Architecture alignment: Market History remains the immutable raw-Bar owner, a future explicit adapter supplies versioned adjustment evidence to Factor, Persistence/Run History stores provenance and GUI only displays it. Safety alignment: no dividend/total-return meaning, provider or future corporate-action knowledge is silently introduced, and source Bars/history cannot be overwritten. Unapproved behavior added: none. Assumptions introduced: `ASM-038` records only split-adjusted calculation/raw preservation/no-dividend semantics; source/as-of/revision and other actions remain open. Compass sections updated: metadata/version, DEC-006/009, `ASM-038`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could use a currently adjusted series with future corporate actions, omit raw provenance, apply dividend adjustment, mutate cached Bars or treat missing split evidence as valid. Suggested commit message: `docs: define split-adjusted spectral input`. No commit or push was performed.
+
+## EDIT-20260729-004 — Approve the exact P23-1 standardized-MAD conversion
+
+### User decision and result
+
+- The user asked what MAD means and where `1.4826` comes from. After the raw-MAD algorithm and normal-quantile derivation were explained, the user explicitly accepted the proposed conversion.
+- Amended `PROPOSAL-023` from planning revision `1.9` to `1.10`: for residual daily log-return observations `e_i`, raw MAD is `median(abs(e_i-median(e)))` and standardized MAD is exactly `raw_mad*1.4826`.
+- Both values and the exact configured decimal constant `1.4826` remain visible and version-bound. The document records the derivation from the reciprocal standard-normal 75% quantile only as explanation.
+- Explicitly prohibited treating `1.4826` as a MAD buffer, reversal threshold or trading multiplier. Numeric precision/rounding, zero/minimum-scale status and any later buffer/threshold multiple remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v47, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 8.90s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.10, the raw-MAD formula, exact `1.4826` standardization, dual-value/constant preservation, the prohibition on threshold meaning, `ASM-039`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 residual-scale planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must reproduce raw MAD and exact `1.4826` standardization while preserving both, but precision/zero/minimum-scale and downstream threshold semantics remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.9 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's informed acceptance after the meaning and derivation were explained in plain language. Architecture alignment: the future Factor owns MAD calculation/evidence; Asset State and Decision cannot infer a threshold from the standardization constant. Safety alignment: the statistical conversion cannot silently become a trading multiplier, and implementation/execution remain unapproved. Unapproved behavior added: none. Assumptions introduced: `ASM-039` records only the accepted formulas and constant; precision, zero/minimum scale and threshold use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-039`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could use a different constant, store only one MAD, silently floor zero or multiply it into a reversal rule without approval. Suggested commit message: `docs: define standardized MAD conversion`. No commit or push was performed.
+
+## EDIT-20260729-005 — Approve the P23-1 Welch/Fourier research-role split
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that Welch provide the primary candidate-period, dominance and cross-window-stability evidence, while the full-window Fourier result remains a stored diagnostic cross-check.
+- Amended `PROPOSAL-023` from planning revision `1.10` to `1.11`. Both method outputs and exact version/method evidence remain visible; neither may be silently discarded or substituted for the other.
+- When a later-approved comparison rule reports that the two methods disagree, the research result must show a warning and cannot be forced into a stable-cycle classification. This does not switch Asset State, create a Decision or produce a trade.
+- Exact Welch segment length, overlap, window function and averaging settings; full-window Fourier transform/window settings; and the exact disagreement equation/status remain open. No value or formula was inferred.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v48, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 14.25s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.11, Welch-primary/full-window-Fourier-diagnostic roles, dual-output preservation, warning/no-forced-stability behavior, open exact settings/equations, `ASM-040`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 spectral-method-role planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must preserve the Welch-primary/full-window-Fourier-diagnostic distinction and refuse forced stability on a defined disagreement, but every exact calculation and comparison setting remains separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.10 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's acceptance of a steadier primary method while keeping the detailed full-window result available for inspection. Architecture alignment: future Factor owns both calculations and their evidence; Asset State, Decision and Risk cannot derive authority directly from either spectrum. Safety alignment: disagreement reduces confidence instead of creating a forced cycle, and implementation/execution remain unapproved. Unapproved behavior added: none. Assumptions introduced: `ASM-040` records only the approved role split and conservative disagreement outcome; all exact spectral settings and comparison equations remain open. Compass sections updated: metadata/version, DEC-009, `ASM-040`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could treat full-window Fourier as primary, discard one output, invent disagreement tolerances or allow conflicting evidence to force a stable cycle. Suggested commit message: `docs: define Welch and Fourier research roles`. No commit or push was performed.
+
+## EDIT-20260729-006 — Approve the P23-1 two-long-segment Welch direction
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that each valid Welch window use a leading and trailing long segment, each approximately two thirds of the window and sharing approximately the middle third.
+- Amended `PROPOSAL-023` from planning revision `1.11` to `1.12`. The 60-day layout is exactly two 40-observation segments with 20 observations of overlap; the 120-day layout is exactly two 80-observation segments with 40 observations of overlap.
+- The recommendation described the 250-day layout as approximately 167 observations per segment with approximately 84 observations of overlap. Because 250 is not divisible into exact thirds, this record preserves that approved direction but does not infer the final integer rounding or inclusive index boundaries.
+- Window function, segment-spectrum averaging/scaling, full-window Fourier settings and all comparison/threshold formulas remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v49, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 14.63s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.12, exactly two leading/trailing segments, exact 60-day 40/20 and 120-day 80/40 layouts, approximate 250-day 167/84 direction with integer rounding still open, `ASM-041`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch-segmentation planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must use exactly two leading/trailing long overlapping Welch views and the approved exact 60/120 layouts, while the 250-day rounding and all spectral settings remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.11 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted balance between long-cycle visibility and comparison across overlapping views without overstating the approximate 250-day numbers. Architecture alignment: future Factor owns segmentation and spectral evidence; other algorithm layers consume only later-approved typed results. Safety alignment: segmentation remains trailing-only evidence and creates no state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-041` records the exact 60/120 layouts and approximate 250 direction while keeping the indivisible rounding choice open. Compass sections updated: metadata/version, DEC-009, `ASM-041`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could silently choose the 250-day rounding, add extra segments, change overlap, or treat segmentation as trading authority. Suggested commit message: `docs: define Welch segment direction`. No commit or push was performed.
+
+## EDIT-20260729-007 — Approve exact P23-1 250-day Welch boundaries
+
+### User decision and result
+
+- The user explicitly accepted the recommended symmetric integer layout for the 250-day trading-observation index `0..249`.
+- Amended `PROPOSAL-023` from planning revision `1.12` to `1.13`: the leading segment is `0..166`, the trailing segment is `83..249`, each contains exactly 167 observations and the inclusive shared overlap `83..166` contains exactly 84 observations.
+- This resolves the prior 250-day rounding/index open decision without changing the already approved 60-day 40/20 or 120-day 80/40 layouts.
+- Welch window function, averaging/scaling, full-window Fourier settings and all comparison/threshold formulas remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v50, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 14.33s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.13, exact 250-day `0..166` and `83..249` segments, 167 observations per segment, exact 84-observation `83..166` overlap, `ASM-042`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch-segmentation planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has deterministic segment boundaries for all three approved windows, while every remaining spectral setting and downstream interpretation remains separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.12 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's exact accepted 250-day layout after the earlier approximate direction was kept visibly unresolved. Architecture alignment: future Factor owns deterministic segmentation and evidence; other layers receive only later-approved typed results. Safety alignment: exact indices improve reproducibility but create no state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-042` records only the user-approved indices/counts; no spectral calculation or threshold setting was inferred. Compass sections updated: metadata/version, DEC-009, `ASM-042`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could introduce off-by-one boundaries, alter segment counts or use these indices as trading authority. Suggested commit message: `docs: fix 250-day Welch boundaries`. No commit or push was performed.
+
+## EDIT-20260729-008 — Approve Hann window use for P23-1 Welch segments
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that every approved Welch segment use a Hann window before spectral calculation to reduce artificial edge discontinuity.
+- Amended `PROPOSAL-023` from planning revision `1.13` to `1.14`. The unmodified detrended segment values, exact Hann coefficient sequence, coefficient-applied values and window definition/parameters must remain separately visible and version-bound.
+- The approval applies only to Welch. It does not select or apply a window to the full-window Fourier diagnostic.
+- Periodic-versus-symmetric Hann convention, exact coefficient formula/library binding, normalization, segment-spectrum averaging/scaling and frequency settings remain open. No formula or dependency was inferred.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v51, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **83 passed** in 14.70s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.14, Welch-only Hann use, preservation of original/coefficient/weighted evidence, full-window-Fourier exclusion, open exact Hann convention/normalization, `ASM-043`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch-window planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 must apply a versioned Hann window to Welch segments and preserve both pre/post-weight evidence, while the exact Hann convention and every remaining spectral setting remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.13 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted edge-treatment method and evidence-retention requirement. Architecture alignment: future Factor owns the Hann transformation and structured evidence; Persistence stores and GUI displays without calculating it. Safety alignment: Hann is measurement preprocessing only, does not mutate source history and creates no state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-043` records Welch-only Hann use and retained evidence while leaving the exact convention/normalization/full-window use open. Compass sections updated: metadata/version, DEC-009, `ASM-043`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could choose the wrong Hann convention, discard unweighted evidence, silently window the full diagnostic or use windowing as trading authority. Suggested commit message: `docs: select Hann for Welch research`. No commit or push was performed.
+
+## EDIT-20260729-009 — Approve exact periodic Hann definition for P23-1 Welch
+
+### User decision and result
+
+- The user explicitly accepted the recommended exact periodic-Hann convention for every approved P23-1 Welch segment.
+- Amended `PROPOSAL-023` from planning revision `1.14` to `1.15`: for segment length `N` and index `n=0..N-1`, `w[n]=0.5-0.5*cos(2*pi*n/N)`, with exact approved lengths `N=40/80/167`.
+- Every result must preserve the formula/version, `N`, all index-to-coefficient mappings, the complete coefficient sequence, unmodified detrended values and coefficient-applied values.
+- Any future software/library implementation must reproduce the approved formula and record its identity/version. This planning decision does not approve a dependency.
+- The approval remains Welch-only. It does not select a window for the full-window Fourier diagnostic, and Welch averaging, normalization and scaling remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v52, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 15.10s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.15, the exact periodic-Hann formula and `N=40/80/167`, preservation of formula/coefficient/weighted evidence, full-window-Fourier exclusion, open implementation dependency/averaging/normalization/scaling, `ASM-044`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch-window planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has one deterministic periodic-Hann coefficient formula for all approved Welch segment lengths, while implementation dependency, averaging, normalization, scaling, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.14 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted exact edge-weight convention and evidence-retention requirement. Architecture alignment: future Factor owns the periodic-Hann transformation and formula-reproduction validation; Persistence stores evidence and GUI only displays it. Safety alignment: the formula is measurement preprocessing only, does not mutate source history and creates no state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-044` records only the accepted exact formula, index range and segment lengths; dependency, averaging, normalization, scaling and full-window use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-044`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could use a symmetric Hann, alter the denominator or endpoints, omit coefficients, silently add a dependency, window the full diagnostic or treat preprocessing as trading authority. Suggested commit message: `docs: define periodic Hann coefficients`. No commit or push was performed.
+
+## EDIT-20260729-010 — Approve equal-weight Welch segment power-spectrum average
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that the leading and trailing Welch segment power spectra be combined by equal-weight arithmetic mean while both individual spectra remain stored.
+- Amended `PROPOSAL-023` from planning revision `1.15` to `1.16`: for every matching frequency bin `k`, `P_welch[k]=(P_leading[k]+P_trailing[k])/2`.
+- The leading spectrum, trailing spectrum and averaged spectrum must each preserve exact bin/frequency mappings and formula/version evidence. Neither segment may receive recency, quality or discretionary weighting.
+- Spectral normalization/scaling, frequency-grid details, and behavior when either segment spectrum is invalid remain open. The full-window Fourier diagnostic is unaffected.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v53, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 14.54s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.16, exact equal-weight bin-by-bin power-spectrum averaging, preservation of both inputs and the averaged spectrum, prohibition on hidden unequal weighting, open normalization/scaling and invalid-segment behavior, `ASM-045`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch segment-spectrum combination planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has a deterministic equal-weight combination and complete input/output evidence, while normalization/scaling, invalid-segment handling, frequency-grid implementation, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.15 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted equal treatment of the two Welch views and preservation of both inputs. Architecture alignment: future Factor owns segment-spectrum calculation and averaging; Persistence stores evidence and GUI only displays it. Safety alignment: averaging is research measurement only, cannot switch state, create a Decision, approve Risk or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-045` records only the accepted arithmetic mean and evidence requirement; invalid-segment behavior, normalization/scaling and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-045`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could average complex coefficients instead of power spectra, use unequal or hidden weights, discard individual spectra, average mismatched bins or silently continue with one invalid segment. Suggested commit message: `docs: define Welch spectrum averaging`. No commit or push was performed.
+
+## EDIT-20260729-011 — Approve fail-closed invalid Welch segment behavior
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that either invalid required Welch segment spectrum invalidate its containing window.
+- Amended `PROPOSAL-023` from planning revision `1.16` to `1.17`. An averaged Welch spectrum cannot be calculated or published from only the surviving segment.
+- Each segment's validation status, available calculation evidence and exact error remain stored with the window-level failure. Other independent 60/120/250 windows may still calculate.
+- A failed segment/window calculation remains distinct from a valid spectrum that reports no stable cycle.
+- Spectral normalization/scaling, frequency-grid details and the full-window Fourier diagnostic settings remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v54, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 14.15s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.17, containing-window invalidation, the prohibition on one-segment fallback, preservation of segment/window failure evidence, unaffected independent-window calculation, distinction from valid no-stable-cycle evidence, `ASM-046`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch validation/failure planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now fails the containing window instead of silently degrading a two-segment method into one segment, while preserving independent-window research and complete failure evidence. Normalization/scaling, exact status/error contracts, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.16 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted fail-closed treatment without discarding unaffected independent windows. Architecture alignment: future Factor owns segment/window validation; Persistence stores failures and GUI only displays them. Safety alignment: partial evidence cannot masquerade as a complete Welch result or create state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-046` records only the accepted containing-window failure, evidence retention and independent-window behavior; exact enums, normalization/scaling and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-046`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could silently average one segment, erase a valid segment when its peer fails, invalidate unrelated windows or mislabel calculation failure as no stable cycle. Suggested commit message: `docs: define invalid Welch segment behavior`. No commit or push was performed.
+
+## EDIT-20260729-012 — Approve parallel actual-power and relative-share Welch evidence
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that every valid averaged Welch spectrum preserve both Hann-corrected actual-power evidence and eligible-range relative-power-share evidence.
+- Amended `PROPOSAL-023` from planning revision `1.17` to `1.18`. The actual-power view is retained for amplitude research; the relative-share view uses `S_welch[k]=P_welch[k]/sum(P_welch[j] for j in E)` over eligible bins `E`, sums to 1/100%, and supplies the planned 15%/30% dominance evidence.
+- Neither representation may overwrite or substitute for the other. Both require exact formula/version, bin/frequency mapping and purpose evidence.
+- Exact Hann energy correction, one-sided-bin scaling, units, eligible-edge membership, zero-total-power status and spectral-amplitude conversion remain open. The full-window Fourier diagnostic is unaffected.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v55, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 14.85s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.18, parallel actual-power/relative-share evidence, eligible-range share formula and 100% sum, separate amplitude/dominance roles, open exact correction/one-sided scaling/units/edge/zero rules, `ASM-047`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch spectrum-representation planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now preserves both unit-bearing research strength and percentage dominance evidence without conflating them, while exact correction/scaling/units/edge/zero-total/amplitude rules, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.17 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted dual representation so amplitude and dominance research do not compete for one ambiguous number. Architecture alignment: future Factor owns both spectra and their structured evidence; Persistence stores them and GUI only displays them. Safety alignment: neither power representation can switch state, create a Decision, approve Risk or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-047` records only the accepted roles and relative-share formula; exact actual-power correction/scaling/units, edge/zero behavior and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-047`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could discard actual power, use all frequencies instead of eligible bins for the percentage denominator, label shares as amplitudes, or silently invent zero/edge/scaling rules. Suggested commit message: `docs: separate Welch power and dominance evidence`. No commit or push was performed.
+
+## EDIT-20260730-001 — Approve zero-eligible-power Welch status
+
+### User decision and result
+
+- The user explicitly accepted the recommendation for a valid actual-power spectrum whose eligible-bin power sum is zero.
+- Amended `PROPOSAL-023` from planning revision `1.18` to `1.19`. Actual-power evidence remains valid and stored; relative share receives status `ZERO_ELIGIBLE_POWER`, contains no fabricated percentage vector and produces no 15%/30% dominance class.
+- `ZERO_ELIGIBLE_POWER` is not a calculation error, invalid segment/window or by itself a stable/no-stable-cycle conclusion.
+- Exact Hann energy correction, one-sided-bin scaling, units, eligible-edge membership, spectral-amplitude conversion and the full-window Fourier diagnostic settings remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v56, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 26.44s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.19, preserved valid actual power, exact `ZERO_ELIGIBLE_POWER` status, absence of fabricated percentages/dominance class, separation from calculation failure and stable/no-stable-cycle outcomes, `ASM-048`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 relative-share zero-denominator planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now preserves valid zero-power evidence without divide-by-zero or invented dominance percentages, while exact correction/scaling/units/edge/amplitude rules, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.18 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted zero-denominator behavior without discarding valid actual-power evidence. Architecture alignment: future Factor owns the typed relative-share status; Persistence stores it and GUI only displays it. Safety alignment: no divide-by-zero output, fabricated percentage, dominance class, state, Decision, Risk approval or trade is created. Unapproved behavior added: none. Assumptions introduced: `ASM-048` records only the accepted zero-power status and exclusions; exact correction/scaling/units/edge and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-048`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could return NaN, fabricate an all-zero percentage vector, misclassify zero as weak dominance, erase actual power or confuse the status with calculation failure/no-stable-cycle. Suggested commit message: `docs: define zero eligible spectral power`. No commit or push was performed.
+
+## EDIT-20260730-002 — Approve one-sided squared-magnitude Welch power
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that P23-1 actual power use the amplitude-oriented squared-magnitude spectrum rather than power spectral density.
+- Amended `PROPOSAL-023` from planning revision `1.19` to `1.20`. For weighted real input, raw complex FFT `Y[k]` is preserved; Hann coherent-gain correction is `C_w=abs(sum(w))^2`; two-sided base power is `P_two[k]=abs(Y[k])^2/C_w`.
+- The one-sided result leaves DC unchanged, doubles each positive-frequency bin having a distinct negative-frequency mirror, and leaves an even-`N_fft` Nyquist bin unchanged. For odd `N_fft`, every retained positive-frequency bin is doubled.
+- Raw complex coefficients, raw squared magnitudes, correction factor, mirror/sidedness mapping and corrected power are all retained. Units are squared input units (`log-price-residual^2` for the first candidate), not density per frequency.
+- FFT length/zero-padding, frequency grid/eligible edges, peak neighborhood, half/full-amplitude conversion and full-window Fourier settings remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v57, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 14.74s.
+- Relative Markdown-link check across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.20, raw complex FFT retention, exact Hann coherent-gain correction, corrected squared magnitude, even/odd one-sided mirror rules, squared-input/non-density units, unresolved FFT/grid/amplitude decisions, `ASM-049`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 actual-power scaling/sidedness planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has deterministic Hann coherent-gain and one-sided mirror rules with complete raw evidence, while FFT length/grid/edge/peak/amplitude rules, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.19 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted amplitude-oriented spectrum definition without confusing it with density or final amplitude. Architecture alignment: future Factor owns FFT scaling/sidedness and evidence; Persistence stores it and GUI only displays it. Safety alignment: the spectrum remains research evidence and cannot create state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-049` records only the accepted correction and sidedness rules; FFT length/grid/edge/peak/amplitude and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-049`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could divide by `sum(w^2)` instead of `abs(sum(w))^2`, double DC/Nyquist, omit mirror factors, label density as power, lose raw complex evidence or silently choose `N_fft`. Suggested commit message: `docs: define Welch squared magnitude power`. No commit or push was performed.
+
+## EDIT-20260730-003 — Approve parent-window Welch FFT grids and eligible bins
+
+### User decision and result
+
+- The user explicitly accepted the recommendation that each Welch segment use its parent window length as `N_fft`, with trailing zero-padding only.
+- Amended `PROPOSAL-023` from planning revision `1.20` to `1.21`: 40-observation segments use `N_fft=60`, 80 use 120 and 167 use 250; exact appended-zero ranges are `40..59`, `80..119` and `167..249`.
+- Padding is marked `FFT_PADDING_ONLY`, excluded from Hann/coherent-gain sums and never represented as Market Bars, observations, information or increased true resolving power.
+- The exact grid is `f[k]=k/W` cycles per completed trading observation and `T[k]=W/k` completed trading observations for `k>0`. Inclusive `4<=T[k]<=W/3` produces eligible bins `3..15`, `3..30` and `3..62`; `k=0` is ineligible.
+- The unpadded weighted segment, padded sequence, padding mask/range, `N_fft`, full bin/frequency/period map and eligibility result remain stored.
+- Peak-neighborhood/smoothing, dominance aggregation, amplitude conversion and full-window Fourier settings remain open.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v58, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 21.97s.
+- Relative Markdown-link validation across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.21, `N_fft=60/120/250`, all three trailing padding ranges and `FFT_PADDING_ONLY` provenance, `f[k]=k/W`, `T[k]=W/k`, exact eligible sets `3..15`/`3..30`/`3..62`, `ASM-050`, the implementation block, Schema v13 and Phase 6E. `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch FFT-grid/eligibility planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has deterministic FFT lengths, padding provenance, frequency/period maps and eligible bins without turning zeros into data or information. Peak/smoothing/dominance/amplitude rules, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.20 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted common measurement ruler while preserving the distinction between interpolation and market evidence. Architecture alignment: future Factor owns padding/grid/eligibility calculations; Persistence stores evidence and GUI only displays it. Safety alignment: padding cannot become a Bar, observation, state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-050` records only the accepted FFT lengths, padding direction, grid and inclusive bins; peak/smoothing/dominance/amplitude and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-050`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could prepend/center zeros, include padding in the Hann sum, treat zeros as prices, use segment-length grids, include `k=63` for 250 days or claim higher true resolution. Suggested commit message: `docs: define Welch FFT grids`. No commit or push was performed.
+
+## EDIT-20260730-004 — Approve eligible-only five-bin Welch peak neighborhood
+
+### User decision and result
+
+- The user explicitly accepted the recommended five-bin peak-neighborhood treatment around a unique strongest eligible Welch relative-share bin.
+- Amended `PROPOSAL-023` from planning revision `1.21` to `1.22`: the unique maximum is center `k*`, requested bins are exactly `k*-2..k*+2`, and effective bins are only that range's intersection with eligible set `E`.
+- The neighborhood stores separate actual-power and relative-share sums, every member contribution, center frequency/period, requested/effective ranges and exact omitted bins.
+- Crossing an eligible boundary produces `neighborhood_truncated_at_eligible_edge=true`; the calculation cannot wrap, invent bins or insert zero contributions outside `E`.
+- Candidate period remains `T[k*]`. This revision does not approve smoothing, a weighted-center period, amplitude conversion, arbitrary tied-maximum resolution, multiple-peak policy or exact 15%/30% boundary classification.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v59, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 19.94s.
+- Relative Markdown-link validation across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.22, unique-center `k*`, requested `k*-2..k*+2`, eligible-only membership, separate `P_neighborhood`/`D_neighborhood` sums, explicit edge-truncation evidence, unresolved tie/smoothing/boundary/amplitude behavior, `ASM-051`, the implementation block, Schema v13 and Phase 6E. The edit ID is unique; `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 Welch peak-neighborhood and dominance-aggregation planning; secondary impact is synchronized governance/open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has a deterministic unique-center five-bin request, eligible-only effective membership, dual power/share aggregation and explicit edge-truncation evidence. Ties, multiple peaks, smoothing, threshold boundary classifications, amplitude conversion, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.21 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's accepted way to count a peak together with nearby Hann-spread evidence without overstating out-of-range frequencies. Architecture alignment: future Factor owns center selection, neighborhood membership and structured evidence; Persistence stores it and GUI only displays it. Safety alignment: neighborhood evidence cannot create a cycle, state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-051` records only the accepted unique-center, five-bin, eligible-intersection and edge-evidence rules; ties, multiple peaks, smoothing, threshold boundaries, amplitude and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-051`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could include ineligible bins, wrap at an edge, fabricate zeros, discard member contributions, smooth before choosing the center, silently break ties or replace `T[k*]` with a weighted period. Suggested commit message: `docs: define Welch peak neighborhood`. No commit or push was performed.
+
+## EDIT-20260730-005 — Approve exact Welch dominance boundaries
+
+### User decision and result
+
+- The user explicitly accepted the recommended dominance boundary treatment and also asked what remains before formal development can begin.
+- Amended `PROPOSAL-023` from planning revision `1.22` to `1.23`: a defined `D_neighborhood` is `WEAK` for `0<=D<0.15`, `CANDIDATE` for `0.15<=D<0.30` and `STRONG` for `0.30<=D<=1`.
+- Exactly 15% is candidate and exactly 30% is strong. Only candidate/strong can later supply dominance-qualified cross-window evidence.
+- `ZERO_ELIGIBLE_POWER`, unresolved tied maxima and any other case without a defined neighborhood share produce no dominance class. Display rounding cannot replace the underlying calculated share.
+- Numeric representation/comparison tolerance remains open, as do tied/multiple-peak handling, smoothing, cross-window similarity, amplitude and other P23-1 contracts.
+- No implementation admission was added. P23-1 code, dependencies, contracts, central SQLite migration, GUI, historical simulation and activation still require separate approval.
+
+### Files changed
+
+- Amended planning proposal: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Synchronized governance/planning: `PROJECT_COMPASS.md` v60, `docs/proposals/README.md`, `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed** in 18.01s.
+- Relative Markdown-link validation across the six affected documents passed with zero broken local targets. Exact-content checks confirmed planning revision 1.23, the three non-overlapping dominance intervals, exact 15%/30% membership, undefined-share no-class behavior, display-rounding prohibition, `ASM-052`, the implementation block, Schema v13 and Phase 6E. The edit ID is unique; `git diff --check` and the untracked proposal whitespace check passed with only normal Windows LF-to-CRLF notices.
+- No source code, dependency, public runtime contract, configuration, central SQLite schema/data, GUI, Backtesting behavior, Portfolio Accounting, Paper/Live, order path or activation changed. Central SQLite remains Schema v13 and current runtime phase remains Phase 6E.
+- No product Bug was identified by this planning-only change; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Primary impact is PROPOSAL-023 P23-1 dominance classification planning; secondary impact is synchronized governance and open-decision terminology. Runtime contracts, configuration, database, GUI, permissions, migration, trading results and safety behavior are unchanged. Future P23-1 now has exact non-overlapping weak/candidate/strong intervals and explicit undefined-share behavior. Numeric tolerance, ties, multiple peaks, smoothing, cross-window comparison, amplitude conversion, full-window Fourier settings and downstream interpretation remain separately unapproved. Current documentation blast radius is `LIMITED`; future P23-1 remains `MULTI_MODULE`. Rollback would restore planning revision 1.22 and related planning references while retaining this append-only decision record; no runtime/data rollback is required.
+
+### Compass audit
+
+Intent alignment: records the user's exact accepted threshold boundaries without turning a research class into a cycle or trade. Architecture alignment: future Factor owns dominance classification and structured evidence; Persistence stores it and GUI only displays it. Safety alignment: undefined evidence remains unclassified and the class cannot create state, Decision, Risk approval or trade. Unapproved behavior added: none. Assumptions introduced: `ASM-052` records the mathematical intervals and display-rounding prohibition; numeric representation/tolerance and downstream use remain open. Compass sections updated: metadata/version, DEC-009, `ASM-051` follow-up, `ASM-052`, `INTENT-034`, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: future code could classify from rounded display text, put exact 15%/30% in the wrong interval, classify undefined evidence, or treat candidate/strong as trading authority. Suggested commit message: `docs: define Welch dominance boundaries`. No commit or push was performed.
+
+## EDIT-20260730-006 — Design complete recommended resolutions for remaining P23-1 questions
+
+### Request, task mode and approval state
+
+- The user asked Codex to design complete detailed best-fit solutions for the unresolved questions, report them and preserve the modification history for future development context.
+- Classified the work as `DEEP` planning because the recommendation spans future Factor math, Market History provenance, public typed contracts, dependencies, central SQLite migration and GUI evidence. No runtime implementation was requested or admitted.
+- Recorded `P23-1-R1` as `AI_RECOMMENDED_PENDING_USER_APPROVAL`, deliberately leaving the approved proposal at planning revision `1.23`. The request to design the package was not treated as approval of any formula, dependency, contract, Schema migration or trading use.
+
+### Recommendation package recorded
+
+- Recommends a trend-only MAD baseline; a frozen `exchange_calendars`/`XNYS`-backed U.S.-equity regular-session definition; immutable Daily completion/first-observed evidence; Alpaca raw plus split-adjusted Bars and corporate-action snapshots; and distinct point-in-time versus retrospective adjustment modes.
+- Recommends a direct bounded NumPy runtime dependency with project-owned explicit FFT/Hann/power formulas and no SciPy runtime dependency.
+- Recommends no extra smoothing in candidate 1, an eight-ULP strongest-bin tie rule, a proposed 80% disjoint competing-neighborhood ambiguity gate, symmetric inclusive 20% period comparisons, a pairwise-clique cross-window rule and dominance-weighted frequency consensus.
+- Recommends a same-grid periodic-Hann full-window diagnostic and a fail-closed method-agreement gate.
+- Defines the proposed equivalent log half-amplitude `sqrt(2*P_neighborhood)` and separately named log/price-domain half/full representations; defines the sine/cosine residual fit, trend-only plus cycle-removed MAD evidence and valid zero-MAD behavior.
+- Defers any periodic-plus-MAD threshold multiplier to versioned historical calibration and later P23-2 user approval; proposes a research-only lambda grid rather than a hidden default.
+- Recommends float64 calculation with exact Decimal inputs, IEEE-754 hex evidence, unrounded classification, separated calculation/share/peak/method/cross-window statuses, no filling/winsorizing/clipping and exactly `W` complete-session warm-up.
+- Defines specialized future typed evidence, additive central v13-to-v14 logical persistence, read-only Factor Laboratory/Run History views, deterministic validation cases and five disabled implementation slices.
+
+### Research and evidence
+
+- Checked official NumPy real FFT, frequency-grid and DFT convention documentation; SciPy Welch/periodic-Hann and spectral scaling documentation; the maintained `exchange_calendars` session/calendar evidence; and official Alpaca stock-Bar/corporate-action request and adjustment-availability material.
+- The provider evidence supports a critical limitation: a corporate-action response fetched later cannot by itself prove what this application knew at an earlier historical as-of, so retrospective adjustment evidence must be labeled and cannot claim point-in-time-safe backtesting.
+
+### Files changed
+
+- Detailed recommendation and references: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- Proposal status index: `docs/proposals/README.md`.
+- Project direction/open-decision guard: `PROJECT_COMPASS.md` v61.
+- Roadmap next-decision note: `docs/project/ROADMAP.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+- Existing user/earlier working-tree changes, including `docs/project/GLOSSARY.md`, were preserved. No commit or push was performed.
+
+### Validation and bug discovery audit
+
+- Final architecture/governance suite: **83 passed in 17.37s** using `.venv\Scripts\python.exe -m pytest tests/architecture`; the bare `pytest` command was unavailable on PATH before the project virtual environment was used.
+- Relative Markdown-link checks passed for the four documents touched by this task. Exact-content checks confirmed planning revision 1.23 remains unchanged, the package is pending approval, proposed 80%/20%/amplitude formulas are recorded, future execution remains disabled and Compass v61 does not create `ASM-053`.
+- Proposal trailing-whitespace validation and `git diff --check` passed; only normal Windows LF-to-CRLF notices were emitted.
+- No source code, dependency, public runtime contract, configuration, central SQLite Schema/data, GUI, Backtesting, Portfolio Accounting, Paper/Live, order path or activation changed. Current runtime remains Phase 6E and central Schema remains v13.
+- No product Bug was found by this planning-only task; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Current impact is documentation/governance only with `LIMITED` blast radius. Future primary owner is `factors`; secondary owners are `market_history`, `orchestration`, `persistence`, `run_history` and `algorithm_control`. Proposed future changes include direct NumPy/`exchange_calendars` dependencies, specialized typed evidence, additive central Schema v14 and read-only GUI inspection, so actual implementation remains `MULTI_MODULE` and requires separate dependency/public-contract/migration approval. No current financial or safety behavior changed. Documentation rollback would remove the R1 recommendation paragraphs and restore Compass v60 while retaining this append-only history; no runtime/data rollback exists or is needed.
+
+### Compass audit
+
+Intent alignment: provides a complete, reproducible solution set while preserving the user's authority over financial meaning and future activation. Architecture alignment: future Market History owns source/calendar/action evidence, Factors own calculation, Orchestration owns Run lifecycle, Persistence stores typed results and GUI remains read-only. Safety alignment: the package explicitly cannot switch state, calculate a target, create an intent, approve Risk or trade. Unapproved behavior added: none; R1 is visibly an AI recommendation rather than revision 1.24 or `ASM-053`. Assumptions introduced: no active assumptions; proposed engineering/mathematical choices remain under DEC-004/005/006/009. Compass sections updated: metadata/version, Open-Decision guard, limitations and next direction; Stable Core and current runtime state are unchanged. Remaining drift risk: future implementation could treat retrospective data as point-in-time, silently smooth/tie-break, collapse multiple amplitude denominators, turn replay tolerance into classification tolerance, overload scalar `FactorResult`, or let evidence become State/Decision authority. Suggested commit message: `docs: propose complete P23-1 resolution package`.
+
+## EDIT-20260731-001 — Approve P23-1 R1 design baseline and propose implementation admission
+
+### User decision, task mode and result
+
+- The user explicitly approved the complete `P23-1-R1` mathematical/data recommendation, authorized creation of the formal implementation proposal and asked Codex to request any remaining information.
+- Classified the task as `DEEP` governance because future work would add dependencies, specialized public contracts, a central SQLite migration and coordinated Factor/Market History/Persistence/Run History/GUI behavior. This turn changed documentation only.
+- Advanced `PROPOSAL-023` from planning revision `1.23` to `1.24` and changed R1 from `AI_RECOMMENDED_PENDING_USER_APPROVAL` to `USER_APPROVED_DESIGN_BASELINE`.
+- Recorded `ASM-053` and synchronized DEC-004/005/006/009 and `INTENT-034`: P23-1 calculation/data semantics are resolved at design level, while dependency installation, runtime contracts, Schema v14 and implementation remain unapproved.
+- Created `PROPOSAL-024` as `PROPOSED`, not approved. It requests sequential disabled implementation of `P23-1A`–`P23-1D`, defers P23-1E and all downstream financial consumers, and asks three explicit user questions before source changes.
+
+### Implementation-admission design recorded
+
+- Proposed direct bounds are `numpy>=2.3.3,<3` and `exchange_calendars>=4.13.2,<5`; no SciPy runtime dependency. The local Python 3.14.5 environment currently has NumPy 2.5.1 transitively and does not have `exchange_calendars` installed. No dependency was changed or installed.
+- Defined one disabled Factor component and schema-v1 typed definitions, calendar/mapping, corporate-action, frozen evidence-bundle, command/operation, window/segment/series/spectrum/peak/method/cross-window/amplitude/residual contracts. Existing scalar `FactorResult` remains unchanged and no downstream adapter is admitted.
+- Reuses `FACTOR_PREVIEW` and `MARKET_DATA` → `FACTOR` Run stages; calculation consumes a frozen local bundle and cannot silently refresh Alpaca.
+- Proposed a purely additive central v13→v14 migration with 20 specialized tables. Existing 74-table evidence remains unchanged; no historical first-observed time is fabricated for v13 Bars. The proposal specifies backup, row-count, schema, foreign-key, integrity, restart and rollback evidence.
+- Limits GUI work to the existing Algorithm Control/Run History surfaces, with read-only inspection/export and no new Launcher entry, formula calculation, Provider/SQL access, selection of a winner or trading control.
+- Stage gates separate contracts/evidence adapters, pure numeric engine, persistence/orchestration and GUI. P23-1E historical comparison, wavelets, MAD/reversal multipliers, State, Target Position, Decision, Risk, Accounting, Paper, Live and activation remain excluded.
+
+### Research basis
+
+- Verified from official PyPI metadata that NumPy 2.3.3 declares Python 3.11–3.14 support and that `exchange_calendars` 4.13.2 declares Python 3.10–3.14 support and exposes XNYS session schedules. These checks support the proposed lower bounds but do not install or approve the packages.
+
+### Files changed
+
+- Approved planning baseline: `docs/proposals/PROPOSAL-023-volatility-aware-piecewise-cycle-target-position.md`.
+- New proposed implementation admission: `docs/proposals/PROPOSAL-024-p23-1-spectral-volatility-research.md`.
+- Proposal index: `docs/proposals/README.md`.
+- Project direction/open-decision/assumption state: `PROJECT_COMPASS.md` v62.
+- Roadmap and terminology: `docs/project/ROADMAP.md`, `docs/project/GLOSSARY.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+No runtime source, `pyproject.toml`, dependency installation, public runtime contract, configuration, central SQLite Schema/data, GUI, Backtesting, Portfolio Accounting, Paper/Live, order path or activation changed. Existing user/earlier uncommitted changes were preserved. No commit or push was performed.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite passed twice; final run: **83 passed in 19.51s** using `.venv\Scripts\python.exe -m pytest tests\architecture -q` (initial run: 83 passed in 26.14s).
+- `git diff --check` passed for tracked changes with only normal Windows LF-to-CRLF notices. Both untracked proposal files passed explicit trailing-whitespace checks.
+- Exact-content checks found no remaining `AI_RECOMMENDED_PENDING_USER_APPROVAL` or planning-revision-1.23 header in the governing documents and confirmed revision 1.24, `USER_APPROVED_DESIGN_BASELINE`, `ASM-053`, PROPOSAL-024, both dependency bounds and the 20-table v13→v14 proposal.
+- No product Bug was found by this documentation/governance task; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report
+
+Current impact is documentation/governance only with `LIMITED` blast radius. Future primary owner is `factors`; secondary owners are `market_history`, `orchestration`, `persistence`, `run_history` and `algorithm_control`. Proposed public contracts, dependencies and Schema v14 make implementation `MULTI_MODULE`, but the four sequential gates keep each implementation slice bounded. Current configuration, database, permissions, trading semantics and safety behavior are unchanged. Documentation rollback would restore R1 to pending/revision 1.23 and remove PROPOSAL-024 from the active proposal index while retaining this append-only history; no runtime/data rollback exists or is required.
+
+### Compass audit
+
+Intent alignment: records the user's approved complete P23-1 research baseline and creates the requested formal admission proposal without prematurely coding it. Architecture alignment: reuses all current owners, leaves scalar Factor contracts intact and prohibits GUI/Provider/Persistence calculation drift. Safety alignment: every proposed component stays disabled/`NO_EXECUTION`; retrospective data is labeled and no state, position, Decision, Risk approval, account, order, Paper or Live authority is added. Unapproved behavior added: none. Assumptions introduced: PROPOSAL-024 recommends explicit per-request U.S.-stock/ETF calendar mapping and one optional read-only provider verification, both visibly awaiting the user's answer. Compass sections updated: metadata/version, non-capabilities, DEC-004/005/006/009, ASM-052/053, INTENT-034, limitations and next direction; Stable Core/current runtime behavior are unchanged. Remaining drift risk: implementation must not treat proposal creation as approval, auto-discover/mislabel venue, backfill first-observed time, hide network refresh, overload `FactorResult`, weaken Schema constraints or connect evidence to downstream trading. Suggested commit message: `docs: propose P23-1 implementation admission`.
+
+## EDIT-20260731-002 — Implement approved PROPOSAL-024 P23-1A–D disabled research
+
+### User decision, task mode and delivered result
+
+- The user explicitly approved PROPOSAL-024, adopted the recommended explicit per-request U.S.-stock/ETF mapping to `US_EQUITIES_REGULAR_V1`, allowed one read-only Alpaca validation after fixtures, then asked development to continue after an interruption.
+- Classified as `DEEP`: primary owner `factors`; secondary owners `market_history`, `persistence`, `run_history` and `algorithm_control`. Expected blast radius was `MULTI_MODULE` because approved work added direct dependencies, specialized public contracts and an additive central database migration. P23-1E and all financial/trading consumers remained excluded.
+- Completed sequential P23-1A–D. The locked R1 component is `DISABLED`, `execution_allowed=false`, `live_allowed=false` and has no Asset State, Target Position, Decision, Risk, Backtesting, Portfolio Accounting, Paper, Live, order or execution consumer.
+
+### Implementation
+
+- P23-1A added immutable XNYS calendar/session/fingerprint, explicit symbol mapping, Raw/Split Daily Bar, availability/evidence-mode and corporate-action contracts; `XNYSResearchCalendarAdapter`; frozen evidence builder; and a Market-Data-only Alpaca corporate-action adapter.
+- P23-1B added the locked definition, full specialized result graph and pure R1 engine: OLS detrending, raw/standardized MAD, periodic-Hann Welch construction, one-sided corrected power, zero-power/tie/competing-peak rules, five-bin evidence, full-window diagnostic, cross-window support/consensus, amplitude representations and cycle-removed residual MAD. Float outputs preserve IEEE-754 hexadecimal evidence.
+- P23-1C added `FACTOR_PREVIEW` / `MARKET_DATA`→`FACTOR` orchestration, exact idempotency/conflict behavior, completed/warning/invalid/failed persistence, central Schema v14 with 20 normalized tables, exact relational reload and Run History artifacts.
+- P23-1D added a read-only `P23-1 波动研究` Factor subtab with filters, provenance/window display, `Open Run` and atomic JSON/CSV export. GUI code contains no calculation, SQL or Alpaca access; no Launcher entry was added.
+- Added bounded direct dependencies `numpy>=2.3.3,<3` and `exchange_calendars>=4.13.2,<5`; `pip check` reports no broken requirements.
+
+### Database migration and external validation evidence
+
+- Fixture migration tests passed before the real database changed. Backup: `runtime/data/backups/market_history.schema-v13-to-v14.20260731T193316459663Z.sqlite3`.
+- The active database migrated from v13/74 to v14/94 required logical tables. Every old-table row count was unchanged, `integrity_check=ok`, and foreign-key violations were zero. The backup remains migration version 13 and passes integrity. Active v14 contains one locked disabled definition, three definition-window rows and zero spectral operations; no historical result was backfilled.
+- The approved check used only Alpaca Historical Stock Data and Corporate Actions. AAPL IEX Raw and Split Daily each returned 144 aligned observations; two cash-dividend events normalized to supported `cash_dividend` evidence. No Trading client or account/position/order/fill access occurred, and no Secret value was printed or persisted.
+
+### Files changed
+
+- Dependencies: `pyproject.toml`.
+- Market evidence/provider: `market_history/research_evidence.py`, `providers/alpaca_corporate_actions.py` and public exports.
+- Factor: `spectral_models.py`, `spectral_interfaces.py`, `spectral_engine.py`, `spectral_service.py` and public exports.
+- Persistence/Run History: `spectral_volatility_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py` and public exports.
+- Algorithm Control: `spectral_export.py`, `ui/spectral_volatility_panel.py`, Factor/main panel composition and `app.py`.
+- Tests: new P23-1 Factor/Market History/Persistence/GUI suites; v14 migration expectations across existing repository suites; dependency, Run History and governance architecture tests.
+- Governance/documentation: PROPOSAL-023/024 and index; ADR-0029 and index; `PROJECT_COMPASS.md` v63; architecture overview; affected module docs; Index, Glossary, Roadmap, Project State and Changelog.
+- Audit: `logs/BUG_LOG.md` and this append-only record. Runtime database/backup remain Git-ignored. No commit or push was performed.
+
+### Validation and bug discovery audit
+
+- Full suite: **531 passed, 1 pre-existing upstream WebSocket deprecation warning** in 200.71 seconds.
+- Final architecture/governance subset: **85 passed** in 18.65 seconds, including new Factor/provider/GUI boundaries.
+- `compileall` passed; `pip check` found no broken requirements; `git diff --check` passed with only normal Windows LF→CRLF notices.
+- Read-only diagnostics reported `central_sqlite_v14`, 94 tables, integrity/FK clean, `live=false` and `automatic_submission=false`. System health remains `UNKNOWN` because automatic execution is unavailable, the expected safe state.
+- Fixed and verified `BUG-20260731-001` through `004`: provider plural action mapping, source ordinals, recognized-session/point-in-time/adjustment gates and test collection. Each has regression coverage. No unresolved P23-1 defect remains, so `KNOWN_ISSUES.md` was not changed.
+
+### Change Impact Report
+
+Primary module: `factors`. Secondary modules: `market_history`, `persistence`, `run_history`, `algorithm_control`. Public contracts: new specialized P23-1 and research-market-evidence contracts; existing generic contracts remain compatible. Configuration: one locked disabled R1 definition, no trading default. Database: additive v13→v14 with verified backup and no old-row reinterpretation. GUI: existing Factor/Run pages only. Permissions: one explicitly approved read-only Market Data validation; no account/order authority. Trading semantics/safety: no state, target, action, Risk approval, cash, position or order output. Rollback: omit service/query composition and hide the subtab while preserving audit rows; physical downgrade requires stopping writers and restoring the verified v13 backup with matching v13 code. Blast radius: `MULTI_MODULE`, bounded to the approved research/evidence path.
+
+### Compass audit
+
+Intent alignment: implements exactly approved P23-1A–D and preserves versioned evidence. Architecture alignment: Market History owns external evidence, Factors mathematics, Persistence SQL, Run History neutral lifecycle and GUI presentation; architecture tests pass. Safety alignment: locked disabled/NO EXECUTION, Alpaca Market-Data-only, no downstream financial consumer. Unapproved behavior added: none; P23-1E, wavelets, P23-2–P23-5 and trading/accounting remain excluded. Assumptions introduced: `ASM-054` records only the approved mapping and validation authority; no financial threshold was assumed. Compass sections updated: metadata/version, capability/owner tables, DEC-004/005/006/009, ASM-053/054, INTENT-034, limitations and next direction; Stable Core unchanged. Remaining drift risk: future work could mistake descriptive evidence for reversal/state authority, misuse retrospective evidence, auto-map unsupported venues or bypass exact versions; each consumer needs a new approved proposal. Suggested commit message: `feat: add disabled P23-1 spectral research`. No commit or push was performed.
+
+## EDIT-20260802-001 — Create proposed P23-1 manual latest-session runner admission
+
+### User decision and task mode
+
+- The user explicitly approved creation of `PROPOSAL-025` on 2026-08-02. This was interpreted as approval to record the proposal, not approval to implement it, use the network or perform a real validation.
+- Classified as `DEEP`, documentation/governance only. The future capability has `MULTI_MODULE` impact because it coordinates Market History evidence, the existing Factor service, Run History, Persistence and Algorithm Control. No runtime or schema change was made in this task.
+- Pre-implementation inspection confirmed that PROPOSAL-024 already owns the full locked P23-1 R1 mathematics, typed evidence, v14 persistence and read-only inspection. The missing responsibility is real request/evidence composition, so the proposed new primary owner is `orchestration`; Factors remains the unchanged mathematical owner.
+
+### Proposal recorded
+
+- Created `PROPOSAL-025: P23-1E-A Manual Latest-Session Spectral Preview Runner` with status `PROPOSED / AWAITING IMPLEMENTATION APPROVAL`.
+- Recommended one explicit symbol, the exact locked R1 definition, IEX Daily evidence, the latest completed XNYS session, exactly 250 trailing completed sessions and a visible `RETROSPECTIVE_ADJUSTED` label.
+- Defined `LOCAL_ONLY` as requiring complete exact frozen evidence and `FETCH_AND_FREEZE_READ_ONLY` as a per-click Alpaca Historical Stock Data/Corporate Actions action only. Missing corporate-action evidence cannot mean “no actions.”
+- Reused the existing `SpectralMarketEvidenceBundle`, `SpectralVolatilityService`, `SpectralVolatilityOperation`, Run History and Schema v14. No Schema v15, database migration, new top-level module or new Factor formula is proposed.
+- Required one successful top-level Run per click, searchable preparation failures, immutable reruns, background GUI dispatch, exact Open Run/reload and no calculation/provider/SQL logic in widgets.
+- Explicitly excluded full P23-1E comparison/scoring, ranking, wavelets, reversal/state semantics, Target Position, cash allocation, Decision, Risk, Backtesting, Portfolio Accounting, Paper, Live, orders, batch/scheduled runs and activation.
+- Left four implementation decisions pending: the small latest-session slice, explicit per-click read-only acquisition, fixed IEX/R1/250-session/retrospective/v14 semantics and one bounded post-test AAPL read-only validation.
+
+### Files changed
+
+- New proposal: `docs/proposals/PROPOSAL-025-manual-spectral-preview-runner.md`.
+- Proposal index: `docs/proposals/README.md`.
+- Project intent/open-decision state: `PROJECT_COMPASS.md` v64, including DEC-012 and INTENT-035.
+- Direction/status: `docs/project/ROADMAP.md`, `docs/project/PROJECT_STATE.md`.
+- Audit: this append-only `logs/EDIT_LOG.md` entry.
+
+No runtime source, public implemented contract, dependency, configuration, database/schema/data, GUI, network, credential, Market Data request, broker/account/order behavior or trading meaning changed. The existing uncommitted PROPOSAL-024 working-tree implementation was preserved. No commit or push was performed.
+
+### Validation and bug discovery audit
+
+- Architecture/governance suite: **85 passed** in 9.44 seconds.
+- Proposal section/reference/link checks passed; the new proposal has no trailing whitespace.
+- `git diff --check` passed with only normal Windows LF→CRLF notices.
+- No product Bug was discovered by this documentation/governance task. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` were not changed for PROPOSAL-025.
+
+### Change Impact Report
+
+Current impact is documentation/governance only with `LIMITED` blast radius. Proposed implementation impact is `MULTI_MODULE`: primary `orchestration`; secondary `market_history`, `factors`, `persistence`, `run_history` and `algorithm_control`. Existing P23-1 contracts and Schema v14 should remain compatible; no migration is proposed. The only proposed external permission is an explicit per-click read-only Market Data/corporate-action request, still awaiting approval. Trading semantics and safety behavior remain unchanged. Documentation rollback removes PROPOSAL-025 from current direction/index and restores Compass v63 meaning while retaining this append-only audit; there is no runtime/data rollback.
+
+### Compass audit
+
+Intent alignment: records the smallest path from the existing mathematical engine to one inspectable manual calculation without claiming full P23-1E. Architecture alignment: Orchestration coordinates, Market History owns external evidence, Factors owns mathematics, Persistence owns SQL, Run History owns lifecycle and GUI remains presentation-only; architecture tests pass. Safety alignment: proposed runner stays disabled/manual/NO EXECUTION, labels retrospective evidence and forbids Trading API/account/order access. Unapproved behavior added: none. Assumptions introduced: none as behavior; all acquisition/evaluation choices remain recommendations under DEC-012. Compass sections updated: metadata/current phase, DEC-012, INTENT-035, limitations and next direction; Stable Core unchanged. Remaining drift risk: a future implementation could hide a fetch, claim absent corporate actions, create duplicate Runs, mislabel retrospective evidence or turn descriptive output into a trading input; each is an explicit fail/architecture gate in PROPOSAL-025. Suggested commit message: `docs: propose manual P23-1 preview runner`.
+
+## EDIT-20260802-002 — Implement approved PROPOSAL-025 P23-1E-A manual runner
+
+### Date
+
+2026-08-02 17:33:27 -07:00
+
+### Request and approval
+
+The user approved PROPOSAL-025, all four recommended implementation choices and at most one post-test read-only AAPL validation. During pre-implementation review, an existing-window semantic conflict was surfaced and the user selected option B: preserve immutable R1 v1.0.0/history and add immutable R1 v1.1.0 whose 60/120/250 windows include the latest completed evaluation session. No other spectral formula or trading meaning was approved.
+
+### Task mode and scope
+
+Task mode: `DEEP`. Primary module: `orchestration`. Secondary owners: `market_history`, `factors`, `persistence`, `run_history`, `algorithm_control`. Blast radius: `MULTI_MODULE`, bounded by existing public contracts and the Algorithm Control composition root.
+
+Included: exact latest-completed XNYS session resolution, local-only or explicit-click read-only evidence preparation, immutable R1 v1.1.0 registration, one top-level `FACTOR_PREVIEW` Run, durable failures, exact Schema-v14 reload, background existing-Factor-page controls and one approved real validation. Excluded: any new Fourier/MAD/amplitude formula, full P23-1E comparison/scoring, wavelets, State, Target Position, Decision, numerical/complete Risk, Backtesting, Portfolio Accounting persistence, Paper, Live, account/position/order/fill access, activation and automatic/scheduled/batch network work.
+
+### Implementation
+
+- Added R1 v1.1.0 inclusive-window definition identity while retaining R1 v1.0.0 unchanged. The engine branches only the session-date cutoff by exact component version.
+- Fixed evidence-time admission: point-in-time observations remain `available_at_utc <= as_of_utc`; only explicit `RETROSPECTIVE_ADJUSTED` evidence admits later-observed frozen Bars, and the warning is persisted in operation/Run evidence.
+- Added Market-History-owned typed evidence preparation with `LOCAL_ONLY` and `FETCH_AND_FREEZE_READ_ONLY`, exact IEX/Daily/Raw+Split/retrospective/250-session semantics, explicit XNYS calendar, complete session alignment and fail-closed corporate-action evidence.
+- Added an exact completed frozen-bundle query to `SQLiteSpectralVolatilityStore`; no ordinary Bar cache fallback exists.
+- Added the typed `ManualSpectralPreviewCoordinator`. Successful requests delegate Run ownership to the existing Factor service; preparation/definition failures create searchable failed Runs with failed Market Data stages.
+- Extended the existing P23-1 Factor page with symbol/acquisition controls, exact-definition disclosure, background `TaskWorker`, duplicate suppression, persisted completion/error/Run ID, reload and Open Run. No new window or Launcher entry was added.
+- Algorithm Control composes the exact stored R1 v1.1.0 definition, Market History evidence service, existing Factor service and coordinator. App logging redacts settings; no Trading client is constructed.
+- Kept the concrete Market History factory in `quant_trading.market_history.composition` rather than the package root, preventing a cold-start import cycle.
+
+### Files changed for PROPOSAL-025
+
+- Runtime: `src/quant_trading/factors/spectral_models.py`, `spectral_engine.py`, `spectral_service.py`, `factors/__init__.py`; `src/quant_trading/market_history/spectral_preview_evidence.py`, `composition.py`, `market_history/__init__.py`; `src/quant_trading/orchestration/manual_spectral_preview.py`, `orchestration/__init__.py`; `src/quant_trading/persistence/spectral_volatility_sqlite_store.py`; `src/quant_trading/algorithm_control/app.py`, `ui/spectral_volatility_panel.py`, `ui/factor_authoring_panel.py`, `ui/main_panel.py`.
+- Tests: `tests/unit/factors/spectral_fixtures.py`, `test_spectral_volatility.py`, `test_sqlite_spectral_volatility.py`, `test_manual_spectral_preview.py`; `tests/unit/market_history/test_spectral_preview_evidence.py`; `tests/unit/algorithm_control/test_spectral_volatility_panel.py`; `tests/architecture/test_dependency_boundaries.py`, `test_run_history_boundaries.py`.
+- Governance/docs: PROPOSAL-025/index, ADR-0030/index, Compass v65, canonical architecture v33, Project State/Roadmap/Glossary, affected Market History/Factors/Orchestration/Persistence/Run History/Algorithm Control/Launcher module docs, Documentation Index, CHANGELOG, Bug Log and this Edit Log.
+
+### Database and real validation
+
+No schema or migration changed. Central SQLite remains Schema v14 with 94 required logical tables. Final read-only inspection returned `integrity_check=ok` and zero foreign-key violations.
+
+The first validation attempt stopped during a clean-process import before script execution, provider construction, network access or Run creation; it exposed `BUG-20260802-003` and did not consume the approved external validation. After the fix and complete regression run, the one approved real request used only Alpaca Historical Stock Data and Corporate Actions for AAPL. It completed with warnings:
+
+- Run: `97448eba-e403-4be9-96a9-5c6cf8b52695`
+- Operation: `5380fd0e-51c4-418f-ae8e-50a7ab42ba8e`
+- Attempt: `f23eeab5-1a36-4816-875a-02801b7d8d10`
+- Definition: R1 v1.1.0; as-of `2026-07-31T20:00:00Z`; 250 exact observations through session `2026-07-31`
+- W60/W120/W250: all `VALID`; candidate periods 20, 40 and approximately 83.33 sessions
+- Persisted warnings include `RETROSPECTIVE_ADJUSTED`, cash-dividend notices and method-disagreement warnings; cross-window result is `insufficient_qualified_windows`, with no consensus period
+
+A separate fresh local process reloaded the same operation, Run, two warning-bearing stages and full three-window evidence. No Trading API, account, position, buying power, order, fill, Paper or Live operation occurred.
+
+### Validation and bug discovery audit
+
+- P25 targeted suite: **29 passed** with one pre-existing upstream warning.
+- Final full suite: **547 passed** with one pre-existing upstream WebSocket warning.
+- `compileall`: passed.
+- Active central database: integrity `ok`; foreign-key violations `0`.
+- Confirmed and fixed with regression coverage: `BUG-20260802-001` retrospective observation admission, `BUG-20260802-002` missing persisted retrospective warning, and `BUG-20260802-003` cold-start circular import. None remains in `KNOWN_ISSUES.md`.
+
+### Change Impact Report
+
+Primary/secondary ownership remained intact. Public contracts were added compatibly; R1 v1.0.0 and every earlier row remain unchanged. Configuration gains no new secret, endpoint, active/default algorithm or standing network authority. Database schema stays v14. GUI impact is limited to the existing Factor subtab. Trading semantics and safety authority are unchanged: descriptive spectral output has no downstream financial consumer; `execution_allowed=false`, `live_allowed=false`; Live and automatic submission remain disabled. Rollback removes the manual runner wiring/controls and refuses new P23-1E-A calculations while retaining immutable definitions, Runs and results readable. No destructive data or Git rollback is required.
+
+### Compass audit
+
+Intent alignment: implements exactly the approved smallest real manual P23-1 preview and user-selected inclusive-window version amendment. Architecture alignment: Market History owns evidence/providers, Factors owns math, Orchestration owns call order, Persistence owns SQL, Run History owns lifecycle and Algorithm Control owns presentation/composition; full and architecture checks pass. Safety alignment: network is explicit/read-only, retrospective evidence is visible, output remains disabled/unconsumed and no Trading API was used. Unapproved behavior added: none. Assumptions introduced: none beyond low-risk internal composition details; user decisions are recorded as ASM-055/DEC-012 resolution for P23-1E-A. Compass sections updated: metadata/current phase, DEC-012, ASM-055, INTENT-035, limitations and next direction; Stable Core unchanged. Remaining drift risk: a future change could mistake R1 v1.1.0 descriptive periods for a state/trade signal, hide automatic acquisition or weaken point-in-time admission. Architecture invariants 90–94 and ADR-0030 make those changes fail review and require a new approved proposal.
+
+No commit or push was performed. Suggested commit message: `feat: add manual latest-session spectral preview`.
+
+### Final verification addendum
+
+After all governance/document updates, the architecture/governance suite passed **87 tests** and the complete suite again passed **547 tests** with the same single pre-existing upstream warning. `compileall`, `pip check` and `git diff --check` passed; the latter reported only normal Windows LF→CRLF notices. Final read-only database counts are Schema v14, 94 logical tables, 2 spectral definitions (one each for component versions 1.0.0 and 1.1.0), 6 definition-window rows and 1 `completed_with_warnings` operation. Integrity remains `ok` with zero foreign-key violations.
+
+## EDIT-20260802-003 — Record and publish the P23-1/P25 Git checkpoint
+
+### Date
+
+2026-08-02 18:09:23 -07:00
+
+### Request
+
+The user explicitly requested committing and pushing the completed work to GitHub and asked that the current version information and status be recorded.
+
+### Version record
+
+- Added `CHECKPOINT-20260802-003` to `docs/project/VERSION_HISTORY.md`.
+- Branch: `main`; previous commit: `1f100bd`; remote target: `origin/main` at `https://github.com/tony73410/QuantTrading.git`.
+- Package version remains `0.1.0`; no unapproved semantic-version bump was made.
+- Recorded central Schema v14/94, PROJECT_COMPASS v66, architecture v33, PROPOSAL-023/024/025 scope, immutable R1 v1.0.0/v1.1.0 meanings, test/database evidence, one approved read-only AAPL validation, disabled execution state, remaining unapproved work and rollback.
+- Updated Compass verification metadata from an uncommitted-working-tree description to the commit containing this checkpoint, with parent `1f100bd`.
+
+### Pre-publish checks
+
+- Complete suite: 547 passed with one pre-existing upstream warning.
+- Architecture/governance suite: 87 passed.
+- `compileall`, `pip check` and `git diff --check`: passed; only normal Windows LF→CRLF notices.
+- Active ignored database: Schema v14, 94 logical tables, 2 definitions, 6 windows, 1 operation, integrity `ok`, zero foreign-key violations.
+- Changed-file size inspection found no file over 1 MB. Runtime databases, backups, logs, `.env` and credentials remain excluded.
+- Secret scan and staged-content review are required immediately before commit. The requested Git commit and push occur after this append-only record; their actual commit ID and remote result are reported to the user and are independently preserved by Git history.
+
+No source behavior, formula, configuration default, schema, runtime data, GUI behavior, external access or trading authority changed in this checkpoint-record task. Suggested commit message: `feat: add governed spectral volatility preview`.

@@ -3,11 +3,25 @@
 from __future__ import annotations
 
 import ast
+import subprocess
+import sys
 from pathlib import Path
 
 
 SOURCE_ROOT = Path(__file__).resolve().parents[2] / "src"
 PACKAGE_ROOT = SOURCE_ROOT / "quant_trading"
+
+
+def test_algorithm_control_app_imports_in_a_fresh_process() -> None:
+    completed = subprocess.run(
+        [sys.executable, "-c", "import quant_trading.algorithm_control.app"],
+        cwd=SOURCE_ROOT.parent,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 def _module_name(path: Path) -> str:
@@ -305,6 +319,9 @@ def test_algorithm_control_uses_only_public_factor_authoring_contracts() -> None
         "quant_trading.factors.standardized_state_interfaces",
         "quant_trading.factors.standardized_state_models",
         "quant_trading.factors.standardized_state_service",
+        "quant_trading.factors.spectral_interfaces",
+        "quant_trading.factors.spectral_models",
+        "quant_trading.factors.spectral_service",
     }
     violations = [
         f"{module} imports non-contract Factor module {target}"
@@ -346,7 +363,10 @@ def test_market_history_app_is_the_only_concrete_composition_root() -> None:
         has_store = any(_matches(target, concrete_store) for target in targets)
         if has_provider and has_store:
             roots.append(module)
-    assert roots == ["quant_trading.market_history.app"]
+    assert roots == [
+        "quant_trading.market_history.app",
+        "quant_trading.market_history.composition",
+    ]
 
 
 def test_portfolio_accounting_dependency_boundaries() -> None:

@@ -1,5 +1,6 @@
 # Architecture Decision Records
 
+- `ADR-0029-specialized-spectral-volatility-research.md`: accepted specialized disabled P23-1 Market History/Factor evidence, bounded NumPy and `exchange_calendars` dependencies, additive central Schema v14 and presentation-only inspection; no cycle/state/target/Decision/Risk/execution consumer exists.
 - `ADR-0028-research-capital-asset-cash-risk-preview.md`: accepted the explicit read-only Phase 3A plan/latest-snapshot adapter and type-distinct order-3 asset-cash Risk preview; no cash is reserved or made factual and no approval/execution authority exists.
 - `ADR-0027-research-asset-cash-floor-preview.md`: accepted the type-distinct Phase 6C order-2 minimum hypothetical research-cash rule over the exact Phase 5C manual basis; positive outputs remain manual-review-only and no factual cash or execution authority exists.
 - `ADR-0026-single-asset-exposure-cap-preview.md`: accepted one explicit symbol-specific exact-USD `MAX_TARGET_EXPOSURE_USD@1` preview, immutable v11 evidence and manual-review/block-only outcomes; it remains type-distinct from complete Risk approval and execution.
@@ -36,6 +37,10 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 `Status`、`Context`、`Options considered`、`Decision`、`Rationale`、`Consequences`、`Reversal`。
 
 ## Index
+
+- [ADR-0030: Keep Manual Latest-Session Spectral Preview Explicit and Versioned](ADR-0030-manual-latest-session-spectral-preview.md) — immutable R1 v1.0.0/v1.1.0 session-window semantics, explicit local/read-only evidence preparation, bounded orchestration and no trading authority.
+
+- [ADR-0029: Keep Spectral Volatility as Specialized Disabled Research Evidence](ADR-0029-specialized-spectral-volatility-research.md) — exact typed market/source/numerical evidence, bounded dependencies, Schema v14 and read-only inspection with no downstream financial consumer.
 
 - [ADR-0026: Keep the First Numerical Risk Rule a Type-Distinct Exposure-Cap Preview](ADR-0026-single-asset-exposure-cap-preview.md) — explicit immutable symbol/cap versions, exact non-expanding rule math, manual-review/block-only evidence and no approval/execution consumer.
 

@@ -28,6 +28,7 @@ from quant_trading.persistence import (
     SQLiteResearchCashFloorStore,
     SQLiteResearchAssetCashStore,
     SQLiteTargetAdjustmentRiskStore,
+    SQLiteSpectralVolatilityStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -35,6 +36,15 @@ from quant_trading.asset_state import AssetStateService
 from quant_trading.target_position import TargetPositionService
 from quant_trading.target_position import LinkedTargetPositionService
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
+from quant_trading.factors.spectral_models import (
+    locked_r1_definition,
+    locked_r1_inclusive_definition,
+)
+from quant_trading.factors.spectral_service import SpectralVolatilityService
+from quant_trading.market_history.composition import (
+    build_spectral_preview_evidence_service,
+)
+from quant_trading.market_history.config import AppSettings
 from quant_trading.decision import TargetAdjustmentDecisionService
 from quant_trading.risk import (
     ResearchAssetCashFloorService,
@@ -50,6 +60,7 @@ from quant_trading.orchestration import (
     TargetAdjustmentResearchCashFloorPreviewCoordinator,
     TargetAdjustmentResearchAssetCashPreviewCoordinator,
     TargetAdjustmentRiskReviewCoordinator,
+    ManualSpectralPreviewCoordinator,
 )
 
 from .audit_service import AuditService
@@ -130,8 +141,16 @@ def _parse_args(argv: Sequence[str]) -> Namespace:
 def main(argv: Sequence[str] | None = None) -> int:
     options = _parse_args(sys.argv[1:] if argv is None else argv)
     root = Path.cwd().resolve()
+    settings = AppSettings.from_environment(root)
     session_id = new_session_id()
-    configure_logging(root / "runtime" / "logs", session_id=session_id)
+    configure_logging(
+        root / "runtime" / "logs",
+        session_id=session_id,
+        secrets=(
+            settings.alpaca_market_data_api_key or "",
+            settings.alpaca_market_data_secret_key or "",
+        ),
+    )
     install_exception_hooks()
     logger.info(
         "Algorithm Control Center starting; no execution capability",
@@ -154,7 +173,41 @@ def main(argv: Sequence[str] | None = None) -> int:
         root / "runtime" / "data" / "market_history.sqlite3"
     )
     research_history_queries.initialize()
+    spectral_volatility_store = SQLiteSpectralVolatilityStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    spectral_volatility_store.initialize()
+    legacy_spectral_definition = locked_r1_definition(created_at_utc=datetime.now(UTC))
+    if spectral_volatility_store.get_definition(legacy_spectral_definition.definition_id) is None:
+        spectral_volatility_store.save_definition(legacy_spectral_definition)
+    inclusive_spectral_definition = locked_r1_inclusive_definition(
+        created_at_utc=datetime.now(UTC)
+    )
+    stored_inclusive_definition = spectral_volatility_store.get_definition(
+        inclusive_spectral_definition.definition_id
+    )
+    if stored_inclusive_definition is None:
+        spectral_volatility_store.save_definition(inclusive_spectral_definition)
+    else:
+        inclusive_spectral_definition = stored_inclusive_definition
     software = detect_software_identity(root)
+    run_service = AlgorithmRunService(run_history_queries)
+    spectral_evidence_preparation = build_spectral_preview_evidence_service(
+        settings,
+        spectral_volatility_store,
+    )
+    spectral_factor_service = SpectralVolatilityService(
+        spectral_volatility_store,
+        run_service,
+        software,
+    )
+    manual_spectral_preview = ManualSpectralPreviewCoordinator(
+        spectral_volatility_store,
+        spectral_evidence_preparation,
+        spectral_factor_service,
+        run_service,
+        software,
+    )
     capital_store = SQLiteCapitalAllocationStore(
         root / "runtime" / "data" / "market_history.sqlite3"
     )
@@ -355,6 +408,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         research_cash_floor_queries=research_cash_floor_store,
         research_asset_cash_preview=research_asset_cash_preview,
         research_asset_cash_queries=research_asset_cash_store,
+        spectral_volatility_queries=spectral_volatility_store,
+        manual_spectral_preview=manual_spectral_preview,
+        spectral_definition=inclusive_spectral_definition,
     )
     if options.page is not None:
         panel.select_page(options.page)

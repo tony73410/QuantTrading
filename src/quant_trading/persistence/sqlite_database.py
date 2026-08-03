@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 
 
 _SCHEMA_V1 = """
@@ -2277,6 +2277,373 @@ ON target_adjustment_research_asset_cash_source_links
 """
 
 
+_SCHEMA_V14 = """
+CREATE TABLE spectral_volatility_definitions (
+    definition_id TEXT PRIMARY KEY,
+    component_id TEXT NOT NULL,
+    component_version TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    status TEXT NOT NULL CHECK (status IN ('disabled', 'archived')),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (component_id, component_version, definition_version)
+);
+
+CREATE TABLE spectral_volatility_definition_windows (
+    definition_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL CHECK (window_sessions IN (60, 120, 250)),
+    leading_start INTEGER NOT NULL,
+    leading_end INTEGER NOT NULL,
+    trailing_start INTEGER NOT NULL,
+    trailing_end INTEGER NOT NULL,
+    fft_length INTEGER NOT NULL,
+    eligible_bin_start INTEGER NOT NULL,
+    eligible_bin_end INTEGER NOT NULL,
+    PRIMARY KEY (definition_id, window_sessions),
+    FOREIGN KEY (definition_id) REFERENCES spectral_volatility_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE research_market_calendar_snapshots (
+    snapshot_id TEXT PRIMARY KEY,
+    calendar_definition_id TEXT NOT NULL,
+    engine_name TEXT NOT NULL,
+    engine_version TEXT NOT NULL,
+    exchange_calendar_name TEXT NOT NULL,
+    covered_start TEXT NOT NULL,
+    covered_end TEXT NOT NULL,
+    schedule_fingerprint TEXT NOT NULL,
+    observed_at_utc TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1)
+);
+
+CREATE TABLE research_market_calendar_sessions (
+    snapshot_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    session_date TEXT NOT NULL,
+    open_utc TEXT NOT NULL,
+    close_utc TEXT NOT NULL,
+    break_start_utc TEXT,
+    break_end_utc TEXT,
+    early_close INTEGER NOT NULL CHECK (early_close IN (0, 1)),
+    PRIMARY KEY (snapshot_id, ordinal),
+    UNIQUE (snapshot_id, session_date),
+    FOREIGN KEY (snapshot_id) REFERENCES research_market_calendar_snapshots(snapshot_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE research_market_calendar_symbol_mappings (
+    mapping_id TEXT PRIMARY KEY,
+    mapping_version INTEGER NOT NULL CHECK (mapping_version >= 1),
+    symbol TEXT NOT NULL,
+    asset_class TEXT NOT NULL,
+    calendar_definition_id TEXT NOT NULL,
+    effective_start TEXT NOT NULL,
+    effective_end TEXT,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (symbol, mapping_version)
+);
+
+CREATE INDEX idx_research_market_calendar_symbol_mappings_lookup
+ON research_market_calendar_symbol_mappings(symbol, effective_start, effective_end);
+
+CREATE TABLE research_corporate_action_snapshots (
+    snapshot_id TEXT PRIMARY KEY,
+    provider_name TEXT NOT NULL,
+    query_identity TEXT NOT NULL,
+    requested_at_utc TEXT NOT NULL,
+    received_at_utc TEXT NOT NULL,
+    covered_start TEXT NOT NULL,
+    covered_end TEXT NOT NULL,
+    response_fingerprint TEXT NOT NULL,
+    evidence_mode TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1)
+);
+
+CREATE TABLE research_corporate_action_events (
+    snapshot_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    provider_event_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    action_type TEXT NOT NULL,
+    declaration_date TEXT,
+    ex_date TEXT,
+    effective_date TEXT,
+    process_date TEXT,
+    ratio_text TEXT,
+    raw_event_fingerprint TEXT NOT NULL,
+    supported INTEGER NOT NULL CHECK (supported IN (0, 1)),
+    PRIMARY KEY (snapshot_id, ordinal),
+    UNIQUE (snapshot_id, provider_event_id),
+    FOREIGN KEY (snapshot_id) REFERENCES research_corporate_action_snapshots(snapshot_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE market_bar_observation_facts (
+    content_fingerprint TEXT PRIMARY KEY,
+    symbol TEXT NOT NULL,
+    session_date TEXT NOT NULL,
+    timeframe TEXT NOT NULL CHECK (timeframe = '1Day'),
+    adjustment TEXT NOT NULL CHECK (adjustment IN ('raw', 'split')),
+    feed TEXT NOT NULL,
+    open_text TEXT NOT NULL,
+    high_text TEXT NOT NULL,
+    low_text TEXT NOT NULL,
+    close_text TEXT NOT NULL,
+    volume INTEGER NOT NULL CHECK (volume >= 0),
+    source TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    first_observed_at_utc TEXT NOT NULL,
+    available_at_utc TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1)
+);
+
+CREATE INDEX idx_market_bar_observation_facts_lookup
+ON market_bar_observation_facts(symbol, session_date, adjustment, feed);
+
+CREATE TABLE spectral_volatility_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    market_data_stage_id TEXT NOT NULL,
+    factor_stage_id TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    evidence_bundle_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    as_of_utc TEXT NOT NULL,
+    command_fingerprint TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    numpy_version TEXT NOT NULL,
+    exchange_calendars_version TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL,
+    warnings_text TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (market_data_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (factor_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id) REFERENCES spectral_volatility_definitions(definition_id) ON DELETE RESTRICT,
+    CHECK ((status IN ('completed', 'completed_with_warnings') AND error_code IS NULL AND error_summary IS NULL)
+        OR (status IN ('invalid_input', 'failed') AND error_code IS NOT NULL AND error_summary IS NOT NULL))
+);
+
+CREATE UNIQUE INDEX idx_spectral_volatility_operations_terminal_identity
+ON spectral_volatility_operations(operation_id)
+WHERE status IN ('completed', 'completed_with_warnings');
+CREATE INDEX idx_spectral_volatility_operations_lookup
+ON spectral_volatility_operations(symbol, as_of_utc, status, definition_id);
+CREATE INDEX idx_spectral_volatility_operations_run
+ON spectral_volatility_operations(run_id);
+
+CREATE TABLE spectral_source_observations (
+    attempt_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    session_date TEXT NOT NULL,
+    raw_fact_fingerprint TEXT NOT NULL,
+    split_fact_fingerprint TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    first_observed_at_utc TEXT NOT NULL,
+    available_at_utc TEXT NOT NULL,
+    PRIMARY KEY (attempt_id, ordinal),
+    UNIQUE (attempt_id, session_date),
+    FOREIGN KEY (attempt_id) REFERENCES spectral_volatility_operations(attempt_id) ON DELETE RESTRICT,
+    FOREIGN KEY (raw_fact_fingerprint) REFERENCES market_bar_observation_facts(content_fingerprint) ON DELETE RESTRICT,
+    FOREIGN KEY (split_fact_fingerprint) REFERENCES market_bar_observation_facts(content_fingerprint) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_window_results (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    share_status TEXT NOT NULL,
+    peak_status TEXT NOT NULL,
+    dominance_class TEXT NOT NULL,
+    observation_count INTEGER NOT NULL CHECK (observation_count >= 0),
+    trend_intercept REAL, trend_intercept_hex TEXT,
+    trend_slope REAL, trend_slope_hex TEXT,
+    eligible_power REAL, eligible_power_hex TEXT,
+    qualified_frequency REAL, qualified_frequency_hex TEXT,
+    qualified_period REAL, qualified_period_hex TEXT,
+    amplitude_log_half REAL, amplitude_log_half_hex TEXT,
+    amplitude_log_peak_to_trough REAL, amplitude_log_peak_to_trough_hex TEXT,
+    amplitude_upper_price_fraction REAL, amplitude_upper_price_fraction_hex TEXT,
+    amplitude_lower_price_fraction REAL, amplitude_lower_price_fraction_hex TEXT,
+    amplitude_center_relative_span REAL, amplitude_center_relative_span_hex TEXT,
+    amplitude_trough_to_peak_return REAL, amplitude_trough_to_peak_return_hex TEXT,
+    trend_difference_median REAL, trend_difference_median_hex TEXT,
+    trend_raw_mad REAL, trend_raw_mad_hex TEXT,
+    trend_standardized_mad REAL, trend_standardized_mad_hex TEXT,
+    cycle_difference_median REAL, cycle_difference_median_hex TEXT,
+    cycle_raw_mad REAL, cycle_raw_mad_hex TEXT,
+    cycle_standardized_mad REAL, cycle_standardized_mad_hex TEXT,
+    mad_normalization REAL, mad_normalization_hex TEXT,
+    zero_residual_mad INTEGER CHECK (zero_residual_mad IS NULL OR zero_residual_mad IN (0, 1)),
+    warnings_text TEXT NOT NULL,
+    PRIMARY KEY (attempt_id, window_sessions),
+    FOREIGN KEY (attempt_id) REFERENCES spectral_volatility_operations(attempt_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_segment_results (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    segment_name TEXT NOT NULL,
+    start_index INTEGER NOT NULL,
+    end_index INTEGER NOT NULL,
+    source_length INTEGER NOT NULL,
+    fft_length INTEGER NOT NULL,
+    coherent_gain_squared REAL NOT NULL,
+    coherent_gain_squared_hex TEXT NOT NULL,
+    status TEXT NOT NULL,
+    PRIMARY KEY (attempt_id, window_sessions, segment_name),
+    FOREIGN KEY (attempt_id, window_sessions) REFERENCES spectral_window_results(attempt_id, window_sessions) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_series_points (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    segment_name TEXT NOT NULL,
+    point_index INTEGER NOT NULL CHECK (point_index >= 0),
+    source_ordinal INTEGER,
+    is_padding INTEGER NOT NULL CHECK (is_padding IN (0, 1)),
+    input_log REAL, input_log_hex TEXT,
+    trend REAL, trend_hex TEXT,
+    detrended REAL, detrended_hex TEXT,
+    baseline_difference REAL, baseline_difference_hex TEXT,
+    periodic_fit REAL, periodic_fit_hex TEXT,
+    residual REAL, residual_hex TEXT,
+    hann_weight REAL, hann_weight_hex TEXT,
+    weighted_value REAL, weighted_value_hex TEXT,
+    PRIMARY KEY (attempt_id, window_sessions, segment_name, point_index),
+    FOREIGN KEY (attempt_id, window_sessions) REFERENCES spectral_window_results(attempt_id, window_sessions) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_spectrum_bins (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    segment_name TEXT NOT NULL,
+    bin_index INTEGER NOT NULL CHECK (bin_index >= 0),
+    frequency REAL NOT NULL, frequency_hex TEXT NOT NULL,
+    period REAL, period_hex TEXT,
+    eligible INTEGER NOT NULL CHECK (eligible IN (0, 1)),
+    fft_real REAL NOT NULL, fft_real_hex TEXT NOT NULL,
+    fft_imag REAL NOT NULL, fft_imag_hex TEXT NOT NULL,
+    squared_magnitude REAL NOT NULL, squared_magnitude_hex TEXT NOT NULL,
+    coherent_gain_squared REAL NOT NULL, coherent_gain_squared_hex TEXT NOT NULL,
+    one_sided_multiplier REAL NOT NULL, one_sided_multiplier_hex TEXT NOT NULL,
+    corrected_power REAL NOT NULL, corrected_power_hex TEXT NOT NULL,
+    relative_share REAL, relative_share_hex TEXT,
+    PRIMARY KEY (attempt_id, window_sessions, segment_name, bin_index),
+    FOREIGN KEY (attempt_id, window_sessions) REFERENCES spectral_window_results(attempt_id, window_sessions) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_peak_neighborhoods (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    method_name TEXT NOT NULL,
+    rank INTEGER NOT NULL CHECK (rank >= 1),
+    peak_status TEXT NOT NULL,
+    center_bin INTEGER,
+    requested_start_bin INTEGER,
+    requested_end_bin INTEGER,
+    effective_start_bin INTEGER,
+    effective_end_bin INTEGER,
+    neighborhood_power REAL, neighborhood_power_hex TEXT,
+    dominance REAL, dominance_hex TEXT,
+    dominance_class TEXT NOT NULL,
+    truncated INTEGER NOT NULL CHECK (truncated IN (0, 1)),
+    PRIMARY KEY (attempt_id, window_sessions, method_name, rank),
+    FOREIGN KEY (attempt_id, window_sessions) REFERENCES spectral_window_results(attempt_id, window_sessions) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_peak_members (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    method_name TEXT NOT NULL,
+    neighborhood_rank INTEGER NOT NULL,
+    member_ordinal INTEGER NOT NULL CHECK (member_ordinal >= 1),
+    bin_index INTEGER NOT NULL,
+    requested INTEGER NOT NULL CHECK (requested IN (0, 1)),
+    effective INTEGER NOT NULL CHECK (effective IN (0, 1)),
+    power REAL, power_hex TEXT,
+    relative_share REAL, relative_share_hex TEXT,
+    PRIMARY KEY (attempt_id, window_sessions, method_name, neighborhood_rank, member_ordinal),
+    FOREIGN KEY (attempt_id, window_sessions, method_name, neighborhood_rank)
+        REFERENCES spectral_peak_neighborhoods(attempt_id, window_sessions, method_name, rank) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_method_comparisons (
+    attempt_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL,
+    welch_period REAL, welch_period_hex TEXT,
+    fourier_period REAL, fourier_period_hex TEXT,
+    symmetric_delta REAL, symmetric_delta_hex TEXT,
+    status TEXT NOT NULL,
+    PRIMARY KEY (attempt_id, window_sessions),
+    FOREIGN KEY (attempt_id, window_sessions) REFERENCES spectral_window_results(attempt_id, window_sessions) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_cross_window_results (
+    attempt_id TEXT PRIMARY KEY,
+    status TEXT NOT NULL,
+    qualified_windows_text TEXT NOT NULL,
+    supporting_windows_text TEXT NOT NULL,
+    consensus_frequency REAL, consensus_frequency_hex TEXT,
+    consensus_period REAL, consensus_period_hex TEXT,
+    FOREIGN KEY (attempt_id) REFERENCES spectral_volatility_operations(attempt_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_cross_window_pairs (
+    attempt_id TEXT NOT NULL,
+    left_window INTEGER NOT NULL,
+    right_window INTEGER NOT NULL,
+    left_period REAL, left_period_hex TEXT,
+    right_period REAL, right_period_hex TEXT,
+    symmetric_delta REAL, symmetric_delta_hex TEXT,
+    supports INTEGER NOT NULL CHECK (supports IN (0, 1)),
+    PRIMARY KEY (attempt_id, left_window, right_window),
+    FOREIGN KEY (attempt_id) REFERENCES spectral_cross_window_results(attempt_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_source_links (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    market_data_stage_id TEXT NOT NULL,
+    factor_stage_id TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    evidence_bundle_id TEXT NOT NULL,
+    evidence_bundle_fingerprint TEXT NOT NULL,
+    calendar_snapshot_id TEXT NOT NULL,
+    mapping_id TEXT NOT NULL,
+    corporate_action_snapshot_id TEXT NOT NULL,
+    evidence_mode TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (attempt_id) REFERENCES spectral_volatility_operations(attempt_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (market_data_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (factor_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id) REFERENCES spectral_volatility_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (calendar_snapshot_id) REFERENCES research_market_calendar_snapshots(snapshot_id) ON DELETE RESTRICT,
+    FOREIGN KEY (mapping_id) REFERENCES research_market_calendar_symbol_mappings(mapping_id) ON DELETE RESTRICT,
+    FOREIGN KEY (corporate_action_snapshot_id) REFERENCES research_corporate_action_snapshots(snapshot_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_spectral_source_links_run ON spectral_source_links(run_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -2291,6 +2658,7 @@ _MIGRATIONS = {
     11: ("single-asset exposure-cap definitions and numerical Risk preview evidence", _SCHEMA_V11),
     12: ("research asset cash-floor definitions and order-2 Risk preview evidence", _SCHEMA_V12),
     13: ("research capital-plan asset-cash order-3 Risk preview evidence", _SCHEMA_V13),
+    14: ("P23-1 spectral-volatility research evidence", _SCHEMA_V14),
 }
 
 

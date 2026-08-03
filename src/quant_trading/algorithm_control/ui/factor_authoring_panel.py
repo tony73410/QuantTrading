@@ -28,14 +28,19 @@ from quant_trading.factors.interfaces import (
     FactorHistoryQueryService,
     FactorVisualizationQueryService,
 )
+from quant_trading.factors.spectral_interfaces import SpectralVolatilityQueryService
+from quant_trading.factors.spectral_models import SpectralVolatilityDefinition
+from quant_trading.orchestration import ManualSpectralPreviewRunner
 
 from ..factor_history_export import FactorHistoryExportService
+from ..spectral_export import SpectralVolatilityExportService
 from quant_trading.factors.expression_language import parse_and_validate_expression
 
 from ..controller import AlgorithmControlController
 from ..factor_lifecycle import FactorLifecycleState
 from .factor_workbench_panel import FactorWorkbenchPanel
 from .factor_history_panel import FactorHistoryPanel
+from .spectral_volatility_panel import SpectralVolatilityPanel
 
 
 class FactorAuthoringPanel(QWidget):
@@ -260,6 +265,11 @@ class FactorManagementPanel(QWidget):
         history_queries: FactorHistoryQueryService | None = None,
         visualization_queries: FactorVisualizationQueryService | None = None,
         export_service: FactorHistoryExportService | None = None,
+        spectral_queries: SpectralVolatilityQueryService | None = None,
+        spectral_export_service: SpectralVolatilityExportService | None = None,
+        manual_spectral_preview: ManualSpectralPreviewRunner | None = None,
+        spectral_definition: SpectralVolatilityDefinition | None = None,
+        spectral_session_id: str | None = None,
     ) -> None:
         super().__init__(parent)
         from PySide6.QtWidgets import QTabWidget
@@ -272,6 +282,13 @@ class FactorManagementPanel(QWidget):
             export_service=export_service,
         )
         self.components = component_panel
+        self.spectral = SpectralVolatilityPanel(
+            spectral_queries,
+            spectral_export_service,
+            runner=manual_spectral_preview,
+            definition=spectral_definition,
+            session_id=spectral_session_id,
+        )
         # Preserve the existing panel inspection surface used by smoke tests and
         # simple UI diagnostics while the Factor page gains a second tab.
         self.list = self.components.list
@@ -280,15 +297,18 @@ class FactorManagementPanel(QWidget):
         tabs.addTab(self.workbench, "本地验证与证据")
         tabs.addTab(self.history, "历史与比较")
         tabs.addTab(self.components, "版本配置与预览")
+        tabs.insertTab(tabs.count() - 1, self.spectral, "P23-1 波动研究")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
         self.authoring.state_changed.connect(self.state_changed)
         self.components.state_changed.connect(self.state_changed)
         self.components.preview_requested.connect(self.preview_requested)
         self.history.open_run_requested.connect(self.open_run_requested)
+        self.spectral.open_run_requested.connect(self.open_run_requested)
 
     def reload(self) -> None:
         self.authoring.reload()
         self.components.reload()
         self.workbench.reload()
         self.history.reload()
+        self.spectral.reload()

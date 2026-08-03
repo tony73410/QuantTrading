@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified through Phase 6D local research inspection.** The supported execution mode is exclusively `NO_EXECUTION`.
+**Implemented and verified through Phase 6E inspection and P23-1 Spectral Volatility Research.** The supported execution mode is exclusively `NO_EXECUTION`.
 
 ## Purpose
 
@@ -46,6 +46,8 @@ Central Schema v3 adds normalized Decision condition/sizing-input evidence and a
 
 Stored Decimal values remain exact text. Times are timezone-aware UTC ISO-8601 values. Historical rows are insert-only except controlled running-to-terminal lifecycle updates; result IDs are never silently overwritten.
 
+Central Schema v14 adds specialized P23-1 calendar, corporate-action, source-Bar and detailed numerical-result relationships without changing the generic Factor contract. Migrated v2 rows remain visible as `trace_not_captured`; Run History never reconstructs missing historical evidence or owns capital/state/target/Factor/Decision/Risk meaning.
+
 ## Current orchestration
 
 - Factor Preview: `Market Data → Factor`.
@@ -61,6 +63,7 @@ Stored Decimal values remain exact text. Times are timezone-aware UTC ISO-8601 v
 - Exposure-cap preview: one `TARGET_ADJUSTMENT_EXPOSURE_CAP_PREVIEW` Run is parented to an exact Phase 6A Run and exposes exact Phase 6A/Decision/Phase5C/Target/standardized-state relationships plus the immutable order-1 rule artifact.
 - Research cash-floor preview: one `TARGET_ADJUSTMENT_RESEARCH_CASH_FLOOR_PREVIEW` Run is parented to an exact positive Phase 6B Run, exposes the complete upstream chain, and displays inherited order-1 evidence beside the persisted order-2 rule without recalculation.
 - Research asset-cash preview: one `TARGET_ADJUSTMENT_RESEARCH_ASSET_CASH_PREVIEW` Run is parented to an exact positive Phase 6C Run, exposes all upstream Runs plus the selected Capital Snapshot Run, and displays inherited order-1/order-2 references beside the persisted order-3 rule and non-reservation evidence without recalculation.
+- P23-1 preview: one `FACTOR_PREVIEW` Run records ordered `MARKET_DATA` then `FACTOR` stages, exact immutable v1.0.0/v1.1.0 definition/evidence bindings and one operation artifact with 60/120/250-window children. P23-1E-A evidence/definition preparation failures create searchable failed Runs with a failed `MARKET_DATA` stage; successful manual clicks reuse the single Run created by the Factor service. Invalid and failed attempts remain visible; opening a Run never fetches or recalculates the spectrum.
 
 Tracked previews persist their Factor result by default because Decision/Risk evidence must reference a durable Factor snapshot. Exact Factor content deduplication remains unchanged: repeated calculations retain distinct calculation attempts while reusing identical immutable snapshots.
 
@@ -68,7 +71,7 @@ The Risk stage has three ordered approved-for-research numerical preview rules, 
 
 ## Migration and rollback
 
-The current additive migration chain is v1→v13. Each step preserves earlier meaning; Phase 5D adds v9 type-distinct Decision evidence, Phase 6A adds v10 structural Risk-review evidence, Phase 6B adds v11 exposure-cap definition/preview evidence, Phase 6C adds v12 research-cash-floor definition/preview evidence and Phase 6D adds v13 research-asset-cash evidence.
+The current additive migration chain is v1→v14. Each step preserves earlier meaning; Phase 5D adds v9 type-distinct Decision evidence, Phase 6A adds v10 structural Risk-review evidence, Phase 6B adds v11 exposure-cap definition/preview evidence, Phase 6C adds v12 research-cash-floor definition/preview evidence, Phase 6D adds v13 research-asset-cash evidence and P23-1 adds v14 specialized evidence.
 
 Schema v1→v2, v2→v3, v3→v4 and v4→v5 are additive. Before migration, `CentralSQLiteDatabase` creates a consistent backup under `runtime/data/backups/`, applies each version in a transaction, and verifies prior table row counts, foreign keys, and `PRAGMA integrity_check`. Failure rolls the transaction back. Rollback after a successful migration requires stopping writers, preserving the newer database and restoring the matching verified backup; the application does not pretend code rollback alone can downgrade the database.
 
@@ -94,6 +97,8 @@ The approved v11→v12 migration preserved all 64 pre-existing business-table co
 
 The approved v12→v13 migration created `market_history.schema-v12-to-v13.20260722T195926466864Z.sqlite3`, preserved the prior 70 non-internal tables/216,055 rows, added four empty Phase 6D tables and one migration row, and passed integrity/foreign-key checks. Phase 6D Runs expose the Phase 6C parent, all upstream source Runs and the Capital Snapshot Run plus nested inherited-order-1/inherited-order-2/persisted-order-3 artifacts without recalculation.
 
+The approved v13→v14 migration created `market_history.schema-v13-to-v14.20260731T193316459663Z.sqlite3`, preserved every prior table row count, added 20 P23-1 tables (74→94 required logical tables), and passed `integrity_check=ok` with zero foreign-key violations. PROPOSAL-025 reuses the same schema for a separate immutable R1 v1.1.0 definition and append-only operations; no migration or historical rewrite occurred.
+
 ## GUI
 
 Algorithm Control contains a read-only `Run History` page and the Main Launcher exposes a trusted shortcut. It supports Run ID prefix, symbol, run type, status, and optional date filters. The detail view displays:
@@ -112,6 +117,7 @@ Algorithm Control contains a read-only `Run History` page and the Main Launcher 
 - Linked-preview attempts, exact source and target identities, and clickable source/parent/child Run relationships.
 - Target-adjustment attempts/results, exact current/target/signed/absolute USD evidence, specialized non-Risk intent cardinality and clickable Decision/Phase5C/Target/source Run relationships.
 - Specialized target-adjustment Risk attempts/reviews, immutable safety snapshot, absent approval fields, ordered locked rules and clickable Risk/Decision/Phase5C/Target/source Run relationships.
+- P23-1 operation provenance, status/warnings and exact 60/120/250 window artifacts.
 
 Completed previews automatically open their Run detail. GUI code consumes only `RunHistoryQueryService` and contains no SQL or business calculation.
 

@@ -29,6 +29,22 @@ Alpaca 在本模块中仅承担 **Market Data Provider / 行情数据提供商**
 - 从标准化 Bar 构建 Plotly 图表。
 - 通过公共的 presentation-only `quant_trading.visualization.PlotlyFigureView` 将完整离线 Plotly 页面写入自动清理的本地临时文件后交给 QWebEngine 加载，避免内嵌 `setHtml()` 页面大小限制；页面根容器绑定 WebView 可见高度，后续重绘使用 `Plotly.react`。Qt 端在布局稳定后执行延迟 resize，浏览器端使用 `ResizeObserver` 在 Chromium 实际收到 viewport 变化后再次同步，避免用户必须手动重新最大化窗口。Market History仍独立拥有Bar图表构建含义。
 
+## P23-1 specialized research evidence
+
+For the approved P23-1 path, Market History owns immutable XNYS calendar sessions, explicit requested-symbol mapping to `US_EQUITIES_REGULAR_V1`, Raw/Split Daily Bar observations, availability timestamps and corporate-action snapshots. `XNYSResearchCalendarAdapter` uses `exchange_calendars>=4.13.2,<5`; `SpectralMarketEvidenceBuilder` freezes the exact evidence bundle consumed by Factors. This specialized path does not change the normal history browser request or cache semantics.
+
+Public contracts are `ResearchCalendarSnapshot`, `ResearchCalendarSession`, `ResearchSymbolCalendarMapping`, `ResearchCorporateActionSnapshot`, `ResearchCorporateActionEvent`, `ResearchBarObservation` and `SpectralMarketEvidenceBundle`. `AlpacaCorporateActionProvider` uses only Alpaca Market Data corporate actions and cannot access accounts, positions, orders or fills.
+
+PROPOSAL-025 adds the Market-History-owned `SpectralPreviewEvidencePreparationService`. It resolves the latest completed XNYS session, fixes IEX/Daily/Raw+Split/`RETROSPECTIVE_ADJUSTED`, requires exactly the inclusive trailing 250 sessions and returns a frozen `PreparedSpectralEvidence` bundle. `LOCAL_ONLY` succeeds only when an exact complete persisted bundle already exists. `FETCH_AND_FREEZE_READ_ONLY` is a separate explicit user choice and calls the existing historical-data service for Raw and Split plus the corporate-action provider once; it never starts automatically, fills/skips sessions or interprets missing corporate-action evidence as an empty response.
+
+The concrete `build_spectral_preview_evidence_service(...)` factory lives in `quant_trading.market_history.composition`, where the existing SQLite history Store and Alpaca Market Data Providers are wired. It is intentionally not re-exported from the lightweight package root, avoiding a cold-start import cycle. Constructing the factory performs no network request.
+
+The 2026-07-31 approved read-only validation fetched AAPL IEX Raw and Split Daily observations (144 each, exact session alignment) and two supported cash-dividend events. It created no Trading client, printed/stored no Secret and performed no account/order operation.
+
+The 2026-08-02 PROPOSAL-025 validation was the single separately approved end-to-end request. It froze 250 aligned AAPL observations through `2026-07-31`, used Historical Stock Data and Corporate Actions only, and created no Trading client/account/order call.
+
+Limitations: mapping is explicit rather than automatically discovered; only completed and available Daily XNYS sessions are accepted; unsupported corporate actions remain visible and invalidate only affected calculation windows. Split evidence is reconciled exactly, while dividends are recorded as warnings and are not used to dividend-adjust the P23-1 price series.
+
 ## Non-responsibilities
 
 - 交易策略、技术指标策略、信号、回测、风险、仓位、订单、券商账户或实盘。
@@ -44,6 +60,7 @@ Alpaca 在本模块中仅承担 **Market Data Provider / 行情数据提供商**
 - `MarketBar`：带 UTC 时间和明确维度的 OHLCV 数据。
 - `HistoricalMarketDataProvider` / `HistoricalDataStore`：可替换 Provider 与 Store Protocol；Store 的 `list_symbols()` 只读列出至少存在一条本地 Bar 的股票代码。
 - `HistoricalDataService.load()`：本地优先加载、刷新和离线回退。
+- `SpectralEvidenceAcquisitionMode`, `SpectralEvidencePreparationRequest`, `PreparedSpectralEvidence`, `SpectralPreviewEvidencePreparationService`：P23-1E-A精确最新交易日证据准备合同。
 - `HistoryController`：GUI 参数转换、并发保护和图表入口。
 - `python -m quant_trading.market_history` / `quant-history`：桌面启动入口。
 

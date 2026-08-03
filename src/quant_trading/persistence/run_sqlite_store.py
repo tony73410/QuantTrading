@@ -1651,6 +1651,74 @@ class SQLiteRunHistoryRepository:
                     children,
                 )
             )
+        spectral_operations = connection.execute(
+            """SELECT o.*, l.evidence_mode, l.evidence_bundle_fingerprint,
+                      l.calendar_snapshot_id, l.mapping_id,
+                      l.corporate_action_snapshot_id
+               FROM spectral_volatility_operations o
+               JOIN spectral_source_links l ON l.attempt_id = o.attempt_id
+               WHERE o.run_id = ? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in spectral_operations:
+            window_rows = connection.execute(
+                """SELECT w.*, m.status AS method_status,
+                          c.status AS cross_status,
+                          c.consensus_period AS consensus_period
+                   FROM spectral_window_results w
+                   LEFT JOIN spectral_method_comparisons m
+                     ON m.attempt_id = w.attempt_id
+                    AND m.window_sessions = w.window_sessions
+                   LEFT JOIN spectral_cross_window_results c
+                     ON c.attempt_id = w.attempt_id
+                   WHERE w.attempt_id = ? ORDER BY w.window_sessions""",
+                (operation["attempt_id"],),
+            ).fetchall()
+            children = tuple(
+                RunArtifactView(
+                    "spectral_window_result",
+                    f"{operation['operation_id']}:W{row['window_sessions']}",
+                    RunStageName.FACTOR.value, operation["symbol"], row["status"],
+                    (
+                        f"W{row['window_sessions']} {row['peak_status']} / "
+                        f"{row['dominance_class']} / method "
+                        f"{row['method_status'] or 'not calculated'}"
+                    ),
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("qualified period (sessions)", row["qualified_period"]),
+                        _field("eligible power", row["eligible_power"]),
+                        _field("trend standardized MAD", row["trend_standardized_mad"]),
+                        _field("cycle-removed standardized MAD", row["cycle_standardized_mad"]),
+                        _field("equivalent log half-amplitude", row["amplitude_log_half"]),
+                        _field("warnings", row["warnings_text"]),
+                    ),
+                )
+                for row in window_rows
+            )
+            artifacts.append(
+                RunArtifactView(
+                    "spectral_volatility_operation", operation["operation_id"],
+                    RunStageName.FACTOR.value, operation["symbol"], operation["status"],
+                    "P23-1 spectral-volatility research evidence; DISABLED / NO EXECUTION",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("attempt id", operation["attempt_id"]),
+                        _field("definition id", operation["definition_id"]),
+                        _field("evidence bundle", operation["evidence_bundle_id"]),
+                        _field("as of", operation["as_of_utc"]),
+                        _field("evidence mode", operation["evidence_mode"]),
+                        _field("calendar snapshot", operation["calendar_snapshot_id"]),
+                        _field("symbol mapping", operation["mapping_id"]),
+                        _field("corporate actions", operation["corporate_action_snapshot_id"]),
+                        _field("NumPy", operation["numpy_version"]),
+                        _field("exchange_calendars", operation["exchange_calendars_version"]),
+                        _field("warnings", operation["warnings_text"]),
+                        _field("error", operation["error_summary"]),
+                    ),
+                    children,
+                )
+            )
         return tuple(artifacts)
 
 

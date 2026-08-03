@@ -5,7 +5,7 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v13 database, independent Store contracts, migrations and immutable algorithm/link/target-adjustment/manual-review/exposure-cap/cash-floor/asset-cash evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v14 database, independent Store contracts, migrations and immutable generic/specialized P23-1/Decision/Risk/Capital/State/Target evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
@@ -29,10 +29,10 @@
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
 | Market history | `modules/market-history.md` | 股票历史数据浏览器、缓存、GUI、配置与测试 |
-| Single-asset factors | `modules/factors.md` | 策略中立Factor合同、时间安全、注册器、无公式引擎与边界 |
+| Single-asset factors | `modules/factors.md` | 策略中立Factor合同、时间安全、注册器，以及已实现但锁定禁用且无交易消费者的P23-1 R1专用研究公式 |
 | Trading decision | `modules/trading-decision.md` | 既有FactorSnapshot决策合同与类型独立的linked-target adjustment研究合同；均无执行 authority |
 | Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同，Phase 6A结构门及Phase 6B/6C/6D三条有序数值研究预览；候选金额仍未批准且不预留资金 |
-| Application orchestration | `modules/analysis-decision-pipeline.md` | Factor → Decision → Risk、exact Standardized State → Target Position、linked target → specialized Decision、specialized intent → structural Risk、Phase 6A → exposure cap → research cash floor的单向编排 |
+| Application orchestration | `modules/analysis-decision-pipeline.md` | Factor → Decision → Risk、exact Standardized State → Target Position、linked target → specialized Decision、Phase 6A–6D Risk研究及P23-1E-A人工最新交易日频谱预览的单向编排 |
 | Algorithm run history | `modules/run-history.md` | Searchable Run IDs, ordered stages, exact version bindings, persistent Factor/Decision/Risk evidence, Decision traces, migrations and read-only Explorer |
 | Execution environments | `modules/execution-environments.md` | Paper与Live两个同级、空白、禁用的未来执行环境边界 |
 | Portfolio accounting | `modules/portfolio-accounting.md` | 统一会计领域、派生快照、核对与只读Query边界 |

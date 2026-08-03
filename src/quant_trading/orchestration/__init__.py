@@ -26,6 +26,13 @@ from .target_adjustment_research_cash_floor_preview import (
 from .target_adjustment_research_asset_cash_preview import (
     TargetAdjustmentResearchAssetCashPreviewCoordinator,
 )
+from .manual_spectral_preview import (
+    ManualSpectralPreviewCoordinator,
+    ManualSpectralPreviewOutcome,
+    ManualSpectralPreviewRequest,
+    ManualSpectralPreviewRunner,
+    ManualSpectralPreviewStatus,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -40,4 +47,9 @@ __all__ = [
     "TargetAdjustmentExposureCapPreviewCoordinator",
     "TargetAdjustmentResearchCashFloorPreviewCoordinator",
     "TargetAdjustmentResearchAssetCashPreviewCoordinator",
+    "ManualSpectralPreviewCoordinator",
+    "ManualSpectralPreviewOutcome",
+    "ManualSpectralPreviewRequest",
+    "ManualSpectralPreviewRunner",
+    "ManualSpectralPreviewStatus",
 ]

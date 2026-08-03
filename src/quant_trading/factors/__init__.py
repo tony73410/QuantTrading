@@ -95,3 +95,36 @@ __all__ += [
     or name.startswith("PreviewStandardized")
     or name.startswith("STANDARDIZED_PRICE_STATE")
 ]
+from .spectral_engine import SpectralVolatilityEngine
+from .spectral_interfaces import (
+    EmptySpectralVolatilityQueryService,
+    SpectralOperationQuery,
+    SpectralVolatilityQueryService,
+    SpectralVolatilityStore,
+)
+from .spectral_models import *
+from .spectral_service import SpectralVolatilityService
+
+__all__ += [
+    "EmptySpectralVolatilityQueryService", "SpectralOperationQuery",
+    "SpectralVolatilityEngine", "SpectralVolatilityQueryService",
+    "SpectralVolatilityService", "SpectralVolatilityStore",
+]
+__all__ += [
+    name
+    for name in globals()
+    if name.startswith("Spectral")
+    or name.startswith("CrossWindow")
+    or name in {
+        "APPROVED_WINDOWS", "DominanceClass", "FloatEvidence",
+        "DEFAULT_SPECTRAL_DEFINITION_ID", "INCLUSIVE_SPECTRAL_DEFINITION_ID",
+        "locked_r1_definition", "locked_r1_inclusive_definition",
+        "MAD_NORMALIZATION", "MethodComparisonEvidence",
+        "MethodComparisonStatus", "PeakMemberEvidence",
+        "PeakNeighborhoodEvidence", "PeakStatus", "RelativeShareStatus",
+        "ResidualScaleEvidence", "SPECTRAL_COMPONENT_ID",
+        "SPECTRAL_COMPONENT_VERSION", "SPECTRAL_COMPONENT_VERSION_INCLUSIVE",
+        "SpectrumBinEvidence",
+        "WindowCalculationStatus",
+    }
+]

@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 32
-last_updated_utc: 2026-07-23T00:29:21Z
+version: 33
+last_updated_utc: 2026-08-03T00:24:54Z
 ```
 
 ## Purpose
@@ -43,6 +43,7 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - a disabled/unconsumed Phase 6C research asset cash-floor preview that explicitly links one positive Phase 6B manual-review result to one immutable same-symbol finite non-negative Decimal USD floor and the exact Phase 5C hypothetical research basis, executes only `MIN_RESEARCH_ASSET_CASH_USD@1` after inherited rule-order-1 evidence, persists exact candidate/residual/rule/source evidence in central Schema v12, and still cannot approve or execute an amount;
 - a disabled/unconsumed Phase 6D research asset-cash availability preview that explicitly links one positive Phase 6C result to one user-selected Phase 3A `RESEARCH_INPUT` plan and exact latest conserved snapshot, executes only order-3 `MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1`, records that no cash is reserved, persists exact source/rule evidence in central Schema v13, and cannot mutate Capital, approve or execute an amount;
 - a Phase 6E read-only Consolidated Risk Chain Explorer inside the existing Risk page that resolves exact persisted Phase 6D→6C→6B→6A evidence through public query contracts, separates structural gates from numerical rules, compares exact A/B values without deltas/ranking and opens all related Runs without recalculation, persistence or authority;
+- a disabled and unconsumed P23-1 Spectral Volatility Research path through P23-1E-A: explicit XNYS/Daily/raw/split/corporate-action evidence, immutable R1 v1.0.0/v1.1.0 session-window semantics, project-owned multi-window Fourier/MAD diagnostics, one-symbol explicit local/read-only evidence preparation, `FACTOR_PREVIEW` Run history, exact Schema-v14 reload and existing Factor-page manual controls/inspection/export; it creates no cycle state, target, Decision, Risk, accounting or execution authority;
 - a shared validation-result and fail-closed system-health foundation; business validation rules remain owned by their modules.
 
 The following are **not implemented**: production activation, production portfolio construction/position sizing, production-grade cost basis/P&L/accounting, complete or production numerical Risk approval/policies, orders, Paper order execution, and Live execution. Research-only Decision notional sizing, three ordered numerical Risk previews and isolated historical Backtesting are implemented, but grant no production authority. The Portfolio Accounting scaffold only replays explicit cash effects and long filled quantities in memory; advanced conventions remain Open Decisions. Restricted user-authored Factor and Decision rules exist only as disabled definitions and local previews. Empty `quant_trading.execution.paper` and `.live` namespace boundaries contain no interfaces or behavior. `ALPACA_PAPER` is a safe label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
@@ -342,15 +343,15 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
-| Status | Implemented and verified with central Schema v13 plus additive v1→v13 migration evidence |
-| Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor, generic/specialized Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance ownership/contracts independent. |
-| Responsibilities | Connections, versioned additive migration, pre-migration backup, persistence-owned exact migration/table inspection, preflight and post-migration logical-schema completeness, row-count/FK/integrity validation, concrete Run History repository, Factor snapshot/result/run persistence and exact-result deduplication, immutable generic Decision/TradeIntent and specialized target-adjustment evidence, generic/structural/exposure-cap/research-cash-floor/research-asset-cash Risk adapters, Capital Allocation, Asset State, Target Position, standardized-state and linked-result adapters with transactional cross-object validation, typed research read views, and exact persisted source-Bar visualization joins. |
+| Status | Implemented and verified with central Schema v14 plus additive v1→v14 migration evidence |
+| Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor/P23-1, generic/specialized Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance ownership/contracts independent. |
+| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor and specialized P23-1 stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
 | Non-responsibilities | Market Data download, algorithm calculation, availability semantics, GUI, cleanup deletion, broker, accounting or execution. |
-| Public interfaces | `CentralSQLiteDatabase`, `CentralSchemaInspection`, `inspect_central_schema`, `expected_schema_tables`, `SQLiteRunHistoryRepository`, `SQLiteFactorSnapshotStore`, `SQLiteAlgorithmResultStore`, `SQLiteResearchHistoryQueryService`, `SQLiteCapitalAllocationStore`, `SQLiteAssetStateStore`, `SQLiteTargetPositionStore`, `SQLiteStandardizedPriceStateStore`, `SQLiteTargetAdjustmentDecisionStore`, `SQLiteTargetAdjustmentRiskStore`, `SQLiteExposureCapStore`, `SQLiteResearchCashFloorStore`, `SQLiteResearchAssetCashStore`; implements public Store/query Protocols. |
+| Public interfaces | `CentralSQLiteDatabase`, `CentralSchemaInspection`, `inspect_central_schema`, `expected_schema_tables`, `SQLiteRunHistoryRepository`, `SQLiteFactorSnapshotStore`, `SQLiteSpectralVolatilityStore`, `SQLiteAlgorithmResultStore`, `SQLiteResearchHistoryQueryService`, `SQLiteCapitalAllocationStore`, `SQLiteAssetStateStore`, `SQLiteTargetPositionStore`, `SQLiteStandardizedPriceStateStore`, `SQLiteTargetAdjustmentDecisionStore`, `SQLiteTargetAdjustmentRiskStore`, `SQLiteExposureCapStore`, `SQLiteResearchCashFloorStore`, `SQLiteResearchAssetCashStore`; implements public Store/query Protocols. |
 | Inputs / outputs | database path plus neutral Run History and public domain result contracts / durable Market tables and linked research evidence. |
 | Allowed dependencies | Python stdlib `sqlite3`, neutral Run History contracts, public Market/Factor/Decision/Risk/Capital Allocation/Asset State/Target Position/standardized-state/link models and Store Protocols. |
 | Forbidden dependencies | UI, Controller, Service, Provider, charts, algorithm implementations/rules, Orchestration, Alpaca and Execution. |
-| Side effects / configuration | Additive Schema v13 in the ignored central database and verified versioned backups under `runtime/data/backups/`; v13 adds four empty research asset-cash evidence tables, no definition/default/backfill and no credential. |
+| Side effects / configuration | Additive Schema v14 in the ignored central database and verified versioned backups under `runtime/data/backups/`; v14 adds 20 P23-1 relational tables and one locked disabled definition with three windows, no historical-result backfill and no credential. |
 | Tests / documentation | temporary-SQLite backup/migration/rollback/transaction/dedup/reload/query tests and architecture tests; [`central-persistence.md`](../modules/central-persistence.md), [`run-history.md`](../modules/run-history.md), [`capital-allocation.md`](../modules/capital-allocation.md), [`asset-state.md`](../modules/asset-state.md), [`target-position.md`](../modules/target-position.md), [`standardized-price-state.md`](../modules/standardized-price-state.md), ADR-0009/0016/0017/0019/0020/0021/0022/0023/0024. |
 
 ### Single-Asset Factor layer
@@ -358,9 +359,9 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.factors` / `src/quant_trading/factors/` |
-| Status | Partially implemented and verified; contracts/engine exist, production formulas do not |
+| Status | Partially implemented and verified; generic contracts/engine and disabled specialized P23-1 R1 exist, production activation does not |
 | Purpose | Convert one symbol's safe, completed Market Data window into versioned strategy-neutral factor snapshots. |
-| Responsibilities | Time-availability validation, typed result/status contracts, calculator registry, independent calculator execution and traceability, public history/filter/exact-version comparison semantics, exact source-price availability/query meaning for visualization, and the separate manual standardized-state definition/Decimal engine/service/trace contracts. |
+| Responsibilities | Time-availability validation, typed result/status contracts, calculator registry, independent calculator execution and traceability, public history/filter/exact-version comparison semantics, exact source-price visualization meaning, separate manual standardized-state contracts, and the specialized pure P23-1 OLS/MAD/Welch/full-window diagnostic/amplitude/residual engine and evidence graph. |
 | Non-responsibilities | Decisions, accounts/portfolio, risk, orders, GUI, Alpaca, SQL, concrete Market Data loading. |
 | Public interfaces | `FactorCalculator`, `SingleAssetFactorEngine`, `FactorRegistry`, `MarketDataWindow`, `FactorResult`, `FactorSnapshot`, `FactorSnapshotCollection`, `FactorHistoryQueryService`, `FactorVisualizationQueryService`, standardized-state definition/engine/service/Store/query contracts and typed history/comparison/visualization records. |
 | Inputs / outputs | completed `MarketDataObservation` values plus Factor context / versioned Factor snapshot. |
@@ -368,6 +369,21 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Forbidden dependencies | Decision/orchestration/execution, GUI, Service, Provider, Store, Alpaca, SQLite. |
 | Side effects / configuration | Engine has no external side effects; an optional public Store may be injected by Orchestration. Separate immutable Factor parameters; no formula defaults. |
 | Tests / documentation | `tests/unit/factors/`, architecture tests; [`factors.md`](../modules/factors.md). |
+
+### P23-1 specialized spectral research path
+
+| Field | Definition |
+|---|---|
+| Module / path | public evidence in `quant_trading.market_history`; mathematics/service in `quant_trading.factors`; concrete storage in `quant_trading.persistence`; presentation in `quant_trading.algorithm_control` |
+| Status | Implemented, verified, locked and disabled through PROPOSAL-025 / ADR-0030 |
+| Purpose | Produce reproducible per-symbol volatility/rhythm research diagnostics without creating a trading signal or cycle decision. |
+| Responsibilities | Explicit XNYS mapping and frozen Daily raw/split/corporate-action evidence; exact local or explicit-click read-only latest-session evidence preparation; immutable R1 v1.0.0/v1.1.0 session cutoffs; R1 OLS/MAD/Welch/full-window/ambiguity/cross-window/amplitude/residual calculation; `FACTOR_PREVIEW` Run evidence; relational v14 reload; manual background run, inspect/export/Open Run. |
+| Non-responsibilities | Full P23-1E historical comparison/scoring, wavelets, cycle transitions, target positions, Decision, Risk, Backtesting, Portfolio Accounting, Paper, Live, orders or activation. |
+| Public interfaces | `SpectralMarketEvidenceBundle`, `SpectralEvidencePreparationRequest`, `PreparedSpectralEvidence`, `SpectralPreviewEvidencePreparationService`, `SpectralVolatilityDefinition`, `SpectralVolatilityEngine`, `SpectralVolatilityService`, `SpectralVolatilityStore`, `SpectralVolatilityQueryService` and detailed immutable result contracts. |
+| Allowed dependencies | Market evidence: standard library, public Market models, `exchange_calendars`, Alpaca Market Data adapter at infrastructure edge. Factor calculation: standard library, NumPy and public Market evidence only. Service: public Run History ports. |
+| Forbidden dependencies | Factor engine to Persistence/GUI/Provider/State/Target/Decision/Risk/Accounting/Execution; GUI to engine/SQL/Alpaca; corporate-action adapter to Alpaca Trading. |
+| Side effects / configuration | Injected Run/Store persistence and explicit export paths. A user-selected fetch mode may call only Alpaca Historical Stock Data and Corporate Actions after the click; local mode never calls a Provider. Locked definitions are `DISABLED`, `execution_allowed=false`, `live_allowed=false`. |
+| Tests / documentation | direct DFT/calendar/evidence/preparation/coordinator/reload/GUI/export/cold-import/architecture tests; [`factors.md`](../modules/factors.md), [`market-history.md`](../modules/market-history.md), ADR-0029/0030. |
 
 ### Trading Decision layer
 
@@ -408,13 +424,13 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Module / path | `quant_trading.orchestration` / `src/quant_trading/orchestration/` |
 | Status | Implemented and verified at interface level and through local Algorithm Control previews; never connected to execution |
 | Purpose | Enforce approved one-way application call order while leaving all domain engines independently usable. |
-| Responsibilities | Shared `as_of` validation, Factor/Decision/Risk call order, exact standardized-state/Target/Decision/Phase6A/Phase6B/Phase6C source resolution, explicit public read-only Phase 3A plan/latest-snapshot resolution, specialized service delegation, safety-snapshot capture through composition, Store-protocol evidence persistence, Run/stage/relationship transitions, exact bindings and typed results. |
+| Responsibilities | Shared `as_of` validation, Factor/Decision/Risk call order, exact standardized-state/Target/Decision/Phase6A/Phase6B/Phase6C source resolution, explicit public read-only Phase 3A plan/latest-snapshot resolution, P23-1E-A evidence-preparation/Factor-service delegation, safety-snapshot capture through composition, Store-protocol evidence persistence, Run/stage/relationship transitions, exact bindings and typed results. |
 | Non-responsibilities | SQL, formulas, Risk rule outcomes, source/default selection, GUI, order conversion, broker access or execution. |
-| Public interfaces | Existing pipelines/coordinators plus `TargetAdjustmentRiskReviewCoordinator`, `TargetAdjustmentExposureCapPreviewCoordinator`, `TargetAdjustmentResearchCashFloorPreviewCoordinator` and `TargetAdjustmentResearchAssetCashPreviewCoordinator`; request/result contracts, local preview executors and explicit preview composition. |
+| Public interfaces | Existing pipelines/coordinators plus `TargetAdjustmentRiskReviewCoordinator`, `TargetAdjustmentExposureCapPreviewCoordinator`, `TargetAdjustmentResearchCashFloorPreviewCoordinator`, `TargetAdjustmentResearchAssetCashPreviewCoordinator` and `ManualSpectralPreviewCoordinator`; request/result contracts, local preview executors and explicit preview composition. |
 | Inputs / outputs | injected engines/services/Stores and typed requests / generic Factor/Decision/Risk results or exact linked Target/Decision/manual-review results plus Run identity. |
 | Allowed dependencies | Public Factor/Decision/Risk/Target Position and Run History engines/models/query/Store Protocols; explicit composition root may import concrete adapters. |
-| Forbidden dependencies | Concrete formulas/policies/rules, SQL inside calculation adapters, Alpaca, GUI and execution. |
-| Side effects / configuration | Optional injected evidence persistence; explicit local preview composition wires central adapters; no direct SQL, network or execution. |
+| Forbidden dependencies | Concrete formulas/policies/rules, SQL inside calculation adapters, concrete Alpaca clients, GUI and execution. |
+| Side effects / configuration | Optional injected evidence persistence; explicit composition wires public services/adapters. The P23-1E-A coordinator may request Market History evidence preparation but never constructs a Provider or performs network/account/order work itself. |
 | Tests / documentation | Fake integration, local Dry Run reload, linked source/target/Decision/Risk restart/idempotency tests and architecture tests; [`analysis-decision-pipeline.md`](../modules/analysis-decision-pipeline.md), ADR-0023/0024/0025. |
 
 ### Paper and Live Execution boundaries
@@ -924,6 +940,24 @@ Explicit positive Phase 6C MANUAL_REVIEW_REQUIRED result
 
 No plan/snapshot is selected automatically. The supplied snapshot must remain the exact latest persisted snapshot at commit time and must conserve exactly. Capital Allocation owns plans, buckets and transfers; Risk owns only the order-3 candidate constraint. The GUI shows persisted values and related Runs without formula reconstruction.
 
+### Manual latest-session spectral preview
+
+```text
+explicit Algorithm Control click
+ -> ManualSpectralPreviewCoordinator
+ -> Market History evidence preparation
+    -> LOCAL_ONLY: exact completed persisted frozen bundle, or
+    -> FETCH_AND_FREEZE_READ_ONLY: Alpaca Historical Stock Data + Corporate Actions
+ -> exact latest completed XNYS session and inclusive trailing 250 sessions
+ -> existing SpectralVolatilityService
+ -> one FACTOR_PREVIEW / NO_EXECUTION Run
+ -> Schema-v14 immutable operation and 60/120/250 result graph
+ -> Factor-page reload/export and Run History Open Run
+ -> STOP: no state, target, Decision, Risk, accounting, order or execution
+```
+
+R1 v1.0.0 retains its prior-session cutoff. R1 v1.1.0 includes the latest completed evaluation session in each trailing window. Point-in-time mode remains availability-gated; only explicitly labeled `RETROSPECTIVE_ADJUSTED` evidence can admit later-observed frozen Bars, and that label is persisted as a warning. Missing exact evidence, unsupported actions, misaligned sessions or definition mismatch fail visibly. The application composition root wires the concrete Market History factory; GUI widgets do not import Providers, SQL or Factor engine internals.
+
 ### Future execution-to-accounting fact flow
 
 ```text
@@ -959,7 +993,7 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
 | Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented central local persistence, Schema v13 | historical Bars/Coverage/Fetch History, Run lifecycle/bindings/messages, immutable Factor/Decision/Risk evidence, normalized Decision traces, immutable capital/state/target/standardized-state/link/target-adjustment/manual-review/exposure-cap/cash-floor/asset-cash evidence and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical trace reconstruction/repair, external-service access or orders |
+| SQLite | Implemented central local persistence, Schema v14 | historical Bars/Coverage/Fetch History, Run lifecycle/bindings/messages, immutable Factor/Decision/Risk evidence, normalized Decision traces, immutable capital/state/target/standardized-state/link/target-adjustment/manual-review/exposure-cap/cash-floor/asset-cash evidence, specialized P23-1 source/numerical evidence and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical trace reconstruction/repair, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -1001,7 +1035,7 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. FactorSnapshot, DecisionResult, generic RiskDecision, Capital Allocation, Asset State, Target Position, standardized-state, Phase 5C link, specialized Phase 5D Decision and Phase 6A/6B/6C/6D Risk evidence persist through separate public Store Protocols and concrete infrastructure adapters. Central Schema v13 is additive. Phase 6A consumes only one explicit nonzero specialized intent and has no approval fields; Phase 6B consumes one exact Phase 6A manual-review result and explicit same-symbol cap version; Phase 6C consumes one exact positive Phase 6B result, one explicit same-symbol floor version and the exact Phase 5C hypothetical basis; Phase 6D additionally consumes one explicit plan/latest snapshot through public read-only queries. All numerical candidates remain manual-review/block-only and have no downstream consumer. Persistence/query capability grants neither production activation nor execution authority.
+Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. Generic FactorSnapshot, specialized P23-1, DecisionResult, generic RiskDecision, Capital Allocation, Asset State, Target Position, standardized-state, Phase 5C link, specialized Phase 5D Decision and Phase 6A/6B/6C/6D Risk evidence persist through separate public Store Protocols and concrete infrastructure adapters. Central Schema v14 is additive. Phase 6A consumes only one explicit nonzero specialized intent and has no approval fields; Phase 6B consumes one exact Phase 6A manual-review result and explicit same-symbol cap version; Phase 6C consumes one exact positive Phase 6B result, one explicit same-symbol floor version and the exact Phase 5C hypothetical basis; Phase 6D additionally consumes one explicit plan/latest snapshot through public read-only queries. P23-1 has no financial consumer. All numerical candidates remain manual-review/block-only and have no downstream consumer. Persistence/query capability grants neither production activation nor execution authority.
 
 ## Testing Boundaries
 
@@ -1108,6 +1142,13 @@ Factor and Decision parameters are separate immutable typed contexts (`FactorPar
 85. `ResearchAssetCashResultQuery@1` may apply optional inclusive timezone-aware UTC as-of bounds without changing persisted result schema, central Schema v13 or any write path; omitted bounds remain unbounded and the prior positional `limit` contract remains compatible.
 86. Consolidated comparison presents exact stored A/B values and equality/difference markers only. It cannot calculate financial deltas, rank results, select a preferred result or create an algorithm Run/result.
 87. The explorer remains an existing Risk-page subtab and may only display separated Phase 6A structural and rule-1/2/3 numerical evidence plus related Open Run paths. It imports no SQLite/engine/Capital mutation/Accounting/Backtesting/Execution implementation and exposes no edit, approve, reserve, rerun, export or submission control; no Launcher entry is added.
+88. P23-1 is specialized Factor research evidence, not a generic scalar FactorSnapshot and not a cycle/trading signal. No Asset State, Target Position, Decision, Risk, Backtesting, Portfolio Accounting or Execution module may consume it without a separately approved contract.
+89. P23-1 accepts only explicit `US_EQUITIES_REGULAR_V1` mapping and frozen completed/available XNYS Daily Raw/Split/corporate-action evidence. Calendar, feed, point-in-time and adjustment mismatches fail closed; dividends remain warnings rather than hidden price adjustments.
+90. Immutable R1 v1.0.0 retains its prior-session window cutoff. Immutable R1 v1.1.0 includes the latest completed evaluation session in each exact 60/120/250-session window; no version may be overwritten to change historical meaning.
+91. `LOCAL_ONLY` P23-1E-A requires an exact persisted frozen bundle. `FETCH_AND_FREEZE_READ_ONLY` is a distinct per-click user choice and may access only Alpaca Historical Stock Data and Corporate Actions. No automatic/background-on-start fetch, Trading client, account, position, order or fill access is allowed.
+92. Point-in-time evidence admits only observations available by `as_of_utc`. Explicit `RETROSPECTIVE_ADJUSTED` evidence may admit later-observed frozen Bars, but the exact mode warning must persist in the operation and Run; it is not point-in-time/backtest proof.
+93. One successful manual click has one top-level `FACTOR_PREVIEW` Run created by the existing Factor service. Evidence/definition preparation failures create searchable failed Runs with failed `MARKET_DATA` stages; neither path may fabricate a result.
+94. Both locked R1 definitions remain `DISABLED`, `execution_allowed=false` and `live_allowed=false`. Algorithm Control may dispatch only the injected manual runner and query/display/export/navigate exact persisted evidence; GUI code cannot calculate, construct Providers, call SQLite, rank versions or create a downstream action.
 
 Changing an invariant requires an impact proposal, explicit user approval, relevant ADR/docs/tests, and a rollback method.
 

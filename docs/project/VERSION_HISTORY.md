@@ -152,3 +152,58 @@ No further development slice is approved at this checkpoint. Reference/scale est
 ### Rollback
 
 Use normal Git revert for source and documentation; do not rewrite history. Feature-level rollback may disable linked composition while retaining readable Schema v8 history and both independent manual workflows. A physical database downgrade requires stopping writers, preserving the v8 database, restoring the named verified v7 backup and reverting the matching code together. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260802-003
+
+### Identity
+
+- Recorded at: 2026-08-03T01:09:23Z
+- Branch: `main`
+- Previous commit: `1f100bd`
+- Checkpoint commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v14, 94 logical tables
+- Governance versions: PROJECT_COMPASS v66; canonical architecture v33
+- Purpose: publish the approved P23-1 Spectral Volatility Research foundation and its bounded manual latest-session runner while preserving exact version, data, Run and safety meaning.
+
+### Included approved work
+
+- `PROPOSAL-023` planning revision 1.24 records the user-approved P23-1 R1 mathematical/data baseline and the still-unimplemented P23-2–P23-5 direction.
+- `PROPOSAL-024` implements and verifies disabled P23-1A–D: versioned XNYS/calendar/Raw+Split/Corporate Actions evidence, project-owned NumPy OLS/MAD/Welch/full-window diagnostics, additive Schema-v14 persistence and read-only Factor/Run inspection/export.
+- `PROPOSAL-025` implements and verifies disabled P23-1E-A: one explicit stock, latest completed XNYS session, exact local frozen evidence or explicit per-click read-only acquisition, background Algorithm Control dispatch, one top-level `FACTOR_PREVIEW` Run and restart reload.
+- R1 v1.0.0 remains immutable with its prior-session cutoff. R1 v1.1.0 is a separate immutable definition whose 60/120/250 windows include the latest completed evaluation session. No other spectral equation changed.
+
+### Current user-visible behavior
+
+- The existing Algorithm Control P23-1 Factor subtab can run one manually requested latest-session calculation through `LOCAL_ONLY` or explicit `FETCH_AND_FREEZE_READ_ONLY` mode.
+- The screen exposes exact definition/data semantics, runs work in a background worker, prevents duplicate clicks and shows persisted status, warnings, Run ID, detailed windows, export and Open Run navigation.
+- Missing or inconsistent evidence fails visibly and remains searchable; stored results are append-only and reload after restart.
+- No standalone GUI or Launcher shortcut was added.
+
+### Data and validation checkpoint
+
+- The ignored active database remains Schema v14 with 94 logical tables, two immutable spectral definitions, six definition-window rows and one completed-with-warnings spectral operation. `integrity_check=ok`; foreign-key violations are zero.
+- The one approved real P25 validation used AAPL IEX Historical Stock Data and Corporate Actions only. Run `97448eba-e403-4be9-96a9-5c6cf8b52695` and operation `5380fd0e-51c4-418f-ae8e-50a7ab42ba8e` preserve 250 observations through `2026-07-31` and valid 60/120/250 windows.
+- Candidate periods were approximately 20, 40 and 83.33 sessions, but method disagreement left cross-window consensus at `insufficient_qualified_windows`. This is descriptive research evidence, not a cycle or trade.
+- Complete suite: 547 passed with one pre-existing upstream `websockets.legacy` warning.
+- Architecture/governance suite: 87 passed.
+- `compileall`, `pip check` and `git diff --check` passed; only normal Windows LF→CRLF notices were emitted.
+- `BUG-20260802-001`, `BUG-20260802-002` and `BUG-20260802-003` are fixed with regression coverage; no new unresolved Known Issue remains from this work.
+
+### Current algorithm and safety state
+
+- Both spectral definitions remain `DISABLED`, `execution_allowed=false` and `live_allowed=false`.
+- Spectral results have no Asset State, Target Position, Decision, Risk, Backtesting, Portfolio Accounting, Paper, Live or order consumer.
+- External access is never automatic. The only P25 acquisition path requires an explicit click and can use Market Data/Corporate Actions only.
+- No Trading client, account, buying power, position, order or fill access was added or used.
+- Paper and Live Execution packages remain empty boundaries; automatic order submission and Live Trading remain disabled.
+- Runtime databases, backups, logs, credentials and local Algorithm Control state remain Git-ignored and are not included in this checkpoint.
+
+### Current focus and unapproved work
+
+No further development slice is approved. Full P23-1E historical comparison/scoring, wavelets, MAD/reversal multipliers, P23-2 cycle/state semantics, P23-3 target-position mathematics, P23-4 Decision/Risk integration, P23-5 simulation, factual Portfolio Accounting, Paper execution, production activation and Live require separate proposals and explicit approval.
+
+### Rollback
+
+Use a normal Git revert of the checkpoint commit; do not rewrite history. Feature rollback may remove the manual runner wiring while preserving immutable v1.0.0/v1.1.0 definitions, Runs and results for read-only audit. Schema stays v14, so no database downgrade is required for P25. If reverting all P23-1 storage, stop writers, preserve the v14 database and restore the verified v13 backup together with matching source. Keep Live and automatic submission disabled throughout rollback.
