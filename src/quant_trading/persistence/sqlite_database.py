@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 
 
 _SCHEMA_V1 = """
@@ -2644,6 +2644,153 @@ CREATE INDEX idx_spectral_source_links_run ON spectral_source_links(run_id);
 """
 
 
+_SCHEMA_V15 = """
+CREATE TABLE spectral_historical_evidence_sets (
+    evidence_set_id TEXT PRIMARY KEY,
+    content_fingerprint TEXT NOT NULL UNIQUE,
+    symbol TEXT NOT NULL,
+    feed TEXT NOT NULL CHECK (feed = 'iex'),
+    timeframe TEXT NOT NULL CHECK (timeframe = '1Day'),
+    evidence_mode TEXT NOT NULL CHECK (evidence_mode = 'retrospective_adjusted'),
+    acquisition_mode TEXT NOT NULL CHECK (acquisition_mode IN ('local_only', 'fetch_and_freeze_read_only')),
+    evaluation_start_session TEXT NOT NULL,
+    evaluation_end_session TEXT NOT NULL,
+    source_start_session TEXT NOT NULL,
+    source_end_session TEXT NOT NULL,
+    evaluation_session_count INTEGER NOT NULL CHECK (evaluation_session_count BETWEEN 2 AND 250),
+    source_session_count INTEGER NOT NULL CHECK (source_session_count BETWEEN 252 AND 500),
+    calendar_snapshot_id TEXT NOT NULL,
+    mapping_id TEXT NOT NULL,
+    corporate_action_snapshot_id TEXT NOT NULL,
+    requested_at_utc TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    warnings_text TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (calendar_snapshot_id) REFERENCES research_market_calendar_snapshots(snapshot_id) ON DELETE RESTRICT,
+    FOREIGN KEY (mapping_id) REFERENCES research_market_calendar_symbol_mappings(mapping_id) ON DELETE RESTRICT,
+    FOREIGN KEY (corporate_action_snapshot_id) REFERENCES research_corporate_action_snapshots(snapshot_id) ON DELETE RESTRICT,
+    CHECK (evaluation_start_session <= evaluation_end_session),
+    CHECK (source_start_session < evaluation_start_session),
+    CHECK (source_end_session = evaluation_end_session),
+    CHECK (source_session_count = evaluation_session_count + 250)
+);
+
+CREATE TABLE spectral_historical_evidence_observations (
+    evidence_set_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    session_date TEXT NOT NULL,
+    is_evaluation_session INTEGER NOT NULL CHECK (is_evaluation_session IN (0, 1)),
+    evaluation_ordinal INTEGER,
+    raw_fact_fingerprint TEXT NOT NULL,
+    split_fact_fingerprint TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    first_observed_at_utc TEXT NOT NULL,
+    available_at_utc TEXT NOT NULL,
+    PRIMARY KEY (evidence_set_id, ordinal),
+    UNIQUE (evidence_set_id, session_date),
+    FOREIGN KEY (evidence_set_id) REFERENCES spectral_historical_evidence_sets(evidence_set_id) ON DELETE RESTRICT,
+    FOREIGN KEY (raw_fact_fingerprint) REFERENCES market_bar_observation_facts(content_fingerprint) ON DELETE RESTRICT,
+    FOREIGN KEY (split_fact_fingerprint) REFERENCES market_bar_observation_facts(content_fingerprint) ON DELETE RESTRICT,
+    CHECK ((is_evaluation_session = 0 AND evaluation_ordinal IS NULL)
+        OR (is_evaluation_session = 1 AND evaluation_ordinal >= 1))
+);
+
+CREATE INDEX idx_spectral_historical_evidence_lookup
+ON spectral_historical_evidence_sets(symbol, evaluation_start_session, evaluation_end_session, feed, evidence_mode);
+
+CREATE TABLE spectral_historical_studies (
+    study_id TEXT PRIMARY KEY,
+    parent_run_id TEXT NOT NULL UNIQUE,
+    request_fingerprint TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    evaluation_start_session TEXT NOT NULL,
+    evaluation_end_session TEXT NOT NULL,
+    acquisition_mode TEXT NOT NULL,
+    evidence_mode TEXT NOT NULL CHECK (evidence_mode = 'retrospective_adjusted'),
+    evidence_set_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'failed', 'cancelled')),
+    expected_point_count INTEGER NOT NULL CHECK (expected_point_count BETWEEN 2 AND 500),
+    completed_point_count INTEGER NOT NULL CHECK (completed_point_count >= 0),
+    warning_point_count INTEGER NOT NULL CHECK (warning_point_count >= 0),
+    invalid_point_count INTEGER NOT NULL CHECK (invalid_point_count >= 0),
+    failed_point_count INTEGER NOT NULL CHECK (failed_point_count >= 0),
+    cancelled_point_count INTEGER NOT NULL CHECK (cancelled_point_count >= 0),
+    not_run_point_count INTEGER NOT NULL CHECK (not_run_point_count >= 0),
+    requested_at_utc TEXT NOT NULL,
+    started_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    warnings_text TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (evidence_set_id) REFERENCES spectral_historical_evidence_sets(evidence_set_id) ON DELETE RESTRICT,
+    CHECK (completed_point_count + warning_point_count + invalid_point_count
+        + failed_point_count + cancelled_point_count + not_run_point_count = expected_point_count),
+    CHECK ((status IN ('completed', 'completed_with_warnings') AND error_summary IS NULL)
+        OR (status IN ('failed', 'cancelled') AND error_summary IS NOT NULL))
+);
+
+CREATE TABLE spectral_historical_study_definitions (
+    study_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal IN (1, 2)),
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    component_id TEXT NOT NULL,
+    component_version TEXT NOT NULL CHECK (component_version IN ('1.0.0', '1.1.0')),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (study_id, ordinal),
+    UNIQUE (study_id, definition_id),
+    FOREIGN KEY (study_id) REFERENCES spectral_historical_studies(study_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id) REFERENCES spectral_volatility_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE spectral_historical_study_points (
+    study_id TEXT NOT NULL,
+    evaluation_ordinal INTEGER NOT NULL CHECK (evaluation_ordinal >= 1),
+    evaluation_session TEXT NOT NULL,
+    official_close_utc TEXT NOT NULL,
+    definition_ordinal INTEGER NOT NULL CHECK (definition_ordinal IN (1, 2)),
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    component_version TEXT NOT NULL CHECK (component_version IN ('1.0.0', '1.1.0')),
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'invalid_input', 'failed', 'cancelled', 'not_run')),
+    child_run_id TEXT,
+    operation_id TEXT,
+    attempt_id TEXT,
+    evidence_bundle_id TEXT,
+    warnings_text TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (study_id, evaluation_ordinal, definition_ordinal),
+    UNIQUE (study_id, evaluation_session, definition_ordinal),
+    FOREIGN KEY (study_id, definition_ordinal) REFERENCES spectral_historical_study_definitions(study_id, ordinal) ON DELETE RESTRICT,
+    FOREIGN KEY (child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (attempt_id) REFERENCES spectral_volatility_operations(attempt_id) ON DELETE RESTRICT,
+    CHECK ((status IN ('completed', 'completed_with_warnings', 'invalid_input', 'failed')
+            AND child_run_id IS NOT NULL AND operation_id IS NOT NULL
+            AND attempt_id IS NOT NULL AND evidence_bundle_id IS NOT NULL)
+        OR (status IN ('cancelled', 'not_run') AND child_run_id IS NULL
+            AND operation_id IS NULL AND attempt_id IS NULL AND evidence_bundle_id IS NULL))
+);
+
+CREATE INDEX idx_spectral_historical_studies_lookup
+ON spectral_historical_studies(symbol, completed_at_utc, status);
+CREATE INDEX idx_spectral_historical_points_child_run
+ON spectral_historical_study_points(child_run_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -2659,6 +2806,7 @@ _MIGRATIONS = {
     12: ("research asset cash-floor definitions and order-2 Risk preview evidence", _SCHEMA_V12),
     13: ("research capital-plan asset-cash order-3 Risk preview evidence", _SCHEMA_V13),
     14: ("P23-1 spectral-volatility research evidence", _SCHEMA_V14),
+    15: ("P23-1E-B bounded historical spectral research studies", _SCHEMA_V15),
 }
 
 

@@ -207,3 +207,48 @@ No further development slice is approved. Full P23-1E historical comparison/scor
 ### Rollback
 
 Use a normal Git revert of the checkpoint commit; do not rewrite history. Feature rollback may remove the manual runner wiring while preserving immutable v1.0.0/v1.1.0 definitions, Runs and results for read-only audit. Schema stays v14, so no database downgrade is required for P25. If reverting all P23-1 storage, stop writers, preserve the v14 database and restore the verified v13 backup together with matching source. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260806-004
+
+### Identity
+
+- Recorded at: 2026-08-06T18:34:39Z
+- Branch: `main`
+- Previous commit: `3de6670`
+- Checkpoint commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v15, 99 logical tables
+- Governance versions: PROJECT_COMPASS v69; canonical architecture v34
+- Purpose: publish approved PROPOSAL-026 P23-1E-B as a bounded, retrospective, descriptive and disabled historical spectral-research checkpoint.
+
+### Included approved work
+
+- One explicit symbol and an exact inclusive 2–250 completed-XNYS-session evaluation grid.
+- One or two exact immutable compatible R1 definitions, initially v1.0.0 and v1.1.0, evaluated independently without winner selection or ranking.
+- One shared IEX Daily Raw/Split/corporate-action evidence set, exact definition-specific child cutoffs and visible `RETROSPECTIVE_ADJUSTED` meaning.
+- One `SPECTRAL_HISTORY_RESEARCH` parent Run with chronological `FACTOR_PREVIEW` children and complete persisted success/warning/invalid/failed/cancelled/not-run membership.
+- Additive Schema-v15 evidence/study persistence, restart reload, Run artifacts and the existing Factor-page Plan/Run/history/chart/export/Open Run workflow.
+
+### Validation and database evidence
+
+- Release complete suite: **556 passed** with one pre-existing upstream `websockets.legacy` warning.
+- Architecture/governance suite: **87 passed**.
+- `compileall` and `pip check`: passed.
+- Active ignored database: Schema v15/99, `integrity_check=ok`, zero foreign-key violations and zero P26 studies. Verified v14 backup remains outside Git.
+- No new Alpaca P26 validation, Trading API, account, position, order or fill access occurred.
+
+### Current algorithm and safety state
+
+- P26 compares only descriptive Factor evidence. It contains no future returns, P&L, score, ranking, state transition, target position, Decision, Risk result, backtest trade or accounting effect.
+- R1 v1.0.0/v1.1.0 remain locked, `DISABLED`, `execution_allowed=false` and `live_allowed=false`.
+- Paper and Live Execution remain empty sibling boundaries. Automatic submission and Live Trading remain disabled.
+- Runtime databases, backups, credentials and runtime logs remain ignored and are not part of this checkpoint.
+
+### Current focus and unapproved work
+
+No further algorithm slice is approved by this checkpoint. A real P26 read-only validation, per-stock volatility-profile interpretation, P23-2 cycle/state semantics, P23-3 target-position mathematics, P23-4 Decision/Risk linkage, P23-5 simulation, Portfolio Accounting persistence, Paper and Live each require separate explicit approval.
+
+### Rollback
+
+Use a normal Git revert of the checkpoint commit; do not rewrite history. Feature rollback may disable P26 composition and hide its Factor-page controls while retaining immutable v15 evidence readable. A physical downgrade requires stopping writers, preserving the v15 database and restoring the verified v14 backup with matching v14 code. Keep Live and automatic submission disabled throughout rollback.

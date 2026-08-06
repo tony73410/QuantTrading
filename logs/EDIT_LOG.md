@@ -5623,3 +5623,132 @@ The user explicitly requested committing and pushing the completed work to GitHu
 - Secret scan and staged-content review are required immediately before commit. The requested Git commit and push occur after this append-only record; their actual commit ID and remote result are reported to the user and are independently preserved by Git history.
 
 No source behavior, formula, configuration default, schema, runtime data, GUI behavior, external access or trading authority changed in this checkpoint-record task. Suggested commit message: `feat: add governed spectral volatility preview`.
+
+## EDIT-20260802-004 — Create proposed P23-1E-B historical spectral research admission
+
+### Date
+
+2026-08-02 18:29:34 -07:00
+
+### Request and scope
+
+After reviewing the remaining path, the user approved creating the recommended next proposal and requested durable records. Created `PROPOSAL-026` only; implementation, public contracts, Run enums, Schema v15, GUI, external validation and every financial/trading behavior remain unapproved.
+
+Task mode was `STANDARD` documentation/governance. Primary proposed owner is `orchestration`; future secondary owners would be `market_history`, `factors`, `run_history`, `persistence` and `algorithm_control`. No runtime file, dependency, configuration, database, GUI, Market Data request or trading behavior changed.
+
+### Proposal recorded
+
+- One explicit symbol and one explicit inclusive range of 2–250 completed XNYS evaluation sessions; no hidden date default.
+- One or two exact compatible locked R1 definitions, initially immutable v1.0.0 and/or v1.1.0, aligned on the same evaluation grid and displayed side by side without ranking/winner selection.
+- One frozen IEX/Daily/Raw+Split/corporate-action evidence set; first version remains visibly `RETROSPECTIVE_ADJUSTED` and is not point-in-time backtesting evidence.
+- Every requested session × definition pair must produce one persisted point outcome; missing/invalid/failed/cancelled points cannot be silently skipped, filled or replaced.
+- Proposed one `SPECTRAL_HISTORY_RESEARCH` parent Run and existing child `FACTOR_PREVIEW` Runs, with exact idempotency, progress and between-child cancellation semantics.
+- Recommended additive central SQLite v14→v15 migration with five normalized evidence/study tables, verified v14 backup, unchanged old-table counts, no backfill and full integrity/FK tests.
+- Proposed existing P23-1 Factor-page historical-study controls, typed progress/history/time-series/status views, Open Run and bounded CSV/JSON export; no new application or Launcher entry.
+- Explicitly excluded future returns, P&L, predictive scoring, rankings, wavelets, volatility-range/reversal multipliers, State/Target/Capital/Decision/Risk/Backtesting/Accounting/Paper/Live/orders/activation and automatic/multi-symbol work.
+- No new external validation is approved. The proposal recommends at most one AAPL read-only study only if separately approved after all deterministic/migration tests.
+
+### Files changed
+
+- Added `docs/proposals/PROPOSAL-026-single-symbol-historical-spectral-research.md`.
+- Updated `docs/proposals/README.md`, `PROJECT_COMPASS.md` v67, `docs/project/ROADMAP.md`, `docs/project/PROJECT_STATE.md` and this append-only Edit Log.
+- Added Compass open decision `DEC-013` and proposed intent `INTENT-036`; Stable Core and architecture v33 are unchanged.
+
+### Change Impact Report
+
+Actual change is documentation/governance only with `LIMITED` blast radius. The proposed implementation is `MULTI_MODULE` and would require explicit DEEP-mode approval because it adds a Run type, public contracts and an additive Schema v15 migration. Backward compatibility recommendation is to keep P25 and every R1 definition/operation unchanged; study points would reference existing immutable numerical operations. Documentation rollback removes P26 from current proposed direction while retaining this append-only history. There is no runtime/data rollback for proposal creation.
+
+### Compass audit
+
+Intent alignment: records the recommended evidence-first step before automatic reversal/state mathematics. Architecture alignment: reuses established owners and forbids Orchestration/GUI from calculating Factors or accessing SQL/Providers directly. Safety alignment: research stays disabled, retrospective-labeled and contains no future-outcome or financial consumer. Unapproved behavior added: none. Assumptions introduced: none as runtime behavior; all seven recommendations remain pending under DEC-013. Compass sections updated: metadata/current phase, DEC-013, INTENT-036, limitations and next direction; Stable Core unchanged. Remaining drift risk: a future historical study could be mislabeled as a point-in-time/profit backtest, silently skip failed dates, rank versions or feed State/Decision. P26 makes each a fail-closed exclusion requiring separate approval.
+
+### Bug discovery audit
+
+No new credible product defect was discovered during this proposal-only task. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+### Validation addendum
+
+- Architecture/governance suite: **87 passed**.
+- `git diff --check`: passed; output contained only normal Windows LF-to-CRLF notices.
+- No runtime or full-suite rerun was required for this documentation-only proposal task; the last verified runtime evidence remains **547 passed** with one pre-existing upstream warning.
+- Final scope inspection confirmed six documentation/governance files only, with no source, test, configuration, schema, database or generated-runtime-data change.
+
+## EDIT-20260802-005 — Implement approved PROPOSAL-026 bounded historical spectral research
+
+### Date
+
+2026-08-02 19:57:34 -07:00
+
+### Request, task mode and scope
+
+The user explicitly approved PROPOSAL-026. Task mode: `DEEP`. Primary module: `orchestration`. Secondary modules: `market_history`, `factors`, `run_history`, `persistence` and `algorithm_control`. Expected/actual blast radius: `MULTI_MODULE`, limited to the approved disabled research path.
+
+Implemented one explicit symbol, an exact inclusive 2–250-completed-XNYS-session range, one/two exact locked R1 v1.0.0/v1.1.0 definitions, one shared retrospective evidence set, a complete chronological point grid, parent/child Runs, additive Schema v15 persistence and an existing-Factor-page historical inspector. Excluded without exception: formula changes, future returns, P&L, scores, rankings, wavelets, reversal/state/target/Capital/Decision/Risk/Backtesting/Accounting consumers, Paper, Live, account/position/order/fill access, activation and automatic/background-on-start acquisition. A separate real P26 AAPL validation was not approved or performed.
+
+### Implementation
+
+- Added typed P26 study/evidence/query contracts and a `SPECTRAL_HISTORY_RESEARCH` Run type. The existing spectral service accepts an optional parent Run while preserving all earlier call behavior.
+- Market History plans exact XNYS grids, prepares one Raw/Split/corporate-action source set per study, persists explicit `RETROSPECTIVE_ADJUSTED` provenance and derives exact definition-specific 250-observation child bundles without later-session input leakage. Local mode requires an exact complete frozen P26 set; fetch mode remains one explicit read-only click.
+- Orchestration validates one/two exact compatible definitions, creates one parent Run, invokes chronological child `FACTOR_PREVIEW` Runs, records every expected point including warning/invalid/failed/cancelled/not-run states, updates progress through cancellation, rejects conflicting study identity reuse and reloads terminal studies idempotently.
+- Central Persistence adds five normalized P26 tables for evidence sets/observations/studies/definition selections/points. Run History exposes the parent study and referenced child artifacts without owning spectral meaning.
+- The existing Algorithm Control Factor page gains a separate P23-1 historical research subtab with explicit empty date fields, exact Plan-before-Run count disclosure, background progress, duplicate suppression, between-child cancellation, bounded filters, price/period/amplitude/MAD/status charts, complete CSV/JSON export and parent/child Open Run. GUI code performs no Factor calculation, Provider access or SQL. No Launcher entry was added.
+- All existing v14 migration expectations were advanced mechanically to v15; older schema migrations and R1 definition/operation rows remain unchanged.
+
+### Files changed
+
+- Runtime: `src/quant_trading/market_history/spectral_historical_evidence.py`, `composition.py`, `market_history/__init__.py`; `src/quant_trading/factors/spectral_history_models.py`, `spectral_history_interfaces.py`, `spectral_service.py`, `factors/__init__.py`; `src/quant_trading/orchestration/spectral_history_research.py`, `orchestration/__init__.py`; `src/quant_trading/persistence/spectral_historical_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py`, `persistence/__init__.py`; `src/quant_trading/run_history/models.py`, `service.py`; `src/quant_trading/algorithm_control/spectral_history_chart.py`, `spectral_history_export.py`, `ui/spectral_history_panel.py`, `ui/factor_authoring_panel.py`, `ui/main_panel.py`, `app.py`.
+- Tests: new P26 Market History/Factor/Repository/orchestration/GUI coverage plus architecture dependency/governance checks and all existing central-schema migration fixtures updated to v15.
+- Governance/docs: PROPOSAL-023 through 026 and proposal index; ADR-0031 and decision index; Compass v68; architecture v34; Documentation Index; Project State/Roadmap; affected Market History/Factors/Orchestration/Persistence/Run History/Algorithm Control/Launcher module docs; CHANGELOG and this Edit Log.
+
+### Database migration and validation
+
+- Fixture tests proved fresh v15 and v14→v15 backup/migration/no-backfill behavior before the active database changed.
+- Active `runtime/data/market_history.sqlite3` migrated transactionally from v14/94 to v15/99 after backup `runtime/data/backups/market_history.schema-v14-to-v15.20260803T025500568848Z.sqlite3` was created.
+- The backup remains Schema v14 with 94 logical tables, `integrity_check=ok` and zero foreign-key violations. Active v15 has 99 logical tables, `integrity_check=ok`, zero foreign-key violations, zero P26 evidence sets and zero P26 studies. The migration initializer also verified unchanged pre-existing table counts. Runtime database and backup remain Git-ignored.
+- Final complete suite: **556 passed** in 100.47 seconds with one pre-existing upstream `websockets.legacy` deprecation warning. The first broad run passed 543 tests and exposed only 13 stale v14/backup-name assertions; after their mechanical v15 update, all 13 and then the full suite passed.
+- After final documentation synchronization, the architecture/governance suite passed **87 tests**; `compileall`, `pip check` and `git diff --check` passed. The diff check reported only normal Windows LF-to-CRLF notices.
+
+### Change Impact Report
+
+Primary ownership is Orchestration call order; Market History owns evidence/provider access, Factors owns contracts and unchanged mathematics, Persistence owns SQL/migration, Run History owns neutral lifecycle and Algorithm Control owns presentation/composition. Public contracts and Run enum are additive. No dependency, secret, endpoint, financial configuration/default or automatic network permission changed. Database impact is the approved additive v14→v15 migration with verified backup and zero backfill. GUI impact is confined to the existing Factor page; Launcher remains unchanged. Trading semantics and safety authority are unchanged: results are retrospective descriptive evidence only, locked definitions remain disabled, `execution_allowed=false`, `live_allowed=false`, and no downstream financial or execution consumer exists. Rollback disables/removes P26 dispatch and GUI controls while retaining v15 evidence readable; physical downgrade requires stopping writers, preserving v15 and restoring the verified v14 backup with matching v14 code.
+
+### Bug discovery and Compass audits
+
+No pre-existing or deferred product defect was discovered, so no new Bug ID or Known Issue was created. Implementation review corrected stable research-mapping identity and cancelled-grid progress before final acceptance; regression coverage passes. Existing `BUG-20260802-001/002/003` and Known Issues are unchanged.
+
+Intent alignment: exactly implements the approved evidence-first historical observation slice without inventing reversal or trading behavior. Architecture alignment: the canonical owners and dependency direction remain intact; architecture and complete-suite tests pass. Safety alignment: every result remains retrospective, descriptive, disabled and unconsumed; network requires an explicit click and no new network validation occurred. Unapproved behavior added: none. Assumptions introduced: only internal deterministic identities and bounded query mechanics with no financial meaning. Compass sections updated: metadata/version, current capability, DEC-013 resolution, ASM-056, INTENT-034/036, limitations and next direction; Stable Core is unchanged. Remaining drift risk: users could mistake retrospective period stability for predictive performance or a future consumer could bypass separate State/Decision/Risk approval; the explicit labels, absent outcome fields and architecture invariants fail closed against that path.
+
+No commit or push was performed. Suggested commit message: `feat: add bounded historical spectral research`.
+
+## EDIT-20260806-001 — Record and publish the PROPOSAL-026 Git checkpoint
+
+### Date
+
+2026-08-06 11:34:39 -07:00
+
+### Request and scope
+
+The user explicitly requested commit and push of the completed PROPOSAL-026 work. Task mode: `FAST` publication/checkpoint work. Primary scope: Git and version governance. No algorithm, formula, public runtime contract, configuration, database schema/data, GUI behavior, external access or trading permission changed in this publication step.
+
+### Version record
+
+- Added `CHECKPOINT-20260806-004` to `docs/project/VERSION_HISTORY.md`.
+- Branch: `main`; previous commit: `3de6670`; remote: `origin/main` at `https://github.com/tony73410/QuantTrading.git`.
+- Package version remains `0.1.0`; no unapproved semantic-version change was made.
+- Recorded PROPOSAL-026/P23-1E-B, Schema v15/99, Compass v69, architecture v34, disabled R1 definitions, the absent P26 financial consumers, external-access boundary and rollback procedure.
+- Updated current Project State and Compass verification metadata to refer to the commit containing this checkpoint rather than an uncommitted working tree.
+
+### Pre-publish evidence
+
+- Complete suite rerun: **556 passed** in 222.24 seconds with one pre-existing upstream WebSocket warning.
+- Architecture/governance rerun: **87 passed** in 25.21 seconds.
+- `compileall` passed; `pip check` reported no broken requirements.
+- Active ignored database remained Schema v15/99 with `integrity_check=ok`, zero foreign-key violations and zero P26 studies.
+- No network request, credential use, account/position/order/fill access, Paper/Live behavior or automatic submission occurred.
+- Staged-file, secret-pattern and diff checks are performed immediately before commit. The commit and push occur after this append-only record; their resulting commit ID and remote result are preserved by Git history and reported to the user.
+
+### Compass and bug audits
+
+Intent alignment: publishes exactly the already approved and verified P26 implementation. Architecture alignment: no runtime boundary changed. Safety alignment: all definitions remain disabled/unconsumed and execution remains absent. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: metadata/version only; Stable Core is unchanged. Remaining drift risk: retrospective descriptive evidence must not be interpreted as predictive/trading evidence without a separately approved consumer.
+
+No new Bug was discovered; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged. Rollback is a normal revert of the checkpoint commit; database downgrade is not performed by Git revert. Commit message: `feat: add bounded historical spectral research`.

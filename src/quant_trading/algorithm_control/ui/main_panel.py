@@ -61,8 +61,9 @@ from quant_trading.factors.interfaces import (
     FactorVisualizationQueryService,
 )
 from quant_trading.factors.spectral_interfaces import SpectralVolatilityQueryService
+from quant_trading.factors.spectral_history_interfaces import SpectralHistoricalStudyQueryService
 from quant_trading.factors.spectral_models import SpectralVolatilityDefinition
-from quant_trading.orchestration import ManualSpectralPreviewRunner
+from quant_trading.orchestration import ManualSpectralPreviewRunner, SpectralHistoricalStudyRunner
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
 from quant_trading.decision import TargetAdjustmentDecisionQueryService
 from quant_trading.risk import (
@@ -173,6 +174,10 @@ class AlgorithmControlPanel(QMainWindow):
         spectral_volatility_queries: SpectralVolatilityQueryService | None = None,
         manual_spectral_preview: ManualSpectralPreviewRunner | None = None,
         spectral_definition: SpectralVolatilityDefinition | None = None,
+        spectral_historical_queries: SpectralHistoricalStudyQueryService | None = None,
+        spectral_historical_evidence_queries=None,
+        spectral_historical_research: SpectralHistoricalStudyRunner | None = None,
+        spectral_historical_definitions: tuple[SpectralVolatilityDefinition, ...] = (),
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -192,6 +197,10 @@ class AlgorithmControlPanel(QMainWindow):
             spectral_queries=spectral_volatility_queries,
             manual_spectral_preview=manual_spectral_preview,
             spectral_definition=spectral_definition,
+            spectral_historical_queries=spectral_historical_queries,
+            spectral_historical_evidence_queries=spectral_historical_evidence_queries,
+            spectral_historical_research=spectral_historical_research,
+            spectral_historical_definitions=spectral_historical_definitions,
             spectral_session_id=(
                 standardized_state_session_id
                 or target_position_session_id

@@ -13,6 +13,7 @@ from .research_asset_cash_sqlite_store import SQLiteResearchAssetCashStore
 from .run_sqlite_store import SQLiteRunHistoryRepository
 from .research_history_sqlite_query import SQLiteResearchHistoryQueryService
 from .spectral_volatility_sqlite_store import SQLiteSpectralVolatilityStore
+from .spectral_historical_sqlite_store import SQLiteSpectralHistoricalStudyStore
 from .sqlite_database import (
     CentralSchemaInspection,
     CentralSQLiteDatabase,
@@ -38,4 +39,5 @@ __all__ = [
     "SQLiteRunHistoryRepository",
     "SQLiteResearchHistoryQueryService",
     "SQLiteSpectralVolatilityStore",
+    "SQLiteSpectralHistoricalStudyStore",
 ]

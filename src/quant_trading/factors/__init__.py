@@ -104,11 +104,19 @@ from .spectral_interfaces import (
 )
 from .spectral_models import *
 from .spectral_service import SpectralVolatilityService
+from .spectral_history_interfaces import (
+    EmptySpectralHistoricalStudyQueryService,
+    SpectralHistoricalStudyQueryService,
+    SpectralHistoricalStudyStore,
+)
+from .spectral_history_models import *
 
 __all__ += [
     "EmptySpectralVolatilityQueryService", "SpectralOperationQuery",
     "SpectralVolatilityEngine", "SpectralVolatilityQueryService",
     "SpectralVolatilityService", "SpectralVolatilityStore",
+    "EmptySpectralHistoricalStudyQueryService",
+    "SpectralHistoricalStudyQueryService", "SpectralHistoricalStudyStore",
 ]
 __all__ += [
     name

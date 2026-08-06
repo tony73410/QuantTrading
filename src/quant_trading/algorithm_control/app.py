@@ -29,6 +29,7 @@ from quant_trading.persistence import (
     SQLiteResearchAssetCashStore,
     SQLiteTargetAdjustmentRiskStore,
     SQLiteSpectralVolatilityStore,
+    SQLiteSpectralHistoricalStudyStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -42,6 +43,7 @@ from quant_trading.factors.spectral_models import (
 )
 from quant_trading.factors.spectral_service import SpectralVolatilityService
 from quant_trading.market_history.composition import (
+    build_spectral_historical_evidence_service,
     build_spectral_preview_evidence_service,
 )
 from quant_trading.market_history.config import AppSettings
@@ -61,6 +63,7 @@ from quant_trading.orchestration import (
     TargetAdjustmentResearchAssetCashPreviewCoordinator,
     TargetAdjustmentRiskReviewCoordinator,
     ManualSpectralPreviewCoordinator,
+    SpectralHistoricalStudyCoordinator,
 )
 
 from .audit_service import AuditService
@@ -204,6 +207,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     manual_spectral_preview = ManualSpectralPreviewCoordinator(
         spectral_volatility_store,
         spectral_evidence_preparation,
+        spectral_factor_service,
+        run_service,
+        software,
+    )
+    spectral_history_store = SQLiteSpectralHistoricalStudyStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    spectral_history_store.initialize()
+    spectral_history_evidence = build_spectral_historical_evidence_service(
+        settings,
+        spectral_history_store,
+    )
+    spectral_history_research = SpectralHistoricalStudyCoordinator(
+        spectral_history_store,
+        spectral_volatility_store,
+        spectral_history_evidence,
         spectral_factor_service,
         run_service,
         software,
@@ -411,6 +430,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         spectral_volatility_queries=spectral_volatility_store,
         manual_spectral_preview=manual_spectral_preview,
         spectral_definition=inclusive_spectral_definition,
+        spectral_historical_queries=spectral_history_store,
+        spectral_historical_evidence_queries=spectral_history_store,
+        spectral_historical_research=spectral_history_research,
+        spectral_historical_definitions=(
+            legacy_spectral_definition,
+            inclusive_spectral_definition,
+        ),
     )
     if options.page is not None:
         panel.select_page(options.page)

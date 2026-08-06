@@ -28,9 +28,9 @@ def test_compass_verification_metadata_describes_current_p23_1_work() -> None:
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
-    assert "PROPOSAL-025 P23-1E-A implemented" in metadata
-    assert "central SQLite remains Schema v14/94" in metadata
-    assert "no account/position/order/fill access" in metadata
+    assert "PROPOSAL-026" in metadata
+    assert "central SQLite remains Schema v15/99" in metadata
+    assert "no new Alpaca request or account/position/order/fill access" in metadata
     assert "DISABLED/execution_allowed=false/live_allowed=false" in metadata
 
 
@@ -39,9 +39,9 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     next_direction = compass.split("## B17. Next Approved Direction", 1)[1].split(
         "## B18.", 1
     )[0]
-    assert "PROPOSAL-025 is complete" in next_direction
+    assert "PROPOSAL-026 is complete" in next_direction
     assert "No further development slice is currently approved" in next_direction
-    assert "PROPOSAL-025 is now the proposed" not in next_direction
+    assert "PROPOSAL-026 is now the proposed" not in next_direction
 
 
 def test_compass_does_not_deny_verified_research_backtesting() -> None:

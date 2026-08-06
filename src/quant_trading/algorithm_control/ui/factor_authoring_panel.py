@@ -29,8 +29,9 @@ from quant_trading.factors.interfaces import (
     FactorVisualizationQueryService,
 )
 from quant_trading.factors.spectral_interfaces import SpectralVolatilityQueryService
+from quant_trading.factors.spectral_history_interfaces import SpectralHistoricalStudyQueryService
 from quant_trading.factors.spectral_models import SpectralVolatilityDefinition
-from quant_trading.orchestration import ManualSpectralPreviewRunner
+from quant_trading.orchestration import ManualSpectralPreviewRunner, SpectralHistoricalStudyRunner
 
 from ..factor_history_export import FactorHistoryExportService
 from ..spectral_export import SpectralVolatilityExportService
@@ -41,6 +42,7 @@ from ..factor_lifecycle import FactorLifecycleState
 from .factor_workbench_panel import FactorWorkbenchPanel
 from .factor_history_panel import FactorHistoryPanel
 from .spectral_volatility_panel import SpectralVolatilityPanel
+from .spectral_history_panel import SpectralHistoricalResearchPanel
 
 
 class FactorAuthoringPanel(QWidget):
@@ -270,6 +272,10 @@ class FactorManagementPanel(QWidget):
         manual_spectral_preview: ManualSpectralPreviewRunner | None = None,
         spectral_definition: SpectralVolatilityDefinition | None = None,
         spectral_session_id: str | None = None,
+        spectral_historical_queries: SpectralHistoricalStudyQueryService | None = None,
+        spectral_historical_evidence_queries=None,
+        spectral_historical_research: SpectralHistoricalStudyRunner | None = None,
+        spectral_historical_definitions: tuple[SpectralVolatilityDefinition, ...] = (),
     ) -> None:
         super().__init__(parent)
         from PySide6.QtWidgets import QTabWidget
@@ -289,6 +295,14 @@ class FactorManagementPanel(QWidget):
             definition=spectral_definition,
             session_id=spectral_session_id,
         )
+        self.spectral_history = SpectralHistoricalResearchPanel(
+            spectral_historical_queries,
+            runner=spectral_historical_research,
+            definitions=spectral_historical_definitions,
+            operation_queries=spectral_queries,
+            evidence_queries=spectral_historical_evidence_queries,
+            session_id=spectral_session_id or "algorithm-control",
+        )
         # Preserve the existing panel inspection surface used by smoke tests and
         # simple UI diagnostics while the Factor page gains a second tab.
         self.list = self.components.list
@@ -298,6 +312,7 @@ class FactorManagementPanel(QWidget):
         tabs.addTab(self.history, "历史与比较")
         tabs.addTab(self.components, "版本配置与预览")
         tabs.insertTab(tabs.count() - 1, self.spectral, "P23-1 波动研究")
+        tabs.insertTab(tabs.count() - 1, self.spectral_history, "P23-1 历史研究")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
         self.authoring.state_changed.connect(self.state_changed)
@@ -305,6 +320,7 @@ class FactorManagementPanel(QWidget):
         self.components.preview_requested.connect(self.preview_requested)
         self.history.open_run_requested.connect(self.open_run_requested)
         self.spectral.open_run_requested.connect(self.open_run_requested)
+        self.spectral_history.open_run_requested.connect(self.open_run_requested)
 
     def reload(self) -> None:
         self.authoring.reload()
@@ -312,3 +328,4 @@ class FactorManagementPanel(QWidget):
         self.workbench.reload()
         self.history.reload()
         self.spectral.reload()
+        self.spectral_history.reload()

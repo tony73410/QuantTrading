@@ -20,7 +20,7 @@
 - 完成阶段 6C：Risk所有者以一个显式正Phase 6B人工复核候选、同股票当前精确的不可变有限非负Decimal USD底线版本和精确Phase 5C人工研究资金基数为输入，在继承的`MAX_TARGET_EXPOSURE_USD@1`规则1之后执行`MIN_RESEARCH_ASSET_CASH_USD@1`规则2。INCREASE可保持、缩小或阻止，long-only DECREASE保持；显式零有效，正候选仍为`MANUAL_REVIEW_REQUIRED`。Schema v12、完整Run导航和既有Risk页子页签已验证；无默认底线、事实现金、approved object、回测或执行消费者。
 - 完成阶段 6D：Risk所有者以一个显式正Phase 6C候选、一个显式Phase 3A `RESEARCH_INPUT`计划及其精确最新守恒快照为输入，在继承规则1/2后执行`MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1`规则3。INCREASE受同股票`ASSET_CASH`规划余额限制，long-only DECREASE保持；所有结果均记录`research_cash_reserved=false`，正候选仍需人工复核。Schema v13、完整上游/Capital Snapshot Run导航和既有Risk页子页签已验证；无默认计划、资金预留/转移、事实现金、approved object、回测或执行消费者。
 - 完成阶段 6E：在既有Risk页面增加只读Consolidated Risk Chain Explorer，从Phase 6D结果通过公共查询合同精确解析Phase 6C/6B/6A结果与source links，结构门与数值规则1–3分开展示，支持含可选inclusive UTC as-of边界的有界筛选、两个显式历史链的精确A/B相等性比较及九条Open Run路径。缺失/不一致证据明确失败；Schema仍为v13，无重算、写入、审批、预留、导出、回测或执行能力。
-- 完成 `PROPOSAL-024` P23-1A–D 和 `PROPOSAL-025` P23-1E-A：锁定禁用的频谱波动研究现具备精确日历/Raw+Split/公司行动证据、R1 v1.0.0与含最新已完成交易日的不可变R1 v1.1.0、纯Factor计算、Schema-v14完整历史、人工单股票本地或明确只读获取运行、后台GUI、重启重载与Open Run。唯一一次获批AAPL验证完成；结果只属描述性研究，没有状态、仓位、Decision、Risk批准或交易消费者。
+- 完成 `PROPOSAL-024` P23-1A–D、`PROPOSAL-025` P23-1E-A 和 `PROPOSAL-026` P23-1E-B：锁定禁用的频谱波动研究现具备精确日历/Raw+Split/公司行动证据、不可变R1 v1.0.0/v1.1.0、纯Factor计算、Schema-v15完整历史、人工最新交易日与2–250日历史运行、父子Run、后台GUI、重启重载、图表/导出与Open Run。P26没有未来收益/P&L/排名，也没有状态、仓位、Decision、Risk批准或交易消费者。
 
 ## Approved next
 
@@ -28,7 +28,7 @@
 
 ## Proposed next — awaiting approval
 
-- 无。完整 P23-1E 历史比较/评分、P23-2 状态语义、P23-3 目标持仓数学、P23-4 Decision/Risk连接、P23-5模拟以及任何Accounting/Paper/Live扩展都需要新提案和明确批准。
+- `PROPOSAL-026` P23-1E-B 已批准、实现并验证：对一只显式股票、2–250个显式XNYS评估日和一至两个精确R1版本进行逐日尾随研究，保存完整日期×版本结果网格并并排展示状态、周期、振幅与MAD；固定为`RETROSPECTIVE_ADJUSTED`，不包含未来收益/P&L、评分、排名、状态或交易。父子Run、显式本地/只读证据准备和中央SQLite v14→v15加法迁移已经完成；另一次真实AAPL网络验证未执行。
 
 ## Approved design targets — implementation not approved
 
@@ -64,7 +64,8 @@
 - 是否配置 Alpaca Market Data 凭据并进行真实 API 手动验证。
 - 后续具体业务目标；不得从历史数据浏览器推断交易策略或实盘需求。
 - `P23-1-R1` 的数学/数据问题和P23-1A–D/P23-1E-A实现已解决：每个请求显式把美股/ETF映射到`US_EQUITIES_REGULAR_V1`且不自动发现交易所；R1 v1.0.0保留旧窗口语义，R1 v1.1.0把最新已完成评估日纳入60/120/250窗口；人工Runner和一次获批AAPL只读日线/公司行动验证已经完成。
-- `numpy>=2.3.3,<3`、`exchange_calendars>=4.13.2,<5`、专用公开合同和中央SQLite v14已纳入已验证实现。完整`P23-1E`历史比较/评分、小波候选、MAD缓冲/反转门槛倍数、未来状态规则选择哪一种已保存口径、线性和加速曲线、仓位边界、第二次交易机会、次数计数、封存进入/退出、成本/滑点/成交顺序仍待后续单独决定和批准。
+- `PROPOSAL-026` 的实施决策已经解决：2–250日范围、最多两个R1版本、事后调整研究语义、父子Run结构、Schema v15五张表和本地/显式只读获取均已实现；真实AAPL历史研究仍需另一次明确验证指令。
+- `numpy>=2.3.3,<3`、`exchange_calendars>=4.13.2,<5`、专用公开合同和中央SQLite v15已纳入已验证实现。小波候选、MAD缓冲/反转门槛倍数、未来状态规则选择哪一种已保存口径、线性和加速曲线、仓位边界、第二次交易机会、次数计数、封存进入/退出、成本/滑点/成交顺序仍待后续单独决定和批准。
 - 跨版本图表/排名、Decision导出、行业资金、动态权重、储备借贷、Market Data adapter、自动source/curve选择、进一步Capital/Accounting adapter、事实/预留现金、完整数值Risk批准/更多规则组合、完整回测整合、Accounting持久化、Paper/Live均需要后续独立范围与批准；Phase 6D仅是三条有序、未消费且不预留资金的数值研究约束，不自动授权Risk批准或这些后续能力。
 
 未经用户明确要求，待决事项不得自动转为实施工作。

@@ -52,6 +52,14 @@ from .spectral_preview_evidence import (
     SpectralEvidencePreparationRequest,
     SpectralPreviewEvidencePreparationService,
 )
+from .spectral_historical_evidence import (
+    FrozenSpectralHistoricalEvidenceQuery,
+    PreparedSpectralHistoricalEvidence,
+    SpectralHistoricalEvidencePreparationRequest,
+    SpectralHistoricalEvidencePreparationService,
+    SpectralHistoricalEvidenceSet,
+    SpectralHistoricalStudyPlan,
+)
 
 __all__ += [
     "ResearchBarObservation", "ResearchCalendarSession",
@@ -61,6 +69,15 @@ __all__ += [
     "ResearchMarketCalendarSnapshot", "SpectralMarketEvidenceBuilder",
     "SpectralMarketEvidenceBundle", "US_EQUITIES_REGULAR_V1",
     "US_EQUITY_OR_ETF_WITH_EXPLICIT_MAPPING", "XNYSResearchCalendarAdapter",
+]
+
+__all__ += [
+    "FrozenSpectralHistoricalEvidenceQuery",
+    "PreparedSpectralHistoricalEvidence",
+    "SpectralHistoricalEvidencePreparationRequest",
+    "SpectralHistoricalEvidencePreparationService",
+    "SpectralHistoricalEvidenceSet",
+    "SpectralHistoricalStudyPlan",
 ]
 
 __all__ += [

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v14, versioned migration/backup validation, persistence-owned logical-schema inspection, searchable Factor history, unified Run History, structured generic Decision/Risk evidence, research Capital Allocation, manual Asset State, bounded Target Position, manual standardized-price-state, typed Phase 5C links, type-distinct Phase 5D Decision, Phase 6A/6B/6C/6D Risk evidence and specialized P23-1 source/numerical evidence exist. These records describe local research only; no production algorithm, complete Risk approval or execution path is active.
+**Implemented and verified.** Central Schema v15, versioned migration/backup validation, persistence-owned logical-schema inspection, searchable Factor history, unified Run History, structured generic Decision/Risk evidence, research Capital Allocation, manual Asset State, bounded Target Position, manual standardized-price-state, typed Phase 5C links, type-distinct Phase 5D Decision, Phase 6A/6B/6C/6D Risk evidence, specialized P23-1 source/numerical evidence and bounded P26 historical-study evidence exist. These records describe local research only; no production algorithm, complete Risk approval or execution path is active.
 
 ## Purpose
 
@@ -73,7 +73,7 @@ Python standard library `sqlite3`, neutral Run History contracts, and public Fac
 
 ## Side effects
 
-Creates additive Schema v14 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v4 added capital evidence; v5 Asset State; v6 Target Position; v7 standardized-state; v8 linked-preview links; v9 specialized target-adjustment Decision evidence; v10 structural Risk evidence; v11 exposure-cap definition/preview evidence; v12 research-cash-floor definition/preview evidence; v13 research-asset-cash evidence; v14 P23-1 definition/calendar/corporate-action/source/numerical evidence. No migration backfilled a historical P23-1 result.
+Creates additive Schema v15 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v4 added capital evidence; v5 Asset State; v6 Target Position; v7 standardized-state; v8 linked-preview links; v9 specialized target-adjustment Decision evidence; v10 structural Risk evidence; v11 exposure-cap definition/preview evidence; v12 research-cash-floor definition/preview evidence; v13 research-asset-cash evidence; v14 P23-1 definition/calendar/corporate-action/source/numerical evidence; v15 adds the bounded historical evidence-set/study index. No migration backfilled a historical P23-1 result or study.
 
 The verified real v6→v7 migration created `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`, preserved all 44 pre-existing business-table counts including 215,340 Market Bars and 365 Fetch History rows, and left all five new tables empty. Backup and active copies returned `integrity_check=ok` and zero foreign-key violations.
 
@@ -109,6 +109,8 @@ Phase 6E adds no persistence object or migration. The consolidated explorer read
 
 Schema v14 adds 20 normalized P23-1 tables for locked definitions/windows, calendar snapshots/sessions/mappings, corporate-action snapshots/events, Market Bar observation facts, operations, source observations, window/segment/series/spectrum/peak/method/cross-window results and source links. `SQLiteSpectralVolatilityStore` stores/reloads the full graph transactionally, treats stored IEEE-754 hexadecimal values as exact float evidence and preserves invalid/failed attempts. It also resolves only an exact completed frozen bundle by symbol/as-of/feed/evidence mode; ordinary cached Bars are never promoted into spectral evidence. The real v13→v14 migration backed up v13, preserved every old-table row count, expanded 74→94 required logical tables and passed integrity/foreign-key checks. PROPOSAL-025 registers a separate immutable R1 v1.1.0 definition/window set and stores new operations without changing Schema v14 or rewriting v1.0.0/history.
 
+Schema v15 adds five normalized P26 tables: `spectral_historical_evidence_sets`, `spectral_historical_evidence_observations`, `spectral_historical_studies`, `spectral_historical_study_definitions` and `spectral_historical_study_points`. `SQLiteSpectralHistoricalStudyStore` persists one shared source set, the exact ordered definition list and every requested point membership while referencing existing operation attempts for numerical detail. Exact local lookup never promotes generic Bars or unrelated P25 operations. The v14→v15 migration creates a v14 backup, preserves all prior row counts, expands 94→99 required logical tables, performs no study backfill and must pass foreign-key/integrity checks.
+
 The 2026-08-02 active-database check remained `integrity_check=ok` with zero foreign-key violations. One approved AAPL v1.1.0 operation and its exact evidence/result graph reload from a fresh process. No Schema v15, backup, migration or historical backfill was needed for PROPOSAL-025.
 
 Phase 2B added no table, index, migration, backfill or write path. Its exact source-price adapter continues to read the existing `factor_*` and `market_bars` rows through parameterized SQL.
@@ -132,7 +134,7 @@ Target Position and standardized-state persistence stores research evidence only
 - No production Factor exists. Current stored algorithm results come only from explicit local previews/Dry Runs.
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
-- Current Schema v14 rollback requires stopping writers, preserving the v14 file and restoring `market_history.schema-v13-to-v14.20260731T193316459663Z.sqlite3` with matching v13 code. Code rollback alone is not a database downgrade; earlier verified backups remain available only for separately controlled historical downgrades.
+- Current Schema v15 rollback requires stopping writers, preserving the v15 file and restoring the verified `schema-v14-to-v15` backup with matching v14 code. Code rollback alone is not a database downgrade; earlier verified backups remain available only for separately controlled historical downgrades.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.

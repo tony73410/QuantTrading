@@ -33,6 +33,13 @@ from .manual_spectral_preview import (
     ManualSpectralPreviewRunner,
     ManualSpectralPreviewStatus,
 )
+from .spectral_history_research import (
+    SpectralHistoricalDefinitionReference,
+    SpectralHistoricalStudyCoordinator,
+    SpectralHistoricalStudyDisclosure,
+    SpectralHistoricalStudyRequest,
+    SpectralHistoricalStudyRunner,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -52,4 +59,9 @@ __all__ = [
     "ManualSpectralPreviewRequest",
     "ManualSpectralPreviewRunner",
     "ManualSpectralPreviewStatus",
+    "SpectralHistoricalDefinitionReference",
+    "SpectralHistoricalStudyCoordinator",
+    "SpectralHistoricalStudyDisclosure",
+    "SpectralHistoricalStudyRequest",
+    "SpectralHistoricalStudyRunner",
 ]

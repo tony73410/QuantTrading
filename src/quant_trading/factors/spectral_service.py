@@ -65,6 +65,8 @@ class SpectralVolatilityService:
         command: SpectralVolatilityPreviewCommand,
         definition: SpectralVolatilityDefinition,
         evidence_bundle: SpectralMarketEvidenceBundle,
+        *,
+        parent_run_id: UUID | None = None,
     ) -> SpectralVolatilityOperation:
         fingerprint = self._command_fingerprint(command)
         existing = self._store.get_first_operation(command.operation_id)
@@ -76,6 +78,7 @@ class SpectralVolatilityService:
             command.as_of_utc, (command.symbol,), "spectral_volatility_preview",
             command.created_by, self._software,
             notes="P23-1 R1 spectral-volatility research; NO EXECUTION",
+            parent_run_id=parent_run_id,
         ))
         market_stage = self._runs.start_stage(run.run_id, RunStageName.MARKET_DATA, 1)
         factor_stage = None

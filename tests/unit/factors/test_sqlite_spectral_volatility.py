@@ -42,20 +42,20 @@ def _v13_database(path: Path) -> None:
         connection.commit()
 
 
-def test_v13_to_v14_migration_backs_up_and_preserves_existing_rows(tmp_path: Path) -> None:
+def test_v13_to_current_migration_backs_up_and_preserves_existing_rows(tmp_path: Path) -> None:
     path = tmp_path / "central.sqlite3"
     _v13_database(path)
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v13-to-v14." in backups[0].name
+    assert ".schema-v13-to-v15." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 14
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 15
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         tables = connection.execute(
             "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
         ).fetchone()[0]
-        assert tables == 94
+        assert tables == 99
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 

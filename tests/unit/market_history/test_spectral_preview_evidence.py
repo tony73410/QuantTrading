@@ -17,6 +17,8 @@ from quant_trading.market_history import (
     SpectralEvidencePreparationError,
     SpectralEvidencePreparationErrorCode,
     SpectralEvidencePreparationRequest,
+    SpectralHistoricalEvidencePreparationRequest,
+    SpectralHistoricalEvidencePreparationService,
     SpectralPreviewEvidencePreparationService,
     Timeframe,
     XNYSResearchCalendarAdapter,
@@ -145,6 +147,51 @@ def test_fetch_prepares_exact_inclusive_250_session_retrospective_bundle() -> No
     ]
     assert all(item.force_refresh for item in history.requests)
     assert actions.calls[0][0] == "AAPL"
+
+
+def test_historical_fetch_prepares_one_shared_source_set_for_two_sessions() -> None:
+    history = _History()
+    actions = _CorporateActions()
+    service = SpectralHistoricalEvidencePreparationService(
+        history_service=history,
+        corporate_action_provider=actions,
+        clock=lambda: REQUESTED_AT,
+    )
+    request = SpectralHistoricalEvidencePreparationRequest(
+        "aapl", date(2026, 7, 30), date(2026, 7, 31),
+        SpectralEvidenceAcquisitionMode.FETCH_AND_FREEZE_READ_ONLY,
+        REQUESTED_AT,
+    )
+    prepared = service.prepare(request)
+    assert len(prepared.plan.evaluation_sessions) == 2
+    assert len(prepared.evidence_set.observations) == 252
+    assert [item.adjustment for item in history.requests] == [Adjustment.RAW, Adjustment.SPLIT]
+    assert len(actions.calls) == 1
+    first = prepared.plan.evaluation_sessions[0].session_date
+    legacy = prepared.evidence_set.bundle_for(
+        first, include_evaluation_session=False,
+        bundle_id=uuid4(), created_at_utc=REQUESTED_AT,
+    )
+    inclusive = prepared.evidence_set.bundle_for(
+        first, include_evaluation_session=True,
+        bundle_id=uuid4(), created_at_utc=REQUESTED_AT,
+    )
+    assert legacy.observations[-1].session_date < first
+    assert inclusive.observations[-1].session_date == first
+
+
+def test_historical_plan_rejects_one_session_and_non_session_bounds() -> None:
+    service = SpectralHistoricalEvidencePreparationService()
+    with pytest.raises(SpectralEvidencePreparationError, match="2至250"):
+        service.plan(SpectralHistoricalEvidencePreparationRequest(
+            "AAPL", date(2026, 7, 31), date(2026, 7, 31),
+            SpectralEvidenceAcquisitionMode.LOCAL_ONLY, REQUESTED_AT,
+        ))
+    with pytest.raises(SpectralEvidencePreparationError, match="XNYS"):
+        service.plan(SpectralHistoricalEvidencePreparationRequest(
+            "AAPL", date(2026, 7, 25), date(2026, 7, 31),
+            SpectralEvidenceAcquisitionMode.LOCAL_ONLY, REQUESTED_AT,
+        ))
 
 
 def test_preclose_request_uses_previous_completed_session() -> None:

@@ -37,7 +37,7 @@ Public contracts are `ResearchCalendarSnapshot`, `ResearchCalendarSession`, `Res
 
 PROPOSAL-025 adds the Market-History-owned `SpectralPreviewEvidencePreparationService`. It resolves the latest completed XNYS session, fixes IEX/Daily/Raw+Split/`RETROSPECTIVE_ADJUSTED`, requires exactly the inclusive trailing 250 sessions and returns a frozen `PreparedSpectralEvidence` bundle. `LOCAL_ONLY` succeeds only when an exact complete persisted bundle already exists. `FETCH_AND_FREEZE_READ_ONLY` is a separate explicit user choice and calls the existing historical-data service for Raw and Split plus the corporate-action provider once; it never starts automatically, fills/skips sessions or interprets missing corporate-action evidence as an empty response.
 
-The concrete `build_spectral_preview_evidence_service(...)` factory lives in `quant_trading.market_history.composition`, where the existing SQLite history Store and Alpaca Market Data Providers are wired. It is intentionally not re-exported from the lightweight package root, avoiding a cold-start import cycle. Constructing the factory performs no network request.
+The concrete `build_spectral_preview_evidence_service(...)` and `build_spectral_historical_evidence_service(...)` factories live in `quant_trading.market_history.composition`, where the existing SQLite history Store and Alpaca Market Data Providers are wired. They are intentionally not re-exported from the lightweight package root. Construction performs no network request; P25/P26 fetching begins only after the corresponding explicit user click.
 
 The 2026-07-31 approved read-only validation fetched AAPL IEX Raw and Split Daily observations (144 each, exact session alignment) and two supported cash-dividend events. It created no Trading client, printed/stored no Secret and performed no account/order operation.
 
@@ -61,6 +61,9 @@ Limitations: mapping is explicit rather than automatically discovered; only comp
 - `HistoricalMarketDataProvider` / `HistoricalDataStore`：可替换 Provider 与 Store Protocol；Store 的 `list_symbols()` 只读列出至少存在一条本地 Bar 的股票代码。
 - `HistoricalDataService.load()`：本地优先加载、刷新和离线回退。
 - `SpectralEvidenceAcquisitionMode`, `SpectralEvidencePreparationRequest`, `PreparedSpectralEvidence`, `SpectralPreviewEvidencePreparationService`：P23-1E-A精确最新交易日证据准备合同。
+- `SpectralHistoricalEvidencePreparationRequest`, `SpectralHistoricalStudyPlan`, `SpectralHistoricalEvidenceSet`, `PreparedSpectralHistoricalEvidence`, `SpectralHistoricalEvidencePreparationService`：P26精确2–250评估日、250个前置交易日、共享Raw/Split/公司行动证据和定义特定子窗口合同。
+
+P26 first resolves exact completed XNYS bounds and refuses a non-session, reversed range or any count outside 2–250. Fetch mode performs exactly one Raw load, one Split load and one corporate-action snapshot for the complete source range. Local mode accepts only one exact persisted P26 evidence set. `bundle_for(...)` emits exactly 250 observations and never admits a session after the requested evaluation cutoff; it does not calculate any spectral value.
 - `HistoryController`：GUI 参数转换、并发保护和图表入口。
 - `python -m quant_trading.market_history` / `quant-history`：桌面启动入口。
 

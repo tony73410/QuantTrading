@@ -1719,6 +1719,76 @@ class SQLiteRunHistoryRepository:
                     children,
                 )
             )
+        historical_study = connection.execute(
+            "SELECT * FROM spectral_historical_studies WHERE parent_run_id = ?",
+            (str(run_id),),
+        ).fetchone()
+        if historical_study is not None:
+            definitions = connection.execute(
+                """SELECT * FROM spectral_historical_study_definitions
+                WHERE study_id = ? ORDER BY ordinal""",
+                (historical_study["study_id"],),
+            ).fetchall()
+            point_rows = connection.execute(
+                """SELECT * FROM spectral_historical_study_points
+                WHERE study_id = ? ORDER BY evaluation_ordinal, definition_ordinal""",
+                (historical_study["study_id"],),
+            ).fetchall()
+            point_children = tuple(
+                RunArtifactView(
+                    "spectral_historical_study_point",
+                    f"{historical_study['study_id']}:{point['evaluation_ordinal']}:{point['definition_ordinal']}",
+                    RunStageName.FACTOR.value,
+                    historical_study["symbol"],
+                    point["status"],
+                    (
+                        f"{point['evaluation_session']} · R1 v{point['component_version']} · "
+                        f"child Run {point['child_run_id'] or 'not run'}"
+                    ),
+                    _datetime(point["official_close_utc"]),
+                    (
+                        _field("definition id", point["definition_id"]),
+                        _field("definition version", point["definition_version"]),
+                        _field("child Run", point["child_run_id"]),
+                        _field("operation id", point["operation_id"]),
+                        _field("attempt id", point["attempt_id"]),
+                        _field("evidence bundle", point["evidence_bundle_id"]),
+                        _field("warnings", point["warnings_text"]),
+                        _field("error", point["error_summary"]),
+                    ),
+                )
+                for point in point_rows
+            )
+            artifacts.append(RunArtifactView(
+                "spectral_historical_study",
+                historical_study["study_id"],
+                RunStageName.FACTOR.value,
+                historical_study["symbol"],
+                historical_study["status"],
+                "P23-1E-B historical descriptive study; RETROSPECTIVE_ADJUSTED / NO EXECUTION",
+                _datetime(historical_study["completed_at_utc"]),
+                (
+                    _field("evaluation start", historical_study["evaluation_start_session"]),
+                    _field("evaluation end", historical_study["evaluation_end_session"]),
+                    _field("definitions", ", ".join(
+                        f"v{item['component_version']} / d{item['definition_version']}"
+                        for item in definitions
+                    )),
+                    _field("expected points", historical_study["expected_point_count"]),
+                    _field("completed points", historical_study["completed_point_count"]),
+                    _field("warning points", historical_study["warning_point_count"]),
+                    _field("invalid points", historical_study["invalid_point_count"]),
+                    _field("failed points", historical_study["failed_point_count"]),
+                    _field("cancelled/not-run points", (
+                        f"{historical_study['cancelled_point_count']} / "
+                        f"{historical_study['not_run_point_count']}"
+                    )),
+                    _field("evidence set", historical_study["evidence_set_id"]),
+                    _field("warnings", historical_study["warnings_text"]),
+                    _field("error", historical_study["error_summary"]),
+                ),
+                point_children,
+            ))
         return tuple(artifacts)
 
 

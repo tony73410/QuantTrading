@@ -46,7 +46,7 @@ Central Schema v3 adds normalized Decision condition/sizing-input evidence and a
 
 Stored Decimal values remain exact text. Times are timezone-aware UTC ISO-8601 values. Historical rows are insert-only except controlled running-to-terminal lifecycle updates; result IDs are never silently overwritten.
 
-Central Schema v14 adds specialized P23-1 calendar, corporate-action, source-Bar and detailed numerical-result relationships without changing the generic Factor contract. Migrated v2 rows remain visible as `trace_not_captured`; Run History never reconstructs missing historical evidence or owns capital/state/target/Factor/Decision/Risk meaning.
+Central Schema v14 adds specialized P23-1 calendar, corporate-action, source-Bar and detailed numerical-result relationships without changing the generic Factor contract. Schema v15 adds P26 study/evidence indexing while leaving those operation results authoritative. Migrated v2 rows remain visible as `trace_not_captured`; Run History never reconstructs missing historical evidence or owns capital/state/target/Factor/Decision/Risk meaning.
 
 ## Current orchestration
 
@@ -64,6 +64,7 @@ Central Schema v14 adds specialized P23-1 calendar, corporate-action, source-Bar
 - Research cash-floor preview: one `TARGET_ADJUSTMENT_RESEARCH_CASH_FLOOR_PREVIEW` Run is parented to an exact positive Phase 6B Run, exposes the complete upstream chain, and displays inherited order-1 evidence beside the persisted order-2 rule without recalculation.
 - Research asset-cash preview: one `TARGET_ADJUSTMENT_RESEARCH_ASSET_CASH_PREVIEW` Run is parented to an exact positive Phase 6C Run, exposes all upstream Runs plus the selected Capital Snapshot Run, and displays inherited order-1/order-2 references beside the persisted order-3 rule and non-reservation evidence without recalculation.
 - P23-1 preview: one `FACTOR_PREVIEW` Run records ordered `MARKET_DATA` then `FACTOR` stages, exact immutable v1.0.0/v1.1.0 definition/evidence bindings and one operation artifact with 60/120/250-window children. P23-1E-A evidence/definition preparation failures create searchable failed Runs with a failed `MARKET_DATA` stage; successful manual clicks reuse the single Run created by the Factor service. Invalid and failed attempts remain visible; opening a Run never fetches or recalculates the spectrum.
+- P26 history: one `SPECTRAL_HISTORY_RESEARCH` parent records `MARKET_DATA` evidence-set preparation then a chronological `FACTOR` stage. Every calculated point is a child `FACTOR_PREVIEW` Run created by the existing Factor service; the parent artifact lists the complete point grid and links child Runs. Cancellation is terminal on the parent and occurs only between children. Opening parent/child Runs is read-only and never fetches or recalculates.
 
 Tracked previews persist their Factor result by default because Decision/Risk evidence must reference a durable Factor snapshot. Exact Factor content deduplication remains unchanged: repeated calculations retain distinct calculation attempts while reusing identical immutable snapshots.
 
@@ -71,7 +72,7 @@ The Risk stage has three ordered approved-for-research numerical preview rules, 
 
 ## Migration and rollback
 
-The current additive migration chain is v1→v14. Each step preserves earlier meaning; Phase 5D adds v9 type-distinct Decision evidence, Phase 6A adds v10 structural Risk-review evidence, Phase 6B adds v11 exposure-cap definition/preview evidence, Phase 6C adds v12 research-cash-floor definition/preview evidence, Phase 6D adds v13 research-asset-cash evidence and P23-1 adds v14 specialized evidence.
+The current additive migration chain is v1→v15. Each step preserves earlier meaning; Phase 5D adds v9 type-distinct Decision evidence, Phase 6A adds v10 structural Risk-review evidence, Phase 6B adds v11 exposure-cap definition/preview evidence, Phase 6C adds v12 research-cash-floor definition/preview evidence, Phase 6D adds v13 research-asset-cash evidence, P23-1 adds v14 specialized operation evidence and P26 adds v15 historical evidence-set/study indexing.
 
 Schema v1→v2, v2→v3, v3→v4 and v4→v5 are additive. Before migration, `CentralSQLiteDatabase` creates a consistent backup under `runtime/data/backups/`, applies each version in a transaction, and verifies prior table row counts, foreign keys, and `PRAGMA integrity_check`. Failure rolls the transaction back. Rollback after a successful migration requires stopping writers, preserving the newer database and restoring the matching verified backup; the application does not pretend code rollback alone can downgrade the database.
 

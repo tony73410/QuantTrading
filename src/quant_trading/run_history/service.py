@@ -225,6 +225,18 @@ class AlgorithmRunService:
         self._repository.update_run(failed)
         return failed
 
+    def cancel_run(self, run_id: UUID, *, reason: str) -> AlgorithmRun:
+        """Terminate one explicitly cancelled NO_EXECUTION research run."""
+        run = self._require_running(run_id)
+        self.record_message(run_id, RunMessageSeverity.WARNING, "QT-RUN-CANCELLED", reason)
+        cancelled = replace(
+            run,
+            status=AlgorithmRunStatus.CANCELLED,
+            completed_at_utc=self._clock(),
+        )
+        self._repository.update_run(cancelled)
+        return cancelled
+
     def _require_running(self, run_id: UUID) -> AlgorithmRun:
         run = self._repository.get_run(run_id)
         if run is None:
