@@ -40,9 +40,13 @@ def test_asset_state_domain_has_no_sql_gui_or_trading_consumer_dependencies() ->
 
 
 def test_asset_state_gui_uses_typed_services_without_sql_or_financial_modules() -> None:
-    path = ROOT / "algorithm_control" / "ui" / "asset_state_panel.py"
-    source = path.read_text(encoding="utf-8")
-    imports = _imports(path)
+    paths = (
+        ROOT / "algorithm_control" / "ui" / "asset_state_panel.py",
+        ROOT / "algorithm_control" / "ui" / "asset_state_workspace_panel.py",
+        ROOT / "algorithm_control" / "ui" / "reversal_observation_panel.py",
+    )
+    source = "\n".join(path.read_text(encoding="utf-8") for path in paths)
+    imports = set().union(*(_imports(path) for path in paths))
     forbidden = (
         "sqlite3",
         "quant_trading.persistence",
@@ -56,7 +60,26 @@ def test_asset_state_gui_uses_typed_services_without_sql_or_financial_modules() 
     assert not [name for name in imports if name.startswith(forbidden)]
     assert "AssetStateService" in source
     assert "AssetStateQueryService" in source
+    assert "ReversalObservationService" in source
     assert "NO EXECUTION" in source
+
+
+def test_reversal_observation_orchestration_has_no_provider_or_financial_owner() -> None:
+    path = ROOT / "orchestration" / "reversal_observation_research.py"
+    imports = _imports(path)
+    forbidden = (
+        "sqlite3",
+        "PySide6",
+        "alpaca",
+        "quant_trading.persistence",
+        "quant_trading.decision",
+        "quant_trading.risk",
+        "quant_trading.capital_allocation",
+        "quant_trading.portfolio_accounting",
+        "quant_trading.backtesting",
+        "quant_trading.execution",
+    )
+    assert not [name for name in imports if name.startswith(forbidden)]
 
 
 def test_financial_and_execution_modules_do_not_consume_asset_state() -> None:

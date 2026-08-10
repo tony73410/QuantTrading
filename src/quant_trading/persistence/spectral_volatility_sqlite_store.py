@@ -222,27 +222,34 @@ class SQLiteSpectralVolatilityStore:
         evidence_mode: ResearchEvidenceMode,
     ) -> SpectralMarketEvidenceBundle | None:
         """Return one exact frozen bundle; never reconstruct from generic Bars."""
-        operations = self.list_operations(
-            SpectralOperationQuery(
-                symbol=symbol,
-                evidence_mode=evidence_mode.value,
-                limit=5000,
-            )
-        )
-        for operation in operations:
-            bundle = operation.evidence_bundle
-            if (
-                operation.status
-                in {
-                    SpectralOperationStatus.COMPLETED,
-                    SpectralOperationStatus.COMPLETED_WITH_WARNINGS,
-                }
-                and bundle.as_of_utc == as_of_utc
-                and bundle.feed is feed
-                and bundle.evidence_mode is evidence_mode
-            ):
-                return bundle
-        return None
+        with closing(self._database.connect()) as connection:
+            row = connection.execute(
+                """SELECT o.attempt_id
+                FROM spectral_volatility_operations o
+                JOIN spectral_source_links l ON l.attempt_id = o.attempt_id
+                WHERE o.symbol = ? AND o.as_of_utc = ?
+                  AND o.status IN ('completed', 'completed_with_warnings')
+                  AND l.evidence_mode = ?
+                  AND EXISTS (
+                      SELECT 1
+                      FROM spectral_source_observations so
+                      JOIN market_bar_observation_facts f
+                        ON f.content_fingerprint = so.split_fact_fingerprint
+                      WHERE so.attempt_id = o.attempt_id AND f.feed = ?
+                  )
+                ORDER BY o.completed_at_utc DESC, o.attempt_id DESC
+                LIMIT 1""",
+                (
+                    symbol.strip().upper(),
+                    _iso(as_of_utc),
+                    evidence_mode.value,
+                    feed.value,
+                ),
+            ).fetchone()
+        if row is None:
+            return None
+        operation = self.get_operation(UUID(row["attempt_id"]))
+        return operation.evidence_bundle if operation is not None else None
 
     def get_operation_for_run(self, run_id: UUID) -> SpectralVolatilityOperation | None:
         with closing(self._database.connect()) as connection:

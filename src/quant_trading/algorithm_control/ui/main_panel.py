@@ -35,7 +35,7 @@ from .execution_control_panel import ExecutionControlPanel
 from .idea_notebook_panel import IdeaNotebookPanel
 from .portfolio_ledger_panel import PortfolioLedgerPanel
 from .capital_allocation_panel import CapitalAllocationPanel
-from .asset_state_panel import AssetStatePanel
+from .asset_state_workspace_panel import AssetStateWorkspacePanel
 from .target_position_panel import TargetPositionPanel
 from .standardized_state_panel import StandardizedPriceStatePanel
 from .simulation_strategy_panel import SimulationStrategyPanel
@@ -68,7 +68,11 @@ from quant_trading.factors.daily_volatility_profile_interfaces import (
     DailyVolatilityProfileRunner,
 )
 from quant_trading.factors.daily_volatility_profile_models import DailyVolatilityProfileDefinition
-from quant_trading.orchestration import ManualSpectralPreviewRunner, SpectralHistoricalStudyRunner
+from quant_trading.orchestration import (
+    ManualSpectralPreviewRunner,
+    ReversalObservationResearchRunner,
+    SpectralHistoricalStudyRunner,
+)
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
 from quant_trading.decision import TargetAdjustmentDecisionQueryService
 from quant_trading.risk import (
@@ -93,6 +97,8 @@ from quant_trading.asset_state import (
     AssetStateQueryService,
     AssetStateService,
     EmptyAssetStateQueryService,
+    ReversalObservationQueryService,
+    ReversalObservationService,
 )
 from quant_trading.target_position import (
     EmptyTargetPositionQueryService,
@@ -186,6 +192,9 @@ class AlgorithmControlPanel(QMainWindow):
         daily_volatility_profile_queries: DailyVolatilityProfileQueryService | None = None,
         daily_volatility_profile_runner: DailyVolatilityProfileRunner | None = None,
         daily_volatility_profile_definition: DailyVolatilityProfileDefinition | None = None,
+        reversal_observation_service: ReversalObservationService | None = None,
+        reversal_observation_queries: ReversalObservationQueryService | None = None,
+        reversal_observation_runner: ReversalObservationResearchRunner | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -296,9 +305,13 @@ class AlgorithmControlPanel(QMainWindow):
             capital_allocation_queries or EmptyCapitalAllocationQueryService(),
             session_id=capital_session_id,
         )
-        self.asset_state_page = AssetStatePanel(
+        self.asset_state_page = AssetStateWorkspacePanel(
             asset_state_service,
             asset_state_queries or EmptyAssetStateQueryService(),
+            reversal_observation_service,
+            reversal_observation_queries,
+            daily_volatility_profile_queries,
+            reversal_observation_runner,
             session_id=asset_state_session_id or capital_session_id,
         )
         self.target_position_page = TargetPositionPanel(

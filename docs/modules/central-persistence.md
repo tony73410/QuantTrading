@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v16, versioned migration/backup validation, persistence-owned logical-schema inspection, searchable Factor history, unified Run History, structured generic Decision/Risk evidence, research Capital Allocation, manual Asset State, bounded Target Position, manual standardized-price-state, typed Phase 5C links, type-distinct Phase 5D Decision, Phase 6A/6B/6C/6D Risk evidence, specialized P23-1/P26 evidence and P23-1F daily-profile evidence exist. These records describe local research only; no production algorithm, complete Risk approval or execution path is active.
+**Implemented and verified.** Central Schema v17/110 adds disabled P23-2 reversal-observation definitions, attempts, results, steps, events and source links to all v16 capabilities. These records describe local research only; no production algorithm, complete Risk approval or execution path is active.
 
 ## Purpose
 
@@ -57,6 +57,7 @@ No Market Data download, Factor formula, `available_at_utc` policy, Decision/Ris
 - `SQLiteTargetAdjustmentRiskStore`
 - `SQLiteExposureCapStore`
 - `SQLiteResearchCashFloorStore`
+- `SQLiteReversalObservationStore`
 - `FactorCalculationRun`, `FactorCalculationStatus`
 
 ## Inputs
@@ -73,7 +74,7 @@ Python standard library `sqlite3`, neutral Run History contracts, and public Fac
 
 ## Side effects
 
-Creates additive Schema v15 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v4 added capital evidence; v5 Asset State; v6 Target Position; v7 standardized-state; v8 linked-preview links; v9 specialized target-adjustment Decision evidence; v10 structural Risk evidence; v11 exposure-cap definition/preview evidence; v12 research-cash-floor definition/preview evidence; v13 research-asset-cash evidence; v14 P23-1 definition/calendar/corporate-action/source/numerical evidence; v15 adds the bounded historical evidence-set/study index. No migration backfilled a historical P23-1 result or study.
+Creates additive Schema v17 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1 evidence, v15 P26 studies, v16 P23-1F profiles and v17 P23-2 reversal observation. No migration backfilled a historical algorithm claim.
 
 The verified real v6→v7 migration created `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`, preserved all 44 pre-existing business-table counts including 215,340 Market Bars and 365 Fetch History rows, and left all five new tables empty. Backup and active copies returned `integrity_check=ok` and zero foreign-key violations.
 
@@ -111,6 +112,10 @@ Schema v14 adds 20 normalized P23-1 tables for locked definitions/windows, calen
 
 Schema v16 adds five normalized P23-1F tables for locked definitions, operation attempts, immutable results, exact daily P26 source rows and per-window summaries. The approved v15→v16 migration created `market_history.schema-v15-to-v16.20260806T195928594023Z.sqlite3`, preserved all 99 prior logical tables and row counts, expanded 99→104, and passed `integrity_check=ok` with zero foreign-key violations and zero backfill. The subsequent approved local AAPL validation appended one definition, one attempt/result, 20 daily inputs and three summaries. `SQLiteDailyVolatilityProfileStore` revalidates P26's composite point identity, source child Run, spectral attempt/fingerprint/window status and copied IEEE-hex evidence on write and reload. Invalid source requests persist without requiring a foreign key to a nonexistent requested identity; no latest selection or source recomputation exists.
 
+Schema v17 adds exactly six normalized P23-2 tables: `reversal_observation_definitions`, `reversal_observation_operation_attempts`, `reversal_observation_results`, `reversal_observation_daily_steps`, `reversal_observation_events` and `reversal_observation_source_links`. The approved v16→v17 migration created verified backup `market_history.schema-v16-to-v17.20260810T192850337602Z.sqlite3`, expanded 104→110 logical tables with zero backfill and preserved every prior logical-table row count except the expected migration-ledger increment. Backup v16/104 and active v17/110 both report `integrity_check=ok` and zero foreign-key violations; all six new tables began empty. The store retains multiplier input/IEEE evidence, exact P27/P26/Run/calendar/Raw/Split/corporate-action links, every daily candidate state and ordered event, durable failures and restart-safe recalculation replay. Requested IDs on failed attempts remain searchable without creating false source rows.
+
+After the separately approved AAPL validation, active v17/110 contains 1 P28 definition, 2 operation attempts (definition plus preview), 1 result, 3 daily steps, 0 events and 9 source links. `integrity_check=ok` and zero foreign-key violations still hold. The `M=1.5` row is an immutable disabled validation definition, not a global/default configuration. Failed prerequisite Runs remain in Run History but did not create partial P28 rows.
+
 Schema v15 adds five normalized P26 tables: `spectral_historical_evidence_sets`, `spectral_historical_evidence_observations`, `spectral_historical_studies`, `spectral_historical_study_definitions` and `spectral_historical_study_points`. `SQLiteSpectralHistoricalStudyStore` persists one shared source set, the exact ordered definition list and every requested point membership while referencing existing operation attempts for numerical detail. Exact local lookup never promotes generic Bars or unrelated P25 operations. The v14→v15 migration creates a v14 backup, preserves all prior row counts, expands 94→99 required logical tables, performs no study backfill and must pass foreign-key/integrity checks.
 
 The 2026-08-02 active-database check remained `integrity_check=ok` with zero foreign-key violations. One approved AAPL v1.1.0 operation and its exact evidence/result graph reload from a fresh process. No Schema v15, backup, migration or historical backfill was needed for PROPOSAL-025.
@@ -136,7 +141,7 @@ Target Position and standardized-state persistence stores research evidence only
 - No production Factor exists. Current stored algorithm results come only from explicit local previews/Dry Runs.
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
-- Current Schema v16 rollback requires stopping writers, preserving the v16 file and restoring the verified `schema-v15-to-v16` backup with matching v15 code. Code rollback alone is not a database downgrade; earlier verified backups remain available only for separately controlled historical downgrades.
+- Current Schema v17 rollback requires stopping writers, preserving the v17 file and restoring the verified `schema-v16-to-v17` backup with matching v16 code. Code rollback alone is not a database downgrade; earlier verified backups remain available only for separately controlled historical downgrades.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.

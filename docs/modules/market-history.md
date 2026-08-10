@@ -37,11 +37,15 @@ Public contracts are `ResearchCalendarSnapshot`, `ResearchCalendarSession`, `Res
 
 PROPOSAL-025 adds the Market-History-owned `SpectralPreviewEvidencePreparationService`. It resolves the latest completed XNYS session, fixes IEX/Daily/Raw+Split/`RETROSPECTIVE_ADJUSTED`, requires exactly the inclusive trailing 250 sessions and returns a frozen `PreparedSpectralEvidence` bundle. `LOCAL_ONLY` succeeds only when an exact complete persisted bundle already exists. `FETCH_AND_FREEZE_READ_ONLY` is a separate explicit user choice and calls the existing historical-data service for Raw and Split plus the corporate-action provider once; it never starts automatically, fills/skips sessions or interprets missing corporate-action evidence as an empty response.
 
+Repeated read-only evidence refreshes reuse the latest compatible immutable symbol/calendar mapping already present in frozen spectral evidence, including a prior positive mapping version created by P26. They do not mint a second ID for the same version. Exact frozen-bundle lookup uses the requested symbol/as-of/feed/evidence mode directly; a refresh still creates new calendar, corporate-action, Bar-observation and operation evidence rather than overwriting an older Run.
+
 The concrete `build_spectral_preview_evidence_service(...)` and `build_spectral_historical_evidence_service(...)` factories live in `quant_trading.market_history.composition`, where the existing SQLite history Store and Alpaca Market Data Providers are wired. They are intentionally not re-exported from the lightweight package root. Construction performs no network request; P25/P26 fetching begins only after the corresponding explicit user click.
 
 The 2026-07-31 approved read-only validation fetched AAPL IEX Raw and Split Daily observations (144 each, exact session alignment) and two supported cash-dividend events. It created no Trading client, printed/stored no Secret and performed no account/order operation.
 
 The 2026-08-02 PROPOSAL-025 validation was the single separately approved end-to-end request. It froze 250 aligned AAPL observations through `2026-07-31`, used Historical Stock Data and Corporate Actions only, and created no Trading client/account/order call.
+
+The separately approved 2026-08-10 P28 prerequisite refresh froze 250 aligned AAPL Raw/Split observations through `2026-08-10` and a corporate-action snapshot covering `2025-08-12` through `2026-08-10`. It reused mapping `b49c78da-ae3d-5648-bccb-5b98c65a3ead` version `20250710`. Alpaca Market Data was read; no Trading/account/position/order/fill API was constructed or called.
 
 Limitations: mapping is explicit rather than automatically discovered; only completed and available Daily XNYS sessions are accepted; unsupported corporate actions remain visible and invalidate only affected calculation windows. Split evidence is reconciled exactly, while dividends are recorded as warnings and are not used to dividend-adjust the P23-1 price series.
 

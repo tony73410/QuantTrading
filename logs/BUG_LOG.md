@@ -4534,3 +4534,260 @@ The focused dependency test and complete architecture suite now pass; the exhaus
 ### BUG-20260806-002 final verification update — 2026-08-06
 
 The P27 proposal now references `docs/modules/central-persistence.md` as the canonical schema owner, no `docs/persistence/SCHEMA.md` was created, and governance regression tests require this condition. `BUG-20260806-002` is verified **Fixed** and is not a current Known Issue.
+
+## BUG-20260810-001
+
+### Title
+P28 end-of-range confirmation was initially reported as a day-1 pending candidate
+
+### Status
+Fixed during PROPOSAL-028 implementation
+
+### Severity
+Medium
+
+### Area
+Asset State / P23-2 reversal-observation engine
+
+### Reproduction and cause
+During the first synthetic engine run, a two-session reversal that confirmed on the final available session had no next activation session in the bounded source. The draft evaluator used `activation_session is not None` as the proxy for confirmation. A valid confirmation at the source end therefore appeared as `VALID_WITH_PENDING_CANDIDATE` even though a `REVERSAL_CONFIRMED` event had occurred.
+
+### Expected behavior
+Day 2 confirmation and day 3 activation are separate facts. If the source ends on day 2, the durable status must be `CONFIRMED_AWAITING_ACTIVATION`; the evaluator must not invent day 3.
+
+### Fix and regression evidence
+The internal candidate now keeps an explicit `confirmed` flag independent of the optional next-session activation date. Synthetic regression tests cover day-1 pending, source-end day-2 confirmation and day-3 activation. The focused P28 domain/persistence suite passes 6 tests.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the defect was found before P28 release, fixed locally and covered by regression tests. Rolling back P28 removes the affected draft evaluator; do not restore the conflated confirmation/activation representation.
+
+## BUG-20260810-002
+
+### Title
+P28 history refresh supplied eleven values to a nine-column table
+
+### Status
+Fixed during PROPOSAL-028 implementation; final regression verification pending at this append
+
+### Severity
+Low
+
+### Area
+Algorithm Control / Asset State / P23-2 history GUI
+
+### Reproduction and cause
+Populate the reversal-observation history and inspect `ReversalObservationPanel.reload()`. The row tuple repeated P27 Result and Run ID after the intended nine values, so the loop attempted columns 9 and 10 on a table configured with columns 0 through 8. Qt did not expose the duplicated values, which made the mismatch easy to miss.
+
+### Expected behavior
+Each history row supplies exactly the nine values named by the table headers, and every visible cell maps to the intended typed field.
+
+### Fix and regression plan
+Remove the duplicate pair and extend the GUI regression to require exactly nine columns and populated cells only within that schema.
+
+### Known Issues disposition and rollback
+Not added while the local fix and verification are in the same approved implementation. Reverting the fix would restore an internal presentation mismatch but would not change stored evidence or trading behavior.
+
+## BUG-20260810-003
+
+### Title
+P28 public Market Evidence accepted empty, non-chronological or internally impossible availability sequences
+
+### Status
+Fixed during PROPOSAL-028 implementation; final regression verification pending at this append
+
+### Severity
+Medium
+
+### Area
+Asset State / P23-2 public evidence contract
+
+### Reproduction and cause
+Construct `ReversalObservationMarketEvidence` directly with no evaluated sessions or with duplicate-free expected sessions in descending order. The DTO accepted both because it checked tuple equality and duplicates but not non-empty strict chronology. `ReversalObservationPriceObservation` also accepted `available_at_utc` earlier than `first_observed_at_utc`. The normal GUI coordinator independently rejected or never produced these cases, but the public domain contract did not fail closed for another caller or replay source.
+
+### Expected behavior
+P23-2 requires at least one evaluated completed session, a strictly increasing sequence after the seed and an availability timestamp no earlier than both official close and first observation.
+
+### Fix and regression plan
+Strengthen the immutable DTO invariants and add unit tests for empty, reordered and impossible-timestamp evidence. Existing valid engine, persistence and replay fixtures must remain unchanged.
+
+### Known Issues disposition and rollback
+Not added while the approved implementation is correcting and verifying the contract. Reverting would reopen a misleading research-result path but still would not grant execution authority.
+
+### BUG-20260810-002 final investigation correction — 2026-08-10
+
+Direct UTF-8 source reinspection showed that `ReversalObservationPanel.reload()` already supplied exactly nine values for the nine headers; the apparent repeated pair came from the earlier combined inspection output rather than the file. No GUI source change was required or made for this report. The existing GUI test and final focused/full reruns cover the nine-column table. Treat BUG-20260810-002 as **Closed — cannot reproduce in source**, not Fixed; it is not a Known Issue.
+
+### PROPOSAL-028 final Bug verification update — 2026-08-10
+
+- `BUG-20260810-001` is verified **Fixed**: source-end day-2 confirmation remains distinct from next-session activation and the regression passes.
+- `BUG-20260810-003` is verified **Fixed**: immutable source evidence now rejects empty/reordered session sequences, pre-close first observation and availability earlier than source evidence; the new boundary regression and all existing P28 paths pass.
+- `BUG-20260810-002` remains **Closed — cannot reproduce**, as corrected above.
+- Final complete verification passed **578 tests**. None of these items is added to `KNOWN_ISSUES.md`.
+
+## BUG-20260810-004
+
+### Title
+Repeated read-only spectral evidence refresh created a new version-1 calendar-mapping ID and failed persistence
+
+### Status
+Confirmed during the approved PROPOSAL-028 AAPL validation; fix and regression verification in progress
+
+### Severity
+Medium
+
+### Area
+Market History / P23-1 evidence preparation and central SQLite persistence
+
+### Reproduction and cause
+Run a second `FETCH_AND_FREEZE_READ_ONLY` spectral preview for AAPL after a version-1 AAPL/XNYS mapping already exists. Evidence preparation created a fresh random mapping ID while still labelling it mapping version 1. Central SQLite correctly enforces one `(symbol, mapping_version)` row, so `INSERT OR IGNORE` retained the original mapping. The subsequent immutable source link referenced the new, non-persisted ID and failed its foreign key.
+
+### Expected behavior
+A repeated read-only evidence refresh must reuse the already frozen compatible version-1 symbol/calendar mapping, persist the new evidence graph atomically, and remain fully reloadable. It must not silently create a second identity for the same mapping version.
+
+### Actual impact
+The Alpaca Market Data read succeeded and generic Raw/Split bars were cached, but the new spectral evidence graph was rolled back. The Factor Run `55f3146d-991b-4446-bb20-178c3db33b25` durably records the failed prerequisite. No P28 result, account access, order or execution occurred.
+
+### Planned fix and regression
+Resolve a compatible mapping from prior frozen spectral evidence before building the next bundle; create mapping version 1 only when none exists. Add a repeated-refresh regression that proves the same mapping identity is reused and the second graph reloads without foreign-key errors. Re-run the approved AAPL validation after the focused tests pass.
+
+### Known Issues disposition and rollback
+This issue currently blocks the approved P28 real-data validation and is therefore summarized in `KNOWN_ISSUES.md` until the repair and rerun are verified. Rollback removes only the mapping-reuse helper and its regression; it must not alter existing frozen evidence or cached Market Data.
+
+## BUG-20260810-005
+
+### Title
+P28 seed preflight relied on refreshable Market Bar cache instead of the frozen P27 source observation
+
+### Status
+Confirmed during the approved PROPOSAL-028 AAPL validation; fix and regression verification in progress
+
+### Severity
+Medium
+
+### Area
+Asset State / P23-2 research evidence orchestration
+
+### Reproduction and cause
+Freeze a valid P27 result whose exact inclusive source bundle contains the 2026-08-05 AAPL close, then refresh the overlapping Raw/Split Market History range before P28. The generic Market Bar cache updates `fetched_at_utc`; P28 used that mutable cache timestamp to prove seed availability and therefore rejected the seed as if it had not existed when P27 was created.
+
+### Expected behavior
+The P28 seed must come from P27's exact immutable spectral source observation, including its Raw/Split close fingerprints and original evidence timestamps. Only sessions after the seed should come from the newly frozen forward Market History evidence.
+
+### Actual impact
+The local P28 preflight stopped before creating a definition or result. No account, position, order or execution boundary was accessed.
+
+### Planned fix and regression
+Resolve the seed from the exact P27 source bundle, fail closed unless its session and availability match P27, and continue using local frozen post-seed bars for evaluated sessions. Add a regression where generic seed-cache timestamps are newer than P27 but the exact frozen P27 seed remains valid.
+
+### Known Issues disposition and rollback
+This issue currently blocks validation and is summarized as `KI-0015` until the focused repair and real-data rerun pass. Rollback restores the older cache-dependent preflight and is not recommended because it makes reproducibility depend on later cache refreshes.
+
+### BUG-20260810-004 final verification update — 2026-08-10
+
+The preparation service now reuses the latest compatible frozen symbol/calendar mapping regardless of its positive version number, while the SQLite exact-bundle query resolves one requested symbol/as-of/feed/mode directly. The regression explicitly reuses a P26-style mapping version `20250710`; 14 focused Market History/P23-1 persistence tests pass. The repaired read-only refresh persisted operation `af2cc617-5172-4915-a2cf-15db574378c5` / Run `4df2d227-6f57-40a6-bf1d-a6fc2c4099b2` with mapping `b49c78da-ae3d-5648-bccb-5b98c65a3ead`. `BUG-20260810-004` is **Fixed** and `KI-0014` is resolved.
+
+### BUG-20260810-005 final verification update — 2026-08-10
+
+P28 now chooses the latest compatible immutable spectral observation that was available by P27 creation, rejects conflicting frozen evidence and uses its original Raw/Split fingerprints, closes and availability timestamps as the seed. The regression deliberately refreshes the generic seed-cache timestamp after P27 while preserving the earlier frozen seed; the exact preflight still succeeds. The combined P28/source regression set passed 23 tests, and the real AAPL result reloaded and recalculated exactly. `BUG-20260810-005` is **Fixed** and `KI-0015` is resolved.
+
+## BUG-20260810-006
+
+### Title
+Implemented PROPOSAL-028 still ended with a stale pre-approval instruction
+
+### Status
+Fixed during the approved AAPL validation documentation update
+
+### Severity
+Low
+
+### Area
+Governance documentation
+
+### Reproduction and cause
+Read the final sentence of the already `IMPLEMENTED_VERIFIED_DISABLED` PROPOSAL-028. A proposal-template instruction still said not to mark or implement the proposal until approval, even though the approval record and implementation evidence directly above showed that the user had approved it.
+
+### Fix and verification
+Replace the stale sentence with the current boundary: the package is approved and implemented but remains disabled, has no multiplier default and grants no formal-state or trading authority. Governance assertions continue to require the approved/disabled status and the exact validation evidence.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the contradiction was corrected in the same documentation pass. Rolling back would restore conflicting governance instructions and is not recommended.
+
+## BUG-20260810-007
+
+### Title
+P28 validation metadata update temporarily dropped the P27 local-source checkpoint phrase
+
+### Status
+Fixed during final governance verification
+
+### Severity
+Low
+
+### Area
+Compass verification metadata / governance regression
+
+### Reproduction and cause
+Run `test_compass_verification_metadata_describes_current_p23_2_work` after replacing the older “no P28 validation” metadata. The new text preserved the exact P27 result ID but omitted the explicit `local-only AAPL reuse` wording required to keep the P26→P27 source checkpoint visible.
+
+### Fix and verification
+Restore the truthful prior local-only P26/P27 checkpoint alongside the new P28 validation evidence. The focused governance test is rerun before the full suite.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this was a change-local documentation regression corrected before handoff. Reverting would reduce provenance clarity but would not change runtime behavior.
+
+### P28 validation final regression summary — 2026-08-10
+
+The complete repository suite passed **579 tests** after the fixes for `BUG-20260810-004`, `BUG-20260810-005`, `BUG-20260810-006` and `BUG-20260810-007`. Python compilation, dependency consistency, diff hygiene and the forbidden P28-consumer scan also passed. No new unresolved Bug or Known Issue was found in the final audit.
+
+## BUG-20260810-008
+
+### Title
+Compass P23-2A capability row retained the pre-validation “no real-symbol validation” boundary
+
+### Status
+Fixed during final P28 validation consistency scan
+
+### Severity
+Low
+
+### Area
+Compass evolving capability inventory
+
+### Reproduction and cause
+Read the P23-2A capability row after the approved AAPL validation. The current phase, verification metadata and Project State correctly record the real-symbol validation, but the shorter capability row still contains the earlier pre-validation phrase `no default, real-symbol validation or financial consumer`.
+
+### Expected behavior and planned fix
+The row must say that one separately approved AAPL validation exists while still making clear that it did not create a default or financial consumer. Add a governance assertion so the obsolete phrase cannot return.
+
+### Known Issues disposition and rollback
+Not added because this change-local documentation inconsistency was fixed and verified in the same pass. Reverting would restore contradictory governance evidence without changing runtime behavior.
+
+### Final verification
+The capability row now records the separately approved AAPL validation while retaining the no-default/no-financial-consumer boundary. The governance regression rejects the obsolete phrase and the focused governance suite passes **9 tests**. No Known Issue remains.
+
+## BUG-20260810-009
+
+### Title
+Governance assertions still required the P27 publication and pre-P29 “no next work” wording
+
+### Status
+Fixed during CHECKPOINT-20260810-006 pre-publication verification
+
+### Severity
+Low
+
+### Area
+Governance document integrity tests
+
+### Reproduction and cause
+After updating Compass to the authorized P28 publication checkpoint and recording that the user approved proposal-only P29 creation, run `tests/architecture/test_governance_document_integrity.py`. Two assertions still require `PROPOSAL-027` in current publication metadata and the exact sentence `No further implementation slice is currently approved` in Next Direction.
+
+### Expected behavior and planned fix
+The regression should require current P28/CHECKPOINT-006 evidence, retain the exact P27 source-result checkpoint, recognize proposal-only P29 authorization and explicitly require that P29 implementation remains unapproved. It must not weaken the no-runtime/no-trading boundary.
+
+### Known Issues disposition and rollback
+Not added because this change-local test expectation was corrected and verified before publication. Reverting only the assertion update would make truthful publication metadata fail without improving safety.
+
+### Final verification
+The test now requires `CHECKPOINT-20260810-006`, current P28 evidence, the exact P27 source result, proposal-only P29 authorization and the explicit no-P29-implementation boundary. The focused governance suite passes **9 tests** and the complete architecture suite passes **92 tests**.

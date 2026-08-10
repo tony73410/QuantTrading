@@ -493,6 +493,27 @@ class SQLiteRunHistoryRepository:
                 relationships.add((RunRelationshipType.CHILD, profile_id))
             elif source_id == run.run_id:
                 relationships.add((RunRelationshipType.LINKED_PREVIEW, profile_id))
+        reversal_links = connection.execute(
+            """SELECT DISTINCT o.run_id AS reversal_run_id,
+                      r.profile_result_run_id, r.source_parent_run_id
+               FROM reversal_observation_operation_attempts o
+               LEFT JOIN reversal_observation_results r ON r.result_id = o.result_id
+               WHERE o.run_id = ? OR r.profile_result_run_id = ? OR r.source_parent_run_id = ?""",
+            (str(run.run_id), str(run.run_id), str(run.run_id)),
+        ).fetchall()
+        for row in reversal_links:
+            reversal_id = UUID(row["reversal_run_id"])
+            profile_id = UUID(row["profile_result_run_id"]) if row["profile_result_run_id"] else None
+            source_id = UUID(row["source_parent_run_id"]) if row["source_parent_run_id"] else None
+            if reversal_id == run.run_id:
+                if profile_id is not None:
+                    relationships.add((RunRelationshipType.PARENT, profile_id))
+                if source_id is not None:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif profile_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, reversal_id))
+            elif source_id == run.run_id:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, reversal_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -1882,6 +1903,71 @@ class SQLiteRunHistoryRepository:
                     )),
                     _field("usable as positive scale", operation["usable_as_positive_scale"]),
                     _field("calculation fingerprint", operation["calculation_fingerprint"]),
+                    _field("warnings", operation["warnings_text"]),
+                    _field("error", operation["error_summary"]),
+                ),
+                children,
+            ))
+        reversal_operations = connection.execute(
+            """SELECT o.*, r.calculation_fingerprint, r.profile_result_id,
+                      r.market_evidence_id, r.market_evidence_fingerprint,
+                      r.seed_session, r.final_evaluation_session, r.observation_count,
+                      r.initial_direction, r.final_direction, r.final_candidate_state,
+                      r.candidate_count, r.cancellation_count, r.confirmation_count,
+                      r.activation_count, r.explanation
+               FROM reversal_observation_operation_attempts o
+               LEFT JOIN reversal_observation_results r ON r.result_id = o.result_id
+               WHERE o.run_id = ? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in reversal_operations:
+            event_rows = ()
+            if operation["result_id"]:
+                event_rows = connection.execute(
+                    """SELECT * FROM reversal_observation_events
+                    WHERE result_id = ? ORDER BY ordinal""",
+                    (operation["result_id"],),
+                ).fetchall()
+            children = tuple(
+                RunArtifactView(
+                    "reversal_observation_event",
+                    row["event_id"],
+                    RunStageName.STATE.value,
+                    operation["expected_symbol"],
+                    row["event_type"],
+                    f"{row['session']} · {row['event_type']} · {row['reason']}",
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("old/new direction", f"{row['old_direction']} / {row['new_direction'] or '—'}"),
+                        _field("origin", f"{row['origin_session']} / {row['origin_price_text']}"),
+                        _field("threshold", row["threshold"]),
+                        _field("activation session", row["activation_effective_session"]),
+                    ),
+                )
+                for row in event_rows
+            )
+            artifacts.append(RunArtifactView(
+                "reversal_observation_operation",
+                operation["attempt_id"],
+                RunStageName.STATE.value,
+                operation["expected_symbol"],
+                operation["status"],
+                "P23-2 symmetric two-session reversal observation; DISABLED / NO EXECUTION",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation type", operation["operation_type"]),
+                    _field("operation id", operation["operation_id"]),
+                    _field("result id", operation["result_id"]),
+                    _field("definition", f"{operation['definition_id'] or '—'} v{operation['definition_version'] or '—'}"),
+                    _field("P27 result", operation["profile_result_id"]),
+                    _field("market evidence", operation["market_evidence_id"]),
+                    _field("source range", f"{operation['seed_session'] or '—'} to {operation['final_evaluation_session'] or '—'}"),
+                    _field("direction initial/final", f"{operation['initial_direction'] or '—'} / {operation['final_direction'] or '—'}"),
+                    _field("candidate/cancel/confirm/activate", (
+                        f"{operation['candidate_count'] or 0} / {operation['cancellation_count'] or 0} / "
+                        f"{operation['confirmation_count'] or 0} / {operation['activation_count'] or 0}"
+                    )),
+                    _field("fingerprint", operation["calculation_fingerprint"]),
                     _field("warnings", operation["warnings_text"]),
                     _field("error", operation["error_summary"]),
                 ),

@@ -4,6 +4,7 @@
 
 ## Open
 
+
 - **KI-0004 — Physical-display visual QA pending.** PySide6/QWebEngineView 已在 Qt offscreen 模式完成启动和动态重绘烟雾测试；无界面环境产生 GPU 上下文提示。仍需用户在实际桌面显示环境确认字体、缩放和窗口布局观感。
 - **KI-0005 — Transitive WebSocket deprecation warning.** pytest 导入 `alpaca-py` 时，其传递依赖 `websockets` 报告 legacy 命名空间弃用警告。本模块没有实现或调用 WebSocket；等待上游依赖更新。
 - **KI-0006 — Active synchronous request can delay window close.** alpaca-py 的同步历史请求没有当前模块可用的安全取消接口；窗口关闭会停止计时器并清除未开始任务，但会等待正在执行的请求安全结束。强杀线程可能破坏 SDK/SQLite 状态，因此本次未伪造取消。详见 `BUG-20260713-005`。
@@ -11,6 +12,9 @@
 - **KI-0008 — IEX实际历史可能短于请求区间。** 2026-07-15批量请求110支热门股票近10年Raw/IEX日、周、月行情时，330个组合都成功返回并写入，但多数成熟股票的日线实际从2020-07-27左右开始，未覆盖完整10年。当前Coverage表示“该请求区间已成功向Provider查询”，不等于该区间每天都有实际Bar；这会让请求覆盖与真实Bar覆盖看起来不一致。临时措施是以数据库中实际最早/最晚Bar为准。若必须获得2020年前数据，应先单独验证SIP权限或批准其他数据源；不要静默混用Feed。详见 `BUG-20260715-005`。
 
 ## Resolved
+
+- **KI-0015 — P28 seed preflight could be invalidated by a later Market History refresh.** Resolved 2026-08-10: P28 now selects the latest compatible immutable spectral observation available by P27 creation and preserves its original fingerprints/timestamps. The refreshed-cache regression and real AAPL deterministic replay pass. See `BUG-20260810-005`.
+- **KI-0014 — Repeated P23-1 read-only refresh could fail calendar-mapping persistence.** Resolved 2026-08-10: repeated preparation reuses a compatible frozen mapping, including the P26-style `20250710` version, and exact bundle lookup no longer scans/reloads all operations. The repaired evidence graph persists with zero foreign-key violations. See `BUG-20260810-004`.
 
 - **KI-0013 — Canonical governance references were ambiguous.** Resolved 2026-07-16: Portfolio Accounting retains `INTENT-017`, Main Launcher is uniquely `INTENT-019`, Run History is `INTENT-020`, architecture invariants are monotonic through 34, and Compass verification metadata reflects the current Phase 1 worktree and 312-test evidence. Architecture regression tests enforce unique Intent IDs and invariant numbering. See `BUG-20260716-010`.
 

@@ -5970,3 +5970,296 @@ The user explicitly requested commit and push of the completed PROPOSAL-027 work
 Intent alignment: publishes exactly the already approved and verified P27 implementation. Architecture alignment: no runtime boundary changes in the publication step. Safety alignment: descriptive research remains disabled/unconsumed and execution absent. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: metadata/version and published-checkpoint evidence only; Stable Core is unchanged. Remaining drift risk: future work must not treat the daily scale or secondary spectral evidence as a reversal/trading rule without separate approval.
 
 No new Bug was discovered. Rollback is a normal revert of the checkpoint commit; a source revert alone does not downgrade the ignored v16 database. Commit message: `feat: add robust daily volatility profiles`. The commit and push occur after this append-only record; Git history and the final user report preserve their exact outcome.
+
+## EDIT-20260810-002 — Create PROPOSAL-028 symmetric reversal observation laboratory
+
+### Date, request and task mode
+
+2026-08-10 11:29:34 -07:00
+
+The user selected development direction A and A1: first build a reversal observation laboratory, and use one identical multiplier for upward-to-downward and downward-to-upward judgments. The prior user-facing plan explicitly required creating and approving a complete proposal before runtime implementation. Task mode: **STANDARD proposal-only**. Primary future owner: `quant_trading.asset_state`; proposed secondary owners: Persistence, Run History, Algorithm Control and application-resolved public P27/Market History evidence.
+
+No algorithm source code, public runtime contract, SQLite schema/data, GUI behavior, external access, formal Asset State fact, Target Position, Decision, Risk, cash, Backtesting, Accounting, Paper, Live or order behavior was changed.
+
+### Existing-work reminder and Pre-Implementation Compass Audit
+
+P27 already supplies a versioned per-stock daily log-movement scale but explicitly is not a reversal threshold. Phase 4A Asset State already owns definitions, cycles, transitions and replay, but its financial state meanings and transitions are manual only. P23 planning revision 1.24 already records two-session confirmation, day-3 activation, prior reversal-extreme reference and conditional confirmation-buffer attribution. The smallest reuse path is therefore an Asset-State-owned research evaluator that reads exact public evidence and persists separate results without mutating the existing manual state ledger.
+
+The user's real goal is to distinguish ordinary counter-moves from possible cycle reversals while preserving a complete, versioned explanation for later position logic. Applicable Stable Core principles are user authority, domain separation, exact versions, immutable evidence, GUI/business separation and no execution. Existing P27/manual-State behavior must remain unchanged. No numeric multiplier was assumed. The proposed financial meaning is isolated and disabled; implementation requires approval because it would add public contracts and central Schema v17. Completion evidence for this task is a complete proposal, synchronized governance/project records and passing architecture/governance tests—not runtime output.
+
+### Proposal outcome
+
+Created `PROPOSAL-028` as a complete `PROPOSED` P23-2A package:
+
+- one user-created positive finite multiplier, stored with raw text and IEEE evidence, shared unchanged by both directions and with no default;
+- `T = multiplier × P27 profile_log_scale` in log units; upward-cycle reversal distance `ln(high/close)`, downward-cycle reversal distance `ln(close/low)`, and inclusive `>=` comparison;
+- the first crossing is day 1, the next expected completed XNYS session must remain beyond the same frozen origin/threshold for day 2, and the new research direction activates on day 3;
+- successful day-1/day-2 evidence is committed to the new cycle's mathematical progress from the prior reversal extreme; cancelled evidence loses only provisional new-cycle attribution and does not erase old-cycle observations;
+- an explicit initial direction/seed, contiguous completed-session/calendar validation, positive finite prices and exact local Raw/Split/corporate-action evidence;
+- `FORWARD_FROZEN_PROFILE` only: evaluated sessions must occur after the P27 profile's source period and after that immutable profile became available, preventing same-range look-ahead claims;
+- separate immutable definition/attempt/result/daily-step/event/source evidence, deterministic replay/comparison/export and a proposed `REVERSAL_OBSERVATION_RESEARCH / NO_EXECUTION` Run;
+- proposed additive central SQLite v16/104→v17/110 migration with six tables and zero backfill; and
+- one read-only existing-Asset-State-page subtab with no formula, SQL, Provider, state mutation or trading logic in the GUI.
+
+The user has approved direction A/A1 only. The exact formula/contracts/migration/GUI package remains awaiting explicit approval and is not implemented. No real-symbol validation or Market Data acquisition is authorized by this record.
+
+### Files changed
+
+- `docs/proposals/PROPOSAL-028-symmetric-reversal-observation-laboratory.md`
+- `docs/proposals/README.md`
+- `docs/INDEX.md`
+- `PROJECT_COMPASS.md` (v74; DEC-015 and proposed INTENT-038)
+- `docs/project/ROADMAP.md`
+- `docs/project/PROJECT_STATE.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/EDIT_LOG.md`
+
+### Validation and bug audit
+
+- Focused governance document tests: **9 passed**.
+- Complete architecture suite: **91 passed**.
+- `git diff --check`: passed; only existing Windows LF→CRLF worktree notices were emitted.
+- No network request, SQLite query/migration/write, Factor/State calculation or external service occurred.
+- The first focused run exposed only a current-edit assertion wording mismatch (`Therefore no further...` versus the exact expected sentence). The Compass sentence was normalized and the rerun passed. This was not a pre-existing product defect; no Bug ID or Known Issue was added.
+- No other credible Bug was discovered; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report and rollback
+
+This proposal-only edit has `LIMITED` blast radius: governance documents and one governance regression test. Runtime public contracts, configuration, database, GUI and trading semantics are unchanged. The proposed future implementation is `MULTI_MODULE`: Asset State primary; Persistence/Run History/Algorithm Control/application composition secondary; additive contracts and Schema v17; local-only permissions; no financial or execution authority.
+
+Rollback before approval removes only P28 proposal/current-state references through a normal source revert while preserving this append-only audit record and all P27 evidence. There is no database rollback because no migration occurred.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: records exactly the user's A/A1 choice and preserves the earlier two-day/day-3/buffer requirements without inventing a trade rule.
+- Architecture alignment: extends the existing Asset State owner, consumes P27/Market evidence only through public/application boundaries and does not create a duplicate state source of truth.
+- Safety alignment: proposal remains research-only, disabled, local-only and unable to mutate formal state or reach trading layers.
+- Unapproved behavior added: none; runtime implementation has not started.
+- Assumptions introduced: the forward-frozen source-time rule, inclusive equality, explicit seed and six-table layout are recommendations inside a visibly proposed package, not active behavior.
+- Compass sections updated: metadata/version, DEC-015, INTENT-038, limitation/drift warning and next direction. Stable Core is unchanged.
+- Remaining drift risk: a future implementation could mistake direction approval for approval of the exact package, silently choose a multiplier, run P27 inside its own historical source range or write formal State/trading outputs. PROPOSAL-028 explicitly forbids all four until separately approved.
+
+### Suggested commit message
+
+`docs: propose symmetric reversal observation laboratory`
+
+## EDIT-20260810-003 — Implement approved PROPOSAL-028 P23-2A symmetric reversal observation
+
+### Date, authorization and task mode
+
+2026-08-10 13:00:00 -07:00
+
+The user explicitly approved full `PROPOSAL-028`. Task mode: **DEEP** because the approved slice adds Asset-State public contracts, a new Run type, application evidence orchestration, central SQLite v16→v17 migration and an existing-GUI subtab. Primary owner: `quant_trading.asset_state`. Secondary owners: `orchestration`, `persistence`, `run_history` and `algorithm_control`. Expected blast radius: `MULTI_MODULE`, additive and disabled.
+
+The approved scope is only a versioned, forward-frozen reversal-observation laboratory with one explicit same multiplier for both directions. It excludes a multiplier value/default, automatic formal Asset State mutation, linear/exponential trade calculations, Target Position, Decision, numerical or complete Risk, cash/Portfolio Accounting mutation, Backtesting integration, Paper, Live, account/order access, submission and activation.
+
+### Pre-Implementation Compass and architecture audit
+
+The real goal is to distinguish ordinary counter-moves from possible cycle reversals using each stock's exact P27 daily scale, preserve the two confirmation days for later mathematics only when confirmation succeeds, and make the entire path replayable before any trading meaning is introduced. Stable Core requires explicit versions, immutable evidence, GUI/business separation, owner boundaries and no execution. P27 already owns the source scale and manual Asset State already owns formal user transitions; P28 therefore extends the existing Asset State owner as an isolated research branch and never writes the manual ledger. Application orchestration resolves exact public P27/Market evidence, Persistence owns SQL, Run History owns neutral lineage and Algorithm Control only dispatches/displays typed contracts. The user approved the financial semantics in PROPOSAL-028; no additional assumption or authority was required.
+
+### Implemented result
+
+- Added component `asset_state.reversal_observation.p23_2a.v1@1.0.0`. Every immutable definition stores one explicit positive multiplier as input text, float64 and IEEE hex, is `DISABLED`, and has `execution_allowed=false` / `live_allowed=false`. No default or active definition exists.
+- Added a pure evaluator for `T=M*k`, using the same `M` in both directions, inclusive `>=`, `ln(high/close)` for an UP-cycle counter-move and `ln(close/low)` for a DOWN-cycle counter-move.
+- Day 1 freezes the origin and threshold. Only the next expected completed XNYS session may confirm or cancel. The old direction remains through day-2 close; the new research direction activates at the next expected session start. Source-end day 1 persists pending and source-end day 2 persists confirmed-awaiting-activation without inventing day 3.
+- Successful day-1/day-2 observations are committed from the prior reversal extreme. Cancellation discards only provisional new-cycle attribution and may still advance the old-cycle extreme. P28 events are not formal `AssetStateTransitionEvent` facts.
+- Strengthened exact evidence DTOs to require positive finite close evidence, completed-session observation timestamps, non-empty strictly chronological evaluated sessions after the seed, exact observation/session membership and disabled source authority.
+- Added immutable daily steps, candidate/cancel/confirm/activate events, exact source links, deterministic calculation fingerprint/result identity, durable successful/invalid/failed attempts, view replay, exact recalculation replay, compatible comparison and CSV/JSON export.
+- Added application-only local preflight: one exact usable positive P27 v1.0.0 result, its P26/source Run lineage, explicit initial direction/seed/end, latest completed local seed available at P27 creation, post-creation Raw/Split closes, exact XNYS calendar and one frozen supported corporate-action snapshot covering the full range. Routine P28 preparation has no Provider/network path.
+- Added `REVERSAL_OBSERVATION_RESEARCH` with the neutral `STATE` stage, P27 parent/P26 source relationships and Run History operation/event artifacts.
+- Added a separate `P23-2 反转观察` subtab inside the existing Asset State page. It explicitly creates/selects definitions and P27 sources, preflights and runs in background, queries history, renders threshold/direction/extreme/candidate/attribution/events, opens Runs and performs replay/comparison/export. The original manual ledger remains a sibling tab and the Launcher receives no new entry.
+
+### Central SQLite migration
+
+The ignored active database was first inspected at v16/104 with `integrity_check=ok`, zero foreign-key violations and no P28 tables. The approved migration created verified backup `runtime/data/backups/market_history.schema-v16-to-v17.20260810T192850337602Z.sqlite3`, then advanced the active database to v17/110 with exactly these six tables:
+
+- `reversal_observation_definitions`
+- `reversal_observation_operation_attempts`
+- `reversal_observation_results`
+- `reversal_observation_daily_steps`
+- `reversal_observation_events`
+- `reversal_observation_source_links`
+
+Final backup v16/104 and active v17/110 both report `integrity_check=ok` and zero foreign-key violations. All 104 prior logical-table row counts are unchanged except the expected `schema_migrations` 16→17 increment; every new P28 table remains zero rows. No historical P28 claim was backfilled and no real-symbol P28 operation was run.
+
+### Validation
+
+- Focused P28/governance/dependency/Run suite: **47 passed**.
+- P28 domain/persistence/orchestration/GUI rerun after source-contract hardening: **11 passed**.
+- Final complete pytest suite: **578 passed**, with one pre-existing third-party `websockets.legacy` deprecation warning.
+- Python `compileall`: passed.
+- `pip check`: no broken requirements.
+- `git diff --check`: passed; only existing Windows LF→CRLF worktree notices were emitted.
+- Secret-pattern scan: no credential/private-key match.
+- Forbidden consumer scan: no P28 reference in Decision, Risk, Capital Allocation, Portfolio Accounting, Backtesting or Execution.
+- Active/backup database version, table-count, integrity, foreign-key and zero-backfill checks: passed.
+- No network request, Trading client, account, position, order or fill access occurred.
+
+### Bug discovery audit
+
+- `BUG-20260810-001`: **Fixed**. Confirmation and activation are now separate facts; source-end day 2 is confirmed-awaiting-activation.
+- `BUG-20260810-003`: **Fixed**. Public Market Evidence now fails closed for empty/reordered/impossible-timestamp sequences.
+- `BUG-20260810-002`: **Closed — cannot reproduce**. Direct source reinspection showed nine values for nine history headers; no source change was made for the apparent combined-output artifact.
+- No unresolved new Bug or P28 Known Issue remains.
+
+### Files changed
+
+- Domain/service/replay: `src/quant_trading/asset_state/reversal_observation_models.py`, `reversal_observation_engine.py`, `reversal_observation_interfaces.py`, `reversal_observation_service.py`, `reversal_observation_replay.py`, `src/quant_trading/asset_state/__init__.py`.
+- Orchestration: `src/quant_trading/orchestration/reversal_observation_research.py`, `src/quant_trading/orchestration/__init__.py`.
+- Persistence/Run: `src/quant_trading/persistence/reversal_observation_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/run_history/models.py`.
+- GUI/export/composition: `src/quant_trading/algorithm_control/reversal_observation_export.py`, `ui/reversal_observation_panel.py`, `ui/asset_state_workspace_panel.py`, `ui/main_panel.py`, `app.py`.
+- Tests: new P28 domain/repository/orchestration/GUI tests, Asset State/governance architecture tests and existing central-schema expectation updates across Run, Factor, Decision, Risk, Capital, Asset State and Target repositories.
+- Governance/docs: `PROPOSAL-028`, `ADR-0033`, proposal/ADR/index records, Compass v75, architecture v36 and Module Map, Asset State/Central Persistence/Run History/Algorithm Control module docs, Project State, Roadmap, CHANGELOG, Bug Log and this Edit Log.
+
+### Change Impact Report and rollback
+
+Primary module: Asset State. Secondary modules: Orchestration, Persistence, Run History and Algorithm Control. Public contracts and Run type are additive. Global configuration, package dependencies, manual Asset State contracts and Launcher entry count are unchanged. Database impact is the approved additive v17 migration with zero backfill. GUI impact is confined to a sibling subtab in the existing Asset State owner page. Trading semantics, Risk authority, factual cash and execution safety are unchanged.
+
+Runtime rollback removes P28 composition and hides its subtab while retaining immutable v17 history. Database rollback requires stopping writers, preserving the v17 database and restoring the verified v16 backup with matching v16 code; a Git revert alone is not a database downgrade. Future formula changes require a new immutable component/definition version rather than overwriting v1.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: exact approved A/A1 observation semantics, two-session confirmation, next-session activation and conditional buffer attribution are implemented and replayable.
+- Architecture alignment: Asset State owns observation meaning; Orchestration resolves exact sources; Persistence owns SQLite; Run History owns lineage; GUI contains no formula, SQL, Provider or financial logic. No new top-level module, cycle or reverse dependency exists.
+- Safety alignment: all definitions/results/Runs remain disabled/no-execution; formal manual State, Target, Decision, Risk, cash, Accounting, Backtesting and Execution are untouched.
+- Unapproved behavior added: none. No multiplier/default, automatic selection, real-symbol P28 validation, trade count/action/amount or broker behavior was inferred.
+- Assumptions introduced: none with financial meaning. Routine local evidence preparation deliberately fails closed when a full frozen corporate-action range or exact expected session is absent.
+- Compass sections updated: v75 metadata, current phase/capability/architecture inventory, resolved DEC-015, completed INTENT-038, evidence, limitations/drift warning and next direction. Stable Core is unchanged.
+- Remaining drift risk: a later feature could mislabel an observation direction as formal state or use an arbitrary multiplier/P27 scale as a trade boundary. Such use remains forbidden without a separately approved P23-2 formal-state or P23-3+ proposal.
+
+No commit or push was requested or performed. Suggested commit message: `feat: add symmetric reversal observation research`.
+
+## EDIT-20260810-004 — Validate approved PROPOSAL-028 with read-only AAPL evidence
+
+### Date, authorization and task mode
+
+2026-08-10 14:04:54 -07:00
+
+The user requested P28 validation and explicitly confirmed the recommended one-run input: AAPL, symmetric multiplier `M=1.5`, initial research direction `DOWN`, seed session 2026-08-05 using Split close `310.94`, and evaluation through 2026-08-10. The user had already authorized read-only Alpaca Market Data validation. Task mode: **STANDARD validation**. Primary module: Asset State P23-2A; secondary evidence owners: Market History/P23-1, P27 Factor profile, Orchestration, Persistence and Run History. Expected blast radius: `LIMITED` for validation, plus two local prerequisite-defect fixes discovered by the run.
+
+The scope excluded a multiplier default, automatic scheduling, formal Asset State mutation, Target Position, linear/exponential trade calculation, Decision, numerical Risk, cash/Portfolio Accounting, Backtesting, Paper, Live, Trading client, account, position, order, fill or execution access.
+
+### Pre-validation Compass and architecture audit
+
+The user's actual goal was to prove that the implemented P28 observation engine can consume real frozen evidence, preserve exact lineage, survive restart and explain its result without granting trading authority. Applicable Stable Core principles were exact version/source binding, immutable history, owner boundaries, fail-visible invalid/failed attempts and no execution. Existing P27 meaning had to remain unchanged: its daily scale is descriptive input, not automatically a reversal threshold. `M=1.5` was approved for this immutable disabled validation definition only and was not promoted to a global or per-symbol default.
+
+The application coordinator remained the only layer resolving P27 and Market History evidence; Asset State owned the symmetric reversal calculation; Persistence owned SQLite; Run History owned lineage; GUI and all financial consumers remained outside the calculation. Completion evidence required a successful frozen-evidence run, exact restart recalculation, durable failures, database integrity and comprehensive regressions.
+
+### Read-only source acquisition and durable prerequisite history
+
+- The first sandboxed attempt could not reach Alpaca and durably recorded failed Factor Run `8ac78a07-797c-40b4-ab4a-c01d12e7ee31` with missing sessions. This failure was retained rather than rewritten.
+- The approved read-only retry fetched Market Data but exposed `BUG-20260810-004`: a repeated frozen evidence refresh created a new calendar-mapping identity for an already used mapping version, causing a source-link foreign-key failure. Run `55f3146d-991b-4446-bb20-178c3db33b25` durably records it.
+- An intentionally fail-closed intermediate preflight rejected the existing P26 mapping version while the repair was being narrowed; Run `a70ac422-f3f0-49fc-bb50-5cf4df88c248` remains durable audit evidence.
+- The corrected refresh reused immutable mapping `b49c78da-ae3d-5648-bccb-5b98c65a3ead` version `20250710` and completed with warnings under Run `4df2d227-6f57-40a6-bf1d-a6fc2c4099b2`, operation `2e02017c-b566-43d0-a9a9-2df252dec6f2`, attempt `af2cc617-5172-4915-a2cf-15db574378c5` and bundle `4cde099b-5085-40ee-bd49-a1b5a1501ab4`. It froze 250 completed XNYS sessions from 2025-08-12 through 2026-08-10 and a full-range corporate-action snapshot.
+- P28 preflight then exposed `BUG-20260810-005`: the seed proof used a refreshable generic Market Bar timestamp instead of the immutable observation already available when P27 was created. The fix now reuses the exact compatible frozen spectral seed evidence and fails closed on conflicts.
+
+Only Alpaca Historical Stock Data and Corporate Actions were read. No Trading client or broker account endpoint was created or called.
+
+### Validation result
+
+- Definition Run: `f97a70c6-7dcd-49a6-85ca-e74fc098789f`; disabled definition `2954f4c8-c57c-4054-a535-738e7a868aaf`, version 1, exact multiplier text `1.5`.
+- Preview Run: `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`; operation `013fb888-02ae-4b6f-ad5f-019a3369b251`; result `4447da24-2d25-5fbd-a7fd-fb0c3e501249`; calculation fingerprint `f329379af538303280e670799801ca94fcd921ed21687e68b878ce314ca7b6ac`.
+- Exact P27 input: result `6ae54c4a-8d3b-5ae1-8c82-4bb2fb5bbef5`, Run `2cdd69d9-5960-4e0a-aa6c-c85a9354a302`, backed by P26 study `3411fd6d-ee64-5e44-bd26-3f25068dce52` / Run `0251b8ee-a6c2-4496-bc73-f3e19aa1f23b` and daily log scale `0.013404769735102143`.
+- The exact symmetric log threshold was `0.020107154602653214`; its equivalent upward price fraction from the running low was about `2.0311%`.
+- 2026-08-06 close `312.45` was about `0.4856%` above the running low; 2026-08-07 close `313.29` was about `0.7558%` above it; neither crossed the threshold. 2026-08-10 close `308.17` established a new running low.
+- Final status: `VALID_NO_REVERSAL`; direction remained `DOWN`; zero candidates, confirmations, cancellations, activations or events; final running extreme was `308.17`.
+- A fresh-process reload and deterministic recalculation reproduced the persisted result and fingerprint exactly.
+
+### Defects fixed and verification
+
+- `BUG-20260810-004`: **Fixed**. Compatible immutable symbol/calendar mapping identity is reused on repeat frozen-evidence refresh; the exact-bundle lookup is direct and bounded. Regression uses the real P26-style positive mapping version.
+- `BUG-20260810-005`: **Fixed**. Seed provenance comes from compatible immutable pre-P27 spectral evidence, not a later refreshable generic-cache timestamp; conflicts fail closed.
+- `BUG-20260810-006`: **Fixed**. Removed the implemented proposal's stale pre-approval sentence.
+- `BUG-20260810-007`: **Fixed**. Restored P27 local-only source-checkpoint wording in Compass metadata after the validation update.
+- `BUG-20260810-008`: **Fixed**. Corrected the Compass capability row that still claimed no real-symbol validation and added a governance assertion against the obsolete phrase.
+- `KI-0014` and `KI-0015` moved to resolved; no unresolved Bug or Known Issue was found in the final audit.
+
+Final evidence:
+
+- Complete repository suite: **579 passed**, with one pre-existing third-party `websockets.legacy` deprecation warning.
+- Focused mapping/persistence regression: **14 passed**; combined P28/source regression: **23 passed**; final governance regression, including the corrected capability inventory: **9 passed**.
+- Python `compileall`: passed.
+- `pip check`: no broken requirements.
+- `git diff --check`: passed; only existing Windows LF→CRLF notices were emitted.
+- Configured-secret scan: both loaded Alpaca credential values were absent from every modified or untracked file.
+- Forbidden-consumer scan: no P28 reference in Decision, Risk, Capital Allocation, Portfolio Accounting, Backtesting or Execution.
+- Active central database: latest migration 17, 110 logical tables, `integrity_check=ok`, zero foreign-key violations; P28 counts are 1 definition, 2 operation attempts, 1 result, 3 daily steps, 0 events and 9 source links.
+
+### Files changed
+
+- Defect fixes: `src/quant_trading/market_history/spectral_preview_evidence.py`, `src/quant_trading/persistence/spectral_volatility_sqlite_store.py`, `src/quant_trading/orchestration/reversal_observation_research.py`.
+- Regressions: `tests/unit/market_history/test_spectral_preview_evidence.py`, `tests/unit/orchestration/test_reversal_observation_research.py`, `tests/architecture/test_governance_document_integrity.py`.
+- Governance and user-visible records: `PROJECT_COMPASS.md`, `docs/proposals/PROPOSAL-028-symmetric-reversal-observation-laboratory.md`, `docs/proposals/README.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/modules/market-history.md`, `docs/modules/asset-state.md`, `docs/modules/central-persistence.md`, `docs/modules/run-history.md`, `CHANGELOG.md`, `KNOWN_ISSUES.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- The rest of the current uncommitted working tree is the already approved P28 implementation recorded by `EDIT-20260810-003`; it was preserved and verified rather than silently rewritten or published.
+
+### Change Impact Report and rollback
+
+Primary module: Asset State. Secondary modules: Market History, Orchestration, Persistence and Run History. Public financial contracts, global configuration, package dependencies, database schema version, GUI entry count and trading semantics are unchanged by this validation. Database impact is append-only validation/failure evidence in the existing approved v17 schema. Permissions were limited to local reads/writes plus the separately approved read-only Market Data acquisition. Blast radius: `LIMITED`.
+
+Source rollback can revert the two prerequisite fixes and their regressions, but doing so would restore known reproducibility/persistence defects and is not recommended. Immutable validation and failed-run evidence must remain for audit; it should not be silently deleted. The P28 definition is already disabled, so no activation rollback is required. No database downgrade or migration occurred in this task.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: the exact user-confirmed AAPL/M/direction/date validation completed and produced a fully explained no-reversal result.
+- Architecture alignment: P28 calculation remains Asset-State-owned; source resolution, SQLite and lineage stay with their existing owners; forbidden consumers have no P28 dependency.
+- Safety alignment: definition and Run remain disabled/no-execution; only Market Data was read; no account, order, Paper or Live boundary was crossed.
+- Unapproved behavior added: none. No trade, default multiplier, automatic schedule or formal-state transition was created.
+- Assumptions introduced: none with product or financial meaning; all run inputs were explicitly confirmed, and source evidence failed closed where incomplete or contradictory.
+- Compass sections updated: v76 metadata, current phase/evidence, INTENT-038 and next-direction boundary; Stable Core is unchanged.
+- Remaining drift risk: later work must not treat this one `M=1.5` validation as a default or convert `VALID_NO_REVERSAL`/research direction into formal state or a trade without a separately approved proposal.
+
+No commit or push was requested or performed. Suggested commit message: `test: validate symmetric reversal observation`.
+
+## EDIT-20260810-005 — Record and publish the PROPOSAL-028 Git checkpoint
+
+### Date, request and task mode
+
+2026-08-10 16:10:07 -07:00
+
+The user selected option A: first commit and push the completed P28 implementation/validation, then create proposal-only PROPOSAL-029. Task mode: **STANDARD publication/checkpoint**. Primary scope: Git and version governance. This publication step changes no algorithm formula, runtime public contract, configuration, database schema/data, GUI behavior, external-service authority or trading semantics.
+
+### Version record
+
+- Added `CHECKPOINT-20260810-006` to `docs/project/VERSION_HISTORY.md`.
+- Branch: `main`; previous published commit: `17ff464`; remote: `origin/main` at `https://github.com/tony73410/QuantTrading.git`.
+- Package version remains `0.1.0`; no semantic-version or dependency change was introduced.
+- Central database contract remains Schema v17/110; the ignored runtime database and verified v16 backup are not included in Git.
+- Recorded the exact P28 definition/result/Run IDs, `M=1.5` validation-only meaning, `VALID_NO_REVERSAL` result, 579-test evidence, database integrity, durable failed prerequisites, fixed Bugs, no-execution state, rollback and next authorized proposal-only scope.
+- Updated Compass to v77 and Project State to identify the Git commit containing this record as the P28 publication checkpoint. P29 runtime implementation remains explicitly unapproved.
+
+### Pre-publication evidence and safety
+
+- The completed P28 implementation and validation passed the complete **579-test** repository suite, `compileall`, `pip check`, database integrity/foreign-key checks, configured-secret scan, forbidden-consumer scan and diff hygiene.
+- Publication-specific governance suite: **9 passed**; complete architecture suite: **92 passed**.
+- `BUG-20260810-009` was found during metadata synchronization and is **Fixed**: obsolete assertions expecting P27 as the current publication and no authorized next proposal now require the truthful P28 checkpoint, exact P27 source result, proposal-only P29 authorization and explicit no-P29-implementation boundary.
+- Runtime data, backups, logs, local Algorithm Control state and credentials remain ignored and will not be staged.
+- P23-1/P23-1F/P23-2A remain disabled and unconsumed. No Trading client, account, position, order, fill, Paper/Live feature or automatic submission is introduced.
+
+### Files changed by this publication record
+
+- `docs/project/VERSION_HISTORY.md`
+- `PROJECT_COMPASS.md`
+- `docs/project/PROJECT_STATE.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/BUG_LOG.md`
+- `logs/EDIT_LOG.md`
+
+All other files in the publication commit are the previously approved P28 implementation, migration contracts, GUI, tests, AAPL validation documentation and prerequisite fixes recorded by `EDIT-20260810-003/004`.
+
+### Change Impact Report and rollback
+
+Primary scope: Git/version governance. Public contracts, configuration, database, GUI and financial behavior are unchanged by publication. Permissions are limited to the explicitly requested local Git commit and push. Trading and safety behavior remains disabled/no-execution. Blast radius: `LIMITED` for publication metadata; the published P28 implementation retains its already approved `MULTI_MODULE` scope.
+
+Rollback is a normal future `git revert` of the checkpoint commit; do not reset, force-push or rewrite history. A source revert does not downgrade the ignored v17 database. Preserve immutable P28 success/failure history for audit; physical database rollback requires the separately documented stop-writers/preserve-v17/restore-verified-v16 procedure.
+
+### Compass and bug audits
+
+- Intent alignment: publishes exactly the approved and verified P28 work before starting the separately authorized P29 proposal.
+- Architecture alignment: no new dependency or owner boundary is introduced by the checkpoint.
+- Safety alignment: P28 remains disabled/no-execution; Market Data permission is not Trading permission; Paper/Live stay empty.
+- Unapproved behavior added: none.
+- Assumptions introduced: none.
+- Compass sections updated: v77 metadata, current phase and B17 next-authorized-action boundary; Stable Core is unchanged.
+- Remaining drift risk: proposal-only P29 authorization must not be treated as permission to implement parameters, contracts, migrations, GUI behavior or a financial consumer.
+
+Bug discovery audit: `BUG-20260810-009` fixed with governance/architecture regression evidence; no unresolved new Known Issue remains. Suggested commit message: `feat: add symmetric reversal observation research`. The commit and push occur after this append-only record; Git history and the user report preserve their exact outcome.

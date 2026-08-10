@@ -40,6 +40,12 @@ from .spectral_history_research import (
     SpectralHistoricalStudyRequest,
     SpectralHistoricalStudyRunner,
 )
+from .reversal_observation_research import (
+    ReversalObservationPreflight,
+    ReversalObservationResearchCoordinator,
+    ReversalObservationResearchRequest,
+    ReversalObservationResearchRunner,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -64,4 +70,8 @@ __all__ = [
     "SpectralHistoricalStudyDisclosure",
     "SpectralHistoricalStudyRequest",
     "SpectralHistoricalStudyRunner",
+    "ReversalObservationPreflight",
+    "ReversalObservationResearchCoordinator",
+    "ReversalObservationResearchRequest",
+    "ReversalObservationResearchRunner",
 ]

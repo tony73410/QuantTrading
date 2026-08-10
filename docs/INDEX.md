@@ -27,6 +27,8 @@
 | Module map | `architecture/MODULE_MAP.md` | 实际模块与文档的简要索引；不替代主要架构文件 |
 | Dependencies | `architecture/DEPENDENCY_RULES.md` | 仓库级通用依赖原则；具体矩阵以主要架构文件为准 |
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
+| P23-2A symmetric reversal observation | `proposals/PROPOSAL-028-symmetric-reversal-observation-laboratory.md` | 已批准并实现为DISABLED的同倍数、两日确认/下一交易日生效观察实验室；Schema v17/110与回放/历史GUI已完成，不修改正式状态且无交易消费者 |
+| P23-2A architecture decision | `decisions/ADR-0033-symmetric-reversal-observation-laboratory.md` | 记录同倍数、前向冻结、确认/生效分离、六表持久化及严格无交易消费者边界 |
 | P23-1F daily volatility profile | `proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md` | 已批准的完整P26/R1 v1.0.0日常波动档案公式、Schema v16、GUI、验证与严格非交易边界 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
 | Market history | `modules/market-history.md` | 股票历史数据浏览器、缓存、GUI、配置与测试 |

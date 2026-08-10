@@ -31,10 +31,11 @@ from quant_trading.persistence import (
     SQLiteSpectralVolatilityStore,
     SQLiteSpectralHistoricalStudyStore,
     SQLiteDailyVolatilityProfileStore,
+    SQLiteReversalObservationStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
-from quant_trading.asset_state import AssetStateService
+from quant_trading.asset_state import AssetStateService, ReversalObservationService
 from quant_trading.target_position import TargetPositionService
 from quant_trading.target_position import LinkedTargetPositionService
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
@@ -54,6 +55,7 @@ from quant_trading.market_history.composition import (
     build_spectral_preview_evidence_service,
 )
 from quant_trading.market_history.config import AppSettings
+from quant_trading.market_history.storage import SQLiteHistoricalDataStore
 from quant_trading.decision import TargetAdjustmentDecisionService
 from quant_trading.risk import (
     ResearchAssetCashFloorService,
@@ -71,6 +73,7 @@ from quant_trading.orchestration import (
     TargetAdjustmentRiskReviewCoordinator,
     ManualSpectralPreviewCoordinator,
     SpectralHistoricalStudyCoordinator,
+    ReversalObservationResearchCoordinator,
 )
 
 from .audit_service import AuditService
@@ -259,6 +262,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         software,
         daily_volatility_profile_definition,
     )
+    reversal_observation_store = SQLiteReversalObservationStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    reversal_observation_store.initialize()
+    reversal_observation_service = ReversalObservationService(
+        reversal_observation_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    local_market_store = SQLiteHistoricalDataStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    local_market_store.initialize()
+    reversal_observation_runner = ReversalObservationResearchCoordinator(
+        daily_volatility_profile_store,
+        spectral_volatility_store,
+        local_market_store,
+        reversal_observation_service,
+    )
     capital_store = SQLiteCapitalAllocationStore(
         root / "runtime" / "data" / "market_history.sqlite3"
     )
@@ -446,6 +468,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         standardized_state_service,
         standardized_state_store,
         session_id,
+        reversal_observation_service=reversal_observation_service,
+        reversal_observation_queries=reversal_observation_store,
+        reversal_observation_runner=reversal_observation_runner,
         linked_target_position_preview=linked_target_position_preview,
         target_adjustment_decision_preview=target_adjustment_preview,
         target_adjustment_decision_queries=target_adjustment_store,

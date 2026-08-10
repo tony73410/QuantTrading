@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
@@ -233,6 +234,28 @@ def test_local_only_reuses_exact_frozen_bundle() -> None:
     ).prepare(_request(SpectralEvidenceAcquisitionMode.LOCAL_ONLY))
     assert reused.bundle is fetched.bundle
     assert "REUSED_FROZEN_EVIDENCE" in reused.warnings
+
+
+def test_repeated_fetch_reuses_compatible_frozen_calendar_mapping() -> None:
+    first = SpectralPreviewEvidencePreparationService(
+        history_service=_History(),
+        corporate_action_provider=_CorporateActions(),
+        clock=lambda: REQUESTED_AT,
+    ).prepare(_request(SpectralEvidenceAcquisitionMode.FETCH_AND_FREEZE_READ_ONLY))
+    prior_mapping = replace(
+        first.bundle.symbol_mapping,
+        mapping_version=20250710,
+    )
+    frozen = _Frozen(replace(first.bundle, symbol_mapping=prior_mapping))
+    second = SpectralPreviewEvidencePreparationService(
+        history_service=_History(),
+        corporate_action_provider=_CorporateActions(),
+        frozen_evidence_query=frozen,
+        clock=lambda: REQUESTED_AT,
+    ).prepare(_request(SpectralEvidenceAcquisitionMode.FETCH_AND_FREEZE_READ_ONLY))
+    assert second.bundle.symbol_mapping is prior_mapping
+    assert "REUSED_FROZEN_CALENDAR_MAPPING" in second.warnings
+    assert frozen.calls
 
 
 def test_missing_raw_session_fails_with_stable_code() -> None:

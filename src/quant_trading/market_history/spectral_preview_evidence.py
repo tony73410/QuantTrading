@@ -307,18 +307,23 @@ class SpectralPreviewEvidencePreparationService:
                 f"公司行动证据获取失败：{type(exc).__name__}: {exc}",
             ) from exc
         now = self._clock()
-        mapping = ResearchCalendarSymbolMapping(
-            self._id_factory(),
-            1,
-            request.symbol,
-            US_EQUITY_OR_ETF_WITH_EXPLICIT_MAPPING,
-            US_EQUITIES_REGULAR_V1,
-            start_date,
-            None,
-            now,
-            "manual-spectral-preview",
-            "PROPOSAL-025 explicit U.S. stock/ETF XNYS mapping",
+        mapping = self._find_compatible_frozen_mapping(
+            request, expected_sessions, start_date, evaluation_session
         )
+        reused_mapping = mapping is not None
+        if mapping is None:
+            mapping = ResearchCalendarSymbolMapping(
+                self._id_factory(),
+                1,
+                request.symbol,
+                US_EQUITY_OR_ETF_WITH_EXPLICIT_MAPPING,
+                US_EQUITIES_REGULAR_V1,
+                start_date,
+                None,
+                now,
+                "manual-spectral-preview",
+                "PROPOSAL-025 explicit U.S. stock/ETF XNYS mapping",
+            )
         try:
             bundle = self._builder.build(
                 symbol=request.symbol,
@@ -348,8 +353,48 @@ class SpectralPreviewEvidencePreparationService:
             request.acquisition_mode,
             evaluation_session,
             request.requested_at_utc,
-            ("RETROSPECTIVE_ADJUSTED",),
+            (
+                "RETROSPECTIVE_ADJUSTED",
+                *(("REUSED_FROZEN_CALENDAR_MAPPING",) if reused_mapping else ()),
+            ),
         )
+
+    def _find_compatible_frozen_mapping(
+        self,
+        request: SpectralEvidencePreparationRequest,
+        expected_sessions,
+        covered_start: date,
+        covered_end: date,
+    ) -> ResearchCalendarSymbolMapping | None:
+        """Reuse one immutable mapping version instead of minting a conflicting ID."""
+        if self._frozen is None:
+            return None
+        for session in reversed(tuple(expected_sessions)):
+            bundle = self._frozen.find_latest_evidence_bundle(
+                symbol=request.symbol,
+                as_of_utc=session.close_utc,
+                feed=request.feed,
+                evidence_mode=ResearchEvidenceMode.RETROSPECTIVE_ADJUSTED,
+            )
+            if bundle is None:
+                continue
+            mapping = bundle.symbol_mapping
+            if (
+                mapping.symbol != request.symbol
+                or mapping.asset_class != US_EQUITY_OR_ETF_WITH_EXPLICIT_MAPPING
+                or mapping.calendar_definition_id != US_EQUITIES_REGULAR_V1
+                or mapping.effective_start > covered_start
+                or (
+                    mapping.effective_end is not None
+                    and mapping.effective_end < covered_end
+                )
+            ):
+                raise SpectralEvidencePreparationError(
+                    SpectralEvidencePreparationErrorCode.EVIDENCE_MISALIGNED,
+                    "Existing frozen symbol/calendar mapping does not cover the requested evidence range.",
+                )
+            return mapping
+        return None
 
     def _load_bars(
         self,

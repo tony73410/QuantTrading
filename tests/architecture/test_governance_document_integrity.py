@@ -24,15 +24,22 @@ def test_canonical_architecture_invariants_are_monotonic_and_unique() -> None:
     assert numbers == list(range(1, len(numbers) + 1))
 
 
-def test_compass_verification_metadata_describes_current_p23_1_work() -> None:
+def test_compass_verification_metadata_describes_current_p23_2_work() -> None:
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
-    assert "PROPOSAL-027" in metadata
-    assert "v16/104" in metadata
+    assert "PROPOSAL-028" in metadata
+    assert "CHECKPOINT-20260810-006" in metadata
+    assert "v17/110" in metadata
     assert "local-only AAPL reuse" in metadata
-    assert "no network, Trading client or account/position/order/fill access" in metadata
+    assert "P27 result 6ae54c4a-8d3b-5ae1-8c82-4bb2fb5bbef5" in metadata
+    assert "P23-2A" in metadata
+    assert "one separately approved read-only AAPL validation" in metadata
+    assert "VALID_NO_REVERSAL result 4447da24-2d25-5fbd-a7fd-fb0c3e501249" in metadata
+    assert "no Trading client or account/position/order/fill access occurred" in metadata
     assert "DISABLED/execution_allowed=false/live_allowed=false" in metadata
+    assert "one separately approved AAPL validation exists" in compass
+    assert "no default, real-symbol validation or financial consumer" not in compass
 
 
 def test_compass_next_direction_names_latest_completed_proposal() -> None:
@@ -42,8 +49,9 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     )[0]
     assert "PROPOSAL-026 is complete" in next_direction
     assert "PROPOSAL-027 is complete" in next_direction
-    assert "No further implementation slice is currently approved" in next_direction
-    assert "awaits explicit approval" not in next_direction
+    assert "PROPOSAL-028 is complete" in next_direction
+    assert "proposal-only PROPOSAL-029" in next_direction
+    assert "no P29 implementation is approved" in next_direction
 
 
 def test_compass_does_not_deny_verified_research_backtesting() -> None:
@@ -78,10 +86,35 @@ def test_proposal_027_is_approved_disabled_and_does_not_claim_trading_meaning() 
     assert "docs/modules/central-persistence.md" in proposal
 
 
-def test_roadmap_records_completed_p26_and_p27_validations() -> None:
+def test_proposal_028_is_implemented_disabled_without_claiming_trading() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-028-symmetric-reversal-observation-laboratory.md"
+    ).read_text(encoding="utf-8")
+    assert "Status: `IMPLEMENTED_VERIFIED_DISABLED`" in proposal
+    assert "Full PROPOSAL-028 package explicitly approved by the user" in proposal
+    assert "explicitly selected A and A1" in proposal
+    assert "threshold_log_distance = shared_multiplier × profile_log_scale" in proposal
+    assert "candidate when down_reversal_distance[t] >= T" in proposal
+    assert "candidate when up_reversal_distance[t] >= T" in proposal
+    assert "confirmation_completed_session_count=2" in proposal
+    assert "FORWARD_FROZEN_PROFILE" in proposal
+    assert "formal `AssetStateTransition` facts" in proposal
+    assert "Database: completed additive central SQLite v16/104→v17/110" in proposal
+    assert "market_history.schema-v16-to-v17.20260810T192850337602Z.sqlite3" in proposal
+    assert "Validation result: disabled definition `2954f4c8-c57c-4054-a535-738e7a868aaf`" in proposal
+    assert "`VALID_NO_REVERSAL`" in proposal
+    assert "- `execution_allowed`: `true`" not in proposal
+    assert "- `execution_allowed`: `false`" in proposal
+    assert "- `live_allowed`: `false`" in proposal
+
+
+def test_roadmap_records_completed_p26_through_p28_work() -> None:
     roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
     assert "P26已完成一次另行批准的真实AAPL只读验证" in roadmap
     assert "PROPOSAL-027` P23-1F 已批准并完成" in roadmap
+    assert "PROPOSAL-028` 的A/A1方向及完整实施包已由用户" in roadmap
+    assert "PROPOSAL-028` 已批准、实现并验证" in roadmap
+    assert "中央SQLite v17/110" in roadmap
     assert "真实AAPL网络验证未执行" not in roadmap
     assert "真实AAPL历史研究仍需另一次明确验证指令" not in roadmap
     assert "仍等待用户明确批准" not in roadmap

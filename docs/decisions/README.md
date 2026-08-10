@@ -1,5 +1,6 @@
 # Architecture Decision Records
 
+- `ADR-0033-symmetric-reversal-observation-laboratory.md`: accepted the disabled Asset-State-owned symmetric log-distance observer, exact P27/local evidence, two-session confirmation with next-session activation, additive Schema v17 and no formal-state or trading consumer.
 - `ADR-0032-robust-daily-volatility-profile.md`: accepted the complete explicit P26/R1 v1.0.0 median-MAD daily profile, secondary-only spectral evidence, additive Schema v16 and disabled existing-Factor-page inspection with no threshold or trading consumer.
 
 - `ADR-0031-bounded-historical-spectral-research.md`: accepted one-symbol 2–250-session P26 evidence/study grids, definition-exact no-look-ahead cutoffs, parent/child Runs, additive Schema v15 and no predictive/trading authority.
@@ -41,6 +42,8 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 `Status`、`Context`、`Options considered`、`Decision`、`Rationale`、`Consequences`、`Reversal`。
 
 ## Index
+
+- [ADR-0033: Observe Symmetric Two-Session Reversals Before Formal State or Trading](ADR-0033-symmetric-reversal-observation-laboratory.md) — one explicit same-direction multiplier, forward-frozen exact evidence, day-1/day-2 confirmation, next-session activation, immutable replay and no financial consumer.
 
 - [ADR-0032: Keep the First Daily Volatility Profile Robust, Complete and Non-Trading](ADR-0032-robust-daily-volatility-profile.md) — exact complete source membership, robust daily/profile medians, temporal MAD, explanatory asymmetric price fractions, Schema v16 and no automatic financial consumer.
 

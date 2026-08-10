@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 
 
 _SCHEMA_V1 = """
@@ -2956,6 +2956,242 @@ ON daily_volatility_profile_results(source_study_id, source_definition_id);
 """
 
 
+_SCHEMA_V17 = """
+CREATE TABLE reversal_observation_definitions (
+    definition_id TEXT PRIMARY KEY,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    predecessor_definition_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('disabled', 'archived')),
+    shared_multiplier_input_text TEXT NOT NULL,
+    shared_multiplier REAL NOT NULL CHECK (shared_multiplier > 0),
+    shared_multiplier_hex TEXT NOT NULL,
+    component_id TEXT NOT NULL CHECK (component_id = 'asset_state.reversal_observation.p23_2a.v1'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    threshold_formula TEXT NOT NULL CHECK (threshold_formula = 'T=M*k'),
+    confirmation_sessions INTEGER NOT NULL CHECK (confirmation_sessions = 2),
+    equality_policy TEXT NOT NULL CHECK (equality_policy = 'INCLUSIVE_GREATER_THAN_OR_EQUAL'),
+    activation_policy TEXT NOT NULL CHECK (activation_policy = 'NEXT_EXPECTED_SESSION_START'),
+    confirmed_buffer_policy TEXT NOT NULL CHECK (confirmed_buffer_policy = 'COMMIT_FROM_PRIOR_REVERSAL_EXTREME'),
+    cancelled_buffer_policy TEXT NOT NULL CHECK (cancelled_buffer_policy = 'DISCARD_NEW_CYCLE_ATTRIBUTION_ONLY'),
+    source_time_policy TEXT NOT NULL CHECK (source_time_policy = 'FORWARD_FROZEN_PROFILE'),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (predecessor_definition_id) REFERENCES reversal_observation_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE reversal_observation_results (
+    result_id TEXT PRIMARY KEY,
+    calculation_fingerprint TEXT NOT NULL UNIQUE,
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL,
+    profile_result_id TEXT NOT NULL,
+    profile_result_run_id TEXT NOT NULL,
+    source_study_id TEXT NOT NULL,
+    source_parent_run_id TEXT NOT NULL,
+    source_definition_id TEXT NOT NULL,
+    source_definition_version INTEGER NOT NULL,
+    profile_component_id TEXT NOT NULL,
+    profile_component_version TEXT NOT NULL CHECK (profile_component_version = '1.0.0'),
+    profile_calculation_fingerprint TEXT NOT NULL,
+    profile_source_end_session TEXT NOT NULL,
+    profile_created_at_utc TEXT NOT NULL,
+    profile_log_scale REAL NOT NULL CHECK (profile_log_scale > 0),
+    profile_log_scale_hex TEXT NOT NULL,
+    market_evidence_id TEXT NOT NULL,
+    market_evidence_fingerprint TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    seed_session TEXT NOT NULL,
+    seed_observation_id TEXT NOT NULL,
+    seed_raw_source_id TEXT NOT NULL,
+    seed_split_source_id TEXT NOT NULL,
+    seed_official_close_utc TEXT NOT NULL,
+    seed_first_observed_at_utc TEXT NOT NULL,
+    seed_available_at_utc TEXT NOT NULL,
+    seed_raw_close_text TEXT NOT NULL,
+    seed_raw_close REAL NOT NULL,
+    seed_raw_close_hex TEXT NOT NULL,
+    seed_split_close_text TEXT NOT NULL,
+    seed_split_close REAL NOT NULL,
+    seed_split_close_hex TEXT NOT NULL,
+    final_evaluation_session TEXT NOT NULL,
+    observation_count INTEGER NOT NULL CHECK (observation_count >= 0),
+    initial_direction TEXT NOT NULL CHECK (initial_direction IN ('up', 'down')),
+    status TEXT NOT NULL CHECK (status IN ('valid_no_reversal', 'valid_with_pending_candidate', 'confirmed_awaiting_activation', 'valid_with_activated_cycle')),
+    final_direction TEXT NOT NULL CHECK (final_direction IN ('up', 'down')),
+    final_cycle_reference_session TEXT NOT NULL,
+    final_cycle_reference_price_text TEXT NOT NULL,
+    final_cycle_reference_price REAL NOT NULL,
+    final_cycle_reference_price_hex TEXT NOT NULL,
+    final_running_extreme_text TEXT NOT NULL,
+    final_running_extreme REAL NOT NULL,
+    final_running_extreme_hex TEXT NOT NULL,
+    final_candidate_state TEXT NOT NULL CHECK (final_candidate_state IN ('none', 'day_1_pending', 'confirmed_awaiting_activation')),
+    candidate_count INTEGER NOT NULL CHECK (candidate_count >= 0),
+    cancellation_count INTEGER NOT NULL CHECK (cancellation_count >= 0),
+    confirmation_count INTEGER NOT NULL CHECK (confirmation_count >= 0),
+    activation_count INTEGER NOT NULL CHECK (activation_count >= 0),
+    formula_trace_text TEXT NOT NULL,
+    warnings_text TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (definition_id) REFERENCES reversal_observation_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (profile_result_id) REFERENCES daily_volatility_profile_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (profile_result_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_study_id) REFERENCES spectral_historical_studies(study_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_definition_id) REFERENCES spectral_volatility_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE reversal_observation_operation_attempts (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    state_stage_id TEXT NOT NULL UNIQUE,
+    operation_type TEXT NOT NULL CHECK (operation_type IN ('save_definition', 'preview')),
+    command_fingerprint TEXT NOT NULL,
+    definition_id TEXT,
+    definition_version INTEGER,
+    requested_profile_result_id TEXT,
+    expected_symbol TEXT,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'invalid_input', 'source_not_found', 'source_incompatible', 'failed')),
+    result_id TEXT,
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    warnings_text TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE reversal_observation_daily_steps (
+    result_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    step_id TEXT NOT NULL UNIQUE,
+    session TEXT NOT NULL,
+    observation_id TEXT NOT NULL,
+    official_close_utc TEXT NOT NULL,
+    first_observed_at_utc TEXT NOT NULL,
+    available_at_utc TEXT NOT NULL,
+    raw_source_id TEXT NOT NULL,
+    split_source_id TEXT NOT NULL,
+    raw_close_text TEXT NOT NULL,
+    raw_close REAL NOT NULL,
+    raw_close_hex TEXT NOT NULL,
+    split_close_text TEXT NOT NULL,
+    split_close REAL NOT NULL,
+    split_close_hex TEXT NOT NULL,
+    direction_at_open TEXT NOT NULL CHECK (direction_at_open IN ('up', 'down')),
+    direction_at_close TEXT NOT NULL CHECK (direction_at_close IN ('up', 'down')),
+    cycle_reference_session TEXT NOT NULL,
+    cycle_reference_price_text TEXT NOT NULL,
+    cycle_reference_price REAL NOT NULL,
+    cycle_reference_price_hex TEXT NOT NULL,
+    running_extreme_before_text TEXT NOT NULL,
+    running_extreme_before REAL NOT NULL,
+    running_extreme_before_hex TEXT NOT NULL,
+    running_extreme_after_text TEXT NOT NULL,
+    running_extreme_after REAL NOT NULL,
+    running_extreme_after_hex TEXT NOT NULL,
+    candidate_origin_session TEXT,
+    candidate_origin_price_text TEXT,
+    candidate_origin_price REAL,
+    candidate_origin_price_hex TEXT,
+    profile_log_scale REAL NOT NULL,
+    profile_log_scale_hex TEXT NOT NULL,
+    shared_multiplier REAL NOT NULL,
+    shared_multiplier_hex TEXT NOT NULL,
+    threshold REAL NOT NULL,
+    threshold_hex TEXT NOT NULL,
+    directional_log_distance REAL NOT NULL,
+    directional_log_distance_hex TEXT NOT NULL,
+    display_price_fraction REAL NOT NULL,
+    display_price_fraction_hex TEXT NOT NULL,
+    threshold_reached INTEGER NOT NULL CHECK (threshold_reached IN (0, 1)),
+    candidate_state_after_close TEXT NOT NULL,
+    prior_close_log_return REAL NOT NULL,
+    prior_close_log_return_hex TEXT NOT NULL,
+    attribution TEXT NOT NULL,
+    cumulative_new_cycle_movement REAL NOT NULL,
+    cumulative_new_cycle_movement_hex TEXT NOT NULL,
+    event_ids_text TEXT NOT NULL,
+    warnings_text TEXT NOT NULL,
+    formula_trace_text TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (result_id, ordinal),
+    FOREIGN KEY (result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE reversal_observation_events (
+    result_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    event_id TEXT NOT NULL UNIQUE,
+    session TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK (event_type IN ('candidate_started', 'candidate_cancelled', 'reversal_confirmed', 'cycle_activated')),
+    old_direction TEXT NOT NULL CHECK (old_direction IN ('up', 'down')),
+    new_direction TEXT,
+    origin_session TEXT NOT NULL,
+    origin_price_text TEXT NOT NULL,
+    origin_price REAL NOT NULL,
+    origin_price_hex TEXT NOT NULL,
+    threshold REAL NOT NULL,
+    threshold_hex TEXT NOT NULL,
+    profile_result_id TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    candidate_day1_step_id TEXT,
+    candidate_day2_step_id TEXT,
+    activation_effective_session TEXT,
+    trigger_values_text TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (result_id, ordinal),
+    FOREIGN KEY (result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE reversal_observation_source_links (
+    result_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    source_type TEXT NOT NULL,
+    source_id TEXT NOT NULL,
+    source_version TEXT,
+    source_fingerprint TEXT,
+    PRIMARY KEY (result_id, ordinal),
+    FOREIGN KEY (result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_reversal_observation_definitions_list
+ON reversal_observation_definitions(created_at_utc DESC, definition_version DESC);
+CREATE INDEX idx_reversal_observation_operations_lookup
+ON reversal_observation_operation_attempts(expected_symbol, completed_at_utc DESC, status);
+CREATE INDEX idx_reversal_observation_results_source
+ON reversal_observation_results(profile_result_id, symbol, created_at_utc DESC);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -2973,6 +3209,7 @@ _MIGRATIONS = {
     14: ("P23-1 spectral-volatility research evidence", _SCHEMA_V14),
     15: ("P23-1E-B bounded historical spectral research studies", _SCHEMA_V15),
     16: ("P23-1F per-stock daily-volatility research profiles", _SCHEMA_V16),
+    17: ("P23-2 symmetric reversal observation research", _SCHEMA_V17),
 }
 
 

@@ -298,3 +298,56 @@ No further implementation slice is approved. Any reversal multiplier, P23-2 two-
 ### Rollback
 
 Use a normal Git revert of the checkpoint commit without rewriting history. Feature rollback may remove P23-1F composition/GUI while retaining immutable v16 evidence for audit. A physical database downgrade requires stopping writers, preserving v16 and restoring the verified v15 backup with matching v15 code. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260810-006
+
+### Identity
+
+- Recorded at: 2026-08-10T23:06:46Z
+- Branch: `main`
+- Previous commit: `17ff464`
+- Checkpoint commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v17, 110 logical tables
+- Governance versions: PROJECT_COMPASS v77; canonical architecture v36
+- Purpose: publish approved PROPOSAL-028 P23-2A, its separately approved read-only AAPL validation and the verified prerequisite evidence fixes as one disabled/no-execution research checkpoint.
+
+### Included approved work
+
+- Asset-State-owned component `asset_state.reversal_observation.p23_2a.v1@1.0.0` with immutable user-created definitions and one explicit positive multiplier applied unchanged in both directions.
+- Exact `T=M×k` log threshold, inclusive crossing, running high/low tracking, first-session candidate, next expected XNYS-session confirmation/cancellation and following-session activation.
+- Conditional confirmation-buffer attribution from the prior reversal extreme without retroactively rewriting historical operational actions; cancelled candidates discard only provisional new-cycle attribution.
+- Exact forward-frozen P27/Raw/Split/XNYS/corporate-action evidence, deterministic result identity, durable successful/invalid/failed attempts, restart replay/recalculation, comparison and CSV/JSON export.
+- Additive central SQLite v16/104→v17/110 migration with six normalized P23-2 tables, verified backup `runtime/data/backups/market_history.schema-v16-to-v17.20260810T192850337602Z.sqlite3`, zero backfill and unchanged prior logical-table row counts.
+- `REVERSAL_OBSERVATION_RESEARCH / NO_EXECUTION` Run lineage and a separate P23-2 subtab inside the existing Asset State page. No new Launcher entry or business logic in the GUI.
+
+### AAPL validation evidence
+
+- One separately approved read-only Market Data validation used AAPL, explicit `M=1.5`, initial direction `DOWN`, seed session 2026-08-05 at Split close `310.94` and completed sessions through 2026-08-10.
+- Exact P27 source result: `6ae54c4a-8d3b-5ae1-8c82-4bb2fb5bbef5`; P28 definition: `2954f4c8-c57c-4054-a535-738e7a868aaf`; P28 Run: `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`; result: `4447da24-2d25-5fbd-a7fd-fb0c3e501249`.
+- The exact log threshold was `0.020107154602653214`, about a `2.0311%` upward move from the running low. Closes `312.45`, `313.29` and `308.17` never reached it; the final result is `VALID_NO_REVERSAL`, direction remains `DOWN`, no candidate/confirmation/activation event exists and the final running low is `308.17`.
+- Fresh-process reload and deterministic recalculation reproduce fingerprint `f329379af538303280e670799801ca94fcd921ed21687e68b878ce314ca7b6ac` exactly. Failed prerequisite Runs remain durable audit evidence rather than being overwritten.
+
+### Validation and database evidence
+
+- Complete repository suite: **579 passed** with one pre-existing third-party `websockets.legacy` deprecation warning; final governance suite: **9 passed**.
+- `compileall`, `pip check`, dependency/consumer boundaries, configured-secret scan and `git diff --check` passed.
+- Active ignored SQLite reports migration version 17, 110 logical tables, `integrity_check=ok` and zero foreign-key violations. P28 history contains 1 definition, 2 attempts, 1 result, 3 daily steps, 0 events and 9 source links.
+- `BUG-20260810-001`, `003`, `004` and `005` are fixed with runtime regression evidence; `BUG-20260810-002` is closed as not reproducible; documentation consistency defects `BUG-20260810-006`, `007` and `008` are fixed. No unresolved P28 Known Issue remains.
+
+### Current algorithm and safety state
+
+- P28 is descriptive reversal observation, not formal Asset State mutation, a target-position calculation, Decision, Risk approval, cash movement or trade.
+- `M=1.5` belongs only to the explicit disabled validation definition and is not a project, stock or component default.
+- P23-1/P23-1F/P23-2A remain `DISABLED`, `execution_allowed=false`, `live_allowed=false` and have no Target/Decision/Risk/Capital/Backtesting/Accounting/Execution consumer.
+- Only Alpaca Historical Stock Data and Corporate Actions were read. No Trading client, account, buying power, position, order or fill access was used. Paper and Live remain empty; automatic submission and Live Trading remain disabled.
+- Runtime databases, backups, credentials and runtime logs remain Git-ignored and are not included in this checkpoint.
+
+### Current focus and unapproved work
+
+The user authorized creating a proposal-only PROPOSAL-029 after this publication to define P23-3 bounded linear/accelerated target-position mathematics by extending the existing Target Position owner. This checkpoint does not approve or contain P29 runtime contracts, parameters, defaults, database/GUI changes or implementation. Formal automatic state mutation, P23-4 Decision/Risk/cash linkage, daily trade-count enforcement, P23-5 simulation, factual Accounting, Paper, Live and execution remain separately unauthorized.
+
+### Rollback
+
+Use a normal Git revert of this checkpoint commit without rewriting history. Feature rollback may unregister/hide P28 while retaining immutable Schema-v17 Run/result/failure history for audit. A physical database downgrade requires stopping writers, preserving the v17 database and restoring the verified v16 backup together with matching v16 code; a Git revert alone is not a database downgrade. Keep Live and automatic submission disabled throughout rollback.

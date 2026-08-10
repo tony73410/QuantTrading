@@ -325,12 +325,12 @@ def test_v8_to_v9_migration_backs_up_preserves_and_creates_no_decision_rows(tmp_
 
     backup_files = tuple(backups.glob("*.sqlite3"))
     assert len(backup_files) == 1
-    assert ".schema-v8-to-v16." in backup_files[0].name
+    assert ".schema-v8-to-v17." in backup_files[0].name
     with sqlite3.connect(backup_files[0]) as backup:
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 8
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
     with sqlite3.connect(database) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 16
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "target_adjustment_decision_operations",

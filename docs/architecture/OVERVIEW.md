@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 35
-last_updated_utc: 2026-08-06T20:05:00Z
+version: 36
+last_updated_utc: 2026-08-10T20:00:00Z
 ```
 
 ## Purpose
@@ -45,6 +45,7 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - a Phase 6E read-only Consolidated Risk Chain Explorer inside the existing Risk page that resolves exact persisted Phase 6D→6C→6B→6A evidence through public query contracts, separates structural gates from numerical rules, compares exact A/B values without deltas/ranking and opens all related Runs without recalculation, persistence or authority;
 - a disabled and unconsumed P23-1 Spectral Volatility Research path through P23-1E-B: explicit XNYS/Daily/raw/split/corporate-action evidence, immutable R1 v1.0.0/v1.1.0 session-window semantics, project-owned multi-window Fourier/MAD diagnostics, one-symbol explicit latest-session or 2–250-session local/read-only evidence preparation, `FACTOR_PREVIEW` child and `SPECTRAL_HISTORY_RESEARCH` parent Run history, exact Schema-v15 reload and existing Factor-page controls/inspection/charts/export; it creates no predictive score, cycle state, target, Decision, Risk, accounting or execution authority;
 - a locked disabled P23-1F daily-volatility-profile path owned by Factors: one explicit complete 20–250-session P26 study, exact prior-session R1 v1.0.0 W60/W120/W250 trend-standardized MAD, robust daily/history medians, temporal MAD and explanatory exponential price fractions; exact Schema-v16 attempts/results/source lineage and existing-Factor-page inspection/export remain unconsumed and create no reversal, state, target, Decision, Risk, cash, accounting or execution authority;
+- a disabled P23-2A reversal-observation path owned by Asset State but isolated from its formal manual ledger: one explicit versioned shared multiplier and exact positive P27 scale, forward-only local Raw/Split/XNYS/corporate-action evidence, inclusive symmetric log threshold, two-session confirmation, next-session activation, immutable Schema-v17 steps/events/source links, recalculation replay/export/comparison and an existing-page subtab; it creates no formal transition, target, Decision, Risk, cash, accounting or execution authority;
 - a shared validation-result and fail-closed system-health foundation; business validation rules remain owned by their modules.
 
 The following are **not implemented**: production activation, production portfolio construction/position sizing, production-grade cost basis/P&L/accounting, complete or production numerical Risk approval/policies, orders, Paper order execution, and Live execution. Research-only Decision notional sizing, three ordered numerical Risk previews and isolated historical Backtesting are implemented, but grant no production authority. The Portfolio Accounting scaffold only replays explicit cash effects and long filled quantities in memory; advanced conventions remain Open Decisions. Restricted user-authored Factor and Decision rules exist only as disabled definitions and local previews. Empty `quant_trading.execution.paper` and `.live` namespace boundaries contain no interfaces or behavior. `ALPACA_PAPER` is a safe label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
@@ -344,15 +345,15 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
-| Status | Implemented and verified with central Schema v16 plus additive v1→v16 migration evidence |
+| Status | Implemented and verified with central Schema v17/110 plus additive v1→v17 migration evidence |
 | Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor/P23-1, generic/specialized Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance ownership/contracts independent. |
-| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, specialized P23-1 operation, P26 study/evidence and P23-1F profile stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
+| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, specialized P23-1/P26/P23-1F and P23-2 reversal-observation stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
 | Non-responsibilities | Market Data download, algorithm calculation, availability semantics, GUI, cleanup deletion, broker, accounting or execution. |
-| Public interfaces | `CentralSQLiteDatabase`, `CentralSchemaInspection`, `inspect_central_schema`, `expected_schema_tables`, `SQLiteRunHistoryRepository`, `SQLiteFactorSnapshotStore`, `SQLiteSpectralVolatilityStore`, `SQLiteSpectralHistoricalStudyStore`, `SQLiteDailyVolatilityProfileStore`, `SQLiteAlgorithmResultStore`, `SQLiteResearchHistoryQueryService`, `SQLiteCapitalAllocationStore`, `SQLiteAssetStateStore`, `SQLiteTargetPositionStore`, `SQLiteStandardizedPriceStateStore`, `SQLiteTargetAdjustmentDecisionStore`, `SQLiteTargetAdjustmentRiskStore`, `SQLiteExposureCapStore`, `SQLiteResearchCashFloorStore`, `SQLiteResearchAssetCashStore`; implements public Store/query Protocols. |
+| Public interfaces | `CentralSQLiteDatabase`, schema inspection helpers, `SQLiteRunHistoryRepository`, Factor/P23-1/P26/P23-1F stores, `SQLiteReversalObservationStore`, generic result/research-history stores and Capital/State/Target/Decision/Risk stores; implements public Store/query Protocols. |
 | Inputs / outputs | database path plus neutral Run History and public domain result contracts / durable Market tables and linked research evidence. |
 | Allowed dependencies | Python stdlib `sqlite3`, neutral Run History contracts, public Market/Factor/Decision/Risk/Capital Allocation/Asset State/Target Position/standardized-state/link models and Store Protocols. |
 | Forbidden dependencies | UI, Controller, Service, Provider, charts, algorithm implementations/rules, Orchestration, Alpaca and Execution. |
-| Side effects / configuration | Additive Schema v16 in the ignored central database and verified versioned backups under `runtime/data/backups/`; v14 adds 20 P23-1 tables, v15 adds five P26 tables and v16 adds five P23-1F tables, with no historical backfill and no credential. |
+| Side effects / configuration | Additive Schema v17 in the ignored central database and verified versioned backups under `runtime/data/backups/`; v17 adds exactly six P23-2 tables to v16/104, with no historical backfill and no credential. |
 | Tests / documentation | temporary-SQLite backup/migration/rollback/transaction/dedup/reload/query tests and architecture tests; [`central-persistence.md`](../modules/central-persistence.md), [`run-history.md`](../modules/run-history.md), [`capital-allocation.md`](../modules/capital-allocation.md), [`asset-state.md`](../modules/asset-state.md), [`target-position.md`](../modules/target-position.md), [`standardized-price-state.md`](../modules/standardized-price-state.md), ADR-0009/0016/0017/0019/0020/0021/0022/0023/0024. |
 
 ### Single-Asset Factor layer
@@ -400,6 +401,21 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Forbidden dependencies | Factor code to concrete Persistence/Provider/GUI/State/Target/Decision/Risk/Capital/Accounting/Backtesting/Execution; GUI to engine/SQL/Provider. |
 | Side effects / configuration | Injected Run/Store writes only. No network path or runtime threshold/default. Locked definition and all outputs remain `execution_allowed=false`, `live_allowed=false`. |
 | Tests / documentation | pure formula/boundary/tamper/determinism tests; v15→v16 backup/no-backfill/store/restart tests; GUI/background/export/Open Run and architecture tests; [`factors.md`](../modules/factors.md), ADR-0032. |
+
+### P23-2A symmetric reversal-observation path
+
+| Field | Definition |
+|---|---|
+| Module / path | contracts/engine/service/replay in `quant_trading.asset_state`; exact P27/Market resolution in `quant_trading.orchestration`; storage in `quant_trading.persistence`; presentation in `quant_trading.algorithm_control` |
+| Status | Implemented, verified, versioned, disabled and without a formal-state/trading consumer through PROPOSAL-028 / ADR-0033 |
+| Purpose | Observe and replay possible per-stock cycle reversals with one shared volatility multiplier before approving formal state or trading rules. |
+| Responsibilities | Explicit immutable multiplier versions; exact usable P27 and local source admission; symmetric log threshold; inclusive day-1 candidate; next-expected-session confirmation/cancellation; later-session activation; conditional confirmation-buffer attribution; complete daily/event/source history; deterministic fingerprint/replay; compatible comparison/export/Run navigation. |
+| Non-responsibilities | Multiplier/default selection, P27 calculation, Provider fetch, formal `AssetStateTransitionEvent`, linear/exponential buying/selling, Target Position, Decision, Risk, cash, Backtesting, Accounting, Paper, Live, order or activation authority. |
+| Public interfaces | `ReversalObservationDefinition`, Command/Profile/Market evidence, DailyStep/Event/Result/Operation/Query, engine/service/Store/query/runner/replay contracts. |
+| Allowed dependencies | Asset-State domain: stdlib and neutral Run History only. Orchestration: public P27, spectral provenance, Market History store/calendar and Asset-State services. Persistence/GUI retain their established outward dependency direction. |
+| Forbidden dependencies | Domain to concrete Factor/Market/Persistence/GUI or any financial/execution owner; GUI to formula/SQL/Provider; any Target/Decision/Risk/Capital/Accounting/Backtesting/Execution consumer. |
+| Side effects / configuration | Explicit local Run/Store writes and user export paths only. No Provider/network route, default multiplier/source or schedule. All evidence remains `execution_allowed=false`, `live_allowed=false`. |
+| Tests / documentation | synthetic state-sequence, local evidence, store/migration/restart/replay, GUI and architecture tests; [`asset-state.md`](../modules/asset-state.md), ADR-0033. |
 
 ### Trading Decision layer
 
@@ -501,16 +517,16 @@ The Ledger is the source of recorded facts; accounting state is derived; broker 
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.asset_state` / `src/quant_trading/asset_state/` |
-| Status | Implemented and verified as disabled/unconsumed manual research history; no trading or execution authority |
-| Purpose | Preserve user-defined symbolic state graphs and explicit per-symbol cycle history without inventing financial state meaning. |
-| Responsibilities | Immutable definition/state/edge contracts, one-open-cycle-per-symbol validation, explicit start/transition/close commands, immutable events/snapshots/operation attempts, operation idempotency, optional exact local evidence bindings, typed Store/query ports, structured explanations and deterministic replay validation. |
-| Non-responsibilities | Default states, Factor calculation, automatic transition evaluation, thresholds, saturation/reset logic, Target Position, Capital/Accounting mutation, Decision/Risk/Backtesting consumption, broker, orders, Paper or Live. |
-| Public interfaces | `AssetStateService`, `AssetStateStore`, `AssetStateQueryService`, `AssetStateMachineDefinition`, `TradingCycle`, `AssetStateTransitionEvent`, `AssetStateSnapshot`, `StateReplayResult` and schema-v1 typed commands/queries. |
-| Inputs / outputs | explicit user-provided graph/cycle/manual transition/close inputs plus actor/Session/Request identity and optional exact local Run/Factor references / immutable state evidence and one terminal `NO_EXECUTION` Run. |
+| Status | Implemented and verified with separate manual-ledger and disabled P23-2 observation branches; no trading or execution authority |
+| Purpose | Preserve user-defined symbolic state history and independently observe mathematical reversal candidates without giving observations formal-state meaning. |
+| Responsibilities | Existing immutable graph/cycle/manual-transition history plus P23-2 immutable multiplier definitions, pure symmetric two-session evaluator, exact Profile/Market DTOs, daily steps/events/source links, durable attempts, deterministic replay and bounded comparison/export. |
+| Non-responsibilities | Default states/multiplier, Factor/Market acquisition, formal automatic transition mutation, baseline/exponential trades, Target Position, Capital/Accounting mutation, Decision/Risk/Backtesting consumption, broker, orders, Paper or Live. |
+| Public interfaces | Existing manual Asset State contracts plus `ReversalObservationService`, engine, Store/query/replay ports and exact schema-v1 Definition/Command/Profile/Market/Step/Event/Result/Operation contracts. |
+| Inputs / outputs | Explicit manual-ledger commands or, separately, one explicit P28 definition, exact positive P27 result, explicit direction/seed/end and application-resolved local evidence / immutable isolated research evidence and terminal `NO_EXECUTION` Runs. |
 | Allowed dependencies | stdlib, shared errors and neutral Run History contracts. |
 | Forbidden dependencies | Persistence/SQLite, PySide6, Capital Allocation, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca and Execution. |
-| Side effects / configuration | None in the domain; injected Store owns central Schema v5 writes. No default graph, financial labels, active consumer, credentials or runtime automation. |
-| Tests / documentation | domain/repository/migration/Run/GUI/architecture tests; [`asset-state.md`](../modules/asset-state.md), ADR-0020. |
+| Side effects / configuration | None in the domain; injected Stores own central Schema-v5/manual and Schema-v17/P23-2 writes. No default graph, multiplier, source selection, consumer, credential or runtime schedule. |
+| Tests / documentation | domain/repository/migration/Run/GUI/orchestration/replay/architecture tests; [`asset-state.md`](../modules/asset-state.md), ADR-0020/0033. |
 
 ### Research Target Position
 
@@ -1028,7 +1044,7 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
 | Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented central local persistence, Schema v16 | historical Bars/Coverage/Fetch History, Run lifecycle/bindings/messages, immutable Factor/Decision/Risk evidence, normalized Decision traces, immutable capital/state/target/standardized-state/link/target-adjustment/manual-review/exposure-cap/cash-floor/asset-cash evidence, specialized P23-1/P26 evidence, P23-1F profile attempts/results/source traces and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical trace reconstruction/repair, external-service access or orders |
+| SQLite | Implemented central local persistence, Schema v17/110 | all prior evidence plus P23-2 immutable definitions/attempts/results/daily steps/events/source links and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -1070,7 +1086,7 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters are separate immutable typed contexts (`FactorParameter` versus `DecisionParameter`). No production parameter namespace or file exists yet; a Factor calculator cannot read Decision thresholds, and a Decision policy cannot mutate Factor parameters. Generic FactorSnapshot, specialized P23-1/P26/P23-1F, DecisionResult, generic RiskDecision, Capital Allocation, Asset State, Target Position, standardized-state, Phase 5C link, specialized Phase 5D Decision and Phase 6A/6B/6C/6D Risk evidence persist through separate public Store Protocols and concrete infrastructure adapters. Central Schema v16 is additive. Phase 6A consumes only one explicit nonzero specialized intent and has no approval fields; Phase 6B consumes one exact Phase 6A manual-review result and explicit same-symbol cap version; Phase 6C consumes one exact positive Phase 6B result, one explicit same-symbol floor version and the exact Phase 5C hypothetical basis; Phase 6D additionally consumes one explicit plan/latest snapshot through public read-only queries. P23-1/P26/P23-1F have no financial consumer. All numerical candidates remain manual-review/block-only and have no downstream consumer. Persistence/query capability grants neither production activation nor execution authority.
+Factor and Decision parameters remain separate immutable typed contexts. Generic FactorSnapshot, specialized P23-1/P26/P23-1F, P23-2 observations, Decision/Risk, Capital, manual Asset State, Target and linked evidence persist through separate public Store Protocols/adapters. Central Schema v17 is additive. P23-2 consumes only exact public evidence through application orchestration and has no financial consumer. Persistence/query capability grants neither production activation nor execution authority.
 
 ## Testing Boundaries
 
@@ -1196,6 +1212,14 @@ Factor and Decision parameters are separate immutable typed contexts (`FactorPar
 104. Identical definition/source/IEEE evidence has one deterministic immutable result fingerprint and result ID, while each explicit request retains its own attempt and `VOLATILITY_PROFILE_RESEARCH` Run. Missing/incompatible/tampered sources fail closed and failure attempts remain durable.
 105. Schema v16 adds only five P23-1F definition/attempt/result/daily-input/window-summary tables, backfills no claim and preserves P26 numerical truth. Daily rows reference P26's composite point identity, source child Run and spectral attempt; write/reload validates copied fingerprints/status/IEEE evidence without recalculation.
 106. P23-1F remains `DISABLED`, `execution_allowed=false`, `live_allowed=false` and unconsumed. The existing Factor-page GUI may explicitly select/preflight/dispatch/query/chart/export/navigate typed evidence only; it contains no aggregation math, SQL, Provider access, reversal/state/target/Decision/Risk/cash/Backtesting/Accounting/Execution behavior and adds no Launcher entry.
+107. P23-2 definitions are immutable user-created versions with one explicit positive finite multiplier preserved as input text, float64 and IEEE hex. There is no default/active multiplier, profile, symbol, direction, seed or range.
+108. P23-2 uses the same multiplier in both directions and freezes `T=M*k` from one exact usable positive P27 v1.0.0 result. UP distance is `ln(H/P)`, DOWN distance is `ln(P/L)`, and equality is included.
+109. Day 1 freezes the origin/threshold. Only the next expected completed XNYS session can confirm/cancel. Confirmation keeps the old direction through day-2 close; activation occurs at the next expected session start. Source-end pending/confirmed states never invent a later session.
+110. Successful day-1/day-2 observations commit to the new research cycle from the prior reversal extreme. Cancellation discards only new-cycle attribution and may still update the old-cycle extreme. These events never become formal `AssetStateTransitionEvent` facts.
+111. P23-2 source time is `FORWARD_FROZEN_PROFILE`: seed equals the latest completed local close available when P27 was created; evaluated sessions/closes follow both seed and P27 creation. Missing expected Raw/Split/calendar/corporate-action evidence fails visibly; routine P28 preparation cannot fetch a Provider.
+112. Identical exact inputs reproduce one immutable calculation fingerprint/result while every explicit definition/preview request retains its own `REVERSAL_OBSERVATION_RESEARCH` Run and durable terminal attempt, including failure.
+113. Schema v17 adds exactly six normalized P23-2 tables, expands 104→110, performs zero backfill and cannot rewrite P27, Market Bars or manual Asset State rows. Recalculation replay reports divergence and never repairs history.
+114. P23-2 remains `DISABLED`, `execution_allowed=false`, `live_allowed=false`. Its existing Asset State subtab may dispatch typed background services and render/query/replay/compare/export only; no formal-state/Target/Decision/Risk/cash/Backtesting/Accounting/Execution consumer exists.
 
 Changing an invariant requires an impact proposal, explicit user approval, relevant ADR/docs/tests, and a rollback method.
 
