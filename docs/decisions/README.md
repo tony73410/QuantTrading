@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+- `ADR-0032-robust-daily-volatility-profile.md`: accepted the complete explicit P26/R1 v1.0.0 median-MAD daily profile, secondary-only spectral evidence, additive Schema v16 and disabled existing-Factor-page inspection with no threshold or trading consumer.
+
 - `ADR-0031-bounded-historical-spectral-research.md`: accepted one-symbol 2–250-session P26 evidence/study grids, definition-exact no-look-ahead cutoffs, parent/child Runs, additive Schema v15 and no predictive/trading authority.
 - `ADR-0030-manual-latest-session-spectral-preview.md`: accepted immutable R1 v1.0.0/v1.1.0 cutoffs and explicit P25 local/read-only latest-session preparation with no trading authority.
 - `ADR-0029-specialized-spectral-volatility-research.md`: accepted specialized disabled P23-1 Market History/Factor evidence, bounded NumPy and `exchange_calendars` dependencies, additive central Schema v14 and presentation-only inspection; no cycle/state/target/Decision/Risk/execution consumer exists.
@@ -39,6 +41,8 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 `Status`、`Context`、`Options considered`、`Decision`、`Rationale`、`Consequences`、`Reversal`。
 
 ## Index
+
+- [ADR-0032: Keep the First Daily Volatility Profile Robust, Complete and Non-Trading](ADR-0032-robust-daily-volatility-profile.md) — exact complete source membership, robust daily/profile medians, temporal MAD, explanatory asymmetric price fractions, Schema v16 and no automatic financial consumer.
 
 - [ADR-0031: Keep Historical Spectral Research Bounded, Retrospective and Non-Financial](ADR-0031-bounded-historical-spectral-research.md) — exact single-symbol date grids, definition-specific no-look-ahead cutoffs, parent/child Runs, Schema v15 and no scoring/trading authority.
 

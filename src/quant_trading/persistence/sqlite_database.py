@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 
 
 _SCHEMA_V1 = """
@@ -2791,6 +2791,171 @@ ON spectral_historical_study_points(child_run_id);
 """
 
 
+_SCHEMA_V16 = """
+CREATE TABLE daily_volatility_profile_definitions (
+    definition_id TEXT PRIMARY KEY,
+    component_id TEXT NOT NULL,
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    definition_version INTEGER NOT NULL CHECK (definition_version = 1),
+    status TEXT NOT NULL CHECK (status IN ('disabled', 'archived')),
+    source_component_id TEXT NOT NULL,
+    allowed_source_component_version TEXT NOT NULL CHECK (allowed_source_component_version = '1.0.0'),
+    required_windows_text TEXT NOT NULL CHECK (required_windows_text = '[60,120,250]'),
+    minimum_evaluation_sessions INTEGER NOT NULL CHECK (minimum_evaluation_sessions = 20),
+    maximum_evaluation_sessions INTEGER NOT NULL CHECK (maximum_evaluation_sessions = 250),
+    daily_aggregation TEXT NOT NULL,
+    history_aggregation TEXT NOT NULL,
+    dispersion_method TEXT NOT NULL,
+    price_band_method TEXT NOT NULL,
+    require_complete_source_grid INTEGER NOT NULL CHECK (require_complete_source_grid = 1),
+    spectral_role TEXT NOT NULL CHECK (spectral_role = 'secondary_only'),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1)
+);
+
+CREATE TABLE daily_volatility_profile_results (
+    result_id TEXT PRIMARY KEY,
+    calculation_fingerprint TEXT NOT NULL UNIQUE,
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL CHECK (definition_version = 1),
+    source_study_id TEXT NOT NULL,
+    source_parent_run_id TEXT NOT NULL,
+    source_definition_id TEXT NOT NULL,
+    source_definition_version INTEGER NOT NULL CHECK (source_definition_version = 1),
+    symbol TEXT NOT NULL,
+    evaluation_start_session TEXT NOT NULL,
+    evaluation_end_session TEXT NOT NULL,
+    evaluation_session_count INTEGER NOT NULL CHECK (evaluation_session_count BETWEEN 20 AND 250),
+    status TEXT NOT NULL CHECK (status IN ('valid', 'zero_profile_scale')),
+    usable_as_positive_scale INTEGER NOT NULL CHECK (usable_as_positive_scale IN (0, 1)),
+    profile_log_scale REAL NOT NULL, profile_log_scale_hex TEXT NOT NULL,
+    temporal_raw_mad REAL NOT NULL, temporal_raw_mad_hex TEXT NOT NULL,
+    temporal_standardized_mad REAL NOT NULL, temporal_standardized_mad_hex TEXT NOT NULL,
+    normalization_constant REAL NOT NULL, normalization_constant_hex TEXT NOT NULL,
+    minimum_daily_log_scale REAL NOT NULL, minimum_daily_log_scale_hex TEXT NOT NULL,
+    maximum_daily_log_scale REAL NOT NULL, maximum_daily_log_scale_hex TEXT NOT NULL,
+    upper_price_fraction REAL NOT NULL, upper_price_fraction_hex TEXT NOT NULL,
+    lower_price_fraction REAL NOT NULL, lower_price_fraction_hex TEXT NOT NULL,
+    formula_trace_text TEXT NOT NULL,
+    warnings_text TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (definition_id) REFERENCES daily_volatility_profile_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_study_id) REFERENCES spectral_historical_studies(study_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_parent_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_definition_id) REFERENCES spectral_volatility_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE daily_volatility_profile_daily_inputs (
+    result_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    evaluation_session TEXT NOT NULL,
+    source_study_id TEXT NOT NULL,
+    source_study_point_id TEXT NOT NULL,
+    source_evaluation_ordinal INTEGER NOT NULL CHECK (source_evaluation_ordinal >= 1),
+    source_definition_ordinal INTEGER NOT NULL CHECK (source_definition_ordinal IN (1, 2)),
+    source_child_run_id TEXT NOT NULL,
+    source_operation_id TEXT NOT NULL,
+    source_attempt_id TEXT NOT NULL,
+    source_evidence_bundle_id TEXT NOT NULL,
+    source_operation_fingerprint TEXT NOT NULL,
+    w60_status TEXT NOT NULL, w60_scale REAL NOT NULL, w60_scale_hex TEXT NOT NULL,
+    w120_status TEXT NOT NULL, w120_scale REAL NOT NULL, w120_scale_hex TEXT NOT NULL,
+    w250_status TEXT NOT NULL, w250_scale REAL NOT NULL, w250_scale_hex TEXT NOT NULL,
+    sorted_windows_text TEXT NOT NULL,
+    median_source_window INTEGER NOT NULL CHECK (median_source_window IN (60, 120, 250)),
+    daily_log_scale REAL NOT NULL,
+    daily_log_scale_hex TEXT NOT NULL,
+    spectral_evidence_label TEXT NOT NULL,
+    source_warnings_text TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (result_id, ordinal),
+    UNIQUE (result_id, evaluation_session),
+    FOREIGN KEY (result_id) REFERENCES daily_volatility_profile_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_study_id, source_evaluation_ordinal, source_definition_ordinal)
+        REFERENCES spectral_historical_study_points(study_id, evaluation_ordinal, definition_ordinal) ON DELETE RESTRICT,
+    FOREIGN KEY (source_child_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_attempt_id) REFERENCES spectral_volatility_operations(attempt_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE daily_volatility_profile_window_summaries (
+    result_id TEXT NOT NULL,
+    window_sessions INTEGER NOT NULL CHECK (window_sessions IN (60, 120, 250)),
+    member_count INTEGER NOT NULL CHECK (member_count BETWEEN 20 AND 250),
+    minimum_scale REAL NOT NULL, minimum_scale_hex TEXT NOT NULL,
+    median_scale REAL NOT NULL, median_scale_hex TEXT NOT NULL,
+    maximum_scale REAL NOT NULL, maximum_scale_hex TEXT NOT NULL,
+    minimum_candidate_period REAL, minimum_candidate_period_hex TEXT,
+    median_candidate_period REAL, median_candidate_period_hex TEXT,
+    maximum_candidate_period REAL, maximum_candidate_period_hex TEXT,
+    minimum_full_span REAL, minimum_full_span_hex TEXT,
+    median_full_span REAL, median_full_span_hex TEXT,
+    maximum_full_span REAL, maximum_full_span_hex TEXT,
+    dominance_counts_text TEXT NOT NULL,
+    method_counts_text TEXT NOT NULL,
+    cross_window_counts_text TEXT NOT NULL,
+    qualified_source_count INTEGER NOT NULL CHECK (qualified_source_count >= 0),
+    unqualified_source_count INTEGER NOT NULL CHECK (unqualified_source_count >= 0),
+    spectral_authority TEXT NOT NULL CHECK (spectral_authority = 'secondary_only'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    PRIMARY KEY (result_id, window_sessions),
+    FOREIGN KEY (result_id) REFERENCES daily_volatility_profile_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE daily_volatility_profile_operation_attempts (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    factor_stage_id TEXT NOT NULL UNIQUE,
+    command_fingerprint TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    requested_source_study_id TEXT NOT NULL,
+    requested_source_definition_id TEXT NOT NULL,
+    requested_source_definition_version INTEGER NOT NULL CHECK (requested_source_definition_version >= 1),
+    expected_symbol TEXT NOT NULL,
+    status TEXT NOT NULL,
+    result_id TEXT,
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    warnings_text TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (factor_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id) REFERENCES daily_volatility_profile_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (result_id) REFERENCES daily_volatility_profile_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_daily_volatility_profile_operations_lookup
+ON daily_volatility_profile_operation_attempts(expected_symbol, completed_at_utc, status);
+CREATE INDEX idx_daily_volatility_profile_results_source
+ON daily_volatility_profile_results(source_study_id, source_definition_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -2807,6 +2972,7 @@ _MIGRATIONS = {
     13: ("research capital-plan asset-cash order-3 Risk preview evidence", _SCHEMA_V13),
     14: ("P23-1 spectral-volatility research evidence", _SCHEMA_V14),
     15: ("P23-1E-B bounded historical spectral research studies", _SCHEMA_V15),
+    16: ("P23-1F per-stock daily-volatility research profiles", _SCHEMA_V16),
 }
 
 

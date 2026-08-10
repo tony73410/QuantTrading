@@ -330,6 +330,14 @@ class SpectralHistoricalResearchPanel(QWidget):
         if not self._studies:
             self._show(None)
 
+    def select_study(self, study_id: UUID) -> None:
+        """Select one exact source study when another inspector links to it."""
+        self.reload()
+        for row, study in enumerate(self._studies):
+            if study.study_id == study_id:
+                self.studies.selectRow(row)
+                return
+
     def _study_selected(self) -> None:
         row = self.studies.currentRow()
         if row < 0:

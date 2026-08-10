@@ -296,12 +296,12 @@ def test_v11_to_current_migration_backs_up_preserves_and_has_zero_backfill(tmp_p
     CentralSQLiteDatabase(path, backup_directory=backups).initialize()
 
     backup = next(backups.glob("*.sqlite3"))
-    assert ".schema-v11-to-v15." in backup.name
+    assert ".schema-v11-to-v16." in backup.name
     with sqlite3.connect(backup) as connection:
         assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 11
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 15
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 16
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "research_asset_cash_floor_definitions",

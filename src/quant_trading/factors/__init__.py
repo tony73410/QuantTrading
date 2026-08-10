@@ -110,6 +110,18 @@ from .spectral_history_interfaces import (
     SpectralHistoricalStudyStore,
 )
 from .spectral_history_models import *
+from .daily_volatility_profile_engine import (
+    DailyVolatilityProfileEngine,
+    DailyVolatilityProfileValidationError,
+)
+from .daily_volatility_profile_interfaces import (
+    DailyVolatilityProfileQueryService,
+    DailyVolatilityProfileRunner,
+    DailyVolatilityProfileStore,
+    EmptyDailyVolatilityProfileQueryService,
+)
+from .daily_volatility_profile_models import *
+from .daily_volatility_profile_service import DailyVolatilityProfileService
 
 __all__ += [
     "EmptySpectralVolatilityQueryService", "SpectralOperationQuery",
@@ -117,11 +129,21 @@ __all__ += [
     "SpectralVolatilityService", "SpectralVolatilityStore",
     "EmptySpectralHistoricalStudyQueryService",
     "SpectralHistoricalStudyQueryService", "SpectralHistoricalStudyStore",
+    "DailyVolatilityProfileEngine",
+    "DailyVolatilityProfileQueryService",
+    "DailyVolatilityProfileRunner",
+    "DailyVolatilityProfileService",
+    "DailyVolatilityProfileStore",
+    "DailyVolatilityProfileValidationError",
+    "EmptyDailyVolatilityProfileQueryService",
 ]
 __all__ += [
     name
     for name in globals()
     if name.startswith("Spectral")
+    or name.startswith("DailyVolatility")
+    or name.startswith("Profile")
+    or name.startswith("DAILY_VOLATILITY_PROFILE")
     or name.startswith("CrossWindow")
     or name in {
         "APPROVED_WINDOWS", "DominanceClass", "FloatEvidence",

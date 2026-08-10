@@ -63,6 +63,11 @@ from quant_trading.factors.interfaces import (
 from quant_trading.factors.spectral_interfaces import SpectralVolatilityQueryService
 from quant_trading.factors.spectral_history_interfaces import SpectralHistoricalStudyQueryService
 from quant_trading.factors.spectral_models import SpectralVolatilityDefinition
+from quant_trading.factors.daily_volatility_profile_interfaces import (
+    DailyVolatilityProfileQueryService,
+    DailyVolatilityProfileRunner,
+)
+from quant_trading.factors.daily_volatility_profile_models import DailyVolatilityProfileDefinition
 from quant_trading.orchestration import ManualSpectralPreviewRunner, SpectralHistoricalStudyRunner
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
 from quant_trading.decision import TargetAdjustmentDecisionQueryService
@@ -178,6 +183,9 @@ class AlgorithmControlPanel(QMainWindow):
         spectral_historical_evidence_queries=None,
         spectral_historical_research: SpectralHistoricalStudyRunner | None = None,
         spectral_historical_definitions: tuple[SpectralVolatilityDefinition, ...] = (),
+        daily_volatility_profile_queries: DailyVolatilityProfileQueryService | None = None,
+        daily_volatility_profile_runner: DailyVolatilityProfileRunner | None = None,
+        daily_volatility_profile_definition: DailyVolatilityProfileDefinition | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -201,6 +209,9 @@ class AlgorithmControlPanel(QMainWindow):
             spectral_historical_evidence_queries=spectral_historical_evidence_queries,
             spectral_historical_research=spectral_historical_research,
             spectral_historical_definitions=spectral_historical_definitions,
+            daily_volatility_profile_queries=daily_volatility_profile_queries,
+            daily_volatility_profile_runner=daily_volatility_profile_runner,
+            daily_volatility_profile_definition=daily_volatility_profile_definition,
             spectral_session_id=(
                 standardized_state_session_id
                 or target_position_session_id

@@ -5752,3 +5752,221 @@ The user explicitly requested commit and push of the completed PROPOSAL-026 work
 Intent alignment: publishes exactly the already approved and verified P26 implementation. Architecture alignment: no runtime boundary changed. Safety alignment: all definitions remain disabled/unconsumed and execution remains absent. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: metadata/version only; Stable Core is unchanged. Remaining drift risk: retrospective descriptive evidence must not be interpreted as predictive/trading evidence without a separately approved consumer.
 
 No new Bug was discovered; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged. Rollback is a normal revert of the checkpoint commit; database downgrade is not performed by Git revert. Commit message: `feat: add bounded historical spectral research`.
+
+## EDIT-20260806-002 — Execute the separately approved AAPL P26 read-only validation
+
+### Date
+
+2026-08-06 11:56:41 -07:00
+
+### Request, mode and permission boundary
+
+The user explicitly approved exactly one PROPOSAL-026 AAPL read-only validation: completed XNYS sessions 2026-07-09 through 2026-08-05, immutable R1 v1.0.0 and v1.1.0, 20×2=40 child calculations. Task mode: `STANDARD`. Primary module: `orchestration`; secondary owners: `market_history`, `factors`, `persistence` and `run_history`. No formula, schema, source code, GUI, configuration, activation or trading authority changed.
+
+The validation used the formal Market-History-only composition with `FETCH_AND_FREEZE_READ_ONLY`. It constructed `AlpacaHistoricalMarketDataProvider` and `AlpacaCorporateActionProvider` only. No Trading client, account, buying-power, position, order or fill interface was constructed or called. Credentials were checked only as present/absent and were never printed or persisted.
+
+### Durable outcome
+
+- Study: `3411fd6d-ee64-5e44-bd26-3f25068dce52`
+- Parent Run: `0251b8ee-a6c2-4496-bc73-f3e19aa1f23b`
+- Evidence set: `db5827a9-b54d-4717-a654-54801ef4ace0`
+- Source: AAPL, IEX Daily Raw/Split plus Corporate Actions, `RETROSPECTIVE_ADJUSTED`, 270 exact observations from 2025-07-10 through 2026-08-05 and four supported cash-dividend events.
+- Grid: 20 evaluation sessions, two exact locked definitions and 40 child `FACTOR_PREVIEW` Runs. Parent, study and all 40 children are `completed_with_warnings`; `execution_allowed=false` and `live_allowed=false`.
+- Fresh-process reload reproduced the exact study, all child identities and parent status. All 20 v1.0.0 children ended before the evaluation session; all 20 v1.1.0 children ended on it.
+- Active Schema v15/99 remains `integrity_check=ok` with zero foreign-key violations. P26 tables now contain one evidence set, 270 observations, one study, two definition selections and 40 points. Total P23-1 operations are 41 including the earlier P25 operation. No migration or backfill occurred.
+
+### Descriptive evidence
+
+- Every 60/120/250 window was valid and every peak-dominance class was `strong`, but every cross-window result was `insufficient_qualified_windows`. Strong single-window evidence therefore did not become a stable cross-window cycle.
+- R1 v1.0.0 and v1.1.0 produced identical 120-session candidates of 40 sessions and identical 250-session candidates of approximately 83.33 sessions on all 20 paired dates. The 60-session candidate was 12–20 sessions and matched exactly on 18 of 20 paired dates.
+- Median center-relative full-span evidence across 60/120/250 windows was approximately 7.87%/9.81%/12.67% for v1.0.0 and 7.87%/9.84%/12.81% for v1.1.0. These are exact stored spectral amplitude representations—not daily volatility percentages, a selected normal range, reversal thresholds or position parameters.
+- All children retained `RETROSPECTIVE_ADJUSTED` and dividend-unadjusted warnings. Method comparison disagreed for 32 of 40 W60 results, 27 of 40 W120 results and all 40 W250 results. No future return, P&L, score, ranking or winner was calculated.
+
+### Validation and bug audit
+
+The initial one-time validation wrapper used `point.run_id` instead of the public `point.child_run_id` only in its final post-save assertion. The formal P26 study and all 40 operations had already completed and persisted successfully. The wrapper was corrected, then a new process reloaded and verified every result without another network request. This was not a repository/product defect and the temporary scripts were deleted; no Bug ID or Known Issue was added.
+
+Targeted P26 plus architecture/governance verification passed **102 tests** after documentation synchronization. The first combined run passed 101 tests and exposed only one stale governance assertion that still required the now-false phrase “no new Alpaca request”; the assertion was updated to require the true Market-Data-only/no-Trading boundary and the complete targeted set passed. `git diff --check` passed. Runtime database and evidence remain Git-ignored. Updated files: Compass v70, Project State, PROPOSAL-026/index, ADR-0031, CHANGELOG, `tests/architecture/test_governance_document_integrity.py` and this append-only record.
+
+### Change Impact Report and Compass audit
+
+Runtime side effect is limited to the explicitly approved immutable Market Data evidence, parent/child Runs and Factor operations in the ignored central database. Public contracts, configuration and tracked schema are unchanged. Trading semantics remain unchanged and disabled. Rollback does not delete audit history; the validation can simply remain unconsumed. Physical deletion or result rewriting is not authorized.
+
+Intent alignment: validates the exact evidence-first slice before designing a per-stock volatility profile. Architecture alignment: Provider, Factor, Orchestration, Persistence and Run owners remained separate. Safety alignment: access was read-only Market Data, retrospective labeling remained visible and execution flags stayed false. Unapproved behavior added: none. Assumptions introduced: none—the result is reported as descriptive evidence only. Compass sections updated: metadata/version, DEC-013 evidence, ASM-056, INTENT-036, limitations and next direction; Stable Core unchanged. Remaining drift risk: the strong individual-window peaks or amplitude values could be mistaken for an approved volatility range or trading signal despite absent cross-window consensus; P27 must interpret them only through a separately approved formula.
+
+## EDIT-20260806-003 — Create PROPOSAL-027 for the per-stock daily volatility profile
+
+### Authorization and task mode
+
+The user requested continued development after the separately approved AAPL P26 validation. No new formula, schema or runtime slice was approved, so the task used **STANDARD proposal-only mode**: inspect the verified P23/P26 overlap, design the smallest next candidate, record it durably and stop before implementation.
+
+Primary future owner is `quant_trading.factors`; proposal-time changes are limited to governance/project records and one governance regression test. Expected future implementation owners are Factors, Persistence, Run History and the existing Algorithm Control Factor page. No Market Data, database, runtime algorithm, GUI behavior, State, Target, Decision, Risk, Capital, Accounting, Backtesting, Paper, Live or order path was modified.
+
+### Pre-Implementation Compass Audit and existing-work reminder
+
+The user's real goal is a separate, versioned normal-movement scale for each stock before deciding what counts as a reversal. Stable Core requires exact versions, structured evidence, independent domain ownership, disabled-by-default behavior and no silent financial assumptions. P23-1 R1/P25/P26 already own and preserve 60/120/250-session MAD/spectral evidence; Phase 5B already accepts only a manual positive scale; P23-2+ state/trading behavior remains unapproved.
+
+The approved AAPL P26 study shows why direct spectral reuse would be unsafe: every single window was valid/strong, but all 40 cross-window results were insufficient and method disagreement was frequent. The new proposal therefore reuses P26 rather than creating a second spectral engine, recommends trend-only standardized MAD as the controlling daily-scale source and leaves spectral period/amplitude as secondary evidence. This is a new estimator with financial downstream implications, so formula/contracts/Schema v16/GUI/implementation remain at `PROPOSED` pending explicit approval.
+
+### Proposal outcome
+
+Created `PROPOSAL-027` as the proposed P23-1F slice with the recommended exact package:
+
+- one explicit immutable P26 study, whole 20–250-session range and exact R1 v1.0.0 prior-session points;
+- strict complete-grid admission with no hidden coverage tolerance or date cherry-picking;
+- per date, median of the 60/120/250 trend-standardized MAD values;
+- per stock, median across those daily scales plus raw and `1.4826` standardized temporal MAD;
+- exact `exp(k)-1` / `1-exp(-k)` one-scale price-band explanation;
+- zero preserved as `ZERO_PROFILE_SCALE` with no floor and no positive-scale consumer authority;
+- overlapping observations explicitly not treated as independent confidence evidence;
+- spectral period/amplitude/status summaries retained as secondary-only evidence and never blended into v1;
+- proposed locked disabled Factor component, `VOLATILITY_PROFILE_RESEARCH` Run, five additive Schema-v16 tables and an existing-Factor-page subtab; and
+- no reversal multiplier, State, Target, Decision, Risk, cash, Backtesting, Accounting, Paper, Live, order or activation behavior.
+
+Updated Compass to v71 with open DEC-014 and proposed INTENT-037. Updated the proposal index, Roadmap and Project State so current approved capability and unapproved next work are distinct.
+
+### Bug discovery and fix
+
+Discovered `BUG-20260806-001`: the Roadmap still claimed the separately approved AAPL P26 validation had not executed, contradicting the completed study and other authoritative records. Logged and corrected both stale Roadmap statements, then added a governance regression test that requires the completed P26 truth and proposed P27 status. The issue is fixed locally and is not a current Known Issue.
+
+### Validation
+
+- `tests/architecture/test_governance_document_integrity.py`: **8 passed**.
+- Complete `tests/architecture`: **89 passed**.
+- `git diff --check`: passed before the final append; only existing LF→CRLF worktree warnings were emitted.
+- No network request, SQLite migration/query/write, source-code algorithm calculation or external service occurred.
+
+### Changed files
+
+- `docs/proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md`
+- `docs/proposals/README.md`
+- `PROJECT_COMPASS.md`
+- `docs/project/ROADMAP.md`
+- `docs/project/PROJECT_STATE.md`
+- `logs/BUG_LOG.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/EDIT_LOG.md`
+
+### Change Impact Report
+
+Proposal-only blast radius is `LIMITED`: documentation plus governance regression evidence. Public contracts, configuration, runtime database, GUI and trading semantics are unchanged. The proposed future implementation would be `MULTI_MODULE` and additive: Factors primary; Persistence/Run History/Algorithm Control secondary; new typed contracts/Run type; central SQLite v15→v16/five tables/zero backfill; existing Factor-page subtab; no external service or execution permission. Rollback before approval removes only P27 proposal references while retaining the corrected P26 validation truth and append-only records.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: advances the user-approved per-stock volatility goal by selecting a reviewable next candidate without pretending its financial meaning is approved.
+- Architecture alignment: extends the existing Factor/P26 evidence owner and proposes only public query/Store/Run/GUI boundaries; no duplicate engine or GUI calculation path.
+- Safety alignment: proposal remains `RESEARCH_ONLY / NO_EXECUTION`, with no network, account, cash, Risk approval or order authority.
+- Unapproved behavior added: none; no runtime implementation exists.
+- Assumptions introduced: none as project behavior. The 20–250 complete-study rule, R1 v1.0.0 authority and median/MAD formula are visibly recommendations under DEC-014, not decisions.
+- Compass sections updated: metadata/version, DEC-014, INTENT-037, current limitation and next direction; Stable Core unchanged.
+- Remaining drift risk: users or future code may mistake the explanatory one-scale price band for a reversal threshold, or blend unqualified spectral amplitudes into the scale. The proposal makes both prohibited until a separately approved version/state policy exists.
+
+### Suggested commit message
+
+`docs: propose per-stock daily volatility profile`
+
+## EDIT-20260806-004 — Implement approved PROPOSAL-027 P23-1F daily volatility profiles
+
+### Date, authorization and mode
+
+2026-08-06 13:31:13 -07:00
+
+The user explicitly approved `PROPOSAL-027`. Task mode: **DEEP** because the approved slice adds a versioned public Factor contract, a new Run type, central SQLite v15→v16 migration and an existing-GUI subtab. Primary owner: `quant_trading.factors`. Secondary owners: `persistence`, `run_history` and `algorithm_control`. Blast radius: `MULTI_MODULE`, additive and disabled. No new top-level module or launcher entry was added.
+
+The approved scope is exactly one per-stock daily normal-movement profile over one explicitly selected complete P26 study and exact prior-session R1 v1.0.0 evidence. It excludes a reversal multiplier, cycle/State transition, target position, Decision, numerical or complete Risk, cash allocation, Backtesting, Portfolio Accounting persistence, Paper, Live, order construction, submission and activation.
+
+### Pre-Implementation Compass and architecture audit
+
+The real goal is to turn already versioned P26 trend-MAD evidence into a robust, auditable daily scale before any later trading interpretation is chosen. Stable Core requires exact version/source lineage, immutable history, GUI/business separation, disabled defaults and no execution authority. P26 already owns the source study; P27 therefore consumes its public query contracts and never recomputes P23-1 evidence. Factors owns the estimator, Persistence owns storage/migration, Run History owns neutral lineage and Algorithm Control owns presentation only. The implementation introduces no financial consumer, broker dependency, external service or circular dependency.
+
+### Implemented result
+
+- Added locked component `factor.daily_volatility_profile.p23_1f.v1@1.0.0`, always `DISABLED`, `execution_allowed=false`, `live_allowed=false`.
+- The pure engine requires one explicit whole P26 study with 20–250 chronological sessions and exact R1 v1.0.0. Missing, reordered, invalid, incompatible or identity-mismatched evidence fails closed and the failure is durable.
+- For each session the engine selects the median of exact W60/W120/W250 `trend_standardized_mad`; across sessions it stores the median profile, raw temporal MAD, `1.4826` view, minimum/maximum trace and exact `exp(k)-1` / `1-exp(-k)` explanatory price fractions. Zero remains `ZERO_PROFILE_SCALE`, has no floor and is unusable as a positive scale.
+- Deterministic fingerprints bind the locked definition, exact P26 study/definition/ordered points, source-operation fingerprints and the copied primary plus secondary IEEE/status evidence. Identical calculation input reuses one immutable result ID while each request receives its own attempt and Run.
+- Secondary spectral period/amplitude/dominance/method/cross-window summaries are preserved separately and labelled `secondary_only`; they never enter the controlling scale. GUI and JSON export now expose these summaries separately from the daily MAD trace.
+- Added `VOLATILITY_PROFILE_RESEARCH` with Factor stage, profile artifact, P26-parent and all source-child Run relationships. Run History can traverse profile→parent/children and the reverse links.
+- Central SQLite Schema v16 adds exactly five normalized tables for definitions, attempts, results, daily inputs and per-window summaries. The store validates P26 composite point identity, operation identity/fingerprint, source status and copied IEEE evidence on write/reload. Failed requests can persist without inventing a source row.
+- The existing P23-1 Factor page now contains a P23-1F subtab with explicit Study selection, typed preflight, background dispatch, filters/history, controlling daily trace, visually separated secondary summaries, chart, CSV/JSON and Open Profile/Study/parent/child Run navigation. It performs no formula, SQL, Provider, Risk or trading work and never auto-selects the newest Study.
+
+### Migration and approved local validation
+
+The ignored active database migrated transactionally from v15/99 to v16/104 after creating verified backup `runtime/data/backups/market_history.schema-v15-to-v16.20260806T195928594023Z.sqlite3`. The backup remains v15/99 and reports `integrity_check=ok`; the active database reports v16/104, `integrity_check=ok`, zero foreign-key violations and zero profile backfill before validation.
+
+The approved local-only AAPL validation reused persisted P26 study `3411fd6d-ee64-5e44-bd26-3f25068dce52` and its exact 20 R1 v1.0.0 points without a network request. It produced attempt `734e1594-d103-4c0f-9abf-23994f0cc78f`, operation `8e23b19e-6668-4ab5-bef0-4fe14c812655`, Run `2cdd69d9-5960-4e0a-aa6c-c85a9354a302` and immutable result `6ae54c4a-8d3b-5ae1-8c82-4bb2fb5bbef5`. The stored profile is `0.013404769735102143` (`0x1.b73f5bcfb3ca8p-7`), raw/standardized temporal MAD are `0.0006582929071737818` / `0.0009759850641758488`, and explanatory upper/lower one-scale fractions are `0.01349501645557695` / `0.01331532591326605`. Fresh-process reload reproduced all 20 daily inputs, three window summaries, the exact float evidence, one P26 parent relationship and 20 source-child relationships. Final v16 counts are 1 definition, 1 attempt, 1 result, 20 daily inputs and 3 summaries.
+
+No Alpaca/Trading client, account, buying power, position, order or fill access occurred. This result is a descriptive daily scale, not a reversal threshold, forecast, trade range, target, Risk limit or cash recommendation.
+
+### Validation
+
+- Exhaustive grouped pytest coverage: **565 passed** total — architecture 90, primary Factor/Algorithm Control/Market/Launcher unit group 288, remaining domain unit group 171, root unit tests 10 and integration 6.
+- Focused P27/governance/Run-boundary suite: **23 passed**.
+- Python `compileall`: passed.
+- `pip check`: no broken requirements.
+- Active v16 and backup v15 `integrity_check`: `ok`; active foreign-key check: zero rows.
+- `git diff --check`: passed; only existing Windows LF→CRLF worktree notices were emitted.
+- Secret-pattern scan: no credential/private-key matches.
+- Consumer scan: no P27 import/reference in Decision, Risk, Capital Allocation, Asset State, Backtesting, Portfolio Accounting or Execution.
+- One single-command full run reached 89% before the 300-second tool limit and exposed the architecture allowlist omission described below; after repair, exhaustive non-overlapping grouped runs covered all 565 collected tests successfully.
+
+### Bug discovery audit
+
+- `BUG-20260806-002`: **Fixed**. The proposal's nonexistent `docs/persistence/SCHEMA.md` target was replaced with the canonical `docs/modules/central-persistence.md`, and governance tests prevent recurrence.
+- `BUG-20260806-003`: **Fixed**. The general Algorithm Control public-Factor allowlist initially omitted the new P27 models/interfaces/service. The allowlist now admits only those public modules while still rejecting the engine and SQLite adapter; the full architecture and exhaustive suites pass.
+- No unresolved new Bug or current Known Issue remains from this task.
+
+### Changed files
+
+- Contracts/engine/service: `src/quant_trading/factors/daily_volatility_profile_models.py`, `daily_volatility_profile_engine.py`, `daily_volatility_profile_interfaces.py`, `daily_volatility_profile_service.py`, `src/quant_trading/factors/__init__.py`.
+- Persistence/Run: `src/quant_trading/persistence/daily_volatility_profile_sqlite_store.py`, `sqlite_database.py`, `run_sqlite_store.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/run_history/models.py`.
+- GUI/presentation: `src/quant_trading/algorithm_control/daily_volatility_profile_chart.py`, `daily_volatility_profile_export.py`, `app.py`, `ui/daily_volatility_profile_panel.py`, `ui/factor_authoring_panel.py`, `ui/main_panel.py`, `ui/spectral_history_panel.py`.
+- New/updated tests: `tests/unit/factors/test_daily_volatility_profile.py`, `tests/unit/algorithm_control/test_daily_volatility_profile_panel.py`, `tests/architecture/test_dependency_boundaries.py`, `test_governance_document_integrity.py`, `test_run_history_boundaries.py`, and central-schema expectation updates in the existing Asset State, Capital, Decision, spectral/standardized Factor, Risk, Run History and Target Position repository tests.
+- Governance/docs: `docs/proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md`, `docs/proposals/PROPOSAL-026-single-symbol-historical-spectral-research.md`, `docs/proposals/README.md`, `docs/decisions/ADR-0032-robust-daily-volatility-profile.md`, `docs/decisions/ADR-0031-bounded-historical-spectral-research.md`, `docs/decisions/README.md`, `docs/architecture/OVERVIEW.md`, `docs/architecture/MODULE_MAP.md`, `docs/modules/factors.md`, `central-persistence.md`, `run-history.md`, `algorithm-control-gui.md`, `docs/INDEX.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `PROJECT_COMPASS.md`, `CHANGELOG.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+
+### Change Impact Report and rollback
+
+Primary module: Factors. Secondary modules: Persistence, Run History and Algorithm Control. Public contracts and Run type are additive. Configuration and launcher are unchanged. Database impact is the approved additive v16 migration with zero backfill before the validation. GUI impact is confined to an existing Factor-page subtab. Trading semantics and safety authority are unchanged; no consumer or execution permission exists.
+
+Runtime rollback: unregister/hide the disabled P23-1F composition and retain immutable v16 evidence. Database rollback requires stopping writers, preserving the v16 database and restoring the verified v15 backup with matching v15 code; a Git revert alone is not a database downgrade. The AAPL audit result must not be silently deleted or rewritten.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: implements exactly the approved robust per-stock daily profile and preserves every intermediate/source identity.
+- Architecture alignment: Factors owns math; Persistence owns storage; Run History owns neutral lineage; GUI only dispatches and displays public contracts. No new top-level module, cycle or authority bypass exists.
+- Safety alignment: the component remains locked, disabled and unconsumed; no network, broker/account, Risk approval, order or execution path was added.
+- Unapproved behavior added: none. No reversal multiplier, state transition, target, Decision, Risk, cash or trading behavior was inferred.
+- Assumptions introduced: none as financial behavior. P26's composite point key is represented by a deterministic display/export UUID while the actual composite foreign key remains authoritative.
+- Compass sections updated: v72 metadata, current capability/module inventory, resolved DEC-014, INTENT-037, evidence, limitations and next direction. Stable Core is unchanged.
+- Remaining drift risk: a future consumer could mislabel the descriptive 1.34% AAPL scale or secondary Fourier amplitude as an approved reversal/trading boundary. Such consumption remains forbidden without a new proposal and user approval.
+
+No commit or push was requested or performed. Suggested commit message: `feat: add robust daily volatility profiles`.
+
+## EDIT-20260810-001 — Record and publish the PROPOSAL-027 Git checkpoint
+
+### Date, request and scope
+
+2026-08-10 11:01:14 -07:00
+
+The user explicitly requested commit and push of the completed PROPOSAL-027 work. Task mode: `STANDARD` publication/checkpoint work. Primary scope: Git and version governance. No algorithm formula, public runtime behavior, configuration, database schema/data, GUI behavior, external access or trading permission changed in this publication step.
+
+### Version record
+
+- Added `CHECKPOINT-20260810-005` to `docs/project/VERSION_HISTORY.md`.
+- Branch: `main`; previous published commit: `1e0d12f`; remote: `origin/main` at `https://github.com/tony73410/QuantTrading.git`.
+- Package version remains `0.1.0`; no unapproved semantic-version change was made.
+- Recorded P23-1F, Schema v16/104, Compass v73, architecture v35, exact AAPL result evidence, disabled/unconsumed status, test evidence, exclusions and rollback procedure.
+- Updated Project State and Compass verification metadata to identify the Git commit containing this checkpoint as the current P27 publication.
+
+### Pre-publish evidence and safety
+
+- The completed implementation's exhaustive verification covered all **565 tests**; focused P27/governance/Run-boundary tests, compileall, pip check, database integrity/FK checks, secret scan and consumer-boundary scan passed.
+- This publication task reruns governance/dependency/Run-boundary checks and staged-file/diff/secret checks immediately before commit.
+- Runtime database, backups, credentials and logs remain ignored and will not be staged.
+- P23-1/P23-1F remain disabled and unconsumed. No Trading client, account, position, order, fill, Paper/Live behavior or automatic submission is introduced.
+
+### Compass and bug audits
+
+Intent alignment: publishes exactly the already approved and verified P27 implementation. Architecture alignment: no runtime boundary changes in the publication step. Safety alignment: descriptive research remains disabled/unconsumed and execution absent. Unapproved behavior added: none. Assumptions introduced: none. Compass sections updated: metadata/version and published-checkpoint evidence only; Stable Core is unchanged. Remaining drift risk: future work must not treat the daily scale or secondary spectral evidence as a reversal/trading rule without separate approval.
+
+No new Bug was discovered. Rollback is a normal revert of the checkpoint commit; a source revert alone does not downgrade the ignored v16 database. Commit message: `feat: add robust daily volatility profiles`. The commit and push occur after this append-only record; Git history and the final user report preserve their exact outcome.

@@ -31,6 +31,11 @@ from quant_trading.factors.interfaces import (
 from quant_trading.factors.spectral_interfaces import SpectralVolatilityQueryService
 from quant_trading.factors.spectral_history_interfaces import SpectralHistoricalStudyQueryService
 from quant_trading.factors.spectral_models import SpectralVolatilityDefinition
+from quant_trading.factors.daily_volatility_profile_interfaces import (
+    DailyVolatilityProfileQueryService,
+    DailyVolatilityProfileRunner,
+)
+from quant_trading.factors.daily_volatility_profile_models import DailyVolatilityProfileDefinition
 from quant_trading.orchestration import ManualSpectralPreviewRunner, SpectralHistoricalStudyRunner
 
 from ..factor_history_export import FactorHistoryExportService
@@ -43,6 +48,7 @@ from .factor_workbench_panel import FactorWorkbenchPanel
 from .factor_history_panel import FactorHistoryPanel
 from .spectral_volatility_panel import SpectralVolatilityPanel
 from .spectral_history_panel import SpectralHistoricalResearchPanel
+from .daily_volatility_profile_panel import DailyVolatilityProfilePanel
 
 
 class FactorAuthoringPanel(QWidget):
@@ -276,6 +282,9 @@ class FactorManagementPanel(QWidget):
         spectral_historical_evidence_queries=None,
         spectral_historical_research: SpectralHistoricalStudyRunner | None = None,
         spectral_historical_definitions: tuple[SpectralVolatilityDefinition, ...] = (),
+        daily_volatility_profile_queries: DailyVolatilityProfileQueryService | None = None,
+        daily_volatility_profile_runner: DailyVolatilityProfileRunner | None = None,
+        daily_volatility_profile_definition: DailyVolatilityProfileDefinition | None = None,
     ) -> None:
         super().__init__(parent)
         from PySide6.QtWidgets import QTabWidget
@@ -303,16 +312,33 @@ class FactorManagementPanel(QWidget):
             evidence_queries=spectral_historical_evidence_queries,
             session_id=spectral_session_id or "algorithm-control",
         )
+        self.daily_volatility_profile = (
+            DailyVolatilityProfilePanel(
+                daily_volatility_profile_queries,
+                runner=daily_volatility_profile_runner,
+                definition=daily_volatility_profile_definition,
+                study_queries=spectral_historical_queries,
+                spectral_queries=spectral_queries,
+                session_id=spectral_session_id or "algorithm-control",
+            )
+            if daily_volatility_profile_definition is not None
+            and spectral_historical_queries is not None
+            and spectral_queries is not None
+            else None
+        )
         # Preserve the existing panel inspection surface used by smoke tests and
         # simple UI diagnostics while the Factor page gains a second tab.
         self.list = self.components.list
         tabs = QTabWidget()
+        self.tabs = tabs
         tabs.addTab(self.authoring, "创建/修改Factor")
         tabs.addTab(self.workbench, "本地验证与证据")
         tabs.addTab(self.history, "历史与比较")
         tabs.addTab(self.components, "版本配置与预览")
         tabs.insertTab(tabs.count() - 1, self.spectral, "P23-1 波动研究")
         tabs.insertTab(tabs.count() - 1, self.spectral_history, "P23-1 历史研究")
+        if self.daily_volatility_profile is not None:
+            tabs.insertTab(tabs.count() - 1, self.daily_volatility_profile, "P23-1F 波动档案")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
         self.authoring.state_changed.connect(self.state_changed)
@@ -321,6 +347,15 @@ class FactorManagementPanel(QWidget):
         self.history.open_run_requested.connect(self.open_run_requested)
         self.spectral.open_run_requested.connect(self.open_run_requested)
         self.spectral_history.open_run_requested.connect(self.open_run_requested)
+        if self.daily_volatility_profile is not None:
+            self.daily_volatility_profile.open_run_requested.connect(self.open_run_requested)
+            self.daily_volatility_profile.open_source_study_requested.connect(
+                self._open_source_study
+            )
+
+    def _open_source_study(self, study_id: UUID) -> None:
+        self.spectral_history.select_study(study_id)
+        self.tabs.setCurrentWidget(self.spectral_history)
 
     def reload(self) -> None:
         self.authoring.reload()
@@ -329,3 +364,6 @@ class FactorManagementPanel(QWidget):
         self.history.reload()
         self.spectral.reload()
         self.spectral_history.reload()
+        if self.daily_volatility_profile is not None:
+            self.daily_volatility_profile.reload_sources()
+            self.daily_volatility_profile.reload()

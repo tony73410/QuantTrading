@@ -119,6 +119,7 @@ Algorithm Control contains a read-only `Run History` page and the Main Launcher 
 - Target-adjustment attempts/results, exact current/target/signed/absolute USD evidence, specialized non-Risk intent cardinality and clickable Decision/Phase5C/Target/source Run relationships.
 - Specialized target-adjustment Risk attempts/reviews, immutable safety snapshot, absent approval fields, ordered locked rules and clickable Risk/Decision/Phase5C/Target/source Run relationships.
 - P23-1 operation provenance, status/warnings and exact 60/120/250 window artifacts.
+- P23-1F profile attempts/results, complete daily MAD trace, exact P26 parent plus every source child Run, definition/study fingerprints, warnings and durable failures under `VOLATILITY_PROFILE_RESEARCH`.
 
 Completed previews automatically open their Run detail. GUI code consumes only `RunHistoryQueryService` and contains no SQL or business calculation.
 

@@ -321,10 +321,13 @@ def test_algorithm_control_uses_only_public_factor_authoring_contracts() -> None
         "quant_trading.factors.standardized_state_service",
         "quant_trading.factors.spectral_interfaces",
         "quant_trading.factors.spectral_models",
-            "quant_trading.factors.spectral_service",
-            "quant_trading.factors.spectral_history_interfaces",
-            "quant_trading.factors.spectral_history_models",
-        }
+        "quant_trading.factors.spectral_service",
+        "quant_trading.factors.spectral_history_interfaces",
+        "quant_trading.factors.spectral_history_models",
+        "quant_trading.factors.daily_volatility_profile_interfaces",
+        "quant_trading.factors.daily_volatility_profile_models",
+        "quant_trading.factors.daily_volatility_profile_service",
+    }
     violations = [
         f"{module} imports non-contract Factor module {target}"
         for module, targets in _production_imports().items()

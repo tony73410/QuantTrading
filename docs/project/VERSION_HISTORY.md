@@ -252,3 +252,49 @@ No further algorithm slice is approved by this checkpoint. A real P26 read-only 
 ### Rollback
 
 Use a normal Git revert of the checkpoint commit; do not rewrite history. Feature rollback may disable P26 composition and hide its Factor-page controls while retaining immutable v15 evidence readable. A physical downgrade requires stopping writers, preserving the v15 database and restoring the verified v14 backup with matching v14 code. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260810-005
+
+### Identity
+
+- Recorded at: 2026-08-10T18:01:14Z
+- Branch: `main`
+- Previous commit: `1e0d12f`
+- Checkpoint commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v16, 104 logical tables
+- Governance versions: PROJECT_COMPASS v73; canonical architecture v35
+- Purpose: publish approved PROPOSAL-027 P23-1F as a robust, versioned, disabled and unconsumed per-stock daily-volatility-profile checkpoint together with the completed P26/AAPL evidence records.
+
+### Included approved work
+
+- Locked Factor component `factor.daily_volatility_profile.p23_1f.v1@1.0.0` over one explicitly selected complete 20–250-session P26 study and exact prior-session R1 v1.0.0 evidence.
+- Exact per-session W60/W120/W250 trend-standardized-MAD median, full-history median profile, temporal raw/standardized MAD and explanatory asymmetric one-scale price fractions.
+- Secondary-only spectral period/amplitude/dominance/method/cross-window summaries which never enter the controlling scale.
+- `VOLATILITY_PROFILE_RESEARCH` Run identity, immutable attempts/results, exact P26 parent/source-child lineage, deterministic fingerprints and durable failures.
+- Additive central SQLite v15→v16 migration with five normalized P23-1F tables and an existing-Factor-page profile inspector, chart, export and Open Run navigation.
+- One approved local-only AAPL reuse validation over the previously persisted 20-session P26 study, with no network request during P27 calculation.
+
+### Validation and database evidence
+
+- Exhaustive non-overlapping pytest groups covered all **565 collected tests** successfully; focused P27/governance/Run-boundary checks also passed.
+- `compileall`, `pip check`, dependency boundaries, secret scan and `git diff --check` passed. The only warning is the existing upstream `websockets.legacy` deprecation notice.
+- The verified v15 backup contains 99 logical tables and returns `integrity_check=ok`.
+- Active ignored SQLite is Schema v16/104 with `integrity_check=ok`, zero foreign-key violations, one P23-1F definition/attempt/result, 20 exact daily inputs and three summaries.
+- AAPL result `6ae54c4a-8d3b-5ae1-8c82-4bb2fb5bbef5` preserves `profile_log_scale=0.013404769735102143` (`0x1.b73f5bcfb3ca8p-7`) and exact restart reload.
+
+### Current algorithm and safety state
+
+- The P23-1F result is a descriptive daily movement scale, not a reversal threshold, prediction, target position, Decision, Risk limit, cash recommendation or trade range.
+- P23-1/P23-1F remain locked, `DISABLED`, `execution_allowed=false`, `live_allowed=false` and have no State/Target/Decision/Risk/Capital/Backtesting/Accounting/Execution consumer.
+- No Alpaca Trading client, account, buying power, position, order or fill access is present. Paper and Live packages remain empty; automatic submission and Live Trading remain disabled.
+- Runtime databases, backups, credentials and logs remain Git-ignored and are not included in this checkpoint.
+
+### Current focus and unapproved work
+
+No further implementation slice is approved. Any reversal multiplier, P23-2 two-session confirmation/state behavior, P23-3 linear/accelerating target curve, P23-4 Decision/Risk/cash linkage, P23-5 complete strategy backtest, Portfolio Accounting persistence, Paper or Live requires a separate proposal and explicit approval.
+
+### Rollback
+
+Use a normal Git revert of the checkpoint commit without rewriting history. Feature rollback may remove P23-1F composition/GUI while retaining immutable v16 evidence for audit. A physical database downgrade requires stopping writers, preserving v16 and restoring the verified v15 backup with matching v15 code. Keep Live and automatic submission disabled throughout rollback.

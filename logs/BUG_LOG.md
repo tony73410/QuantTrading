@@ -4410,3 +4410,127 @@ Not applicable until a fix is implemented.
 ### Final verification update — 2026-08-02
 
 `BUG-20260802-001`, `BUG-20260802-002` and `BUG-20260802-003` are all **Fixed** with the regression and full-suite evidence recorded in the earlier consolidated verification update. This later append is authoritative over each original `Open` discovery status. No current Known Issue remains from these three defects.
+
+## BUG-20260806-001
+
+### Title
+Roadmap still says the separately approved AAPL P26 validation was not executed
+
+### Status
+Fixed during PROPOSAL-027 proposal creation; validation pending at this append
+
+### Severity
+Low
+
+### Area
+Project governance documentation
+
+### Reproduction steps
+1. Open `docs/project/ROADMAP.md` after the 2026-08-06 AAPL P26 validation.
+2. Read `Proposed next — awaiting approval` and the P26 item in `Pending user decisions`.
+3. Observe that both still say the real AAPL historical validation was not executed or still required a separate instruction.
+4. Compare with the completed study, Project State, Compass, PROPOSAL-026 and `EDIT-20260806-002` evidence.
+
+### Expected behavior
+The Roadmap must distinguish completed P26 implementation/validation from the next unapproved P27 proposal and must not ask again for an already completed validation.
+
+### Actual behavior
+The Roadmap retained pre-validation wording even though the authoritative validation records show 40 of 40 completed-with-warnings points and exact restart reload.
+
+### Technical location
+`docs/project/ROADMAP.md`, the `Proposed next` and `Pending user decisions` sections.
+
+### Fix
+Replace the stale P26 proposal/validation wording with the completed AAPL evidence and record PROPOSAL-027 as the actual proposed next slice. Add a governance regression assertion that the Roadmap contains the completed-validation truth and does not retain the stale phrase.
+
+### Risk
+Documentation only. The stale text could cause an unnecessary second external-data request or confuse completed evidence with unapproved next work; no calculation, database, financial or trading behavior changed.
+
+### Known Issues disposition
+Not added because the stale statements are corrected in the current task and will be covered by a governance test. Add only if validation fails or another current contradictory source remains.
+
+### Rollback
+Revert only the P27 proposal references while retaining the corrected P26 validation truth. Do not restore the false “validation not executed” statement.
+
+### Verification update — 2026-08-06
+
+The focused governance document suite passed 8 tests and the complete architecture suite passed 89 tests. The regression requires the Roadmap to record the completed P26 AAPL validation, identify PROPOSAL-027 as proposed/awaiting approval and reject both stale validation-not-executed phrases. `BUG-20260806-001` is verified **Fixed** and is not a current Known Issue.
+
+## BUG-20260806-002
+
+### Title
+PROPOSAL-027 documentation impact references a nonexistent schema document
+
+### Status
+Open — confirmed during approved implementation pre-audit
+
+### Severity
+Low
+
+### Area
+Proposal/documentation governance
+
+### Reproduction steps
+1. Open the approved `PROPOSAL-027` documentation-impact section.
+2. Follow the listed `docs/persistence/SCHEMA.md` update target.
+3. Observe that the repository has no `docs/persistence` directory or `SCHEMA.md`; central schema ownership is documented in `docs/modules/central-persistence.md`.
+
+### Expected behavior
+An approved implementation plan must reference the existing canonical schema owner document or explicitly approve a new document boundary.
+
+### Actual behavior
+The proposal names a nonexistent file even though the existing central-persistence module document already owns schema-version/table/migration/rollback details.
+
+### Technical location
+`docs/proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md`, `Documentation impact`.
+
+### Planned fix
+Replace the nonexistent target with `docs/modules/central-persistence.md`, update that existing owner document for Schema v16, and add/extend governance assertions so the proposal does not reintroduce the nonexistent path.
+
+### Risk
+Documentation only. Creating an unnecessary new documentation directory would duplicate schema ownership and increase drift risk; runtime and financial behavior are unaffected.
+
+### Known Issues disposition
+Not added while the approved implementation is actively correcting and verifying the reference. Add only if unresolved at handoff.
+
+### Rollback
+Retain the existing central-persistence document as the canonical schema record. Do not create a second schema source merely to satisfy the stale proposal path.
+
+## BUG-20260806-003
+
+### Title
+Algorithm Control Factor-contract architecture allowlist omitted the approved P23-1F public modules
+
+### Status
+Fixed during PROPOSAL-027 implementation; full-suite revalidation pending at this append
+
+### Severity
+Low
+
+### Area
+Architecture regression tests
+
+### Reproduction steps
+1. Implement the approved P23-1F public models, interfaces and service and compose them in Algorithm Control.
+2. Run `tests/architecture/test_dependency_boundaries.py::test_algorithm_control_uses_only_public_factor_authoring_contracts`.
+3. Observe that the static allowlist rejects all three new public Factor modules even though the separately added P27 boundary test accepts the same dependency direction.
+
+### Expected behavior
+The architecture suite should recognize the approved P23-1F public models/interfaces/service while continuing to reject imports of its private engine or concrete persistence adapter.
+
+### Actual behavior
+The general Algorithm Control allowlist stopped at the P26 public modules, so the full suite failed despite the new P27-specific boundary tests passing.
+
+### Fix
+Add only `daily_volatility_profile_models`, `daily_volatility_profile_interfaces` and `daily_volatility_profile_service` to the existing public Factor allowlist. The engine, SQLite store and every financial/execution owner remain forbidden.
+
+### Risk and rollback
+Test-governance only; runtime and financial behavior are unchanged. Revert the three allowlist entries together with the P27 feature if the approved component is rolled back.
+
+### Final verification update — 2026-08-06
+
+The focused dependency test and complete architecture suite now pass; the exhaustive grouped suite covers all 565 collected tests with no failures. `BUG-20260806-003` is verified **Fixed** and is not a current Known Issue.
+
+### BUG-20260806-002 final verification update — 2026-08-06
+
+The P27 proposal now references `docs/modules/central-persistence.md` as the canonical schema owner, no `docs/persistence/SCHEMA.md` was created, and governance regression tests require this condition. `BUG-20260806-002` is verified **Fixed** and is not a current Known Issue.

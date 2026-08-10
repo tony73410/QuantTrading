@@ -5,7 +5,7 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v15 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/Decision/Risk/Capital/State/Target evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v16 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/Decision/Risk/Capital/State/Target evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
@@ -27,6 +27,7 @@
 | Module map | `architecture/MODULE_MAP.md` | 实际模块与文档的简要索引；不替代主要架构文件 |
 | Dependencies | `architecture/DEPENDENCY_RULES.md` | 仓库级通用依赖原则；具体矩阵以主要架构文件为准 |
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
+| P23-1F daily volatility profile | `proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md` | 已批准的完整P26/R1 v1.0.0日常波动档案公式、Schema v16、GUI、验证与严格非交易边界 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
 | Market history | `modules/market-history.md` | 股票历史数据浏览器、缓存、GUI、配置与测试 |
 | Single-asset factors | `modules/factors.md` | 策略中立Factor合同、时间安全、注册器，以及已实现但锁定禁用且无交易消费者的P23-1 R1专用研究公式 |

@@ -25,7 +25,7 @@ P23-1A–D and P23-1E-A already provided exact immutable spectral definitions, o
 - The Algorithm Control Factor page provides explicit range/version selection, pre-run counts, background progress, between-child cancellation, history/filtering, charts, exports and parent/child Open Run navigation. Widgets perform no calculation, Provider access or SQL.
 - Allowed summaries are exact status/warning counts over the full requested denominator. No future return, P&L, predictive score, ranking, winner, smoothing or interpolation is permitted.
 - The component remains disabled with `execution_allowed=false` and `live_allowed=false`; no State, Target Position, Decision, Risk, Backtesting, Accounting or Execution consumer exists.
-- Local-only reuse requires one exact complete persisted P26 evidence set. Read-only fetching is possible only after an explicit click. A separate real AAPL P26 validation was not performed.
+- Local-only reuse requires one exact complete persisted P26 evidence set. Read-only fetching is possible only after an explicit click. No real AAPL validation was part of the implementation approval; one bounded validation was later separately approved and completed on 2026-08-06.
 
 ## Consequences
 
@@ -38,6 +38,8 @@ P23-1A–D and P23-1E-A already provided exact immutable spectral definitions, o
 ## Validation
 
 Tests cover 2-session and 250-session planning boundaries, non-session rejection, exact v1.0.0/v1.1.0 cutoffs, one-fetch preparation, complete child grids, parent/child Runs, idempotency conflicts, cancellation, restart reload, v14→v15 backup/migration/no-backfill, exports, GUI background dispatch and architecture boundaries. The final complete suite passed 556 tests with one pre-existing upstream warning. Backup `market_history.schema-v14-to-v15.20260803T025500568848Z.sqlite3` remains v14/94 and passes integrity/foreign-key checks; active v15/99 also passes and contains no backfilled P26 study/evidence rows. No Trading API, account, position, order or fill access occurred.
+
+The separately approved AAPL validation later created study `3411fd6d-ee64-5e44-bd26-3f25068dce52` and parent Run `0251b8ee-a6c2-4496-bc73-f3e19aa1f23b` over 20 completed sessions and both locked versions. All 40 children completed with warnings, preserved exact definition cutoffs and reloaded from a new process. Every cross-window result remained `insufficient_qualified_windows`; the run did not create a score, state, target, action or trade.
 
 ## Reversal
 

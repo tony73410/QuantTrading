@@ -37,6 +37,7 @@ class AlgorithmRunType(StrEnum):
     TARGET_ADJUSTMENT_RESEARCH_CASH_FLOOR_PREVIEW = "target_adjustment_research_cash_floor_preview"
     TARGET_ADJUSTMENT_RESEARCH_ASSET_CASH_PREVIEW = "target_adjustment_research_asset_cash_preview"
     SPECTRAL_HISTORY_RESEARCH = "spectral_history_research"
+    VOLATILITY_PROFILE_RESEARCH = "volatility_profile_research"
 
 
 class AlgorithmRunStatus(StrEnum):

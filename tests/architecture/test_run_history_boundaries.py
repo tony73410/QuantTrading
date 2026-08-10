@@ -46,6 +46,7 @@ def test_only_approved_factor_service_depends_on_neutral_run_history() -> None:
     approved = {
         factor_root / "standardized_state_service.py",
         factor_root / "spectral_service.py",
+        factor_root / "daily_volatility_profile_service.py",
     }
     for path in factor_root.rglob("*.py"):
         imports = _file_imports(path)
@@ -182,6 +183,37 @@ def test_spectral_gui_is_typed_presentation_only() -> None:
     )
     assert not [value for value in forbidden_text if value in source]
     assert "SpectralVolatilityQueryService" in source
+
+
+def test_daily_volatility_profile_preserves_factor_and_gui_boundaries() -> None:
+    factor_files = (
+        Path("src/quant_trading/factors/daily_volatility_profile_models.py"),
+        Path("src/quant_trading/factors/daily_volatility_profile_engine.py"),
+        Path("src/quant_trading/factors/daily_volatility_profile_interfaces.py"),
+        Path("src/quant_trading/factors/daily_volatility_profile_service.py"),
+    )
+    forbidden = (
+        "quant_trading.decision", "quant_trading.risk", "quant_trading.persistence",
+        "quant_trading.algorithm_control", "quant_trading.asset_state",
+        "quant_trading.target_position", "quant_trading.capital_allocation",
+        "quant_trading.portfolio_accounting", "quant_trading.execution",
+        "alpaca", "sqlite3", "PySide6",
+    )
+    for path in factor_files:
+        imports = _file_imports(path)
+        assert not [name for name in imports if name.startswith(forbidden)], str(path)
+
+    panel = Path(
+        "src/quant_trading/algorithm_control/ui/daily_volatility_profile_panel.py"
+    ).read_text(encoding="utf-8")
+    assert "DailyVolatilityProfileQueryService" in panel
+    assert "SpectralHistoricalStudyQueryService" in panel
+    assert not [
+        value for value in (
+            "sqlite3", "quant_trading.persistence", "statistics.", "math.exp",
+            "numpy", "DailyVolatilityProfileEngine",
+        ) if value in panel
+    ]
 
 
 def test_manual_spectral_runner_preserves_owner_boundaries() -> None:

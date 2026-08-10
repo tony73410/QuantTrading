@@ -4,7 +4,7 @@ This is explicitly the **Asset Factor Layer / 单只股票因子**. It calculate
 
 ## Status
 
-The restricted-expression definition/calculator extension, specialized manual standardized-price-state contract and specialized P23-1 Spectral Volatility Research R1 contract are implemented and verified. The locked P23-1 definition and all authored definitions are disabled by default; no automatically active production formula exists.
+The restricted-expression definition/calculator extension, specialized manual standardized-price-state contract, specialized P23-1 Spectral Volatility Research R1 contract and P23-1F daily-volatility-profile contract are implemented and verified. All locked P23-1/P23-1F and authored definitions are disabled by default; no automatically active production formula exists.
 
 **Partially implemented and verified.** Contracts, registry, strategy-neutral engine, time-safety validation, and Fake-driven tests exist. No production factor formula or implementation is registered.
 
@@ -22,6 +22,7 @@ Transform one symbol's standardized, completed Market Data into versioned, times
 - Return explicit non-valid status with `value=None`; never use zero as missing data.
 - Own the separate manual standardized-price-state definition/engine/service contracts: exact positive Decimal USD price/reference/scale inputs, USD deviation and dimensionless `(price-reference)/scale` trace.
 - Own the type-distinct P23-1 R1 definition/engine/service contracts: three exact Daily windows, trend-only OLS baseline, MAD evidence, Welch/full-window Fourier diagnostics, ambiguity/cross-window comparison, amplitude/residual evidence and explicit invalid/warning statuses.
+- Own P23-1F's locked daily-profile definition/engine/service: one explicit complete P26 study, exact R1 v1.0.0, per-date median of W60/W120/W250 trend-standardized MAD, median across dates, temporal MAD evidence and explanatory exponential price fractions.
 
 ## Non-responsibilities
 
@@ -44,6 +45,7 @@ The layer does not decide buy/sell/increase/decrease, read portfolio/account sta
 - `FactorVersionComparisonQuery`, `FactorVersionComparison`, `FactorVersionValue`
 - `StandardizedPriceStateDefinition`, command/result/trace/operation/query models, `StandardizedPriceStateEngine`, `StandardizedPriceStateService`, and public Store/query Protocols
 - `SpectralVolatilityDefinition`, `SpectralPreviewCommand`, `SpectralVolatilityOperation`, detailed window/segment/series/spectrum/comparison result contracts, `SpectralVolatilityEngine`, `SpectralVolatilityService`, and public Store/query Protocols
+- `DailyVolatilityProfileDefinition`, command/operation/result/daily-input/window-summary/query contracts, `DailyVolatilityProfileEngine`, `DailyVolatilityProfileService`, and public Store/query Protocols
 
 Each calculator must declare a unique `factor_name`, `factor_version`, `minimum_observations`, `output_unit`, and `missing_input_policy`.
 
@@ -97,6 +99,8 @@ No configuration file or global factor dictionary exists. Factor parameters are 
 `tests/unit/factors/` covers deterministic Fake calculation, insufficient/missing value behavior, future/incomplete Bar rejection, contract schema, and registration. Architecture tests prohibit reverse dependencies and infrastructure imports. Tests never access a network or broker.
 
 ## Known limitations
+
+- P23-1F v1.0.0 is locked, disabled and unconsumed. It requires one explicit whole P26 study with 20–250 sessions and exact prior-session R1 v1.0.0 evidence; missing/reordered/non-valid/tampered sources fail closed. `profile_log_scale`, temporal MAD and asymmetric one-scale price fractions are descriptive estimates only—not reversal thresholds, predictions, position sizes or Risk limits. Spectral period/amplitude/status is secondary only and never enters the scale. Zero is stored without a floor and cannot be consumed as a positive scale.
 
 - No active production Factor formula or calculator implementation.
 - P23-1 R1 v1.0.0/v1.1.0 are approved implemented research definitions but remain `DISABLED`, `execution_allowed=false` and `live_allowed=false`. P23-1E-A runs one latest-session preview; P23-1E-B can display one/two versions independently over a bounded historical grid but performs no ranking or predictive scoring. Wavelets and all automatic financial consumers are not implemented.

@@ -471,6 +471,28 @@ class SQLiteRunHistoryRepository:
                 relationships.add(
                     (RunRelationshipType.LINKED_PREVIEW, asset_cash_id)
                 )
+        profile_links = connection.execute(
+            """SELECT DISTINCT o.run_id AS profile_run_id,
+                       r.source_parent_run_id, d.source_child_run_id
+               FROM daily_volatility_profile_operation_attempts o
+               LEFT JOIN daily_volatility_profile_results r ON r.result_id = o.result_id
+               LEFT JOIN daily_volatility_profile_daily_inputs d ON d.result_id = r.result_id
+               WHERE o.run_id = ? OR r.source_parent_run_id = ? OR d.source_child_run_id = ?""",
+            (str(run.run_id), str(run.run_id), str(run.run_id)),
+        ).fetchall()
+        for row in profile_links:
+            profile_id = UUID(row["profile_run_id"])
+            parent_id = UUID(row["source_parent_run_id"]) if row["source_parent_run_id"] else None
+            source_id = UUID(row["source_child_run_id"]) if row["source_child_run_id"] else None
+            if profile_id == run.run_id:
+                if parent_id is not None:
+                    relationships.add((RunRelationshipType.PARENT, parent_id))
+                if source_id is not None:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif parent_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, profile_id))
+            elif source_id == run.run_id:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, profile_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -1788,6 +1810,82 @@ class SQLiteRunHistoryRepository:
                     _field("error", historical_study["error_summary"]),
                 ),
                 point_children,
+            ))
+        profile_operations = connection.execute(
+            """SELECT o.*, r.calculation_fingerprint, r.source_parent_run_id,
+                      r.source_study_id, r.source_definition_id,
+                      r.evaluation_start_session, r.evaluation_end_session,
+                      r.evaluation_session_count, r.profile_log_scale,
+                      r.temporal_raw_mad, r.temporal_standardized_mad,
+                      r.upper_price_fraction, r.lower_price_fraction,
+                      r.usable_as_positive_scale, r.formula_trace_text,
+                      r.explanation
+               FROM daily_volatility_profile_operation_attempts o
+               LEFT JOIN daily_volatility_profile_results r ON r.result_id = o.result_id
+               WHERE o.run_id = ? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in profile_operations:
+            daily_rows = ()
+            if operation["result_id"]:
+                daily_rows = connection.execute(
+                    """SELECT * FROM daily_volatility_profile_daily_inputs
+                    WHERE result_id = ? ORDER BY ordinal""",
+                    (operation["result_id"],),
+                ).fetchall()
+            children = tuple(
+                RunArtifactView(
+                    "daily_volatility_profile_daily_input",
+                    f"{row['result_id']}:{row['ordinal']}",
+                    RunStageName.FACTOR.value,
+                    operation["expected_symbol"],
+                    row["spectral_evidence_label"],
+                    (
+                        f"{row['evaluation_session']} · daily log scale "
+                        f"{row['daily_log_scale']} · median W{row['median_source_window']}"
+                    ),
+                    _datetime(operation["completed_at_utc"]),
+                    (
+                        _field("P26 study point", row["source_study_point_id"]),
+                        _field("source child Run", row["source_child_run_id"]),
+                        _field("source spectral attempt", row["source_attempt_id"]),
+                        _field("W60 / W120 / W250", (
+                            f"{row['w60_scale']} / {row['w120_scale']} / {row['w250_scale']}"
+                        )),
+                        _field("source warnings", row["source_warnings_text"]),
+                    ),
+                )
+                for row in daily_rows
+            )
+            artifacts.append(RunArtifactView(
+                "daily_volatility_profile_operation",
+                operation["attempt_id"],
+                RunStageName.FACTOR.value,
+                operation["expected_symbol"],
+                operation["status"],
+                "P23-1F daily normal-movement profile; DISABLED / NO EXECUTION",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation id", operation["operation_id"]),
+                    _field("result id", operation["result_id"]),
+                    _field("profile definition", operation["definition_id"]),
+                    _field("source study", operation["requested_source_study_id"]),
+                    _field("source definition", operation["requested_source_definition_id"]),
+                    _field("source range", (
+                        f"{operation['evaluation_start_session'] or '—'} to "
+                        f"{operation['evaluation_end_session'] or '—'}"
+                    )),
+                    _field("evaluation sessions", operation["evaluation_session_count"]),
+                    _field("profile log scale", operation["profile_log_scale"]),
+                    _field("up / down one-scale fraction", (
+                        f"{operation['upper_price_fraction']} / {operation['lower_price_fraction']}"
+                    )),
+                    _field("usable as positive scale", operation["usable_as_positive_scale"]),
+                    _field("calculation fingerprint", operation["calculation_fingerprint"]),
+                    _field("warnings", operation["warnings_text"]),
+                    _field("error", operation["error_summary"]),
+                ),
+                children,
             ))
         return tuple(artifacts)
 

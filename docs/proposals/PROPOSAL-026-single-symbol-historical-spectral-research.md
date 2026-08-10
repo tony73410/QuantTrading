@@ -6,7 +6,7 @@
 - Status: `APPROVED / IMPLEMENTED_VERIFIED_DISABLED`
 - Date: 2026-08-02
 - Author: Codex
-- User approval status: `Implementation approved 2026-08-02; external AAPL validation not separately approved or performed`
+- User approval status: `Implementation approved 2026-08-02; one bounded external AAPL validation separately approved and completed 2026-08-06`
 - Related design: `PROPOSAL-023` planning revision `1.24`
 - Existing implementation baseline: `PROPOSAL-024` P23-1A–D and `PROPOSAL-025` P23-1E-A
 - Proposed implementation slice: `P23-1E-B`
@@ -14,7 +14,7 @@
 - Safety classification: `RESEARCH_ONLY / NO_EXECUTION`
 - Implemented blast radius: `MULTI_MODULE`
 
-The user first approved creating this proposal, then explicitly approved `PROPOSAL-026`. The approved implementation covers the bounded historical-study contracts, `SPECTRAL_HISTORY_RESEARCH` parent Run, child `FACTOR_PREVIEW` lineage, additive Schema v15 persistence and existing-Factor-page historical inspector. It does not approve component activation, another real Alpaca validation or any financial/trading behavior.
+The user first approved creating this proposal, then explicitly approved `PROPOSAL-026`. The approved implementation covers the bounded historical-study contracts, `SPECTRAL_HISTORY_RESEARCH` parent Run, child `FACTOR_PREVIEW` lineage, additive Schema v15 persistence and existing-Factor-page historical inspector. The user later separately approved exactly one bounded AAPL read-only validation. Neither approval grants component activation or any financial/trading behavior.
 
 ## Implementation outcome
 
@@ -31,7 +31,13 @@ Implemented and verified on 2026-08-02/03:
 - explicit pre-run count disclosure, background progress, duplicate suppression and between-child cancellation; and
 - no future-return/P&L/ranking, State, Target, Decision, Risk, Backtesting, Accounting, Paper, Live or order output.
 
-Deterministic, migration, GUI and architecture tests passed. The final complete suite passed **556 tests** with one pre-existing upstream WebSocket deprecation warning. The active central database migrated after a verified v14/94 backup to v15/99, passed integrity and foreign-key checks, and contains zero backfilled P26 evidence sets or studies. The separately discussed real AAPL historical study was not authorized by a distinct validation instruction and was not run; no network request occurred during implementation.
+Deterministic, migration, GUI and architecture tests passed. The final complete suite passed **556 tests** with one pre-existing upstream WebSocket deprecation warning. The active central database migrated after a verified v14/94 backup to v15/99, passed integrity and foreign-key checks, and contains zero backfilled P26 evidence sets or studies. No network request occurred during implementation; the later AAPL validation required and received a distinct instruction.
+
+## Separately approved AAPL validation outcome
+
+On 2026-08-06 the user approved AAPL, completed XNYS sessions 2026-07-09 through 2026-08-05, and both locked R1 versions. One explicit `FETCH_AND_FREEZE_READ_ONLY` request produced study `3411fd6d-ee64-5e44-bd26-3f25068dce52`, parent Run `0251b8ee-a6c2-4496-bc73-f3e19aa1f23b` and evidence set `db5827a9-b54d-4717-a654-54801ef4ace0`.
+
+All 40 expected children completed with warnings and reloaded exactly in a new process. The shared evidence contains 270 IEX Daily Raw/Split observations and four supported cash-dividend events. Every definition-specific cutoff was exact. All 60/120/250 windows were valid, but every cross-window result was `insufficient_qualified_windows`; method disagreement and the deliberately unadjusted-dividend warning remained visible. The evidence therefore does not establish a stable cross-window cycle, normal-volatility range, predictive score, state transition or trade.
 
 ## Intent interpretation
 
@@ -579,4 +585,4 @@ The user approved these implementation choices:
 6. local-only or explicit per-click read-only fetch-once evidence preparation, with no automatic network access; and
 7. whether to allow at most one post-test read-only AAPL historical-study validation.
 
-Implementation and migration approval was received and fulfilled. The seventh item—one real P26 AAPL validation—was treated as a separate external-validation decision and was not performed. Activation remains unapproved.
+Implementation and migration approval was received and fulfilled. The seventh item—one real P26 AAPL validation—was treated as a separate external-validation decision, explicitly approved on 2026-08-06 and completed as recorded above. Activation remains unapproved.

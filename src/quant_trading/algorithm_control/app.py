@@ -30,6 +30,7 @@ from quant_trading.persistence import (
     SQLiteTargetAdjustmentRiskStore,
     SQLiteSpectralVolatilityStore,
     SQLiteSpectralHistoricalStudyStore,
+    SQLiteDailyVolatilityProfileStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -42,6 +43,12 @@ from quant_trading.factors.spectral_models import (
     locked_r1_inclusive_definition,
 )
 from quant_trading.factors.spectral_service import SpectralVolatilityService
+from quant_trading.factors.daily_volatility_profile_models import (
+    locked_daily_volatility_profile_definition,
+)
+from quant_trading.factors.daily_volatility_profile_service import (
+    DailyVolatilityProfileService,
+)
 from quant_trading.market_history.composition import (
     build_spectral_historical_evidence_service,
     build_spectral_preview_evidence_service,
@@ -226,6 +233,31 @@ def main(argv: Sequence[str] | None = None) -> int:
         spectral_factor_service,
         run_service,
         software,
+    )
+    daily_volatility_profile_store = SQLiteDailyVolatilityProfileStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    daily_volatility_profile_store.initialize()
+    daily_volatility_profile_definition = locked_daily_volatility_profile_definition(
+        created_at_utc=datetime.now(UTC),
+        software_version=software.package_version,
+        source_revision=software.source_revision,
+        worktree_state=software.worktree_state.value,
+    )
+    stored_profile_definition = daily_volatility_profile_store.get_definition(
+        daily_volatility_profile_definition.definition_id
+    )
+    if stored_profile_definition is None:
+        daily_volatility_profile_store.save_definition(daily_volatility_profile_definition)
+    else:
+        daily_volatility_profile_definition = stored_profile_definition
+    daily_volatility_profile_service = DailyVolatilityProfileService(
+        daily_volatility_profile_store,
+        spectral_history_store,
+        spectral_volatility_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+        daily_volatility_profile_definition,
     )
     capital_store = SQLiteCapitalAllocationStore(
         root / "runtime" / "data" / "market_history.sqlite3"
@@ -437,6 +469,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             legacy_spectral_definition,
             inclusive_spectral_definition,
         ),
+        daily_volatility_profile_queries=daily_volatility_profile_store,
+        daily_volatility_profile_runner=daily_volatility_profile_service,
+        daily_volatility_profile_definition=daily_volatility_profile_definition,
     )
     if options.page is not None:
         panel.select_page(options.page)
