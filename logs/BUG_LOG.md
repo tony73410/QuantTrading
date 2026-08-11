@@ -4921,3 +4921,30 @@ Not added to `KNOWN_ISSUES.md` because the metadata regression was found and cor
 
 ### Final verification
 Compass again preserves the exact `no real P29 definition/configuration/result` phrase and separately states that P30 created no formula/configuration/Run/result/database row. The original assertion was not weakened; the focused governance suite passes 11 tests and the complete architecture suite passes 95 tests.
+
+## BUG-20260810-015
+
+### Title
+Publication checkpoint metadata dropped the protected P28 Schema-v17 evidence
+
+### Status
+Fixed during P29/P30 publication checkpoint
+
+### Severity
+Low
+
+### Area
+Compass publication metadata / governance regression
+
+### Reproduction and cause
+Run `tests/architecture/test_governance_document_integrity.py` after replacing the pre-publication Compass verification sentence with the P29/P30 feature commit identity. The new metadata retains P28 Result/Run provenance and the older checkpoint commit but omits the exact `v17/110` migration evidence protected by the governance test. The publication rewrite compressed historical P28 context too aggressively.
+
+### Expected behavior and planned fix
+Restore the explicit P28 central SQLite `v16/104→v17/110` migration evidence while retaining the new P29/P30 feature commit `7ad1e1f`, Schema-v18 and validation evidence. Keep the existing regression assertion; rerun the focused governance suite before the checkpoint commit.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this is a documentation-only regression discovered before publication handoff and can be corrected locally without runtime impact. Reverting only the faulty checkpoint metadata would also restore the phrase but lose the truthful current feature-commit state.
+
+### Final verification
+
+Compass v82 now retains the exact P28 `P23-2A`, `v16/104→v17/110`, separately approved read-only AAPL validation, no-Trading-access and `DISABLED/execution_allowed=false/live_allowed=false` phrases while separately recording feature commit `7ad1e1f` and P29/P30 evidence. The protected governance suite passes all 11 tests without weakening an assertion.

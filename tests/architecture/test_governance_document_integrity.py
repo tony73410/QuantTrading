@@ -28,6 +28,7 @@ def test_compass_verification_metadata_preserves_p28_and_records_p30_validation(
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
+    assert "main feature commit 7ad1e1f" in metadata
     assert "PROPOSAL-028" in metadata
     assert "CHECKPOINT-20260810-006" in metadata
     assert "v17/110" in metadata

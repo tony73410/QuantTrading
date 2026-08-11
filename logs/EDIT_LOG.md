@@ -6560,3 +6560,40 @@ Immutable validation evidence must not be deleted or overwritten as rollback. If
 - Remaining drift risk: the disabled AAPL test values or `DECREASE/INCREASE` target differences could be mistaken for actual trades. Proposal, module, state and Compass records explicitly identify independent hypothetical desired positions and prohibit that interpretation.
 
 No commit or push was requested and none was performed. Suggested commit message for the complete unpublished P29/P30 working tree: `feat: add and validate disabled cycle-aware target position research`.
+
+## EDIT-20260810-010 — Publish verified PROPOSAL-029/030 checkpoint
+
+### Date, authorization and task mode
+
+2026-08-10 22:00:55 -07:00
+
+The user explicitly requested `commit + push`. Task mode: **FAST publication checkpoint**. No algorithm, public contract, database schema/data, GUI behavior, dependency, configuration, test behavior or trading authority changed. The verified 59-file P29/P30 source/document/test set was committed on `main` as `7ad1e1f` with message `feat: add and validate cycle-aware target position research`. This small follow-up checkpoint updates publication metadata before pushing both commits to `origin/main`.
+
+### Publication checks
+
+- Pre-commit branch: `main`; local and `origin/main` both started at `da720ba`.
+- Staged scope: 59 files, 5,797 insertions and 122 deletions, all attributable to approved PROPOSAL-029 implementation, PROPOSAL-030 validation, their documentation, Bug/Edit history and tests.
+- `git diff --cached --check` passed. Runtime SQLite files and backups remained ignored and unstaged.
+- Sensitive-data scan found only documented environment-variable names and explicit unit-test fake/redaction values; no real key, token, account data or credential file was included.
+- Verification reused the immediately preceding P30 evidence: 21 focused tests, 95 architecture tests and the complete 592-test repository suite passed; SQLite v18/116 integrity and foreign keys passed.
+- Publication-metadata governance verification: **11 passed** after preserving all protected P28 and new P29/P30 checkpoint evidence.
+
+### Files changed by this checkpoint
+
+- `PROJECT_COMPASS.md`: v82; current phase and verified state now name feature commit `7ad1e1f` instead of an unpublished working tree.
+- `docs/project/PROJECT_STATE.md`: current phase and Last Verified record now identify the feature commit and publication checkpoint.
+- `tests/architecture/test_governance_document_integrity.py`: protects the new exact publication commit identity.
+- `logs/EDIT_LOG.md`: this append-only publication record.
+
+### Compass and Bug audit
+
+- Intent alignment: publishes exactly the already approved and verified P29/P30 scope requested by the user.
+- Architecture alignment: no owner, interface, dependency or persistence behavior changed.
+- Safety alignment: runtime database/backups and credentials remain excluded; disabled/no-execution boundaries are unchanged.
+- Unapproved behavior added: none.
+- Assumptions introduced: none.
+- Compass sections updated: v82 metadata/current phase, existing P29/P30 current-state wording and publication evidence; Stable Core is unchanged.
+- Remaining drift risk: the Git commit publishes research code and validation evidence, not activation or trading authority. Compass, proposal and module records preserve that boundary.
+- Bug discovery audit: `BUG-20260810-015` was found and **Fixed**. The first Compass v82 publication rewrite had compressed away protected P28 Schema/safety phrases; all exact P23-2A, v17/110, read-only/no-Trading and disabled evidence was restored without weakening the regression test. No unresolved Bug was deferred.
+
+Rollback uses a normal future revert of the feature/checkpoint commits; do not rewrite shared history or delete immutable runtime validation evidence. Push status and the final checkpoint commit ID are reported to the user after Git confirms success.
