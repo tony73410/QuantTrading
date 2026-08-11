@@ -4791,3 +4791,133 @@ Not added because this change-local test expectation was corrected and verified 
 
 ### Final verification
 The test now requires `CHECKPOINT-20260810-006`, current P28 evidence, the exact P27 source result, proposal-only P29 authorization and the explicit no-P29-implementation boundary. The focused governance suite passes **9 tests** and the complete architecture suite passes **92 tests**.
+
+## BUG-20260810-010
+
+### Title
+P29 proposal metadata compression again removed exact P27/P28 checkpoint phrases
+
+### Status
+Fixed during PROPOSAL-029 proposal-only self-audit
+
+### Severity
+Low
+
+### Area
+Compass current verification metadata
+
+### Reproduction and cause
+Compare the P29-updated `last_verified_commit_or_working_tree_state` with the existing governance assertions. The shortened publication text kept the correct IDs and meaning but replaced the exact phrases `local-only AAPL reuse`, `one separately approved read-only AAPL validation`, `VALID_NO_REVERSAL result ...` and the explicit no-Trading-access sentence. Those phrases are deliberate provenance checkpoints protected after BUG-20260810-007.
+
+### Expected behavior and planned fix
+Restore the exact P26→P27→P28 provenance wording while appending the P29 proposal-only working-tree state. Keep the regression assertions and add P29-specific assertions rather than weakening P28 evidence.
+
+### Known Issues disposition and rollback
+Not added because this change-local documentation recurrence was corrected and verified in the same proposal pass. Reverting the correction would reduce provenance clarity but would not alter runtime behavior.
+
+### Final verification
+Compass again preserves the exact P26→P27→P28 checkpoint phrases and appends P29 only as proposal/governance working-tree state. The focused governance suite passes **10 tests** and the complete architecture suite passes **93 tests** without weakening any P28 assertion.
+
+## BUG-20260810-011
+
+### Title
+P29 SQLite Run Stage validation queried a nonexistent `name` column
+
+### Status
+Fixed during PROPOSAL-029 implementation
+
+### Severity
+Medium
+
+### Area
+P23-3 cycle target-position persistence / Run History integrity validation
+
+### Reproduction and cause
+Save the first P29 formula definition through `CycleTargetPositionService`. The P29 SQLite store validates the associated Run Stage with `SELECT run_id, name FROM algorithm_run_stages`, while the central schema names that column `stage_name`. SQLite raises `OperationalError`, so the immutable definition and its operation attempt cannot be persisted.
+
+### Expected behavior and planned fix
+Validate against the canonical `stage_name` column and retain the existing exact Run type, execution mode, Run ID and stage-name checks. The P29 SQLite integration test is the regression test.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the defect was found before P29 handoff and is being corrected in the same implementation. Reverting the fix would make all P29 definition/configuration/result persistence unusable but would not affect previously published modules.
+
+### Final verification
+The Store now validates the canonical `algorithm_run_stages.stage_name` column while retaining exact Run type, execution mode, Run ID and stage-name checks. P29 immutable formula/configuration/result persistence, restart reload and replay integration tests pass; the affected-module suite passes 142 tests, the architecture suite passes 94 tests and the complete repository suite passes 591 tests.
+
+## BUG-20260810-012
+
+### Title
+P29 preview failure finalization could overwrite a completed source Stage
+
+### Status
+Fixed during PROPOSAL-029 implementation
+
+### Severity
+Medium
+
+### Area
+P23-3 Run lifecycle / failure audit fidelity
+
+### Reproduction and cause
+Let exact P28 source validation complete the P29 `STATE` Stage, then make creation of the `TARGET_POSITION` Stage fail. The exception handler currently falls back to the local `STATE` Stage object. Because that object still represents its originally returned running state, failure finalization can attempt to mark the already completed persisted source Stage as failed.
+
+### Expected behavior and planned fix
+Track whether the source Stage was durably completed. Source-validation failures must fail `STATE`; failures after that completion but before a target Stage exists must leave `STATE` completed and fail only the Run; failures after target Stage creation must fail `TARGET_POSITION`. Add focused lifecycle tests for the first two cases.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because P29 is not yet handed off and the defect is being corrected before active use. Reverting would affect only P29 failure-history fidelity, not calculations or earlier modules.
+
+### Final verification
+The service now tracks durable completion of the source `STATE` Stage. Source-validation failure fails `STATE`; a failure while starting `TARGET_POSITION` after source completion leaves `STATE` completed and fails only the Run; later target failures attach to `TARGET_POSITION`. Focused lifecycle regression tests pass within the 142-test affected-module suite and the complete 591-test repository suite.
+
+## BUG-20260810-013
+
+### Title
+Roadmap pending-decision summary still identified central SQLite as Schema v16
+
+### Status
+Fixed during PROPOSAL-030 proposal-only synchronization
+
+### Severity
+Low
+
+### Area
+Project governance / Roadmap current-state accuracy
+
+### Reproduction and cause
+Read `docs/project/ROADMAP.md` after the verified P29 v17→v18 migration. The current pending-decision summary still says that the approved dependencies and central SQLite v16 are implemented, even though Project State, Compass, canonical architecture and the active database now consistently report Schema v18/116. The sentence was not advanced when later additive P28/P29 migrations were documented.
+
+### Expected behavior and planned fix
+Update only the stale current-schema reference to v18 and preserve the historical v16/v17 migration statements elsewhere. Add a governance assertion that the P30-era Roadmap current pending summary names central SQLite v18.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this is a documentation-only current-state drift being corrected in the same proposal pass. Reverting the correction would not change runtime data but would again mislead users and future agents about the active schema.
+
+### Final verification
+The Roadmap current pending-decision summary now names central SQLite v18 while preserving the historical v16/v17 statements in their proper checkpoints. The focused governance suite passes 11 tests and the complete architecture suite passes 95 tests.
+
+## BUG-20260810-014
+
+### Title
+P30 Compass metadata append removed the protected exact P29 empty-data phrase
+
+### Status
+Fixed during PROPOSAL-030 proposal-only self-audit
+
+### Severity
+Low
+
+### Area
+Compass current verification metadata
+
+### Reproduction and cause
+Run `tests/architecture/test_governance_document_integrity.py` after appending the proposal-only P30 statement to `last_verified_commit_or_working_tree_state`. The metadata still says the six P29 tables are empty and that P30 creates no formula/configuration/Run/result/database row, but the rewrite dropped the exact protected phrase `no real P29 definition/configuration/result` established by the P29 implementation checkpoint.
+
+### Expected behavior and planned fix
+Restore the exact P29 phrase while retaining the P30 proposal-only/no-data statement. Keep the regression assertion unchanged and add P30-specific assertions separately.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the metadata regression was found and corrected before handoff and did not alter runtime or database state. Reverting the correction would reduce checkpoint precision without changing behavior.
+
+### Final verification
+Compass again preserves the exact `no real P29 definition/configuration/result` phrase and separately states that P30 created no formula/configuration/Run/result/database row. The original assertion was not weakened; the focused governance suite passes 11 tests and the complete architecture suite passes 95 tests.

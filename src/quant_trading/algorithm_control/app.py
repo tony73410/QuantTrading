@@ -32,11 +32,12 @@ from quant_trading.persistence import (
     SQLiteSpectralHistoricalStudyStore,
     SQLiteDailyVolatilityProfileStore,
     SQLiteReversalObservationStore,
+    SQLiteCycleTargetPositionStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
 from quant_trading.asset_state import AssetStateService, ReversalObservationService
-from quant_trading.target_position import TargetPositionService
+from quant_trading.target_position import CycleTargetPositionService, TargetPositionService
 from quant_trading.target_position import LinkedTargetPositionService
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
 from quant_trading.factors.spectral_models import (
@@ -74,6 +75,7 @@ from quant_trading.orchestration import (
     ManualSpectralPreviewCoordinator,
     SpectralHistoricalStudyCoordinator,
     ReversalObservationResearchCoordinator,
+    CycleTargetPositionResearchCoordinator,
 )
 
 from .audit_service import AuditService
@@ -281,6 +283,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         local_market_store,
         reversal_observation_service,
     )
+    cycle_target_position_store = SQLiteCycleTargetPositionStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    cycle_target_position_store.initialize()
+    cycle_target_position_service = CycleTargetPositionService(
+        cycle_target_position_store,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
+    cycle_target_position_runner = CycleTargetPositionResearchCoordinator(
+        reversal_observation_store,
+        cycle_target_position_service,
+    )
     capital_store = SQLiteCapitalAllocationStore(
         root / "runtime" / "data" / "market_history.sqlite3"
     )
@@ -471,6 +486,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         reversal_observation_service=reversal_observation_service,
         reversal_observation_queries=reversal_observation_store,
         reversal_observation_runner=reversal_observation_runner,
+        cycle_target_position_service=cycle_target_position_service,
+        cycle_target_position_queries=cycle_target_position_store,
+        cycle_target_position_runner=cycle_target_position_runner,
         linked_target_position_preview=linked_target_position_preview,
         target_adjustment_decision_preview=target_adjustment_preview,
         target_adjustment_decision_queries=target_adjustment_store,

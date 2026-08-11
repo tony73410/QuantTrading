@@ -5,11 +5,11 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v16 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/Decision/Risk/Capital/State/Target evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v18 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2/P23-3A/Decision/Risk/Capital/State/Target evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
-- [Target Position Research](modules/target-position.md) — immutable bounded finite-knot curves, manual and exact linked-source previews, structured Decimal traces and Schema v8 provenance; only explicit Phase 5D research consumption is allowed.
+- [Target Position Research](modules/target-position.md) — existing immutable bounded finite-knot/manual/linked previews plus disabled P23-3A exact-P28-step linear/finite-exponential targets, structured Decimal/IEEE traces and Schema v18 provenance; no P29 downstream consumer exists.
 - [Manual Standardized Price State](modules/standardized-price-state.md) — Factor-owned exact manual USD price/reference/positive-scale normalization and Schema v7 history; Phase 5C may read one explicitly selected result without recalculation.
 
 - [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
@@ -28,6 +28,8 @@
 | Dependencies | `architecture/DEPENDENCY_RULES.md` | 仓库级通用依赖原则；具体矩阵以主要架构文件为准 |
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
 | P23-2A symmetric reversal observation | `proposals/PROPOSAL-028-symmetric-reversal-observation-laboratory.md` | 已批准并实现为DISABLED的同倍数、两日确认/下一交易日生效观察实验室；Schema v17/110与回放/历史GUI已完成，不修改正式状态且无交易消费者 |
+| P23-3A cycle-aware target position | `proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：复用现有Target Position所有者，精确P28 Result/Run/Step→反向线性/有限指数/饱和目标仓位，Schema v18与既有页面检查器；没有真实参数、默认值或P23-4消费者 |
+| AAPL P29 controlled validation | `proposals/PROPOSAL-030-aapl-p29-controlled-local-validation.md` | 已批准并完成`DRY_RUN`：精确复用现有三步AAPL P28证据、无刷新、使用对称禁用无默认参数和独立假设USD上下文；三条结果均为`VALID_LINEAR`且重启回放一致，无下游消费者 |
 | P23-2A architecture decision | `decisions/ADR-0033-symmetric-reversal-observation-laboratory.md` | 记录同倍数、前向冻结、确认/生效分离、六表持久化及严格无交易消费者边界 |
 | P23-1F daily volatility profile | `proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md` | 已批准的完整P26/R1 v1.0.0日常波动档案公式、Schema v16、GUI、验证与严格非交易边界 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |
@@ -35,13 +37,13 @@
 | Single-asset factors | `modules/factors.md` | 策略中立Factor合同、时间安全、注册器，以及已实现但锁定禁用且无交易消费者的P23-1 R1专用研究公式 |
 | Trading decision | `modules/trading-decision.md` | 既有FactorSnapshot决策合同与类型独立的linked-target adjustment研究合同；均无执行 authority |
 | Risk control | `modules/risk-control.md` | TradeIntent之后、Order Construction之前的保守风险合同，Phase 6A结构门及Phase 6B/6C/6D三条有序数值研究预览；候选金额仍未批准且不预留资金 |
-| Application orchestration | `modules/analysis-decision-pipeline.md` | Factor → Decision → Risk、exact Standardized State → Target Position、linked target → specialized Decision、Phase 6A–6D Risk研究、P23-1E-A最新交易日预览及P26单股票历史频谱研究的单向编排 |
-| Algorithm run history | `modules/run-history.md` | Searchable Run IDs, ordered stages, exact version bindings, persistent Factor/Decision/Risk evidence, Decision traces, migrations and read-only Explorer |
+| Application orchestration | `modules/analysis-decision-pipeline.md` | Factor → Decision → Risk、exact Standardized State → Target Position、exact P28 step → P23-3A Target、linked target → specialized Decision、Phase 6A–6D Risk研究、P23-1E-A最新交易日预览及P26单股票历史频谱研究的单向编排 |
+| Algorithm run history | `modules/run-history.md` | Searchable Run IDs, ordered stages, exact version bindings, persistent Factor/Decision/Risk/P23-3A evidence, exact source relationships, migrations and read-only Explorer |
 | Execution environments | `modules/execution-environments.md` | Paper与Live两个同级、空白、禁用的未来执行环境边界 |
 | Portfolio accounting | `modules/portfolio-accounting.md` | 统一会计领域、派生快照、核对与只读Query边界 |
 | Asset state | `modules/asset-state.md` | 版本化符号状态、交易周期、人工转换、时间线和确定性重放；不含自动状态公式 |
 | Trading ledger | `modules/trading-ledger.md` | 追加式订单操作与成交/现金事实记录边界 |
-| Algorithm control GUI | `modules/algorithm-control-gui.md` | Registry驱动的组件、参数、版本配置、依赖验证、NO EXECUTION预览和审计管理面 |
+| Algorithm control GUI | `modules/algorithm-control-gui.md` | Registry驱动的组件、参数、版本配置、依赖验证、NO EXECUTION预览、P23-3兄弟Target Position检查器和审计管理面 |
 | Algorithm Idea Notebook | `modules/idea-notebook.md` | Algorithm Control内的本地纯文本想法记录；与Factor、Decision、Backtesting和Execution隔离 |
 | Workflow | `development/WORKFLOW.md` | 每次任务的执行流程 |
 | Debugging | `development/DEBUGGING.md` | 错误编号、日志、诊断命令和标准排查流程 |

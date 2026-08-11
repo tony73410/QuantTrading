@@ -59,6 +59,23 @@ def test_target_position_gui_uses_typed_services_without_sql_or_financial_consum
     assert "NO EXECUTION" in source
 
 
+def test_cycle_target_gui_is_an_inspector_without_persistence_or_financial_consumers() -> None:
+    path = ROOT / "algorithm_control" / "ui" / "cycle_target_position_panel.py"
+    source = path.read_text(encoding="utf-8")
+    imports = _imports(path)
+    forbidden = (
+        "sqlite3", "quant_trading.persistence", "quant_trading.market_history",
+        "quant_trading.capital_allocation", "quant_trading.portfolio_accounting",
+        "quant_trading.decision", "quant_trading.risk", "quant_trading.backtesting",
+        "quant_trading.execution",
+    )
+    assert not [name for name in imports if name.startswith(forbidden)]
+    assert "math." not in source
+    assert "TradeIntent(" not in source
+    assert "latest/default" in source
+    assert "NO EXECUTION" in source
+
+
 def test_trading_consumers_do_not_import_target_position() -> None:
     for module in (
         "market_history", "factors", "asset_state", "capital_allocation",

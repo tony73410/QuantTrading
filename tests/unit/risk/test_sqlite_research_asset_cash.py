@@ -454,12 +454,12 @@ def test_v12_to_v14_migration_backs_up_preserves_and_has_zero_backfill(tmp_path:
     CentralSQLiteDatabase(path, backup_directory=backups).initialize()
 
     backup = next(backups.glob("*.sqlite3"))
-    assert ".schema-v12-to-v17." in backup.name
+    assert ".schema-v12-to-v18." in backup.name
     with sqlite3.connect(backup) as connection:
         assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 12
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "target_adjustment_research_asset_cash_operations",

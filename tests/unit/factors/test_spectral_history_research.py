@@ -191,7 +191,7 @@ def test_historical_study_persists_complete_parent_child_grid_and_reloads(tmp_pa
         else:
             assert latest == point.evaluation_session
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
 
 
@@ -244,9 +244,9 @@ def test_v14_to_current_migration_is_additive_backed_up_and_does_not_backfill(tm
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v14-to-v17." in backups[0].name
+    assert ".schema-v14-to-v18." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM spectral_historical_studies").fetchone()[0] == 0
         assert connection.execute("SELECT COUNT(*) FROM daily_volatility_profile_results").fetchone()[0] == 0

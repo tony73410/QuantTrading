@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Provide one durable, searchable identity and ordered evidence chain for current Factor Preview, Decision Preview, full Factor → Decision → Risk Dry Run, Capital Allocation, manual Asset State, bounded Target Position, manual standardized-price-state, linked standardized-state-to-target, linked-target-to-Decision and specialized Phase 6A→6B→6C→6D Risk operations. The module records what ran and links domain-owned results; it does not calculate algorithms, capital, state transitions, targets, standardized state, Decision amounts or Risk formulas.
+Provide one durable, searchable identity and ordered evidence chain for current Factor Preview, Decision Preview, full Factor → Decision → Risk Dry Run, Capital Allocation, manual/P23-2 Asset State, finite-knot/linked/P23-3A Target Position, standardized-state, linked-target-to-Decision and specialized Phase 6A→6B→6C→6D Risk operations. The module records what ran and links domain-owned results; it does not calculate algorithms, capital, state transitions, targets, standardized state, Decision amounts or Risk formulas.
 
 ## Responsibilities
 
@@ -46,7 +46,7 @@ Central Schema v3 adds normalized Decision condition/sizing-input evidence and a
 
 Stored Decimal values remain exact text. Times are timezone-aware UTC ISO-8601 values. Historical rows are insert-only except controlled running-to-terminal lifecycle updates; result IDs are never silently overwritten.
 
-Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence indexing, v16 adds P23-1F profiles and v17 adds P23-2 reversal-observation relationships. Earlier authoritative results are unchanged. Migrated v2 rows remain visible as `trace_not_captured`; Run History never reconstructs missing evidence or owns algorithm meaning.
+Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence indexing, v16 adds P23-1F profiles, v17 adds P23-2 relationships and v18 adds P23-3A cycle-target relationships/artifacts. Earlier authoritative results are unchanged. Migrated v2 rows remain visible as `trace_not_captured`; Run History never reconstructs missing evidence or owns algorithm meaning.
 
 ## Current orchestration
 
@@ -66,6 +66,9 @@ Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence 
 - P23-1 preview: one `FACTOR_PREVIEW` Run records ordered `MARKET_DATA` then `FACTOR` stages, exact immutable v1.0.0/v1.1.0 definition/evidence bindings and one operation artifact with 60/120/250-window children. P23-1E-A evidence/definition preparation failures create searchable failed Runs with a failed `MARKET_DATA` stage; successful manual clicks reuse the single Run created by the Factor service. Invalid and failed attempts remain visible; opening a Run never fetches or recalculates the spectrum.
 - P26 history: one `SPECTRAL_HISTORY_RESEARCH` parent records `MARKET_DATA` evidence-set preparation then a chronological `FACTOR` stage. Every calculated point is a child `FACTOR_PREVIEW` Run created by the existing Factor service; the parent artifact lists the complete point grid and links child Runs. Cancellation is terminal on the parent and occurs only between children. Opening parent/child Runs is read-only and never fetches or recalculates.
 - P23-2 definition/preview: one `REVERSAL_OBSERVATION_RESEARCH` Run records an ordered `STATE` stage. Preview Runs parent to the exact P27 Run, retain the P26 parent as a source relationship and expose normalized candidate/confirmation/activation event children. Definition-save Runs expose the new immutable disabled definition. Run History renders stored evidence only and never changes formal Asset State or recalculates the algorithm.
+- P23-3A definition/configuration saves: one `CYCLE_TARGET_POSITION_RESEARCH` Run records one `TARGET_POSITION` stage and exact immutable bindings. Preview Runs parent to the exact P28 Run, record ordered `STATE` then `TARGET_POSITION` stages, expose P28/P27/P26 source relationships and render source links, region predicates, solver evidence, target/difference and disabled safety metadata. Run History never calculates or repairs P29.
+
+Approved PROPOSAL-030 created formula/configuration Runs `a7dfa5bf-d5ee-4a25-b92f-63a53a027559` and `7c2766a6-e5a8-4465-8380-0466612b3be1`, followed by preview Runs `0b3c8422-ac0c-4ddd-a7fe-b47c8de723ee`, `9229bb8d-be23-4707-b24c-5ab8e58a3857` and `59a6538b-2066-4e34-bde4-6dffda3d40e6`. All previews reload as `COMPLETED_WITH_WARNINGS`, preserve exact P28 parent/source relationships and have no downstream Run. The warnings state that only frozen local evidence was used.
 
 The approved AAPL validation definition Run is `f97a70c6-7dcd-49a6-85ca-e74fc098789f`; preview Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6` completed with warnings under `NO_EXECUTION`, parents to the exact P27 Run and exposes result `4447da24-2d25-5fbd-a7fd-fb0c3e501249`. Three earlier prerequisite failures are intentionally retained: incomplete local evidence, the confirmed mapping foreign-key defect, and one fail-closed incompatible-mapping preflight during repair. They are audit evidence, not hidden or rewritten as successes.
 
@@ -75,7 +78,7 @@ The Risk stage has three ordered approved-for-research numerical preview rules, 
 
 ## Migration and rollback
 
-The current additive migration chain is v1→v17. Each step preserves earlier meaning; P23-1 adds v14 specialized operation evidence, P26 adds v15 studies, P23-1F adds v16 profiles and P23-2 adds v17 reversal-observation evidence.
+The current additive migration chain is v1→v18. Each step preserves earlier meaning; P23-1 adds v14, P26 v15, P23-1F v16, P23-2 v17 and P23-3A v18 evidence.
 
 Schema v1→v2, v2→v3, v3→v4 and v4→v5 are additive. Before migration, `CentralSQLiteDatabase` creates a consistent backup under `runtime/data/backups/`, applies each version in a transaction, and verifies prior table row counts, foreign keys, and `PRAGMA integrity_check`. Failure rolls the transaction back. Rollback after a successful migration requires stopping writers, preserving the newer database and restoring the matching verified backup; the application does not pretend code rollback alone can downgrade the database.
 
@@ -124,6 +127,7 @@ Algorithm Control contains a read-only `Run History` page and the Main Launcher 
 - P23-1 operation provenance, status/warnings and exact 60/120/250 window artifacts.
 - P23-1F profile attempts/results, complete daily MAD trace, exact P26 parent plus every source child Run, definition/study fingerprints, warnings and durable failures under `VOLATILITY_PROFILE_RESEARCH`.
 - P23-2 definition/preview attempts, exact P27/P26/local-market source identities, daily/event counts, initial/final research direction, warnings and durable failures under `REVERSAL_OBSERVATION_RESEARCH`.
+- P23-3A formula/configuration/preview attempts, exact P28 Result/Run/Step and P27/P26 lineage, `P/R/k/x`, linear gates, region, beta solver, target/difference, source-link children and durable failures under `CYCLE_TARGET_POSITION_RESEARCH`.
 
 Completed previews automatically open their Run detail. GUI code consumes only `RunHistoryQueryService` and contains no SQL or business calculation.
 
@@ -141,6 +145,6 @@ Completed previews automatically open their Run detail. GUI code consumes only `
 - Phase 4A state remains disabled. Phase 5C has the explicitly approved Phase 5D Decision research consumer; Phase 5D is consumed only by the disabled Phase 6A→6B→6C→6D research chain and still has no complete Risk-approval, Backtesting, Accounting or Execution consumer.
 
 - Backtesting remains in its existing immutable JSON repository; Phase 1 does not duplicate large daily artifacts into SQLite or register historical backtests retroactively.
-- Run History Explorer itself performs view replay only. P23-2's owning Asset State service provides exact isolated recalculation replay from normalized stored inputs; it reports divergence and never repairs history.
+- Run History Explorer itself performs view replay only. P23-2 and P23-3A owning services provide exact isolated recalculation replay from normalized stored inputs; divergence is visible and history is never repaired.
 - Retention, archive, algorithm recomputation replay, automatic state evaluation, Reconciliation, Paper and Live records remain later phases. Phase 4A adds manual state-history/replay artifacts only; no downstream consumer exists.
 - No Portfolio Accounting snapshot is fabricated for current previews; empty references remain explicit.

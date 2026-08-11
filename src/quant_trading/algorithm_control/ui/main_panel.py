@@ -101,6 +101,8 @@ from quant_trading.asset_state import (
     ReversalObservationService,
 )
 from quant_trading.target_position import (
+    CycleTargetPositionQueryService,
+    CycleTargetPositionService,
     EmptyTargetPositionQueryService,
     TargetPositionQueryService,
     TargetPositionService,
@@ -111,6 +113,7 @@ from quant_trading.factors.standardized_state_interfaces import (
 )
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
 from quant_trading.orchestration import (
+    CycleTargetPositionResearchRunner,
     StandardizedStateTargetPositionPreviewCoordinator,
     TargetAdjustmentDecisionPreviewCoordinator,
     TargetAdjustmentExposureCapPreviewCoordinator,
@@ -195,6 +198,9 @@ class AlgorithmControlPanel(QMainWindow):
         reversal_observation_service: ReversalObservationService | None = None,
         reversal_observation_queries: ReversalObservationQueryService | None = None,
         reversal_observation_runner: ReversalObservationResearchRunner | None = None,
+        cycle_target_position_service: CycleTargetPositionService | None = None,
+        cycle_target_position_queries: CycleTargetPositionQueryService | None = None,
+        cycle_target_position_runner: CycleTargetPositionResearchRunner | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -322,6 +328,10 @@ class AlgorithmControlPanel(QMainWindow):
             standardized_state_queries=(
                 standardized_state_queries or EmptyStandardizedPriceStateQueryService()
             ),
+            cycle_target_service=cycle_target_position_service,
+            cycle_target_queries=cycle_target_position_queries,
+            reversal_observation_queries=reversal_observation_queries,
+            cycle_target_runner=cycle_target_position_runner,
         )
         self.simulation_strategy_page = SimulationStrategyPanel(controller)
         self.pipeline = self._pipeline_page()

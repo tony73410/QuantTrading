@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v17/110 adds disabled P23-2 reversal-observation definitions, attempts, results, steps, events and source links to all v16 capabilities. These records describe local research only; no production algorithm, complete Risk approval or execution path is active.
+**Implemented and verified.** Central Schema v18/116 adds disabled P23-3A cycle-target formula/configuration/attempt/result/trace/source-link evidence to all v17 capabilities. Approved PROPOSAL-030 created only one disabled AAPL validation configuration and three hypothetical linear results. No P29 default, production algorithm, complete Risk approval or execution path is active.
 
 ## Purpose
 
@@ -27,6 +27,7 @@ Use one local SQLite file for Market History and durable algorithm research evid
 - Persist immutable Asset State definitions/edges, trading cycles, start/close events, manual transitions, exact evidence bindings, snapshots and every successful/invalid/failed operation attempt without assigning financial meaning.
 - Revalidate completed Asset State definition/transition/cycle inputs, exact predecessor/edge relationships, idempotent operation identity and optional local Run/Factor evidence in the same transaction.
 - Persist immutable standardized-state definitions, raw successful/invalid/failed operations, exact positive manual USD inputs, deviation/state traces and optional evidence while revalidating definition/result/Run/stage provenance transactionally.
+- Persist P23-3A immutable formula definitions, explicit per-symbol configurations, every operation attempt, accepted bounded result, binary64/IEEE/Decimal calculation trace and exact P28/P27/P26/Market source links while revalidating configuration/source/Run/stage identity transactionally.
 - Persist every linked standardized-state-to-Target-Position attempt and each accepted immutable source/result link while revalidating source schema/unit/value/symbol/time/definition/Run/stage, target result and parent/child Run identity in one transaction.
 - Persist every target-adjustment Decision attempt plus accepted result, zero-or-one specialized intent and immutable source link; revalidate the exact Phase 5C link, source/target results, copied arithmetic, action/notional/cardinality and all Run/stage identities transactionally.
 - Persist every Phase 6A structural Risk and Phase 6B exposure-cap attempt/result/rule/source link, including immutable cap definitions and exact source/formula validation.
@@ -62,11 +63,11 @@ No Market Data download, Factor formula, `available_at_utc` policy, Decision/Ris
 
 ## Inputs
 
-Validated public Run History, Factor, Decision, specialized target-adjustment Decision, generic/specialized Risk including exposure-cap, research-cash-floor and research-asset-cash, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance contracts. Factor calculation attempts may carry optional top-level Run/Stage IDs.
+Validated public Run History, Factor, Decision, specialized target-adjustment Decision, generic/specialized Risk including exposure-cap, research-cash-floor and research-asset-cash, Capital Allocation, Asset State, Target Position including P23-3A cycle-target contracts, standardized-state and linked provenance contracts. Factor calculation attempts may carry optional top-level Run/Stage IDs.
 
 ## Outputs
 
-Canonical stored `FactorSnapshot` values, calculation-run audit records, immutable generic Decision/Risk evidence, type-distinct target-adjustment Decision/manual-review/exposure-cap/cash-floor/asset-cash results/rules/source links, Factor/Decision history views, exact-version comparisons, exact source-price visualization series, immutable capital-plan/snapshot/transfer/operation evidence, immutable manual Asset State history, bounded Target Position history, manual standardized-state definitions/results/traces, exact linked source/target operations and relationships, typed Run list/detail views, and a read-only exact migration/table inspection used by startup validation and diagnostics. Exact repeated Factor calculations reference the existing snapshot instead of duplicating Factor rows.
+Canonical stored `FactorSnapshot` values, calculation-run audit records, immutable generic Decision/Risk evidence, type-distinct target-adjustment Decision/manual-review/exposure-cap/cash-floor/asset-cash results/rules/source links, Factor/Decision history views, exact source-price visualization series, immutable capital/state/finite-knot/standardized/link evidence, P23-3A formula/configuration/operation/result/trace/source evidence, typed Run list/detail views, and exact migration/table inspection. Exact repeated Factor calculations reference existing snapshots rather than duplicating Factor rows.
 
 ## Dependencies
 
@@ -74,7 +75,7 @@ Python standard library `sqlite3`, neutral Run History contracts, and public Fac
 
 ## Side effects
 
-Creates additive Schema v17 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1 evidence, v15 P26 studies, v16 P23-1F profiles and v17 P23-2 reversal observation. No migration backfilled a historical algorithm claim.
+Creates additive Schema v18 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2 and v18 P23-3A evidence. No migration backfilled a historical algorithm claim.
 
 The verified real v6→v7 migration created `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`, preserved all 44 pre-existing business-table counts including 215,340 Market Bars and 365 Fetch History rows, and left all five new tables empty. Backup and active copies returned `integrity_check=ok` and zero foreign-key violations.
 
@@ -116,6 +117,10 @@ Schema v17 adds exactly six normalized P23-2 tables: `reversal_observation_defin
 
 After the separately approved AAPL validation, active v17/110 contains 1 P28 definition, 2 operation attempts (definition plus preview), 1 result, 3 daily steps, 0 events and 9 source links. `integrity_check=ok` and zero foreign-key violations still hold. The `M=1.5` row is an immutable disabled validation definition, not a global/default configuration. Failed prerequisite Runs remain in Run History but did not create partial P28 rows.
 
+Schema v18 adds exactly six normalized P23-3A tables: `cycle_target_formula_definitions`, `cycle_target_asset_configurations`, `cycle_target_operation_attempts`, `cycle_target_results`, `cycle_target_calculation_traces` and `cycle_target_source_links`. The approved v17→v18 migration created verified backup `market_history.schema-v17-to-v18.20260811T031305700700Z.sqlite3`, expanded 110→116 logical tables with zero backfill and preserved every prior business-table row count except the expected migration-ledger increment. Backup v17/110 and active v18/116 both report `integrity_check=ok` and zero foreign-key violations; all six new tables began empty. The Store preserves raw parameter text/IEEE values, exact source identities, region predicates, solver evidence, Decimal target arithmetic, durable failures and restart-safe replay without selecting a latest/default source.
+
+Before approved PROPOSAL-030 writes, the active database was copied to `market_history.before-p30-validation.20260811T0428081654404Z.sqlite3`. The active six-table counts are now `1/1/5/3/3/18` for formula/configuration/attempt/result/trace/source link. Compared with that backup, only those six tables plus `algorithm_runs`, `algorithm_run_stages`, `algorithm_run_symbols` and `algorithm_run_bindings` changed; every other table retained its row count. Active integrity is `ok` with zero foreign-key violations. The stored formula/configuration remain disabled and all three result Runs are `NO_EXECUTION`.
+
 Schema v15 adds five normalized P26 tables: `spectral_historical_evidence_sets`, `spectral_historical_evidence_observations`, `spectral_historical_studies`, `spectral_historical_study_definitions` and `spectral_historical_study_points`. `SQLiteSpectralHistoricalStudyStore` persists one shared source set, the exact ordered definition list and every requested point membership while referencing existing operation attempts for numerical detail. Exact local lookup never promotes generic Bars or unrelated P25 operations. The v14→v15 migration creates a v14 backup, preserves all prior row counts, expands 94→99 required logical tables, performs no study backfill and must pass foreign-key/integrity checks.
 
 The 2026-08-02 active-database check remained `integrity_check=ok` with zero foreign-key violations. One approved AAPL v1.1.0 operation and its exact evidence/result graph reload from a fresh process. No Schema v15, backup, migration or historical backfill was needed for PROPOSAL-025.
@@ -141,7 +146,7 @@ Target Position and standardized-state persistence stores research evidence only
 - No production Factor exists. Current stored algorithm results come only from explicit local previews/Dry Runs.
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
-- Current Schema v17 rollback requires stopping writers, preserving the v17 file and restoring the verified `schema-v16-to-v17` backup with matching v16 code. Code rollback alone is not a database downgrade; earlier verified backups remain available only for separately controlled historical downgrades.
+- Current Schema v18 rollback requires stopping writers, preserving the v18 file and restoring verified `market_history.schema-v17-to-v18.20260811T031305700700Z.sqlite3` with matching v17 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.

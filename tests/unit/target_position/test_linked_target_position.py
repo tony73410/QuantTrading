@@ -369,12 +369,12 @@ def test_v7_to_current_migration_backs_up_preserves_and_creates_no_links(tmp_pat
 
     backup_files = tuple(backups.glob("*.sqlite3"))
     assert len(backup_files) == 1
-    assert ".schema-v7-to-v17." in backup_files[0].name
+    assert ".schema-v7-to-v18." in backup_files[0].name
     with sqlite3.connect(backup_files[0]) as backup:
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 7
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
     with sqlite3.connect(database) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute(
             "SELECT COUNT(*) FROM target_position_linked_preview_operations"

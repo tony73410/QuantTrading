@@ -114,7 +114,7 @@ def test_service_persists_definition_result_steps_events_and_run_artifact(tmp_pa
     detail = runs.get_run_detail(operation.run_id)
     assert any(item.artifact_type == "reversal_observation_operation" for item in detail.artifacts)
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("SELECT COUNT(*) FROM reversal_observation_daily_steps").fetchone()[0] == 3
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
@@ -141,11 +141,11 @@ def test_v16_to_v17_migration_is_additive_backed_up_and_zero_backfill(tmp_path: 
 
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v16-to-v17." in backups[0].name
+    assert ".schema-v16-to-v18." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM reversal_observation_results").fetchone()[0] == 0
-        assert len(sqlite_database.expected_schema_tables()) == 110
+        assert len(sqlite_database.expected_schema_tables()) == 116
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"

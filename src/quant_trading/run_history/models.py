@@ -39,6 +39,7 @@ class AlgorithmRunType(StrEnum):
     SPECTRAL_HISTORY_RESEARCH = "spectral_history_research"
     VOLATILITY_PROFILE_RESEARCH = "volatility_profile_research"
     REVERSAL_OBSERVATION_RESEARCH = "reversal_observation_research"
+    CYCLE_TARGET_POSITION_RESEARCH = "cycle_target_position_research"
 
 
 class AlgorithmRunStatus(StrEnum):

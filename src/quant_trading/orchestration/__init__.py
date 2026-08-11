@@ -46,6 +46,11 @@ from .reversal_observation_research import (
     ReversalObservationResearchRequest,
     ReversalObservationResearchRunner,
 )
+from .cycle_target_position_research import (
+    CycleTargetPositionPreflight,
+    CycleTargetPositionResearchCoordinator,
+    CycleTargetPositionResearchRunner,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -74,4 +79,7 @@ __all__ = [
     "ReversalObservationResearchCoordinator",
     "ReversalObservationResearchRequest",
     "ReversalObservationResearchRunner",
+    "CycleTargetPositionPreflight",
+    "CycleTargetPositionResearchCoordinator",
+    "CycleTargetPositionResearchRunner",
 ]

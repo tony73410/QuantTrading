@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 
 
 _SCHEMA_V1 = """
@@ -3192,6 +3192,290 @@ ON reversal_observation_results(profile_result_id, symbol, created_at_utc DESC);
 """
 
 
+_SCHEMA_V18 = """
+CREATE TABLE cycle_target_formula_definitions (
+    formula_definition_id TEXT PRIMARY KEY,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    predecessor_formula_definition_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('disabled', 'archived')),
+    name TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    component_id TEXT NOT NULL CHECK (component_id = 'target_position.cycle_aware_piecewise.p23_3a.v1'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    response_direction TEXT NOT NULL CHECK (response_direction = 'lower_price_higher_target'),
+    state_formula TEXT NOT NULL CHECK (state_formula = 'x=ln(P/R)/k'),
+    linear_formula TEXT NOT NULL,
+    acceleration_formula TEXT NOT NULL,
+    region_policy TEXT NOT NULL,
+    numeric_policy TEXT NOT NULL,
+    solver_id TEXT NOT NULL,
+    solver_tolerance_text TEXT NOT NULL,
+    solver_tolerance REAL NOT NULL CHECK (solver_tolerance > 0),
+    solver_tolerance_hex TEXT NOT NULL,
+    solver_max_iterations INTEGER NOT NULL CHECK (solver_max_iterations = 256),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (predecessor_formula_definition_id)
+        REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_asset_configurations (
+    configuration_id TEXT PRIMARY KEY,
+    configuration_version INTEGER NOT NULL CHECK (configuration_version >= 1),
+    predecessor_configuration_id TEXT,
+    formula_definition_id TEXT NOT NULL,
+    formula_definition_version INTEGER NOT NULL CHECK (formula_definition_version >= 1),
+    symbol TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('disabled', 'archived')),
+    minimum_fraction_input_text TEXT NOT NULL,
+    minimum_fraction REAL NOT NULL,
+    minimum_fraction_hex TEXT NOT NULL,
+    neutral_fraction_input_text TEXT NOT NULL,
+    neutral_fraction REAL NOT NULL,
+    neutral_fraction_hex TEXT NOT NULL,
+    maximum_fraction_input_text TEXT NOT NULL,
+    maximum_fraction REAL NOT NULL,
+    maximum_fraction_hex TEXT NOT NULL,
+    linear_slope_input_text TEXT NOT NULL,
+    linear_slope REAL NOT NULL CHECK (linear_slope > 0),
+    linear_slope_hex TEXT NOT NULL,
+    acceleration_start_input_text TEXT NOT NULL,
+    acceleration_start REAL NOT NULL CHECK (acceleration_start > 0),
+    acceleration_start_hex TEXT NOT NULL,
+    saturation_input_text TEXT NOT NULL,
+    saturation REAL NOT NULL CHECK (saturation > 0),
+    saturation_hex TEXT NOT NULL,
+    constraint_fingerprint TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (predecessor_configuration_id)
+        REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT,
+    FOREIGN KEY (formula_definition_id)
+        REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_operation_attempts (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    state_stage_id TEXT,
+    target_stage_id TEXT,
+    operation_type TEXT NOT NULL CHECK (operation_type IN ('save_formula', 'save_configuration', 'preview')),
+    command_fingerprint TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'invalid_input', 'source_not_found', 'source_incompatible', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    requested_formula_definition_id TEXT,
+    requested_formula_definition_version INTEGER,
+    requested_configuration_id TEXT,
+    requested_configuration_version INTEGER,
+    requested_source_result_id TEXT,
+    requested_source_step_id TEXT,
+    requested_source_run_id TEXT,
+    requested_symbol TEXT,
+    input_values_text TEXT NOT NULL,
+    resolved_formula_definition_id TEXT,
+    resolved_formula_definition_version INTEGER,
+    resolved_configuration_id TEXT,
+    resolved_configuration_version INTEGER,
+    result_id TEXT,
+    warnings_text TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_formula_definition_id)
+        REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (resolved_configuration_id)
+        REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT,
+    FOREIGN KEY (result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_results (
+    result_id TEXT PRIMARY KEY,
+    calculation_fingerprint TEXT NOT NULL,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    state_stage_id TEXT NOT NULL UNIQUE,
+    target_stage_id TEXT NOT NULL UNIQUE,
+    formula_definition_id TEXT NOT NULL,
+    formula_definition_version INTEGER NOT NULL,
+    configuration_id TEXT NOT NULL,
+    configuration_version INTEGER NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_stage_id TEXT NOT NULL,
+    source_step_id TEXT NOT NULL,
+    source_step_ordinal INTEGER NOT NULL CHECK (source_step_ordinal >= 1),
+    source_definition_id TEXT NOT NULL,
+    source_definition_version INTEGER NOT NULL,
+    source_component_id TEXT NOT NULL,
+    source_component_version TEXT NOT NULL,
+    source_calculation_fingerprint TEXT NOT NULL,
+    source_profile_result_id TEXT NOT NULL,
+    source_profile_run_id TEXT NOT NULL,
+    source_parent_run_id TEXT NOT NULL,
+    source_market_evidence_id TEXT NOT NULL,
+    source_market_fingerprint TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    session TEXT NOT NULL,
+    official_close_utc TEXT NOT NULL,
+    available_at_utc TEXT NOT NULL,
+    direction_at_open TEXT NOT NULL CHECK (direction_at_open IN ('up', 'down')),
+    direction_at_close TEXT NOT NULL CHECK (direction_at_close IN ('up', 'down')),
+    candidate_state_after_close TEXT NOT NULL CHECK (candidate_state_after_close IN ('none', 'day_1_pending', 'confirmed_awaiting_activation')),
+    attribution TEXT NOT NULL,
+    event_ids_text TEXT NOT NULL,
+    cycle_reference_session TEXT NOT NULL,
+    cycle_reference_price_input_text TEXT NOT NULL,
+    cycle_reference_price REAL NOT NULL CHECK (cycle_reference_price > 0),
+    cycle_reference_price_hex TEXT NOT NULL,
+    split_close_input_text TEXT NOT NULL,
+    split_close REAL NOT NULL CHECK (split_close > 0),
+    split_close_hex TEXT NOT NULL,
+    profile_log_scale_text TEXT NOT NULL,
+    profile_log_scale REAL NOT NULL CHECK (profile_log_scale > 0),
+    profile_log_scale_hex TEXT NOT NULL,
+    source_warnings_text TEXT NOT NULL,
+    region TEXT NOT NULL CHECK (region IN ('linear', 'linear_clamped', 'accelerating', 'saturated')),
+    status TEXT NOT NULL CHECK (status IN ('valid_linear', 'valid_linear_clamped', 'valid_accelerating', 'valid_saturated')),
+    target_fraction_text TEXT NOT NULL,
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_position_value_usd_text TEXT NOT NULL,
+    target_position_value_usd_text TEXT NOT NULL,
+    adjustment_value_usd_text TEXT NOT NULL,
+    adjustment_direction TEXT NOT NULL CHECK (adjustment_direction IN ('none', 'increase', 'decrease')),
+    warnings_text TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (formula_definition_id)
+        REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (configuration_id)
+        REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id)
+        REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_step_id)
+        REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_calculation_traces (
+    result_id TEXT PRIMARY KEY,
+    log_price_ratio_text TEXT NOT NULL,
+    log_price_ratio REAL NOT NULL,
+    log_price_ratio_hex TEXT NOT NULL,
+    normalized_state_text TEXT NOT NULL,
+    normalized_state REAL NOT NULL,
+    normalized_state_hex TEXT NOT NULL,
+    absolute_state_text TEXT NOT NULL,
+    absolute_state REAL NOT NULL,
+    absolute_state_hex TEXT NOT NULL,
+    direction_matches INTEGER NOT NULL CHECK (direction_matches IN (0, 1)),
+    confirmation_forces_linear INTEGER NOT NULL CHECK (confirmation_forces_linear IN (0, 1)),
+    counter_move_forces_linear INTEGER NOT NULL CHECK (counter_move_forces_linear IN (0, 1)),
+    within_linear_boundary INTEGER NOT NULL CHECK (within_linear_boundary IN (0, 1)),
+    at_or_beyond_saturation INTEGER NOT NULL CHECK (at_or_beyond_saturation IN (0, 1)),
+    linear_raw_fraction_text TEXT NOT NULL,
+    linear_raw_fraction REAL NOT NULL,
+    linear_raw_fraction_hex TEXT NOT NULL,
+    linear_bounded_fraction_text TEXT NOT NULL,
+    linear_bounded_fraction REAL NOT NULL,
+    linear_bounded_fraction_hex TEXT NOT NULL,
+    boundary_fraction_text TEXT,
+    boundary_fraction REAL,
+    boundary_fraction_hex TEXT,
+    headroom_text TEXT,
+    headroom REAL,
+    headroom_hex TEXT,
+    rho_text TEXT,
+    rho REAL,
+    rho_hex TEXT,
+    beta_text TEXT,
+    beta REAL,
+    beta_hex TEXT,
+    solver_iterations INTEGER,
+    normalized_acceleration_progress_text TEXT,
+    normalized_acceleration_progress REAL,
+    normalized_acceleration_progress_hex TEXT,
+    exponential_progress_text TEXT,
+    exponential_progress REAL,
+    exponential_progress_hex TEXT,
+    pre_bound_target_fraction_text TEXT NOT NULL,
+    pre_bound_target_fraction REAL NOT NULL,
+    pre_bound_target_fraction_hex TEXT NOT NULL,
+    final_target_fraction_text TEXT NOT NULL,
+    final_target_fraction REAL NOT NULL,
+    final_target_fraction_hex TEXT NOT NULL,
+    exact_decimal_fraction_text TEXT NOT NULL,
+    solver_id TEXT NOT NULL,
+    solver_tolerance_text TEXT NOT NULL,
+    solver_tolerance REAL NOT NULL,
+    solver_tolerance_hex TEXT NOT NULL,
+    solver_max_iterations INTEGER NOT NULL,
+    formula_trace_text TEXT NOT NULL,
+    FOREIGN KEY (result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_source_links (
+    result_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    source_type TEXT NOT NULL,
+    source_id TEXT NOT NULL,
+    source_version TEXT,
+    source_fingerprint TEXT,
+    source_run_id TEXT,
+    PRIMARY KEY (result_id, ordinal),
+    FOREIGN KEY (result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_cycle_target_formula_definitions_list
+ON cycle_target_formula_definitions(created_at_utc DESC, definition_version DESC);
+CREATE INDEX idx_cycle_target_asset_configurations_list
+ON cycle_target_asset_configurations(symbol, created_at_utc DESC, configuration_version DESC);
+CREATE INDEX idx_cycle_target_operations_lookup
+ON cycle_target_operation_attempts(requested_symbol, completed_at_utc DESC, status);
+CREATE INDEX idx_cycle_target_results_source
+ON cycle_target_results(symbol, session DESC, source_result_id, source_step_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -3210,6 +3494,7 @@ _MIGRATIONS = {
     15: ("P23-1E-B bounded historical spectral research studies", _SCHEMA_V15),
     16: ("P23-1F per-stock daily-volatility research profiles", _SCHEMA_V16),
     17: ("P23-2 symmetric reversal observation research", _SCHEMA_V17),
+    18: ("P23-3A cycle-aware bounded target-position research", _SCHEMA_V18),
 }
 
 

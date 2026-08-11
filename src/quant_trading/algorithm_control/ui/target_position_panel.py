@@ -38,6 +38,8 @@ from quant_trading.target_position import (
     TargetPositionQueryService,
     TargetPositionResult,
     TargetPositionService,
+    CycleTargetPositionQueryService,
+    CycleTargetPositionService,
 )
 from quant_trading.factors.standardized_state_interfaces import (
     EmptyStandardizedPriceStateQueryService,
@@ -48,11 +50,13 @@ from quant_trading.factors.standardized_state_models import (
     StandardizedPriceStateResultQuery,
 )
 from quant_trading.orchestration import (
+    CycleTargetPositionResearchRunner,
     StandardizedStateTargetPositionPreviewCoordinator,
 )
 from quant_trading.visualization import PlotlyFigureView
 
 from ..target_position_chart import TargetPositionChartBuilder
+from .cycle_target_position_panel import CycleTargetPositionPanel
 
 
 class TargetPositionPanel(QWidget):
@@ -69,6 +73,10 @@ class TargetPositionPanel(QWidget):
         created_by: str = "local-user",
         linked_preview_service: StandardizedStateTargetPositionPreviewCoordinator | None = None,
         standardized_state_queries: StandardizedPriceStateQueryService | None = None,
+        cycle_target_service: CycleTargetPositionService | None = None,
+        cycle_target_queries: CycleTargetPositionQueryService | None = None,
+        reversal_observation_queries=None,
+        cycle_target_runner: CycleTargetPositionResearchRunner | None = None,
     ) -> None:
         super().__init__()
         self._service = service
@@ -87,11 +95,18 @@ class TargetPositionPanel(QWidget):
         self._selected_link: StandardizedStateTargetPositionLink | None = None
         self._last_run_id: UUID | None = None
         self._chart_builder = TargetPositionChartBuilder()
+        self._cycle_target_service = cycle_target_service
+        self._cycle_target_queries = cycle_target_queries
+        self._reversal_observation_queries = reversal_observation_queries
+        self._cycle_target_runner = cycle_target_runner
         self._build_ui()
         self.reload()
 
     def _build_ui(self) -> None:
-        layout = QVBoxLayout(self)
+        root_layout = QVBoxLayout(self)
+        self.workspace_tabs = QTabWidget()
+        legacy_page = QWidget()
+        layout = QVBoxLayout(legacy_page)
         layout.addWidget(QLabel("<h2>Target Position Laboratory</h2>"))
         self.safety_notice = QLabel(
             "DISABLED RESEARCH / NO EXECUTION. Inputs are explicit manual research values. "
@@ -135,6 +150,18 @@ class TargetPositionPanel(QWidget):
         footer.addWidget(self.open_child_run_button)
         footer.addWidget(self.open_last_run_button)
         layout.addLayout(footer)
+        self.workspace_tabs.addTab(legacy_page, "Finite-knot / linked research")
+        self.cycle_target_panel = CycleTargetPositionPanel(
+            self._cycle_target_service,
+            self._cycle_target_queries,
+            self._reversal_observation_queries,
+            self._cycle_target_runner,
+            session_id=self._session_id,
+            created_by=self._created_by,
+        )
+        self.cycle_target_panel.open_run_requested.connect(self.open_run_requested.emit)
+        self.workspace_tabs.addTab(self.cycle_target_panel, "P23-3 周期目标仓位")
+        root_layout.addWidget(self.workspace_tabs)
 
     def _definition_group(self) -> QGroupBox:
         group = QGroupBox("Immutable finite-knot definition")

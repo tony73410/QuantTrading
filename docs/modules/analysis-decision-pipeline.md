@@ -2,11 +2,11 @@
 
 ## Status
 
-**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It owns Phase 5C exact standardized-state-to-Target-Position call order, Phase 5D exact linked-target-to-Decision source resolution, Phase 6A–6D exact Risk-research source resolution, the P23-1E-A manual latest-session call order and the P26 bounded historical-study call order. It contains no formula or rule outcome and never reaches execution.
+**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It owns Phase 5C exact standardized-state-to-Target-Position call order, Phase 5D exact linked-target-to-Decision source resolution, Phase 6A–6D exact Risk-research source resolution, P23-1/P26 research call order and the P23-3A exact-P28-step adapter. It contains no formula or rule outcome and never reaches execution.
 
 ## Purpose
 
-Coordinate explicitly approved cross-owner research call order while keeping every domain engine independently usable. Current paths include Factor then Decision and optional Risk, exact persisted Standardized State into Target Position, and one exact completed linked Target Position into the type-distinct Decision preview.
+Coordinate explicitly approved cross-owner research call order while keeping every domain engine independently usable. Current paths include Factor then Decision and optional Risk, exact Standardized State into finite-knot Target Position, one exact completed linked target into the type-distinct Decision preview, and one exact P28 Result/Run/Daily Step into P23-3A Target Position.
 
 ## Responsibilities
 
@@ -19,6 +19,7 @@ Coordinate explicitly approved cross-owner research call order while keeping eve
 - For tracked Algorithm Control previews, record one top-level Run, ordered Market Data/Factor/Decision/Risk stages, exact definition bindings, and durable domain results through injected public Store contracts.
 - Restricted Decision evaluation records structured condition values/outcomes and exact sizing inputs at calculation time before persistence; orchestration forwards the immutable result without calculating or reconstructing the trace.
 - Resolve one exact accepted standardized-state calculation through its public query, create a top-level linked-preview Run, and delegate a source-neutral exact scalar/symbol/time input to the Target Position linked service.
+- Resolve one explicitly selected successful P28 Result/Run and exact Daily Step through the public query, copy its P28/P27/P26/Market identities and `P/R/k`/direction/candidate evidence into a source-neutral Target Position DTO, then delegate to P23-3A without selecting latest evidence or calculating a curve.
 - Preserve source/parent/child Run identity, return idempotent exact retries, durably fail conflicts/missing evidence, and never select a latest/default result.
 - Resolve one explicitly selected completed Phase 5C link plus its exact source/target results, freeze a source-neutral `LinkedTargetDecisionInput`, and delegate action/notional interpretation to Decision.
 - Record one parent-linked `TARGET_ADJUSTMENT_DECISION_PREVIEW` Run with ordered Target Position evidence then Decision mapping; expose the Phase 5C parent, target child and standardized-state source Runs without calculating their meaning.
@@ -33,7 +34,7 @@ No Market Data loading, SQL, Factor formula, decision/risk rule, portfolio inter
 
 ## Public interfaces
 
-`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`, `StandardizedStateTargetPositionPreviewCoordinator`, `TargetAdjustmentDecisionPreviewCoordinator`, `TargetAdjustmentRiskReviewCoordinator`, `ManualSpectralPreviewRequest`, `ManualSpectralPreviewOutcome`, `ManualSpectralPreviewRunner`, `ManualSpectralPreviewCoordinator`, `SpectralHistoricalStudyRequest`, `SpectralHistoricalStudyDisclosure`, `SpectralHistoricalStudyRunner`, `SpectralHistoricalStudyCoordinator`.
+`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`, `StandardizedStateTargetPositionPreviewCoordinator`, `CycleTargetPositionResearchCoordinator`, `CycleTargetPositionResearchRunner`, `TargetAdjustmentDecisionPreviewCoordinator`, `TargetAdjustmentRiskReviewCoordinator`, `ManualSpectralPreviewRequest`, `ManualSpectralPreviewOutcome`, `ManualSpectralPreviewRunner`, `ManualSpectralPreviewCoordinator`, `SpectralHistoricalStudyRequest`, `SpectralHistoricalStudyDisclosure`, `SpectralHistoricalStudyRunner`, `SpectralHistoricalStudyCoordinator`.
 
 ## Inputs
 
@@ -45,7 +46,7 @@ Analysis returns one `FactorSnapshot` and one non-executing `DecisionResult`; Tr
 
 ## Dependencies
 
-May depend on public Factor/Decision/Risk engines and models, public Factor query/Store contracts, public Target Position query/application contracts and neutral Run History contracts. Must not depend on concrete SQLite adapters, target/factor engine internals, calculators/policies/rules, Provider, Alpaca, GUI, or execution.
+May depend on public Factor/Decision/Risk engines and models, public Factor/P28 query contracts, public Target Position query/application contracts and neutral Run History contracts. Must not depend on concrete SQLite adapters, target/factor/state engine internals, calculators/policies/rules, Provider, Alpaca, GUI, or execution.
 
 ## Side effects
 
@@ -65,4 +66,4 @@ Fake integration tests verify Factor → Snapshot → Decision and Factor → De
 
 ## Known limitations
 
-The general pipelines accept a prebuilt Market Data window; the general Algorithm Control adapter loads only local cached Bars. P23-1E-A is fixed to one symbol/latest session/R1 v1.1.0. P26 is separately bounded to one symbol, an explicit 2–250-session range and one/two compatible R1 definitions; it is not multi-symbol, scheduled, predictive or a Backtest. Linked Target Position does not estimate or fetch standardized-state inputs and keeps both USD values manual. Phase 5D adds no latest/default source selection; its only consumer is the isolated Phase 6A gate. Phase 6B–6D remain exact-source manual-review previews. Complete Risk approval, approved-order conversion and execution are **Not implemented**.
+The general pipelines accept a prebuilt Market Data window; the general Algorithm Control adapter loads only local cached Bars. P23-1/P26 restrictions remain unchanged. Linked Target Position does not estimate standardized-state inputs. P23-3A requires exact P28 evidence and has no Phase 5D/P23-4 consumer. All target USD contexts remain manual/hypothetical. Phase 5D's only consumer is the isolated Phase 6A gate; Phase 6B–6D remain exact-source manual-review previews. Complete Risk approval, approved-order conversion and execution are **Not implemented**.

@@ -116,7 +116,7 @@ def test_profile_service_persists_exact_result_deduplicates_payload_and_links_ru
     assert any(item.artifact_type == "daily_volatility_profile_operation" for item in detail.artifacts)
     assert {item.relationship_type.value for item in detail.relationships} >= {"parent", "source"}
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 
@@ -218,9 +218,9 @@ def test_v15_to_v16_migration_is_additive_backed_up_and_zero_backfill(tmp_path: 
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v15-to-v17." in backups[0].name
+    assert ".schema-v15-to-v18." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 17
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 18
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM daily_volatility_profile_results").fetchone()[0] == 0
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []

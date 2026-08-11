@@ -24,7 +24,7 @@ def test_canonical_architecture_invariants_are_monotonic_and_unique() -> None:
     assert numbers == list(range(1, len(numbers) + 1))
 
 
-def test_compass_verification_metadata_describes_current_p23_2_work() -> None:
+def test_compass_verification_metadata_preserves_p28_and_records_p30_validation() -> None:
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
@@ -38,6 +38,13 @@ def test_compass_verification_metadata_describes_current_p23_2_work() -> None:
     assert "VALID_NO_REVERSAL result 4447da24-2d25-5fbd-a7fd-fb0c3e501249" in metadata
     assert "no Trading client or account/position/order/fill access occurred" in metadata
     assert "DISABLED/execution_allowed=false/live_allowed=false" in metadata
+    assert "implements approved PROPOSAL-029 as disabled/unconsumed research" in metadata
+    assert "v18/116" in metadata
+    assert "formula 01d365bc-32b6-4ed8-b740-eab77a18206e" in metadata
+    assert "configuration 02ca70ac-ad8f-495d-b7d9-50f609bd91db" in metadata
+    assert "active counts 1/1/5/3/3/18" in metadata
+    assert "market_history.before-p30-validation.20260811T0428081654404Z.sqlite3" in metadata
+    assert "no network, downstream consumer, broker or execution authority" in metadata
     assert "one separately approved AAPL validation exists" in compass
     assert "no default, real-symbol validation or financial consumer" not in compass
 
@@ -50,8 +57,12 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     assert "PROPOSAL-026 is complete" in next_direction
     assert "PROPOSAL-027 is complete" in next_direction
     assert "PROPOSAL-028 is complete" in next_direction
-    assert "proposal-only PROPOSAL-029" in next_direction
-    assert "no P29 implementation is approved" in next_direction
+    assert "PROPOSAL-029 is approved, implemented and verified disabled" in next_direction
+    assert "No further implementation or validation slice is currently approved" in next_direction
+    assert "No default or P23-4 consumer exists" in next_direction
+    assert "PROPOSAL-030" in next_direction
+    assert "its five local operations are complete" in next_direction
+    assert "All three are `VALID_LINEAR`" in next_direction
 
 
 def test_compass_does_not_deny_verified_research_backtesting() -> None:
@@ -108,13 +119,80 @@ def test_proposal_028_is_implemented_disabled_without_claiming_trading() -> None
     assert "- `live_allowed`: `false`" in proposal
 
 
-def test_roadmap_records_completed_p26_through_p28_work() -> None:
+def test_proposal_029_is_implemented_disabled_and_preserves_target_boundaries() -> None:
+    proposal_path = Path(
+        "docs/proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md"
+    )
+    proposal = proposal_path.read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    assert "Status: `IMPLEMENTED_VERIFIED_DISABLED`" in proposal
+    assert "explicitly approved PROPOSAL-029 and all recommended P29-D1–D10" in proposal
+    assert "x = ln(P / R) / k" in proposal
+    assert "P_linear_raw(x) = P_neutral - s*x" in proposal
+    assert "beta / (exp(beta) - 1) = rho" in proposal
+    assert "P29-D1" in proposal and "P29-D10" in proposal
+    assert "central SQLite database from v17/110 to v18/116" in proposal
+    assert "market_history.schema-v17-to-v18.20260811T031305700700Z.sqlite3" in proposal
+    assert "all six new tables are empty" in proposal
+    assert "Target Position must not import the Asset State implementation" in proposal
+    assert "- `execution_allowed`: `true`" not in proposal
+    assert "- `execution_allowed`: `false`" in proposal
+    assert "- `live_allowed`: `false`" in proposal
+    assert "no P23-4 consumer exists" in proposal
+    assert "PROPOSAL-029" in proposal_index
+    assert "IMPLEMENTED_VERIFIED_DISABLED" in proposal_index
+    assert "PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md" in docs_index
+
+
+def test_proposal_030_records_approved_completed_local_validation_scope() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-030-aapl-p29-controlled-local-validation.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    assert "Status: `DRY_RUN`" in proposal
+    assert "explicitly approved PROPOSAL-030" in proposal
+    assert "4447da24-2d25-5fbd-a7fd-fb0c3e501249" in proposal
+    assert "92a38cf4-3366-496d-ab18-7c9d01dfa1b6" in proposal
+    assert "2116b50f-0a75-5476-8a7c-652b34a5cfe8" in proposal
+    assert "7fca84f0-376f-5e86-9c99-a5081c8c85ef" in proposal
+    assert "ac23677a-6d72-5257-a6b1-a2b5679e4be7" in proposal
+    assert "`P_min` | `0.20`" in proposal
+    assert "`s` | `0.05`" in proposal
+    assert "`A` | `2.0`" in proposal
+    assert "`B` | `4.0`" in proposal
+    assert "All three known AAPL steps are expected to remain `LINEAR`" in proposal
+    assert "P30-D1" in proposal and "P30-D8" in proposal
+    assert "01d365bc-32b6-4ed8-b740-eab77a18206e" in proposal
+    assert "02ca70ac-ad8f-495d-b7d9-50f609bd91db" in proposal
+    assert "9cd2e18e-d07a-4e12-967d-37aeaf7e98c4" in proposal
+    assert "a167b424-7b94-4be2-9f71-c96e502337e4" in proposal
+    assert "eb386f12-6beb-4211-8933-ffe4b615bba6" in proposal
+    assert "Every result is `VALID_LINEAR / LINEAR`" in proposal
+    assert "formula `1`, configuration `1`, attempts `5`, results `3`, traces `3`, source links `18`" in proposal
+    assert "no Market Data refresh" in proposal
+    assert "Can it build or submit an order? No." in proposal
+    assert "PROPOSAL-030" in proposal_index
+    assert "approved `DRY_RUN`" in proposal_index
+    assert "PROPOSAL-030-aapl-p29-controlled-local-validation.md" in docs_index
+
+
+def test_roadmap_records_completed_p26_through_p30() -> None:
     roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
     assert "P26已完成一次另行批准的真实AAPL只读验证" in roadmap
     assert "PROPOSAL-027` P23-1F 已批准并完成" in roadmap
     assert "PROPOSAL-028` 的A/A1方向及完整实施包已由用户" in roadmap
     assert "PROPOSAL-028` 已批准、实现并验证" in roadmap
     assert "中央SQLite v17/110" in roadmap
+    assert "PROPOSAL-029` 已批准、实现并验证" in roadmap
+    assert "Schema v18/116" in roadmap
+    assert "PROPOSAL-030` 已批准并完成 `DRY_RUN`" in roadmap
+    assert "三条结果均为`VALID_LINEAR`" in roadmap
+    assert "P30测试值也不是默认值或AAPL投资建议" in roadmap
+    assert "当前没有下一项已批准开发或验证工作" in roadmap
+    assert "中央SQLite v18已纳入已验证实现" in roadmap
+    assert "中央SQLite v16已纳入已验证实现" not in roadmap
     assert "真实AAPL网络验证未执行" not in roadmap
     assert "真实AAPL历史研究仍需另一次明确验证指令" not in roadmap
     assert "仍等待用户明确批准" not in roadmap

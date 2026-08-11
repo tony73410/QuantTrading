@@ -6263,3 +6263,300 @@ Rollback is a normal future `git revert` of the checkpoint commit; do not reset,
 - Remaining drift risk: proposal-only P29 authorization must not be treated as permission to implement parameters, contracts, migrations, GUI behavior or a financial consumer.
 
 Bug discovery audit: `BUG-20260810-009` fixed with governance/architecture regression evidence; no unresolved new Known Issue remains. Suggested commit message: `feat: add symmetric reversal observation research`. The commit and push occur after this append-only record; Git history and the user report preserve their exact outcome.
+
+## EDIT-20260810-006 — Create proposal-only PROPOSAL-029 P23-3A target-position design
+
+### Date, authorization and task mode
+
+2026-08-10 16:25:02 -07:00
+
+After the P28 checkpoint was committed and pushed as `da720ba`, the user authorized the second part of option A: create PROPOSAL-029 only. Task mode: **STANDARD proposal-only**. Primary future owner: existing `quant_trading.target_position`. Proposed secondary owners for a later approved implementation: application orchestration, Persistence, Run History and Algorithm Control, reading only public P28 evidence. No runtime code, public interface, database schema/data, GUI behavior, external access or trading capability changed.
+
+### Existing-work reminder and Pre-Implementation Compass Audit
+
+The existing Target Position owner already provides immutable long-only finite-knot curves, exact Decimal target/notional/difference outputs and explicit hypothetical USD context. Phase 5C already proves the source-neutral application-adapter pattern, while P28 now provides exact direction-at-open, cycle reference, confirmation state, daily close, P27 scale and Run lineage. Replacing the finite-knot engine, putting desired-holding math in Asset State or creating another top-level position module would conflict with verified owners. The smallest reuse path is a separate formula family inside Target Position plus an application-resolved P28 DTO; every earlier result remains unchanged.
+
+The user's real goal is to let ordinary movement continue affecting desired holdings linearly and allow a finite faster response only after sufficiently large progress in an operational cycle, while preserving confirmation-day truth and version history. Stable Core requires exact versions, source lineage, GUI/business separation, no defaults, user authority over buy/sell meaning and no execution. Proposal creation may recommend a formula but cannot select financial direction, parameters or implementation. Completion evidence for this task is a complete proposal, visible pending decisions, synchronized governance/project records and passing document/architecture tests.
+
+### Proposal result
+
+Created `PROPOSAL-029` as `NEEDS_CLARIFICATION` with this recommended P23-3A package:
+
+- one explicitly selected accepted P28 result and one exact daily step per preview; no automatic latest/source/configuration;
+- normalized dimensionless movement `x=ln(P/R)/k` using the P28 cycle reference and exact P27 scale;
+- recommended but unapproved contrarian direction `LOWER_PRICE_HIGHER_TARGET`;
+- explicit `P_min/P_neutral/P_max`, linear slope `s`, acceleration start `A` and saturation `B`, all with no defaults;
+- linear response for ordinary movement, counter-direction movement and both reversal-confirmation sessions;
+- accelerated eligibility only after the P28 operational direction is active, movement has the same sign and `abs(x)>A`;
+- a normalized finite exponential whose branch coefficient is derived from linear slope, transition distance and remaining headroom so target value and first derivative match at `A`; exact saturation at `B`;
+- exact P28-compatible float/IEEE calculation evidence and recommended exact `Decimal.from_float` conversion for hypothetical USD Target Position arithmetic;
+- separate immutable formula definition, per-symbol configuration and daily calculation result concepts;
+- proposed source-neutral contracts, `CYCLE_TARGET_POSITION_RESEARCH / NO_EXECUTION` Run, replay/comparison/export and a sibling subtab inside the existing Target Position page;
+- proposed additive central SQLite v17/110→v18/116 migration with six tables and zero backfill, explicitly not authorized by proposal creation; and
+- complete structured explanation, failure history, deterministic fingerprint and rollback requirements.
+
+P29-D1–D10 visibly preserve the required user decisions: direction mapping, formula family, directional parameter sharing, separation from the P28 reversal multiplier, explicit one-step source scope, direct P28 research input without formal-state mutation, hypothetical USD context, numeric policy, no initial defaults and no downstream consumer. The proposal gives one recommended selection for each but does not record them as user decisions.
+
+### Files changed
+
+- `docs/proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md`
+- `docs/proposals/README.md`
+- `docs/INDEX.md`
+- `PROJECT_COMPASS.md` (v78; DEC-010 status, INTENT-039 and B17)
+- `docs/project/ROADMAP.md`
+- `docs/project/PROJECT_STATE.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/BUG_LOG.md`
+- `logs/EDIT_LOG.md`
+
+Target Position module documentation, canonical architecture, ADR and CHANGELOG remain unchanged because no runtime behavior or accepted architecture changed.
+
+### Validation and Bug audit
+
+- Focused governance document tests: **10 passed**.
+- Complete architecture suite: **93 passed**.
+- `BUG-20260810-010`: **Fixed**. A compressed Compass metadata rewrite had again removed exact protected P27/P28 checkpoint phrases. The original provenance wording was restored while appending P29 proposal-only state, and no P28 assertion was weakened.
+- No unresolved new Known Issue was created. No network, SQLite read/write/migration, financial calculation, GUI runtime or external service occurred.
+
+### Change Impact Report and rollback
+
+This proposal-only edit has `LIMITED` blast radius: governance/proposal documents and one governance regression file. Runtime modules, public interfaces, dependencies, configuration, central Schema v17, GUI and trading behavior are unchanged. A future implementation would be `MULTI_MODULE`: Target Position primary; Orchestration/Persistence/Run History/Algorithm Control secondary; additive contracts and proposed Schema v18; local-only permissions; no Decision/Risk/cash/Backtesting/Accounting/Execution authority.
+
+Rollback before approval removes only current-state/index references and the proposal through a normal source revert while retaining this append-only audit record. No database rollback exists because no migration occurred. The published P28 commit `da720ba` remains independent.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: records the requested next linear/accelerated target-position design while keeping all financial choices visible for user confirmation.
+- Architecture alignment: reuses the existing Target Position owner and Phase-5C-style source-neutral adapter; does not modify P28 or create a parallel target/state authority.
+- Safety alignment: proposal-only, no defaults, disabled/no-execution future state, and no downstream consumer.
+- Unapproved behavior added: none; no implementation or buy/sell mapping is active.
+- Assumptions introduced: none as project behavior. The contrarian sign, exact exponential construction and numeric policy are visibly recommendations in P29-D1–D10.
+- Compass sections updated: v78 current phase/working-tree state, DEC-010, INTENT-039 and B17; Stable Core is unchanged.
+- Remaining drift risk: the recommended `LOWER_PRICE_HIGHER_TARGET`, shared normalized geometry or proposed v18 layout could be mistaken for approval. The proposal and governance regression explicitly retain `NEEDS_CLARIFICATION` and no-implementation status.
+
+No commit or push was requested for PROPOSAL-029 and none was performed after P28 commit `da720ba`. Suggested future proposal commit message: `docs: propose cycle-aware bounded target position`.
+
+## EDIT-20260810-007 — Implement approved PROPOSAL-029 P23-3A cycle-aware bounded Target Position
+
+### Date, authorization and task mode
+
+2026-08-10 20:39:53 -07:00
+
+The user explicitly approved `PROPOSAL-029` and its complete recommended P29-D1–D10 package by saying `批准 PROPOSAL-029，采用推荐方案`. Task mode: **DEEP** because the approved work adds public research contracts, a cross-owner exact-source adapter, Run History evidence, central SQLite v17→v18 migration and GUI composition. Primary module: existing `quant_trading.target_position`. Secondary modules: application orchestration, Persistence, Run History and Algorithm Control. Expected/actual blast radius: `MULTI_MODULE`. No new top-level module was created.
+
+### Pre-Implementation Compass and architecture audit
+
+The true goal was to turn one exact P28 cycle-observation step into a transparent, bounded desired holding while preserving linear behavior during ordinary/counter/confirmation movement and allowing finite acceleration only in an established same-direction cycle. Existing finite-knot/manual/Phase-5C Target Position behavior had to remain unchanged. Target Position owns desired-holding mathematics; orchestration alone may resolve public P28 evidence into a source-neutral DTO; Persistence owns SQLite; Run History remains calculation-neutral; Algorithm Control only calls typed services and displays evidence.
+
+Applicable Stable Core principles were user authority over financial meaning, strict GUI/business separation, immutable version/history, exact lineage, fail-closed inputs, disabled-by-default research and no execution. The approval fixed `LOWER_PRICE_HIGHER_TARGET`, exact `x=ln(P/R)/k`, shared `s/A/B`, separate P28 reversal versus P29 acceleration boundaries, exact P28 Result/Run/Step selection, source-neutral direct P28 research evidence, hypothetical Decimal USD context, binary64/IEEE plus exact `Decimal.from_float`, no defaults and no downstream consumer. No hidden market, state, capital, Risk or order assumption was introduced.
+
+### Implemented result
+
+- Added immutable P23-3A formula, symbol configuration, source-neutral P28 input, preview command, result, trace, attempt, query/replay and source-link contracts under the existing Target Position owner.
+- Added a pure evaluator for `x=ln(P/R)/k`, approved contrarian linear behavior, explicit clamping, derivative-matched finite normalized exponential acceleration and exact saturation. Validation enforces `0<=min<neutral<max<=1`, `0<A<B`, `s>0`, interior linear boundary headroom and both derived `rho` values in `(0,1)`. The locked bisection solver records binary64 decimal text and IEEE hex; USD arithmetic has no rounding.
+- Added a source-neutral application coordinator that resolves only one explicitly selected exact P28 result, exact P28 Run and exact daily step through public query contracts. It cannot select latest data, call a Provider, mutate Asset State or reconstruct missing evidence.
+- Added `CYCLE_TARGET_POSITION_RESEARCH / NO_EXECUTION` Run support with ordered `STATE` then `TARGET_POSITION` stages, exact P29/P28/P27/P26/Market relationships, structured artifacts and durable failure evidence.
+- Added the P29 SQLite Store/query adapter and additive central Schema v18 with exactly six normalized tables: formula definitions, asset configurations, operation attempts, results, calculation traces and source links. Existing histories are not backfilled or rewritten.
+- Added deterministic reload/recalculation comparison and atomic bounded CSV/JSON export.
+- Added `P23-3 周期目标仓位` as a sibling subtab inside the existing Target Position page, including explicit source/configuration selection, preflight, preview, history/filter/detail, replay/compare/export and upstream Open Run navigation. No Launcher entry was added because this is not an independently owned application.
+- Existing finite-knot/manual/Phase-5C behavior and every Decision/Risk/Capital/Accounting/Backtesting/Execution boundary remain unchanged. No P23-4 consumer exists.
+
+### Active SQLite migration evidence
+
+The ignored active database `runtime/data/market_history.sqlite3` was backed up before migration as `runtime/data/backups/market_history.schema-v17-to-v18.20260811T031305700700Z.sqlite3`. The backup remains Schema v17 with 110 logical tables; the active database is Schema v18 with 116. Every prior business-table row count matched before/after migration. Both copies report `integrity_check=ok` and zero foreign-key violations. Each of the six P29 tables contains exactly zero rows, so implementation created no real formula, stock configuration, attempt, result, trace, default or hidden activation.
+
+### Files changed
+
+- Governance/project: `PROJECT_COMPASS.md`, `CHANGELOG.md`, `docs/INDEX.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/proposals/README.md`, `docs/proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md`, `docs/decisions/README.md`, `docs/decisions/ADR-0034-cycle-aware-bounded-target-position.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- Architecture/modules: `docs/architecture/OVERVIEW.md`, `docs/architecture/MODULE_MAP.md`, `docs/modules/target-position.md`, `docs/modules/analysis-decision-pipeline.md`, `docs/modules/central-persistence.md`, `docs/modules/run-history.md`, `docs/modules/algorithm-control-gui.md`.
+- Target Position: `src/quant_trading/target_position/__init__.py`, `cycle_models.py`, `cycle_engine.py`, `cycle_interfaces.py`, `cycle_service.py`, `cycle_replay.py`.
+- Orchestration/Persistence/Run: `src/quant_trading/orchestration/__init__.py`, `src/quant_trading/orchestration/cycle_target_position_research.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/persistence/cycle_target_position_sqlite_store.py`, `src/quant_trading/persistence/sqlite_database.py`, `src/quant_trading/persistence/run_sqlite_store.py`, `src/quant_trading/run_history/models.py`, `src/quant_trading/error_codes.py`.
+- Algorithm Control: `src/quant_trading/algorithm_control/app.py`, `src/quant_trading/algorithm_control/cycle_target_position_export.py`, `src/quant_trading/algorithm_control/ui/main_panel.py`, `src/quant_trading/algorithm_control/ui/target_position_panel.py`, `src/quant_trading/algorithm_control/ui/cycle_target_position_panel.py`.
+- Tests: `tests/unit/target_position/test_cycle_target_position.py`, `tests/unit/asset_state/test_sqlite_cycle_target_position.py`, `tests/unit/algorithm_control/test_cycle_target_position_panel.py`, `tests/architecture/test_target_position_boundaries.py`, `tests/architecture/test_governance_document_integrity.py`, and existing Schema-current assertions in the affected Asset State, Capital Allocation, Decision, Factor, Risk, Run History and Target Position repository tests.
+
+The active ignored database and its backup changed physically but are not source-controlled artifacts.
+
+### Validation and Bug audit
+
+- P29 core math/constraint/determinism tests: 6 passed.
+- P29 SQLite/migration/reload/replay/Run/failure tests: 3 passed.
+- P29 GUI plus existing Target Position GUI tests: 6 passed.
+- Affected Target/Asset State/Run History/Algorithm Control suite: **142 passed**.
+- Complete architecture suite: **94 passed**.
+- Complete repository suite: **591 passed**, with one pre-existing third-party `websockets.legacy` deprecation warning.
+- `compileall` over `src` and `tests` passed. `pip check` reports no broken requirements. `git diff --check` passed. The downstream scan found no P29 reference in Decision, Risk, Capital Allocation, Portfolio Accounting, Backtesting or Execution.
+- Active/backup Schema/table-count/integrity/foreign-key checks passed and all six P29 table counts are zero.
+- `BUG-20260810-011`: **Fixed** with regression coverage. The P29 Store now checks canonical `algorithm_run_stages.stage_name` rather than a nonexistent `name` column.
+- `BUG-20260810-012`: **Fixed** with regression coverage. Preview failure handling preserves a completed `STATE` stage if `TARGET_POSITION` stage creation fails.
+- No unresolved new Known Issue remains. Physical-display QA remains the existing KI-0004 limitation; offscreen/controller GUI behavior is automated.
+
+### Change Impact Report and rollback
+
+Primary module: Target Position. Secondary modules: Orchestration, Persistence, Run History and Algorithm Control. Public contracts are additive and schema-v1. Configuration is immutable local database evidence with no default or Active selection. Database change is additive v18/116 with zero backfill. GUI change is confined to the existing owner page. Permissions remain local filesystem/SQLite only. Trading semantics are hypothetical desired long-only exposure; safety remains disabled, `NO_EXECUTION`, exact-source-only and fail closed. No network or external service was used. No Decision, Risk, cash, accounting, simulation or execution authority changed.
+
+Source rollback hides/unregisters the P29 composition and reverts the additive source changes while preserving immutable v18 evidence. Physical database rollback requires stopping all writers, retaining the current v18 copy, checking out matching v17 code and restoring the verified v17 backup; never open the v18 database with v17 code and never delete audit evidence. Existing finite-knot/P28 behavior requires no data migration.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: implements exactly the approved P29-D1–D10 research calculation and observable history without inventing real stock parameters or a trade.
+- Architecture alignment: Target Position owns the formula; orchestration resolves exact public P28 evidence; Persistence owns SQL; Run History owns neutral lifecycle; GUI delegates to typed services. Existing owners and dependency directions remain intact.
+- Safety alignment: every Run is `NO_EXECUTION`; no default/Active configuration, formal-state mutation, Risk approval, cash movement, broker access or order path exists. Paper/Live remain empty and disabled.
+- Unapproved behavior added: none.
+- Assumptions introduced: no hidden financial assumption. The numeric solver policy is part of the explicitly approved recommended package and is locked/versioned; all real values remain absent.
+- Compass sections updated: version 79 metadata, B1 capability evidence, B2 architecture, DEC-010, ASM-057, INTENT-039, B16 limitations and B17 direction. Stable Core is unchanged.
+- Remaining drift risk: a future real configuration/validation or P23-4 consumer could be mistaken as implied by implementation. The empty-table evidence, no-default contracts, architecture scans and governance assertions make that boundary explicit; each requires separate user approval.
+
+No commit or push was requested and none was performed. Suggested commit message: `feat: add disabled cycle-aware target position research`.
+
+## EDIT-20260810-008 — Create proposal-only PROPOSAL-030 controlled local AAPL P29 validation
+
+### Date, authorization and task mode
+
+2026-08-10 21:05:03 -07:00
+
+After P29 implementation the user selected option `A`, authorizing creation of the next proposal for a controlled AAPL P29 validation before any Decision/Risk connection. Task mode: **STANDARD proposal-only with read-only evidence inspection**. Primary future runtime owner remains existing `quant_trading.target_position`; existing Orchestration, Persistence, Run History and Algorithm Control would only be used as already implemented. No runtime code, public contract, configuration, database schema/data, GUI behavior, external service or trading capability changed.
+
+### Pre-Implementation Compass and overlap audit
+
+The real goal is to observe what P29 reports for known real-symbol evidence without confusing a desired-position calculation with a trade. P29 already owns the complete formula/configuration/result/replay/export/GUI path, so no new component or adapter is needed. The existing AAPL P28 result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` under Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6` is immutable, local and exactly reloadable. It contains three completed steps and is sufficient to validate the real P28→P29 source/persistence path without network access.
+
+Stable Core requires the user to approve actual position bounds/slope/distances and hypothetical USD meaning. Proposal creation may recommend transparent values but cannot create them. Existing Phase 5D Decision overlaps only as a later consumer and remains unchanged/unconnected. Completion evidence for this task is a complete decision package, exact source identities, honest branch limitations, synchronized governance records and passing architecture tests.
+
+### Proposal result
+
+Created `PROPOSAL-030` as `NEEDS_CLARIFICATION` with recommended P30-D1–D8:
+
+- exact existing AAPL P28 Result/Run and all three Step IDs; no latest lookup, refresh or Provider;
+- one immutable disabled P29 formula and one immutable disabled AAPL configuration only after later approval;
+- symmetric test values `P_min/P_neutral/P_max=0.20/0.50/0.80`, `s=0.05`, `A=2`, `B=4` with both derived `rho=0.50`;
+- three independent hypothetical previews, each using `$100,000` basis and `$50,000` current position rather than rolling a simulated account;
+- expected approximate linear targets of 48.192998%, 47.191555% and 53.337763% for 2026-08-06, 2026-08-07 and 2026-08-10 respectively;
+- explicit warning that all three known real steps remain linear, so this validation cannot prove real-market acceleration, saturation, confirmation or activation;
+- append-only formula/configuration/attempt/result/trace/source/Run evidence if separately approved; and
+- no Decision, Risk, funds, Backtesting, Accounting, Paper, Live, order or execution consumer.
+
+The proposal estimates are planning calculations from frozen displayed inputs, not persisted P29 engine results. Exact binary64/IEEE/Decimal evidence would become authoritative only after explicit approval and successful execution.
+
+### Read-only evidence and data status
+
+SQLite was queried read-only. The exact P28 steps are:
+
+- `2116b50f-0a75-5476-8a7c-652b34a5cfe8`, 2026-08-06, split close 312.45;
+- `7fca84f0-376f-5e86-9c99-a5081c8c85ef`, 2026-08-07, split close 313.29; and
+- `ac23677a-6d72-5257-a6b1-a2b5679e4be7`, 2026-08-10, split close 308.17.
+
+All use operational direction DOWN, reference 310.94 and exact P27 scale 0.013404769735102143. No Market Data, Trading, account, position, order or fill API was called. All six P29 tables remain empty; no formula, configuration, attempt, Run, result, trace or source link was created.
+
+### Files changed
+
+- `docs/proposals/PROPOSAL-030-aapl-p29-controlled-local-validation.md`
+- `docs/proposals/README.md`
+- `docs/INDEX.md`
+- `PROJECT_COMPASS.md` (v80; DEC-016, INTENT-040, B16/B17 and current metadata)
+- `docs/project/PROJECT_STATE.md`
+- `docs/project/ROADMAP.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/BUG_LOG.md`
+- `logs/EDIT_LOG.md`
+
+No module/canonical architecture/ADR/CHANGELOG/runtime file changed because this proposal adds no accepted runtime behavior or architecture.
+
+### Validation and Bug audit
+
+- Focused governance document suite: **11 passed**.
+- Complete architecture suite: **95 passed**.
+- `BUG-20260810-013`: **Fixed**. Roadmap current-state wording now identifies central SQLite v18 rather than stale v16, with regression coverage.
+- `BUG-20260810-014`: **Fixed**. P30 Compass metadata append again preserves the protected exact P29 empty-data phrase without weakening the assertion.
+- No unresolved new Known Issue exists. No runtime test suite was required because source behavior did not change; the previously verified P29 implementation remains at 591 passing repository tests.
+
+### Change Impact Report and rollback
+
+The proposal-only blast radius is `LIMITED`: governance/proposal documents and one governance test. Public contracts, dependencies, configuration, Schema v18/116, active data, GUI and financial/trading behavior are unchanged. Permissions were read-only local SQLite inspection only. The proposed future validation would append local `NO_EXECUTION` P29 evidence using existing interfaces, without migration or network access.
+
+Rollback before approval removes current P30 proposal-state/index references through a normal source revert while preserving this append-only record. No database rollback exists because no row was created. The current P29 empty-table state and published P28 evidence remain unchanged.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: records exactly the user-selected evidence-first validation path and exposes every parameter for approval.
+- Architecture alignment: reuses existing P29/P28/Run/GUI boundaries and adds no component, adapter or dependency.
+- Safety alignment: proposal-only, local read-only inspection, no data creation, network, consumer or execution.
+- Unapproved behavior added: none; P30-D1–D8 and validation remain unapproved.
+- Assumptions introduced: none as project behavior. Recommended values are explicitly labeled transparent mathematical test values, not defaults or an AAPL recommendation.
+- Compass sections updated: v80 metadata/current phase, DEC-016, INTENT-040, B16 and B17; Stable Core is unchanged.
+- Remaining drift risk: planning estimates could be mistaken for engine outputs or the test values for approved allocations. Proposal/governance wording explicitly prevents both interpretations and requires a separate approval phrase.
+
+No commit or push was requested and none was performed. Suggested proposal commit message: `docs: propose controlled AAPL P29 validation`.
+
+## EDIT-20260810-009 — Execute approved PROPOSAL-030 controlled local AAPL P29 validation
+
+### Date, authorization and task mode
+
+2026-08-10 21:47:36 -07:00
+
+The user explicitly approved `PROPOSAL-030` and its complete recommended P30-D1–D8 package by saying `批准 PROPOSAL-030，采用推荐参数执行三步本地验证。` Task mode: **STANDARD** because this task exercised an existing approved Target Position service, appended governed local evidence and changed no public contract, Schema, GUI behavior, dependency or trading authority. Primary module: existing `quant_trading.target_position`. Secondary evidence owners: Persistence and Run History. Expected/actual changed source-controlled files were governance/project/module documents and one governance regression file; the Git-ignored central SQLite database and one pre-validation backup changed physically. Tests planned were exact reload/replay/database assertions, focused P29/GUI/governance tests, full architecture and the complete repository suite.
+
+### Pre-Implementation Compass and architecture audit
+
+The real goal was to observe the implemented P29 mathematics against exact known AAPL P28 evidence before designing any Decision/Risk consumer. Stable Core required explicit user-approved financial inputs, immutable versions/results, exact provenance, GUI/business separation, disabled/no-execution safety and no hidden latest/default selection. Existing P29 code already owned the formula, resolver, Store, Run history, replay, export and inspector; therefore no reimplementation, schema change or parallel owner was permitted.
+
+The approval fixed only this validation: exact P28 Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249`, exact P28 Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`, its three listed steps, no refresh, `P_min/P_neutral/P_max=0.20/0.50/0.80`, `s=0.05`, `A=2.0`, `B=4.0`, and three independent hypothetical `$100,000/$50,000` contexts. These values are not defaults, portfolio facts, Risk limits or investment advice. Acceptance evidence was exact preflight, five bounded operations, restart reload/recalculation, Run relationships, table-level blast-radius proof, SQLite integrity and regression tests.
+
+### Completed local operations
+
+Before writes, active `runtime/data/market_history.sqlite3` was copied to `runtime/data/backups/market_history.before-p30-validation.20260811T0428081654404Z.sqlite3`. Validation used package `0.1.0`, source revision `da720bafa09443ed75de5919e2a6cd52fb69e42c`, dirty working-tree marker, Session `P30-AAPL-LOCAL-VALIDATION-20260810` and `created_by=user-approved-proposal-030`.
+
+- Formula definition `01d365bc-32b6-4ed8-b740-eab77a18206e`, version 1, `disabled`; save Run `a7dfa5bf-d5ee-4a25-b92f-63a53a027559`.
+- AAPL configuration `02ca70ac-ad8f-495d-b7d9-50f609bd91db`, version 1, `disabled`; constraint fingerprint `61a86d3c8a6b341811d037458f3ad5186cc455fb05794ce6830863491d51134d`; save Run `7c2766a6-e5a8-4465-8380-0466612b3be1`.
+- 2026-08-06 Result `9cd2e18e-d07a-4e12-967d-37aeaf7e98c4`, Run `0b3c8422-ac0c-4ddd-a7fe-b47c8de723ee`: `x=0.36140037831533506`, `VALID_LINEAR`, target fraction `0.4819299810842332387750275302096270024776458740234375`, target `$48192.99810842332387750275302`, difference `-$1807.00189157667612249724698`, `DECREASE`.
+- 2026-08-07 Result `a167b424-7b94-4be2-9f71-c96e502337e4`, Run `9229bb8d-be23-4707-b24c-5ab8e58a3857`: `x=0.5616889947953219`, `VALID_LINEAR`, target fraction `0.47191555026023390695399939431808888912200927734375`, target `$47191.55502602339069539993943`, difference `-$2808.44497397660930460006057`, `DECREASE`.
+- 2026-08-10 Result `eb386f12-6beb-4211-8933-ffe4b615bba6`, Run `59a6538b-2066-4e34-bde4-6dffda3d40e6`: `x=-0.6675525906229535`, `VALID_LINEAR`, target fraction `0.5333776295311476456362242970499210059642791748046875`, target `$53337.76295311476456362242970`, difference `+$3337.76295311476456362242970`, `INCREASE`.
+
+Every preview retained the explicit warning `LOCAL_ONLY frozen evidence; no Provider or broker call was made.` Formula, configuration and results have `execution_allowed=false` and `live_allowed=false`. The results are independent desired-position calculations; no holding, cash or P&L was rolled between dates.
+
+### Persistence, replay and Run evidence
+
+A fresh Python process reloaded the formula, configuration, all three results/traces/source links and their Run details. Deterministic recalculation matched each historical object and calculation fingerprint exactly. Each preview Run reloads as `COMPLETED_WITH_WARNINGS`, contains ordered `STATE` then `TARGET_POSITION` stages, and links to the exact P28 parent/source. No downstream Run or Decision/Risk/Capital/Backtesting/Accounting/Execution consumer exists.
+
+Compared with the pre-validation backup, exactly ten approved tables changed:
+
+- P29: formula `0→1`, configuration `0→1`, attempts `0→5`, results `0→3`, traces `0→3`, source links `0→18`;
+- Run evidence/index: Runs `49→54`, stages `93→101`, symbol rows `48→52`, bindings `249→261`;
+- Run messages stayed `286`; every other one of the 116 logical tables retained its row count.
+
+Active Schema remains v18/116 with `integrity_check=ok` and zero foreign-key violations. Market, P28, Factor, Decision and Risk facts were not changed. No Provider/network, Trading client, account, position, order or fill access occurred.
+
+### Files changed
+
+- Proposal/governance: `docs/proposals/PROPOSAL-030-aapl-p29-controlled-local-validation.md`, `docs/proposals/README.md`, `docs/INDEX.md`, `PROJECT_COMPASS.md`, `CHANGELOG.md`.
+- Project/modules: `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/modules/target-position.md`, `docs/modules/central-persistence.md`, `docs/modules/run-history.md`.
+- Regression evidence: `tests/architecture/test_governance_document_integrity.py`.
+- Audit: `logs/EDIT_LOG.md`.
+
+No runtime source, public contract, Schema migration, dependency, configuration format, GUI implementation or external-service code changed in this task. The active SQLite file and pre-validation backup are intentionally Git-ignored runtime artifacts.
+
+### Validation and Bug audit
+
+- Fresh-process exact reload/recalculation and Run-history assertions: passed for all three results.
+- Active-versus-backup complete table-count comparison, integrity and foreign-key checks: passed.
+- Focused P29/SQLite/GUI/governance suite: **21 passed**.
+- Complete architecture suite: **95 passed**.
+- Complete repository suite: **592 passed** in 198.10 seconds, with one pre-existing third-party `websockets.legacy` deprecation warning.
+- Bug discovery audit: no new confirmed or credible project Bug was found; no Bug ID was created, fixed or deferred. The first standalone reload command omitted the repository package path and was rerun with the project virtual environment; it made no database change and is not an application defect.
+
+### Change Impact Report and rollback
+
+Primary module is Target Position runtime use; secondary evidence owners are Persistence and Run History. Public contracts, dependencies, Schema v18, GUI code and trading semantics are unchanged. Configuration impact is one immutable disabled AAPL test version with no default pointer. Database impact is append-only and exactly bounded above. Permissions remained local SQLite only. Trading meaning remains hypothetical desired exposure. Safety remains `NO_EXECUTION`, `execution_allowed=false`, `live_allowed=false`, no downstream consumer. Blast radius is `LIMITED`.
+
+Immutable validation evidence must not be deleted or overwritten as rollback. If the test configuration is later rejected, archive or stop selecting it while preserving all five operations and Runs. Source-document rollback uses a normal revert while retaining this Edit Log. No Schema downgrade is required; the pre-validation backup is retained for audit comparison, not for silently erasing approved history.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: the exact user-approved P30-D1–D8 local validation completed and produced transparent, replayable results before any P23-4 consumer.
+- Architecture alignment: the existing Target Position engine/service owned calculation, application orchestration resolved exact public P28 evidence, Persistence stored it and Run History displayed neutral lifecycle/relationships; no responsibility moved or duplicated.
+- Safety alignment: all evidence remains disabled and `NO_EXECUTION`; no network, account, cash, Risk approval, order or execution path was used.
+- Unapproved behavior added: none. No new formula, default, automatic source/config selection, sequential simulation or downstream consumer was introduced.
+- Assumptions introduced: none beyond the explicitly approved hypothetical inputs; their non-default/non-advisory meaning is recorded beside the results.
+- Compass sections updated: version 81 metadata/current phase, B1/B2 status, DEC-016, ASM-057, INTENT-039/040, B16 limitations and B17 direction. Stable Core and architecture are unchanged.
+- Remaining drift risk: the disabled AAPL test values or `DECREASE/INCREASE` target differences could be mistaken for actual trades. Proposal, module, state and Compass records explicitly identify independent hypothetical desired positions and prohibit that interpretation.
+
+No commit or push was requested and none was performed. Suggested commit message for the complete unpublished P29/P30 working tree: `feat: add and validate disabled cycle-aware target position research`.

@@ -514,6 +514,26 @@ class SQLiteRunHistoryRepository:
                 relationships.add((RunRelationshipType.CHILD, reversal_id))
             elif source_id == run.run_id:
                 relationships.add((RunRelationshipType.LINKED_PREVIEW, reversal_id))
+        cycle_target_links = connection.execute(
+            """SELECT run_id AS cycle_target_run_id, source_run_id,
+                      source_profile_run_id, source_parent_run_id
+               FROM cycle_target_results
+               WHERE run_id = ? OR source_run_id = ? OR source_profile_run_id = ?
+                  OR source_parent_run_id = ?""",
+            (str(run.run_id),) * 4,
+        ).fetchall()
+        for row in cycle_target_links:
+            target_id = UUID(row["cycle_target_run_id"])
+            source_ids = {
+                UUID(row["source_run_id"]),
+                UUID(row["source_profile_run_id"]),
+                UUID(row["source_parent_run_id"]),
+            }
+            if target_id == run.run_id:
+                for source_id in source_ids:
+                    relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif run.run_id in source_ids:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, target_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -1968,6 +1988,123 @@ class SQLiteRunHistoryRepository:
                         f"{operation['confirmation_count'] or 0} / {operation['activation_count'] or 0}"
                     )),
                     _field("fingerprint", operation["calculation_fingerprint"]),
+                    _field("warnings", operation["warnings_text"]),
+                    _field("error", operation["error_summary"]),
+                ),
+                children,
+            ))
+        cycle_target_operations = connection.execute(
+            """SELECT o.*, r.symbol, r.session, r.source_result_id, r.source_run_id,
+                      r.source_step_id, r.source_step_ordinal, r.direction_at_open,
+                      r.direction_at_close, r.candidate_state_after_close,
+                      r.cycle_reference_price_input_text, r.split_close_input_text,
+                      r.profile_log_scale_text, r.region, r.target_fraction_text,
+                      r.research_capital_basis_usd_text,
+                      r.current_position_value_usd_text,
+                      r.target_position_value_usd_text, r.adjustment_value_usd_text,
+                      r.adjustment_direction, r.calculation_fingerprint,
+                      t.normalized_state_text, t.direction_matches,
+                      t.confirmation_forces_linear, t.counter_move_forces_linear,
+                      t.beta_text, t.solver_iterations, t.solver_id
+               FROM cycle_target_operation_attempts o
+               LEFT JOIN cycle_target_results r ON r.result_id = o.result_id
+               LEFT JOIN cycle_target_calculation_traces t ON t.result_id = r.result_id
+               WHERE o.run_id = ? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in cycle_target_operations:
+            children: tuple[RunArtifactView, ...] = ()
+            if operation["result_id"]:
+                link_rows = connection.execute(
+                    """SELECT * FROM cycle_target_source_links
+                       WHERE result_id = ? ORDER BY ordinal""",
+                    (operation["result_id"],),
+                ).fetchall()
+                children = tuple(
+                    RunArtifactView(
+                        "cycle_target_source_link",
+                        f"{row['result_id']}:{row['ordinal']}",
+                        RunStageName.STATE.value,
+                        operation["symbol"],
+                        "immutable_source",
+                        f"{row['source_type']} · {row['source_id']}",
+                        _datetime(operation["completed_at_utc"]),
+                        (
+                            _field("source version", row["source_version"]),
+                            _field("source fingerprint", row["source_fingerprint"]),
+                            _field("source Run", row["source_run_id"]),
+                        ),
+                    )
+                    for row in link_rows
+                )
+            summary = (
+                "P23-3 cycle-aware bounded target research; DISABLED / NO EXECUTION"
+                if operation["result_id"]
+                else "P23-3 immutable definition/configuration operation; DISABLED"
+            )
+            artifacts.append(RunArtifactView(
+                "cycle_target_position_operation",
+                operation["attempt_id"],
+                RunStageName.TARGET_POSITION.value,
+                operation["requested_symbol"] or operation["symbol"],
+                operation["status"],
+                summary,
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation type", operation["operation_type"]),
+                    _field("operation id", operation["operation_id"]),
+                    _field("result id", operation["result_id"]),
+                    _field("formula", (
+                        f"{operation['resolved_formula_definition_id'] or '—'} "
+                        f"v{operation['resolved_formula_definition_version'] or '—'}"
+                    )),
+                    _field("configuration", (
+                        f"{operation['resolved_configuration_id'] or '—'} "
+                        f"v{operation['resolved_configuration_version'] or '—'}"
+                    )),
+                    _field("exact P28 result / step", (
+                        f"{operation['source_result_id'] or '—'} / "
+                        f"{operation['source_step_id'] or '—'}"
+                    )),
+                    _field("P28 source Run", operation["source_run_id"]),
+                    _field("session", operation["session"]),
+                    _field("direction open / close", (
+                        f"{operation['direction_at_open'] or '—'} / "
+                        f"{operation['direction_at_close'] or '—'}"
+                    )),
+                    _field("candidate after close", operation["candidate_state_after_close"]),
+                    _field("P / R / k", (
+                        f"{operation['split_close_input_text'] or '—'} / "
+                        f"{operation['cycle_reference_price_input_text'] or '—'} / "
+                        f"{operation['profile_log_scale_text'] or '—'}"
+                    )),
+                    _field("x / region", (
+                        f"{operation['normalized_state_text'] or '—'} / "
+                        f"{operation['region'] or '—'}"
+                    )),
+                    _field("linear gates", (
+                        f"direction={operation['direction_matches']}; "
+                        f"confirmation={operation['confirmation_forces_linear']}; "
+                        f"counter={operation['counter_move_forces_linear']}"
+                    )),
+                    _field("beta / iterations / solver", (
+                        f"{operation['beta_text'] or '—'} / "
+                        f"{operation['solver_iterations'] or '—'} / "
+                        f"{operation['solver_id'] or '—'}"
+                    )),
+                    _field("target fraction", operation["target_fraction_text"]),
+                    _field("basis / current / target / adjustment USD", (
+                        f"{operation['research_capital_basis_usd_text'] or '—'} / "
+                        f"{operation['current_position_value_usd_text'] or '—'} / "
+                        f"{operation['target_position_value_usd_text'] or '—'} / "
+                        f"{operation['adjustment_value_usd_text'] or '—'}"
+                    )),
+                    _field("adjustment direction", operation["adjustment_direction"]),
+                    _field("fingerprint", operation["calculation_fingerprint"]),
+                    _field("execution / live", (
+                        f"{bool(operation['execution_allowed'])} / "
+                        f"{bool(operation['live_allowed'])}"
+                    )),
                     _field("warnings", operation["warnings_text"]),
                     _field("error", operation["error_summary"]),
                 ),
