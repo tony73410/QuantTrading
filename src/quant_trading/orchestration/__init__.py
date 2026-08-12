@@ -51,6 +51,10 @@ from .cycle_target_position_research import (
     CycleTargetPositionResearchCoordinator,
     CycleTargetPositionResearchRunner,
 )
+from .cycle_target_adjustment_decision_preview import (
+    CycleTargetAdjustmentDecisionPreflight,
+    CycleTargetAdjustmentDecisionPreviewCoordinator,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -82,4 +86,6 @@ __all__ = [
     "CycleTargetPositionPreflight",
     "CycleTargetPositionResearchCoordinator",
     "CycleTargetPositionResearchRunner",
+    "CycleTargetAdjustmentDecisionPreflight",
+    "CycleTargetAdjustmentDecisionPreviewCoordinator",
 ]

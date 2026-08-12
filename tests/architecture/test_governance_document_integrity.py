@@ -24,7 +24,7 @@ def test_canonical_architecture_invariants_are_monotonic_and_unique() -> None:
     assert numbers == list(range(1, len(numbers) + 1))
 
 
-def test_compass_verification_metadata_preserves_p28_and_records_p30_validation() -> None:
+def test_compass_verification_metadata_preserves_p28_p30_and_records_p31() -> None:
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
@@ -39,13 +39,17 @@ def test_compass_verification_metadata_preserves_p28_and_records_p30_validation(
     assert "VALID_NO_REVERSAL result 4447da24-2d25-5fbd-a7fd-fb0c3e501249" in metadata
     assert "no Trading client or account/position/order/fill access occurred" in metadata
     assert "DISABLED/execution_allowed=false/live_allowed=false" in metadata
-    assert "implements approved PROPOSAL-029 as disabled/unconsumed research" in metadata
+    assert "main feature commit 7ad1e1f implements approved PROPOSAL-029" in metadata
     assert "v18/116" in metadata
     assert "formula 01d365bc-32b6-4ed8-b740-eab77a18206e" in metadata
     assert "configuration 02ca70ac-ad8f-495d-b7d9-50f609bd91db" in metadata
     assert "active counts 1/1/5/3/3/18" in metadata
     assert "market_history.before-p30-validation.20260811T0428081654404Z.sqlite3" in metadata
-    assert "no network, downstream consumer, broker or execution authority" in metadata
+    assert "v19/120" in metadata
+    assert "market_history.schema-v18-to-v19.20260811T191208556475Z.sqlite3" in metadata
+    assert "all four new P31 tables have zero rows" in metadata
+    assert "approved PROPOSAL-031 code" in metadata
+    assert "no network, Risk/downstream, broker or execution authority" in metadata
     assert "one separately approved AAPL validation exists" in compass
     assert "no default, real-symbol validation or financial consumer" not in compass
 
@@ -60,10 +64,13 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     assert "PROPOSAL-028 is complete" in next_direction
     assert "PROPOSAL-029 is approved, implemented and verified disabled" in next_direction
     assert "No further implementation or validation slice is currently approved" in next_direction
-    assert "No default or P23-4 consumer exists" in next_direction
+    assert "only the explicit disabled P31 Decision consumer is approved" in next_direction
     assert "PROPOSAL-030" in next_direction
     assert "its five local operations are complete" in next_direction
     assert "All three are `VALID_LINEAR`" in next_direction
+    assert "PROPOSAL-031 is approved, implemented and verified disabled" in next_direction
+    assert "Migration created no P31 runtime row" in next_direction
+    assert "Risk admission remains unapproved" in next_direction
 
 
 def test_compass_does_not_deny_verified_research_backtesting() -> None:
@@ -127,6 +134,7 @@ def test_proposal_029_is_implemented_disabled_and_preserves_target_boundaries() 
     proposal = proposal_path.read_text(encoding="utf-8")
     proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
     docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
     assert "Status: `IMPLEMENTED_VERIFIED_DISABLED`" in proposal
     assert "explicitly approved PROPOSAL-029 and all recommended P29-D1–D10" in proposal
     assert "x = ln(P / R) / k" in proposal
@@ -140,10 +148,15 @@ def test_proposal_029_is_implemented_disabled_and_preserves_target_boundaries() 
     assert "- `execution_allowed`: `true`" not in proposal
     assert "- `execution_allowed`: `false`" in proposal
     assert "- `live_allowed`: `false`" in proposal
-    assert "no P23-4 consumer exists" in proposal
+    assert "later approved PROPOSAL-031 adds exactly one explicit disabled P23-4A Decision consumer" in proposal
     assert "PROPOSAL-029" in proposal_index
     assert "IMPLEMENTED_VERIFIED_DISABLED" in proposal_index
     assert "PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md" in docs_index
+    assert "Later approved PROPOSAL-030 appended only one disabled AAPL test" in proposal
+    assert "P30仅增加一项禁用AAPL测试配置和三条线性结果" in docs_index
+    assert "P30 adds one disabled AAPL test configuration and three linear results" in project_state
+    assert "P31 is the only explicit disabled Decision consumer" in project_state
+    assert "六张P29表为空且无下游消费者" not in project_state
 
 
 def test_proposal_030_records_approved_completed_local_validation_scope() -> None:
@@ -179,7 +192,43 @@ def test_proposal_030_records_approved_completed_local_validation_scope() -> Non
     assert "PROPOSAL-030-aapl-p29-controlled-local-validation.md" in docs_index
 
 
-def test_roadmap_records_completed_p26_through_p30() -> None:
+def test_proposal_031_is_implemented_disabled_and_preserves_decision_boundaries() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-031-cycle-target-decision-preview.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
+    assert "- Status: `IMPLEMENTED_VERIFIED_DISABLED`" in proposal
+    assert "approved in full on 2026-08-11" in proposal
+    assert "P31-D1" in proposal and "P31-D10" in proposal
+    assert "preserve all existing Phase 5D public types and rows unchanged" in proposal
+    assert "one Decision-owned pure exact-signed-difference kernel" in proposal
+    assert "one explicit accepted P29 Result ID plus exact Run ID" in proposal
+    assert "positive `INCREASE`, negative `DECREASE`, exact zero `HOLD`" in proposal
+    assert "additive central SQLite v18→v19 with four P31 tables and zero backfill" in proposal
+    assert "decision.cycle_target_adjustment_attempt@1" in proposal
+    assert "Status: `PENDING`, `RUNNING`, `COMPLETED`, `INVALID_INPUT`, `FAILED`" in proposal
+    assert "Status: `INTENT_CREATED`, `HOLD`" in proposal
+    assert "`INTENT_CREATED`, `HOLD`, `INVALID_INPUT`, `FAILED`" not in proposal
+    assert "invalid and failed operations preserve the attempt and Run messages" in proposal
+    assert "no Phase 6A/Risk, cash, Backtesting, Accounting, Paper, Live or order consumer" in proposal
+    assert "批准 PROPOSAL-031，采用推荐方案。" in proposal
+    assert "All four P31 tables contain zero rows" in proposal
+    assert "Deterministic recalculation replay" in proposal
+    assert "market_history.schema-v18-to-v19.20260811T191208556475Z.sqlite3" in proposal
+    assert "PROPOSAL-031" in proposal_index
+    assert "`IMPLEMENTED_VERIFIED_DISABLED` P23-4A bridge" in proposal_index
+    assert "PROPOSAL-031-cycle-target-decision-preview.md" in docs_index
+    assert "DEC-017" in compass and "INTENT-041" in compass
+    assert "P23-4A Cycle-Target Decision Preview" in compass
+    assert "PROPOSAL-031 is approved, implemented and verified disabled" in compass
+    assert "Implemented approved `PROPOSAL-031` P23-4A" in project_state
+    assert "Schema v19/120" in project_state
+
+
+def test_roadmap_records_completed_p26_through_p31() -> None:
     roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
     assert "P26已完成一次另行批准的真实AAPL只读验证" in roadmap
     assert "PROPOSAL-027` P23-1F 已批准并完成" in roadmap
@@ -192,6 +241,10 @@ def test_roadmap_records_completed_p26_through_p30() -> None:
     assert "三条结果均为`VALID_LINEAR`" in roadmap
     assert "P30测试值也不是默认值或AAPL投资建议" in roadmap
     assert "当前没有下一项已批准开发或验证工作" in roadmap
+    assert "PROPOSAL-031 implemented; next slice not approved" in roadmap
+    assert "`PROPOSAL-031` 已批准并按P31-D1–D10实现" in roadmap
+    assert "中央SQLite v19/120已验证" in roadmap
+    assert "四张P31表仍为空" in roadmap
     assert "中央SQLite v18已纳入已验证实现" in roadmap
     assert "中央SQLite v16已纳入已验证实现" not in roadmap
     assert "真实AAPL网络验证未执行" not in roadmap

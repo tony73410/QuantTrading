@@ -74,7 +74,10 @@ from quant_trading.orchestration import (
     SpectralHistoricalStudyRunner,
 )
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
-from quant_trading.decision import TargetAdjustmentDecisionQueryService
+from quant_trading.decision import (
+    CycleTargetAdjustmentDecisionQueryService,
+    TargetAdjustmentDecisionQueryService,
+)
 from quant_trading.risk import (
     EmptyExposureCapQueryService,
     EmptyResearchAssetCashQueryService,
@@ -114,6 +117,7 @@ from quant_trading.factors.standardized_state_interfaces import (
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
 from quant_trading.orchestration import (
     CycleTargetPositionResearchRunner,
+    CycleTargetAdjustmentDecisionPreviewCoordinator,
     StandardizedStateTargetPositionPreviewCoordinator,
     TargetAdjustmentDecisionPreviewCoordinator,
     TargetAdjustmentExposureCapPreviewCoordinator,
@@ -201,6 +205,8 @@ class AlgorithmControlPanel(QMainWindow):
         cycle_target_position_service: CycleTargetPositionService | None = None,
         cycle_target_position_queries: CycleTargetPositionQueryService | None = None,
         cycle_target_position_runner: CycleTargetPositionResearchRunner | None = None,
+        cycle_target_adjustment_decision_preview: CycleTargetAdjustmentDecisionPreviewCoordinator | None = None,
+        cycle_target_adjustment_decision_queries: CycleTargetAdjustmentDecisionQueryService | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -254,6 +260,9 @@ class AlgorithmControlPanel(QMainWindow):
             target_position_queries=(
                 target_position_queries or EmptyTargetPositionQueryService()
             ),
+            cycle_target_adjustment_preview=cycle_target_adjustment_decision_preview,
+            cycle_target_adjustment_queries=cycle_target_adjustment_decision_queries,
+            cycle_target_position_queries=cycle_target_position_queries,
             session_id=(
                 target_position_session_id
                 or asset_state_session_id

@@ -28,6 +28,12 @@ Coordinate explicitly approved cross-owner research call order while keeping eve
 - For P26, validate one explicit symbol/range and one/two exact locked definitions, create one parent study Run, request one shared Market History evidence set, call the existing Factor service chronologically for every session×definition pair, preserve complete membership and observe cancellation only between child calls.
 - For evidence/definition preparation failure, preserve a searchable failed `FACTOR_PREVIEW` Run with a failed `MARKET_DATA` stage and exact definition/symbol/acquisition bindings. Successful requests do not create a second orchestration Run; the Factor service owns the single top-level Run.
 
+## P23-4A exact P29 Decision coordination
+
+`CycleTargetAdjustmentDecisionPreviewCoordinator` is the application-owned adapter approved by PROPOSAL-031. It accepts one explicit P29 Result ID plus exact Run ID, resolves only public P29 query contracts, validates immutable formula/configuration/P28 identities, copied target arithmetic and false execution/live flags, and maps them into `CycleTargetDecisionInput`. Its `preflight()` method writes no Run or P31 row. `preview()` creates `CYCLE_TARGET_DECISION_PREVIEW / NO_EXECUTION`, orders `TARGET_POSITION` before `DECISION`, binds exact versions, delegates all action/notional meaning to the Decision service and persists invalid/failed attempts without accepted result/intent evidence. It contains no sign mapping, SQL, Risk rule, cash check, source default or execution route.
+
+The public P23-4A orchestration surface is `CycleTargetAdjustmentDecisionPreflight` plus `CycleTargetAdjustmentDecisionPreviewCoordinator`. The output is a type-distinct P31 Decision outcome; it cannot enter Phase 6A, generic Risk, Backtesting, Accounting or Execution. Tests cover preflight no-write behavior, exact source admission, parent/source Run navigation, idempotency/conflict and durable source/storage failure.
+
 ## Non-responsibilities
 
 No Market Data loading, SQL, Factor formula, decision/risk rule, portfolio interpretation, order conversion, broker access, GUI, or execution.
@@ -66,4 +72,4 @@ Fake integration tests verify Factor → Snapshot → Decision and Factor → De
 
 ## Known limitations
 
-The general pipelines accept a prebuilt Market Data window; the general Algorithm Control adapter loads only local cached Bars. P23-1/P26 restrictions remain unchanged. Linked Target Position does not estimate standardized-state inputs. P23-3A requires exact P28 evidence and has no Phase 5D/P23-4 consumer. All target USD contexts remain manual/hypothetical. Phase 5D's only consumer is the isolated Phase 6A gate; Phase 6B–6D remain exact-source manual-review previews. Complete Risk approval, approved-order conversion and execution are **Not implemented**.
+The general pipelines accept a prebuilt Market Data window; the general Algorithm Control adapter loads only local cached Bars. P23-1/P26 restrictions remain unchanged. Linked Target Position does not estimate standardized-state inputs. P23-3A requires exact P28 evidence and has exactly one approved Decision consumer: the explicit disabled P23-4A adapter. All target USD contexts remain manual/hypothetical. P23-4A has zero runtime results and no Risk/cash/Backtesting/Accounting/Execution consumer. Phase 5D's only consumer is the isolated Phase 6A gate; Phase 6B–6D remain exact-source manual-review previews. Complete Risk approval, approved-order conversion and execution are **Not implemented**.

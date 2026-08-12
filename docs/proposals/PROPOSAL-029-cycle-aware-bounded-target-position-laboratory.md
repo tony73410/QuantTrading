@@ -9,7 +9,7 @@
 - User approval status: on 2026-08-10 the user explicitly approved PROPOSAL-029 and all recommended P29-D1–D10 selections
 - Related ADR / Intent / Edit Log: PROPOSAL-014, PROPOSAL-016, PROPOSAL-023 revision 1.24, PROPOSAL-027, PROPOSAL-028, ADR-0021, ADR-0023, ADR-0032, ADR-0033, ADR-0034, DEC-010, INTENT-039, EDIT-20260810-006 and the final implementation Edit Log record
 
-This document is the approved and implemented design for the P23-3A research slice. The implementation adds public research contracts, central SQLite v18 and a Target Position sibling inspector, but creates no real formula/configuration/result row, default, Decision, Risk, cash use, Backtesting, Paper, Live, order construction or execution.
+This document is the approved and implemented design for the P23-3A research slice. The implementation added public research contracts, central SQLite v18 and a Target Position sibling inspector and initially created no formula/configuration/result row. Later approved PROPOSAL-030 appended only one disabled AAPL test formula/configuration and three linear validation results. No default, Decision, Risk, cash use, Backtesting, Paper, Live, order construction or execution exists.
 
 ## Intent interpretation
 
@@ -514,4 +514,4 @@ Runtime module documents, architecture version 37, ADR-0034, CHANGELOG, Project 
 - 2026-08-10: the user explicitly approved `PROPOSAL-029` with the recommended P29-D1–D10 selections.
 - Implementation status: implemented and verified disabled. The code provides versioned contracts/engine/service/store/orchestration/replay/export/GUI and central Schema v18.
 - Active-data status: no P29 formula, symbol configuration, attempt or result was created during implementation; all six new tables are empty.
-- Downstream status: no P23-4 consumer exists; Decision, Risk, capital, accounting, Backtesting, Paper, Live and orders remain outside this approval.
+- Downstream status: later approved PROPOSAL-031 adds exactly one explicit disabled P23-4A Decision consumer without changing this P29 approval; Risk, capital, accounting, Backtesting, Paper, Live and orders remain outside both approvals.

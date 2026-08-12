@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 37
-last_updated_utc: 2026-08-11T03:13:05Z
+version: 39
+last_updated_utc: 2026-08-11T19:12:08Z
 ```
 
 ## Purpose
@@ -46,7 +46,8 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - a disabled and unconsumed P23-1 Spectral Volatility Research path through P23-1E-B: explicit XNYS/Daily/raw/split/corporate-action evidence, immutable R1 v1.0.0/v1.1.0 session-window semantics, project-owned multi-window Fourier/MAD diagnostics, one-symbol explicit latest-session or 2–250-session local/read-only evidence preparation, `FACTOR_PREVIEW` child and `SPECTRAL_HISTORY_RESEARCH` parent Run history, exact Schema-v15 reload and existing Factor-page controls/inspection/charts/export; it creates no predictive score, cycle state, target, Decision, Risk, accounting or execution authority;
 - a locked disabled P23-1F daily-volatility-profile path owned by Factors: one explicit complete 20–250-session P26 study, exact prior-session R1 v1.0.0 W60/W120/W250 trend-standardized MAD, robust daily/history medians, temporal MAD and explanatory exponential price fractions; exact Schema-v16 attempts/results/source lineage and existing-Factor-page inspection/export remain unconsumed and create no reversal, state, target, Decision, Risk, cash, accounting or execution authority;
 - a disabled P23-2A reversal-observation path owned by Asset State but isolated from its formal manual ledger: one explicit versioned shared multiplier and exact positive P27 scale, forward-only local Raw/Split/XNYS/corporate-action evidence, inclusive symmetric log threshold, two-session confirmation, next-session activation, immutable Schema-v17 steps/events/source links, recalculation replay/export/comparison and an existing-page subtab; it creates no formal transition, target, Decision, Risk, cash, accounting or execution authority;
-- a disabled P23-3A cycle-aware bounded Target Position path under the existing Target Position owner: one explicit successful P28 Result/Run/Daily Step, exact inherited P27 scale, `ln(P/R)/k`, contrarian linear/linear-clamped/derivative-matched finite-exponential/saturated regions, immutable formula and per-symbol configurations, Schema-v18 attempts/results/traces/source links, replay/export/comparison and an existing-page sibling subtab; it has no Phase 5D/P23-4 or trading consumer;
+- a disabled P23-3A cycle-aware bounded Target Position path under the existing Target Position owner: one explicit successful P28 Result/Run/Daily Step, exact inherited P27 scale, `ln(P/R)/k`, contrarian linear/linear-clamped/derivative-matched finite-exponential/saturated regions, immutable formula and per-symbol configurations, Schema-v18 attempts/results/traces/source links, replay/export/comparison and an existing-page sibling subtab; its only approved downstream consumer is the explicit disabled P23-4A Decision preview;
+- a disabled P23-4A Decision path under the existing Decision owner: read-only preflight and preview over one explicit accepted P29 Result/Run, a shared exact signed-difference kernel preserving old Phase 5D meaning, type-distinct result/zero-or-one intent/source evidence, Schema-v19 persistence, Run History/export and a sibling existing-Decision-page inspector; it has no Risk, cash, Backtesting, Accounting or execution consumer;
 - a shared validation-result and fail-closed system-health foundation; business validation rules remain owned by their modules.
 
 The following are **not implemented**: production activation, production portfolio construction/position sizing, production-grade cost basis/P&L/accounting, complete or production numerical Risk approval/policies, orders, Paper order execution, and Live execution. Research-only Decision notional sizing, three ordered numerical Risk previews and isolated historical Backtesting are implemented, but grant no production authority. The Portfolio Accounting scaffold only replays explicit cash effects and long filled quantities in memory; advanced conventions remain Open Decisions. Restricted user-authored Factor and Decision rules exist only as disabled definitions and local previews. Empty `quant_trading.execution.paper` and `.live` namespace boundaries contain no interfaces or behavior. `ALPACA_PAPER` is a safe label and future target, not proof of an execution connection. Live trading and automatic order submission remain disabled.
@@ -346,15 +347,15 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
-| Status | Implemented and verified with central Schema v18/116 plus additive v1→v18 migration evidence |
+| Status | Implemented and verified with central Schema v19/120 plus additive v1→v19 migration evidence |
 | Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor/P23-1, generic/specialized Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance ownership/contracts independent. |
-| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, P23-1/P26/P23-1F/P23-2/P23-3A stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
+| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, P23-1/P26/P23-1F/P23-2/P23-3A/P23-4A stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
 | Non-responsibilities | Market Data download, algorithm calculation, availability semantics, GUI, cleanup deletion, broker, accounting or execution. |
-| Public interfaces | `CentralSQLiteDatabase`, schema inspection helpers, `SQLiteRunHistoryRepository`, Factor/P23-1/P26/P23-1F stores, `SQLiteReversalObservationStore`, `SQLiteCycleTargetPositionStore`, generic result/research-history stores and Capital/State/Target/Decision/Risk stores; implements public Store/query Protocols. |
+| Public interfaces | `CentralSQLiteDatabase`, schema inspection helpers, `SQLiteRunHistoryRepository`, Factor/P23-1/P26/P23-1F stores, `SQLiteReversalObservationStore`, `SQLiteCycleTargetPositionStore`, `SQLiteCycleTargetAdjustmentDecisionStore`, generic result/research-history stores and Capital/State/Target/Decision/Risk stores; implements public Store/query Protocols. |
 | Inputs / outputs | database path plus neutral Run History and public domain result contracts / durable Market tables and linked research evidence. |
 | Allowed dependencies | Python stdlib `sqlite3`, neutral Run History contracts, public Market/Factor/Decision/Risk/Capital Allocation/Asset State/Target Position/standardized-state/link models and Store Protocols. |
 | Forbidden dependencies | UI, Controller, Service, Provider, charts, algorithm implementations/rules, Orchestration, Alpaca and Execution. |
-| Side effects / configuration | Additive Schema v18 in the ignored central database and verified versioned backups under `runtime/data/backups/`; v18 adds exactly six P23-3A tables to v17/110, with no historical backfill, default row or credential. |
+| Side effects / configuration | Additive Schema v19 in the ignored central database and verified versioned backups under `runtime/data/backups/`; v19 adds exactly four empty P23-4A tables to v18/116 with zero backfill. Backup `market_history.schema-v18-to-v19.20260811T191208556475Z.sqlite3` and the active v19 database both pass integrity and foreign-key checks. |
 | Tests / documentation | temporary-SQLite backup/migration/rollback/transaction/dedup/reload/query tests and architecture tests; [`central-persistence.md`](../modules/central-persistence.md), [`run-history.md`](../modules/run-history.md), [`capital-allocation.md`](../modules/capital-allocation.md), [`asset-state.md`](../modules/asset-state.md), [`target-position.md`](../modules/target-position.md), [`standardized-price-state.md`](../modules/standardized-price-state.md), ADR-0009/0016/0017/0019/0020/0021/0022/0023/0024. |
 
 ### Single-Asset Factor layer
@@ -423,14 +424,14 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | contracts/engine/service/replay in `quant_trading.target_position`; exact P28 resolution in `quant_trading.orchestration`; storage in `quant_trading.persistence`; presentation in `quant_trading.algorithm_control` |
-| Status | Implemented, verified, versioned, disabled and without a downstream consumer through PROPOSAL-029 / ADR-0034 |
+| Status | Implemented, verified, versioned and disabled; only the explicit disabled P23-4A Decision preview may consume an accepted result |
 | Purpose | Convert one exact P28 completed-session cycle observation into a bounded hypothetical desired holding while preserving ordinary/confirmation linear behavior and never creating a trade. |
 | Responsibilities | Immutable formula and per-symbol parameter versions; exact `x=ln(P/R)/k`; contrarian bounded linear, derivative-matched finite-exponential and saturation regions; binary64/IEEE and Decimal USD traces; durable success/failure; replay/comparison/export and P29/P28/P27/P26 Run navigation. |
-| Non-responsibilities | P27/P28 calculation, source/default selection, formal Asset State mutation, factual capital/position, Decision/P23-4, Risk, cash, daily trade count, freeze, Backtesting, Accounting, Paper, Live, order or activation authority. |
+| Non-responsibilities | P27/P28 calculation, source/default selection, formal Asset State mutation, factual capital/position, Decision calculation, Risk, cash, daily trade count, freeze, Backtesting, Accounting, Paper, Live, order or activation authority. |
 | Public interfaces | `CycleTargetPositionService`, `CycleTargetPositionEngine`, replay service, Store/query/runner ports and exact schema-v1 formula/configuration/command/source/result/trace/operation/query contracts. |
 | Allowed dependencies | Target Position domain: stdlib, shared errors and neutral Run History. Orchestration: public P28 query and Target Position contracts. Persistence/GUI retain their established outward dependency direction. |
-| Forbidden dependencies | Domain to Asset State/Factor/Market/Persistence/GUI or any downstream financial/execution owner; GUI to formula/SQL/Provider; any Decision/Risk/Capital/Accounting/Backtesting/Execution consumer. |
-| Side effects / configuration | Explicit local Run/Store writes and user export paths only. No Provider/network route, default formula/config/source, real P29 row or schedule. All evidence remains `execution_allowed=false`, `live_allowed=false`. |
+| Forbidden dependencies | Domain to Asset State/Factor/Market/Persistence/GUI or any downstream financial/execution owner; GUI to formula/SQL/Provider; any consumer other than the exact public P23-4A orchestration adapter without separate approval. |
+| Side effects / configuration | Explicit local Run/Store writes and user export paths only. No Provider/network route, automatic/default formula/config/source or schedule. Active data contains only the approved P30 disabled local validation formula/configuration and three results; P23-4A can consume one only after explicit user selection and creates no automatic row. All evidence remains `execution_allowed=false`, `live_allowed=false`. |
 | Tests / documentation | domain/constraint/region/repository/migration/Run/GUI/orchestration/replay/architecture tests; [`target-position.md`](../modules/target-position.md), ADR-0034. |
 
 ### Trading Decision layer
@@ -438,12 +439,12 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.decision` / `src/quant_trading/decision/` |
-| Status | Partially implemented and verified; contracts/engine exist, production policies do not |
-| Purpose | Produce traceable non-executing intentions from approved public inputs, including the isolated exact Phase 5D target-adjustment preview. |
-| Responsibilities | Generic policy registry/factor-status/output validation and immutable condition/sizing history; specialized exact signed-difference mapping, result/intent type isolation, durable operation contracts and query semantics. |
+| Status | Partially implemented and verified; generic, Phase 5D and disabled P23-4A contracts/engines exist, production policies do not |
+| Purpose | Produce traceable non-executing intentions from approved public inputs, including isolated exact Phase 5D and P23-4A target-adjustment previews. |
+| Responsibilities | Generic policy registry/factor-status/output validation and immutable condition/sizing history; one shared exact signed-difference mapping; source-family-specific result/intent isolation; P23-4A copied P29 arithmetic validation; durable operation/source contracts and query semantics. |
 | Non-responsibilities | Raw Market Data, factor calculation, source/default selection, tolerance/rounding/EXIT, SQLite, charts, risk approval/admission, broker orders or execution. |
-| Public interfaces | Generic Decision contracts plus `LinkedTargetDecisionInput`, `TargetAdjustmentDecisionService`, `TargetAdjustmentDecisionResult`, `TargetAdjustmentTradeIntent`, Store/query contracts and typed history records. |
-| Inputs / outputs | Generic Factor/portfolio context or one source-neutral exact linked-target DTO / generic Decision result or specialized target-adjustment result with zero-or-one specialized intent. |
+| Public interfaces | Generic Decision contracts plus Phase 5D contracts and P23-4A `CycleTargetDecisionInput`, `CycleTargetAdjustmentDecisionService`, result/intent/attempt/source/query/Store contracts and typed history records. |
+| Inputs / outputs | Generic Factor/portfolio context, one source-neutral Phase 5C linked-target DTO or one source-neutral exact P29 target DTO / generic Decision result or source-family-specific target-adjustment result with zero-or-one specialized intent. |
 | Allowed dependencies | Standard library plus public Factor contracts for the generic path and neutral Run/link DTO contracts for the approved specialized service. |
 | Forbidden dependencies | Factor Engine/Registry/implementations, Market History, Risk, Alpaca, concrete SQLite, GUI, orchestration and execution. |
 | Side effects / configuration | No external side effects; policy exceptions are logged. Separate immutable Decision parameters; no policy defaults. |
@@ -472,9 +473,9 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Module / path | `quant_trading.orchestration` / `src/quant_trading/orchestration/` |
 | Status | Implemented and verified at interface level and through local Algorithm Control previews; never connected to execution |
 | Purpose | Enforce approved one-way application call order while leaving all domain engines independently usable. |
-| Responsibilities | Shared `as_of` validation, Factor/Decision/Risk call order, exact standardized-state/Target/Decision/Phase6A/Phase6B/Phase6C source resolution, explicit public read-only Phase 3A plan/latest-snapshot resolution, P23-1E-A delegation, P26 exact-grid/parent-child/complete-membership coordination, safety-snapshot capture through composition, Store-protocol evidence persistence, Run/stage/relationship transitions, exact bindings and typed results. |
+| Responsibilities | Shared `as_of` validation, Factor/Decision/Risk call order, exact standardized-state/Target/Decision/Phase6A/Phase6B/Phase6C source resolution, exact P29→P23-4A read-only preflight/preview resolution, explicit public read-only Phase 3A plan/latest-snapshot resolution, P23-1E-A delegation, P26 exact-grid/parent-child/complete-membership coordination, safety-snapshot capture through composition, Store-protocol evidence persistence, Run/stage/relationship transitions, exact bindings and typed results. |
 | Non-responsibilities | SQL, formulas, Risk rule outcomes, source/default selection, GUI, order conversion, broker access or execution. |
-| Public interfaces | Existing pipelines/coordinators plus `TargetAdjustmentRiskReviewCoordinator`, `TargetAdjustmentExposureCapPreviewCoordinator`, `TargetAdjustmentResearchCashFloorPreviewCoordinator`, `TargetAdjustmentResearchAssetCashPreviewCoordinator` and `ManualSpectralPreviewCoordinator`; request/result contracts, local preview executors and explicit preview composition. |
+| Public interfaces | Existing pipelines/coordinators plus `CycleTargetAdjustmentDecisionPreviewCoordinator`, `TargetAdjustmentRiskReviewCoordinator`, `TargetAdjustmentExposureCapPreviewCoordinator`, `TargetAdjustmentResearchCashFloorPreviewCoordinator`, `TargetAdjustmentResearchAssetCashPreviewCoordinator` and `ManualSpectralPreviewCoordinator`; request/result contracts, local preview executors and explicit preview composition. |
 | Inputs / outputs | injected engines/services/Stores and typed requests / generic Factor/Decision/Risk results or exact linked Target/Decision/manual-review results plus Run identity. |
 | Allowed dependencies | Public Factor/Decision/Risk/Target Position and Run History engines/models/query/Store Protocols; explicit composition root may import concrete adapters. |
 | Forbidden dependencies | Concrete formulas/policies/rules, SQL inside calculation adapters, concrete Alpaca clients, GUI and execution. |
@@ -652,6 +653,8 @@ Exact accepted standardized-state result -> Phase 5C orchestration -> source-neu
 Linked Target Position Store/query -> immutable operation/link + source/parent/child Runs -> Algorithm Control GUI
 Exact successful P28 Result + Run + Daily Step -> P23-3 orchestration -> source-neutral P/R/k/state evidence
 P23-3 Target Position service -> bounded result/trace/source links -> Run History + existing Target Position GUI
+Exact accepted P29 Result + Run -> P23-4A read-only preflight -> source-neutral target/current/difference evidence
+P23-4A Decision service -> exact action + zero-or-one type-distinct intent -> Run History + existing Decision GUI
 Exact accepted Phase 5C link -> Phase 5D orchestration -> specialized Target Adjustment Decision service
 Target Adjustment Decision Store/query -> immutable result/zero-or-one specialized intent + exact Run relationships -> Algorithm Control GUI
 ```
@@ -665,14 +668,14 @@ Target Adjustment Decision Store/query -> immutable result/zero-or-one specializ
 | Alpaca Market Data Provider | Alpaca data SDK, models/errors | Alpaca Trading SDK, GUI, SQLite Store |
 | SQLite Store | `sqlite3`, models/errors | GUI, Alpaca SDK/Provider, Chart Builder |
 | Run History | stdlib and its own neutral contracts | SQL/Persistence, GUI, Factor, Decision, Risk, Accounting, Backtesting, Alpaca, Execution |
-| Central persistence | `sqlite3`, neutral Run History contracts, public Market/Factor/Decision/Risk/Capital Allocation/Asset State/Target Position including P23-3A/standardized-state/link/target-adjustment models and Store/query Protocols | GUI, Provider, algorithm implementations/rules, Orchestration, Alpaca, execution |
+| Central persistence | `sqlite3`, neutral Run History contracts, public Market/Factor/Decision including P23-4A/Risk/Capital Allocation/Asset State/Target Position including P23-3A/standardized-state/link/target-adjustment models and Store/query Protocols | GUI, Provider, algorithm implementations/rules, Orchestration, Alpaca, execution |
 | Chart Builder | models, pandas, Plotly | API, database, UI widgets, execution |
 | Shared visualization | stdlib, Plotly, PySide6 and shared infrastructure error | every Market/Factor/Decision/Risk/Persistence/Accounting/Orchestration/Execution module |
 | Settings | standard library and typed config models | business logic, network clients, database mutation |
 | Observability | standard library, error types/context | product/financial decisions |
 | Diagnostics | public settings/models; concrete adapters only for explicit read-only checks | mutation, GUI ownership, accounts/orders |
 | Factor layer | Market Bar/dimension models, Factor contracts, restricted expression-language validation/evaluation and neutral Run History for the approved standardized-state service only | concrete persistence, Decision, Risk, execution, accounts, GUI, Provider/Store |
-| Decision layer | Factor public models/interfaces for the generic path; neutral Run identity plus source-neutral linked Target DTOs for the approved specialized service; Decision contracts | Factor implementations/engine, Risk, raw Market Data, concrete Store, broker/execution |
+| Decision layer | Factor public models/interfaces for the generic path; neutral Run identity plus source-neutral Phase 5C/P29 Target DTOs for approved specialized services; Decision contracts | Factor/Target implementations or engines, Risk, raw Market Data, concrete Store, broker/execution |
 | Risk layer | application environment enum, public Factor/Decision models, public Portfolio Accounting snapshot-provider contracts, Risk contracts | Factor/Decision implementations, GUI, Provider/Store, Alpaca, execution, Ledger/Accounting mutation services |
 | Portfolio Accounting | stdlib and its own typed public contracts | concrete broker/execution, GUI, Market History Provider/Store, Factor/Decision/Risk implementations, Alpaca |
 | Capital Allocation | stdlib, shared errors, neutral Run History contracts | Persistence/SQLite, GUI, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca, Execution |
@@ -680,7 +683,7 @@ Target Adjustment Decision Store/query -> immutable result/zero-or-one specializ
 | Target Position | stdlib, shared errors, neutral Run History contracts | Persistence/SQLite, GUI, Market/Factor/Asset State/Capital/Accounting/Decision/Risk/Backtesting, Alpaca, Execution; linked/P28 inputs must remain source-neutral |
 | Validation/health | stdlib, centralized ErrorCode and observability | all business-rule implementations, GUI, Alpaca, SQLite, Execution |
 | Algorithm Control | public Factor/Decision/Risk/Run History/Capital Allocation/Asset State/Target Position/standardized-state/target-adjustment service/query contracts, public orchestration coordinators, shared renderer, Plotly/PySide6, application settings | concrete engines, Market Data/SQLite, Portfolio Accounting mutation, broker/execution, Decision/Risk implementations, reconstructed historical causality or arithmetic |
-| Orchestration | Factor, Decision, Risk and Target Position public services/models; standardized-state/target/link/P28 public queries; Run History and domain Store Protocols; its explicit composition module may wire concrete adapters | formulas, latest/default selection policy, SQL inside calculation adapters, Risk admission for P29, execution |
+| Orchestration | Factor, Decision, Risk and Target Position public services/models; standardized-state/target/link/P28/P29 public queries; Run History and domain Store Protocols; its explicit composition module may wire concrete adapters | formulas, latest/default selection policy, SQL inside calculation adapters, Risk admission for P29/P31, execution |
 | Paper Execution boundary | none at this stage | Live boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client |
 | Live Execution boundary | none at this stage | Paper boundary, raw TradeIntent, GUI, historical Store, Market Data, broker SDK/client; all runtime use while Live is disabled |
 | Planned Order Construction / execution behavior | Risk-approved contracts and approved execution interfaces/models | raw TradeIntent, GUI, historical Store, Market Data cache logic |
@@ -1062,7 +1065,7 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
 | Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented central local persistence, Schema v18/116 | all prior evidence plus P23-3A immutable formula/configuration/attempt/result/trace/source links and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
+| SQLite | Implemented central local persistence, Schema v19/120 | all prior evidence plus P23-3A target evidence and P23-4A immutable attempt/result/intent/source links and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -1104,7 +1107,7 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters remain separate immutable typed contexts. Generic FactorSnapshot, specialized P23-1/P26/P23-1F, P23-2 observations, P23-3A targets, Decision/Risk, Capital, manual Asset State, Target and linked evidence persist through separate public Store Protocols/adapters. Central Schema v18 is additive. P23-2/P23-3A consume only explicit exact public evidence through application orchestration; P23-3A has no P23-4 financial consumer. Persistence/query capability grants neither production activation nor execution authority.
+Factor and Decision parameters remain separate immutable typed contexts. Generic FactorSnapshot, specialized P23-1/P26/P23-1F, P23-2 observations, P23-3A targets, P23-4A/other Decision/Risk, Capital, manual Asset State, Target and linked evidence persist through separate public Store Protocols/adapters. Central Schema v19 is additive. P23-2/P23-3A/P23-4A consume only explicit exact public evidence through application orchestration; P23-4A stops before Risk and has no financial/execution authority. Persistence/query capability grants neither production activation nor execution authority.
 
 ## Testing Boundaries
 
@@ -1242,8 +1245,14 @@ Factor and Decision parameters remain separate immutable typed contexts. Generic
 116. P23-3A consumes one explicit successful P28 Result/Run/Daily Step only through orchestration. Target Position receives source-neutral exact `P/R/k`, operational direction, candidate state and P28/P27/P26/Market identity; it cannot import Asset State, ask a Provider or fall back to manual/latest evidence.
 117. P23-3A uses `x=ln(P/R)/k` and `LOWER_PRICE_HIGHER_TARGET`. Candidate/confirmed-awaiting-activation, counter-move and same-direction `|x|<=A` are bounded linear; only same-direction `A<|x|<B` is derivative-matched finite exponential; `|x|>=B` saturates. Exactly one region applies and day-1/day-2 history is never rewritten after activation.
 118. P23-3A preserves binary64 decimal text and IEEE hex for log/exp/root evidence, uses the locked bisection `beta/expm1(beta)=rho` solver and exact `Decimal.from_float` for unrounded hypothetical USD math. Same exact mathematical input reproduces the calculation fingerprint; replay reports divergence and never repairs history.
-119. Schema v18 adds exactly six normalized P23-3A tables, expands 110→116, performs zero backfill and cannot rewrite P28, P27, existing finite-knot/linked Target or other prior rows. The active migration created no P29 formula/configuration/attempt/result row.
-120. P23-3A remains `DISABLED`, `execution_allowed=false`, `live_allowed=false`. Its existing Target Position sibling subtab may dispatch typed services and query/replay/compare/export only; Phase 5D and every Decision/Risk/cash/count/freeze/Backtesting/Accounting/Execution path are forbidden consumers without separate P23-4 approval.
+119. Schema v18 adds exactly six normalized P23-3A tables, expands 110→116, performs zero backfill and cannot rewrite P28, P27, existing finite-knot/linked Target or other prior rows. P30 later added only the separately approved disabled validation formula/configuration/results.
+120. P23-3A remains `DISABLED`, `execution_allowed=false`, `live_allowed=false`. Its existing Target Position sibling subtab may dispatch typed services and query/replay/compare/export only; the exact P23-4A adapter is its sole approved Decision consumer, and every Risk/cash/count/freeze/Backtesting/Accounting/Execution path remains forbidden without separate approval.
+121. P23-4A preserves Phase 5D public contracts, tables, policy identity and downstream consumer. Both source families use one pure Decision-owned exact signed-difference kernel: positive is `INCREASE`, negative is `DECREASE`, exact zero is `HOLD`; no tolerance, rounding or `EXIT` is permitted.
+122. P23-4A admits only one explicitly selected accepted P29 Result ID plus its exact Run ID. Read-only preflight must validate copied arithmetic, immutable formula/configuration identity, exact P28 lineage and false execution/live flags without writing a Run/result or choosing latest/default evidence.
+123. One nonzero accepted P23-4A result owns exactly one type-distinct research intent with positive `abs(target-current)` USD notional; one exact-zero result owns none. The P31 intent is incompatible with Phase 6A and every generic Risk/order path until a separately approved adapter exists.
+124. Each accepted P23-4A preview creates `CYCLE_TARGET_DECISION_PREVIEW / NO_EXECUTION`, ordered `TARGET_POSITION` then `DECISION` stages and the exact P29 parent Run. Invalid/failed attempts remain durable but create no accepted result, intent or source link.
+125. Schema v19 adds exactly four normalized P23-4A tables, expands 116→120 and performs zero backfill. The verified v18 backup and active v19 database pass integrity/foreign-key checks; all P31 tables remain empty after implementation.
+126. P23-4A remains `DISABLED`, `execution_allowed=false`, `live_allowed=false`; its sibling existing-Decision-page inspector may explicitly preflight/dispatch/query/compare/export/navigate typed evidence only. Risk, cash, daily-count/freeze, Backtesting, Accounting, Paper, Live, orders and runtime validation data remain separate approvals.
 
 Changing an invariant requires an impact proposal, explicit user approval, relevant ADR/docs/tests, and a rollback method.
 

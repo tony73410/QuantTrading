@@ -59,6 +59,9 @@ def test_only_approved_factor_service_depends_on_neutral_run_history() -> None:
     approved_decision = {
         decision_root / "target_adjustment_engine.py",
         decision_root / "target_adjustment_service.py",
+        decision_root / "cycle_target_adjustment_engine.py",
+        decision_root / "cycle_target_adjustment_service.py",
+        decision_root / "cycle_target_adjustment_replay.py",
     }
     for path in decision_root.rglob("*.py"):
         imports = _file_imports(path)

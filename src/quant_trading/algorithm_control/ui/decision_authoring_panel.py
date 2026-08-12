@@ -35,15 +35,25 @@ from quant_trading.decision import (
     SizingMode,
 )
 from quant_trading.decision.interfaces import DecisionHistoryQueryService
-from quant_trading.decision import TargetAdjustmentDecisionQueryService
-from quant_trading.orchestration import TargetAdjustmentDecisionPreviewCoordinator
-from quant_trading.target_position import TargetPositionQueryService
+from quant_trading.decision import (
+    CycleTargetAdjustmentDecisionQueryService,
+    TargetAdjustmentDecisionQueryService,
+)
+from quant_trading.orchestration import (
+    CycleTargetAdjustmentDecisionPreviewCoordinator,
+    TargetAdjustmentDecisionPreviewCoordinator,
+)
+from quant_trading.target_position import (
+    CycleTargetPositionQueryService,
+    TargetPositionQueryService,
+)
 from PySide6.QtCore import Qt
 
 from ..controller import AlgorithmControlController
 from ..models import ComponentStatus, ComponentType
 from .decision_history_panel import DecisionHistoryPanel
 from .target_adjustment_decision_panel import TargetAdjustmentDecisionPanel
+from .cycle_target_adjustment_decision_panel import CycleTargetAdjustmentDecisionPanel
 
 
 class DecisionAuthoringPanel(QWidget):
@@ -282,6 +292,9 @@ class DecisionManagementPanel(QWidget):
         target_adjustment_preview: TargetAdjustmentDecisionPreviewCoordinator | None = None,
         target_adjustment_queries: TargetAdjustmentDecisionQueryService | None = None,
         target_position_queries: TargetPositionQueryService | None = None,
+        cycle_target_adjustment_preview: CycleTargetAdjustmentDecisionPreviewCoordinator | None = None,
+        cycle_target_adjustment_queries: CycleTargetAdjustmentDecisionQueryService | None = None,
+        cycle_target_position_queries: CycleTargetPositionQueryService | None = None,
         session_id: str = "algorithm-control",
     ) -> None:
         super().__init__(parent)
@@ -293,6 +306,12 @@ class DecisionManagementPanel(QWidget):
             target_position_queries,
             session_id=session_id,
         )
+        self.cycle_target_adjustment = CycleTargetAdjustmentDecisionPanel(
+            cycle_target_adjustment_preview,
+            cycle_target_adjustment_queries,
+            cycle_target_position_queries,
+            session_id=session_id,
+        )
         self.components = component_panel
         self.list = self.components.list
         self.factor_choices = self.components.factor_choices
@@ -300,6 +319,7 @@ class DecisionManagementPanel(QWidget):
         tabs.addTab(self.authoring, "创建/修改Decision")
         tabs.addTab(self.history, "历史与计算明细")
         tabs.addTab(self.target_adjustment, "Linked Target Adjustment")
+        tabs.addTab(self.cycle_target_adjustment, "Cycle Target Decision")
         tabs.addTab(self.components, "版本配置与预览")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
@@ -308,9 +328,11 @@ class DecisionManagementPanel(QWidget):
         self.components.preview_requested.connect(self.preview_requested)
         self.history.open_run_requested.connect(self.open_run_requested)
         self.target_adjustment.open_run_requested.connect(self.open_run_requested)
+        self.cycle_target_adjustment.open_run_requested.connect(self.open_run_requested)
 
     def reload(self) -> None:
         self.authoring.reload()
         self.components.reload()
         self.history.reload()
         self.target_adjustment.reload()
+        self.cycle_target_adjustment.reload()

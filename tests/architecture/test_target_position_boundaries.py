@@ -83,3 +83,16 @@ def test_trading_consumers_do_not_import_target_position() -> None:
     ):
         imports = _imports(ROOT / module)
         assert not [name for name in imports if name.startswith("quant_trading.target_position")]
+
+
+def test_canonical_architecture_records_bounded_p30_data_and_only_explicit_p31_consumer() -> None:
+    architecture = Path("docs/architecture/OVERVIEW.md").read_text(encoding="utf-8")
+    section = architecture.split(
+        "### P23-3A cycle-aware bounded Target Position path", 1
+    )[1].split("### Trading Decision layer", 1)[0]
+    assert "approved P30 disabled local validation formula/configuration and three results" in section
+    assert "P23-4A can consume one only after explicit user selection" in section
+    assert "sole approved Decision consumer" in architecture
+    assert "execution_allowed=false" in section
+    assert "live_allowed=false" in section
+    assert "real P29 row or schedule" not in section

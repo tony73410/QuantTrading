@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 19
 
 
 _SCHEMA_V1 = """
@@ -1443,12 +1443,7 @@ CREATE TABLE target_adjustment_decision_results (
         REFERENCES standardized_state_results(calculation_id) ON DELETE RESTRICT,
     FOREIGN KEY (standardized_state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
     FOREIGN KEY (target_calculation_id)
-        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT,
-    CHECK (
-        (status = 'hold' AND action = 'hold')
-        OR
-        (status = 'intent_created' AND action IN ('increase', 'decrease'))
-    )
+        REFERENCES target_position_results(calculation_id) ON DELETE RESTRICT
 );
 
 CREATE INDEX idx_target_adjustment_decision_results_lookup
@@ -3476,6 +3471,200 @@ ON cycle_target_results(symbol, session DESC, source_result_id, source_step_id);
 """
 
 
+_SCHEMA_V19 = """
+CREATE TABLE cycle_target_decision_operation_attempts (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    target_stage_id TEXT,
+    decision_stage_id TEXT,
+    command_fingerprint TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'running', 'completed', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT,
+    requested_source_result_id TEXT NOT NULL,
+    requested_source_run_id TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_source_json TEXT,
+    decision_result_id TEXT,
+    intent_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    CHECK (
+        (status = 'completed' AND completed_at_utc IS NOT NULL
+         AND resolved_source_json IS NOT NULL AND decision_stage_id IS NOT NULL
+         AND decision_result_id IS NOT NULL AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('invalid_input', 'failed') AND completed_at_utc IS NOT NULL
+         AND decision_result_id IS NULL AND intent_id IS NULL
+         AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+        OR
+        (status IN ('pending', 'running') AND completed_at_utc IS NULL
+         AND decision_result_id IS NULL AND intent_id IS NULL)
+    ),
+    CHECK (intent_id IS NULL OR decision_result_id IS NOT NULL),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id) REFERENCES cycle_target_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id) REFERENCES cycle_target_decision_trade_intents(intent_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_decision_results (
+    decision_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    target_stage_id TEXT NOT NULL UNIQUE,
+    decision_stage_id TEXT NOT NULL UNIQUE,
+    source_result_id TEXT NOT NULL,
+    source_operation_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_state_stage_id TEXT NOT NULL,
+    source_target_stage_id TEXT NOT NULL,
+    source_formula_definition_id TEXT NOT NULL,
+    source_formula_definition_version INTEGER NOT NULL CHECK (source_formula_definition_version >= 1),
+    source_configuration_id TEXT NOT NULL,
+    source_configuration_version INTEGER NOT NULL CHECK (source_configuration_version >= 1),
+    source_configuration_fingerprint TEXT NOT NULL,
+    source_reversal_result_id TEXT NOT NULL,
+    source_reversal_run_id TEXT NOT NULL,
+    source_reversal_step_id TEXT NOT NULL,
+    source_calculation_fingerprint TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    source_session TEXT NOT NULL,
+    source_available_at_utc TEXT NOT NULL,
+    source_region TEXT NOT NULL CHECK (source_region IN ('linear', 'linear_clamped', 'accelerating', 'saturated')),
+    source_status TEXT NOT NULL CHECK (source_status IN ('valid_linear', 'valid_linear_clamped', 'valid_accelerating', 'valid_saturated')),
+    target_fraction_text TEXT NOT NULL,
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_position_value_usd_text TEXT NOT NULL,
+    target_position_value_usd_text TEXT NOT NULL,
+    adjustment_value_usd_text TEXT NOT NULL,
+    source_direction TEXT NOT NULL CHECK (source_direction IN ('none', 'increase', 'decrease')),
+    source_created_at_utc TEXT NOT NULL,
+    source_execution_allowed INTEGER NOT NULL CHECK (source_execution_allowed = 0),
+    source_live_allowed INTEGER NOT NULL CHECK (source_live_allowed = 0),
+    source_schema_version INTEGER NOT NULL CHECK (source_schema_version = 1),
+    currency TEXT NOT NULL CHECK (currency = 'USD'),
+    status TEXT NOT NULL CHECK (status IN ('intent_created', 'hold')),
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease', 'hold')),
+    reason_codes_json TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    policy_id TEXT NOT NULL CHECK (policy_id = 'decision.cycle_target_adjustment.p23_4a.v1'),
+    policy_version TEXT NOT NULL CHECK (policy_version = '1.0.0'),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    CHECK (
+        (status = 'hold' AND action = 'hold')
+        OR
+        (status = 'intent_created' AND action IN ('increase', 'decrease'))
+    ),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_formula_definition_id) REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_configuration_id) REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_decision_trade_intents (
+    intent_id TEXT PRIMARY KEY,
+    decision_result_id TEXT NOT NULL UNIQUE,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    decision_stage_id TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    source_session TEXT NOT NULL,
+    source_available_at_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    current_exposure_usd_text TEXT NOT NULL,
+    target_exposure_usd_text TEXT NOT NULL,
+    desired_change_usd_text TEXT NOT NULL,
+    requested_notional_usd_text TEXT NOT NULL,
+    reason_codes_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    policy_id TEXT NOT NULL CHECK (policy_id = 'decision.cycle_target_adjustment.p23_4a.v1'),
+    policy_version TEXT NOT NULL CHECK (policy_version = '1.0.0'),
+    currency TEXT NOT NULL CHECK (currency = 'USD'),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (decision_result_id) REFERENCES cycle_target_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_decision_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    decision_result_id TEXT NOT NULL UNIQUE,
+    intent_id TEXT,
+    decision_run_id TEXT NOT NULL,
+    decision_stage_id TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_operation_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_state_stage_id TEXT NOT NULL,
+    source_target_stage_id TEXT NOT NULL,
+    source_formula_definition_id TEXT NOT NULL,
+    source_configuration_id TEXT NOT NULL,
+    source_reversal_result_id TEXT NOT NULL,
+    source_reversal_run_id TEXT NOT NULL,
+    source_reversal_step_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (decision_result_id) REFERENCES cycle_target_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id) REFERENCES cycle_target_decision_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_formula_definition_id) REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_configuration_id) REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_cycle_target_decision_operations_lookup
+ON cycle_target_decision_operation_attempts(requested_source_result_id, completed_at_utc DESC, status);
+CREATE UNIQUE INDEX uq_cycle_target_decision_completed_operation
+ON cycle_target_decision_operation_attempts(operation_id) WHERE status = 'completed';
+CREATE INDEX idx_cycle_target_decision_results_lookup
+ON cycle_target_decision_results(symbol, source_session DESC, status, action);
+CREATE INDEX idx_cycle_target_decision_results_source
+ON cycle_target_decision_results(source_result_id, source_run_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -3495,6 +3684,7 @@ _MIGRATIONS = {
     16: ("P23-1F per-stock daily-volatility research profiles", _SCHEMA_V16),
     17: ("P23-2 symmetric reversal observation research", _SCHEMA_V17),
     18: ("P23-3A cycle-aware bounded target-position research", _SCHEMA_V18),
+    19: ("P23-4A P29 cycle-target Decision preview evidence", _SCHEMA_V19),
 }
 
 

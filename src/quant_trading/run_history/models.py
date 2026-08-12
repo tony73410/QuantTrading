@@ -40,6 +40,7 @@ class AlgorithmRunType(StrEnum):
     VOLATILITY_PROFILE_RESEARCH = "volatility_profile_research"
     REVERSAL_OBSERVATION_RESEARCH = "reversal_observation_research"
     CYCLE_TARGET_POSITION_RESEARCH = "cycle_target_position_research"
+    CYCLE_TARGET_DECISION_PREVIEW = "cycle_target_decision_preview"
 
 
 class AlgorithmRunStatus(StrEnum):

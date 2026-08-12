@@ -5,11 +5,11 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v18 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2/P23-3A/Decision/Risk/Capital/State/Target evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v19 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2/P23-3A/P23-4A/Decision/Risk/Capital/State/Target evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
-- [Target Position Research](modules/target-position.md) — existing immutable bounded finite-knot/manual/linked previews plus disabled P23-3A exact-P28-step linear/finite-exponential targets, structured Decimal/IEEE traces and Schema v18 provenance; no P29 downstream consumer exists.
+- [Target Position Research](modules/target-position.md) — existing immutable bounded finite-knot/manual/linked previews plus disabled P23-3A exact-P28-step linear/finite-exponential targets, structured Decimal/IEEE traces and Schema v18 provenance; only explicit P23-4A Decision consumption is approved.
 - [Manual Standardized Price State](modules/standardized-price-state.md) — Factor-owned exact manual USD price/reference/positive-scale normalization and Schema v7 history; Phase 5C may read one explicitly selected result without recalculation.
 
 - [Change proposals](proposals/README.md) — canonical pre-implementation admission, conflict, activation, migration and rollback process.
@@ -28,8 +28,9 @@
 | Dependencies | `architecture/DEPENDENCY_RULES.md` | 仓库级通用依赖原则；具体矩阵以主要架构文件为准 |
 | Decisions | `decisions/README.md` | ADR 规则与索引 |
 | P23-2A symmetric reversal observation | `proposals/PROPOSAL-028-symmetric-reversal-observation-laboratory.md` | 已批准并实现为DISABLED的同倍数、两日确认/下一交易日生效观察实验室；Schema v17/110与回放/历史GUI已完成，不修改正式状态且无交易消费者 |
-| P23-3A cycle-aware target position | `proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：复用现有Target Position所有者，精确P28 Result/Run/Step→反向线性/有限指数/饱和目标仓位，Schema v18与既有页面检查器；没有真实参数、默认值或P23-4消费者 |
+| P23-3A cycle-aware target position | `proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：复用现有Target Position所有者，精确P28 Result/Run/Step→反向线性/有限指数/饱和目标仓位，Schema v18与既有页面检查器；P30仅增加一项禁用AAPL测试配置和三条线性结果，P31是唯一获批的显式禁用Decision消费者 |
 | AAPL P29 controlled validation | `proposals/PROPOSAL-030-aapl-p29-controlled-local-validation.md` | 已批准并完成`DRY_RUN`：精确复用现有三步AAPL P28证据、无刷新、使用对称禁用无默认参数和独立假设USD上下文；三条结果均为`VALID_LINEAR`且重启回放一致，无下游消费者 |
+| P23-4A cycle-target Decision preview | `proposals/PROPOSAL-031-cycle-target-decision-preview.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：显式P29 Result/Run→只读预检→共享精确差额判断→独立零/一Intent，保留旧Phase 5D历史；Schema v19、Run History、导出和既有Decision页兄弟检查器已验证，四张P31表仍为空且无Risk/资金/回测/交易消费者 |
 | P23-2A architecture decision | `decisions/ADR-0033-symmetric-reversal-observation-laboratory.md` | 记录同倍数、前向冻结、确认/生效分离、六表持久化及严格无交易消费者边界 |
 | P23-1F daily volatility profile | `proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md` | 已批准的完整P26/R1 v1.0.0日常波动档案公式、Schema v16、GUI、验证与严格非交易边界 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |

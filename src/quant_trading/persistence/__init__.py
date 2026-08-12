@@ -17,6 +17,9 @@ from .spectral_historical_sqlite_store import SQLiteSpectralHistoricalStudyStore
 from .daily_volatility_profile_sqlite_store import SQLiteDailyVolatilityProfileStore
 from .reversal_observation_sqlite_store import SQLiteReversalObservationStore
 from .cycle_target_position_sqlite_store import SQLiteCycleTargetPositionStore
+from .cycle_target_adjustment_decision_sqlite_store import (
+    SQLiteCycleTargetAdjustmentDecisionStore,
+)
 from .sqlite_database import (
     CentralSchemaInspection,
     CentralSQLiteDatabase,
@@ -46,4 +49,5 @@ __all__ = [
     "SQLiteDailyVolatilityProfileStore",
     "SQLiteReversalObservationStore",
     "SQLiteCycleTargetPositionStore",
+    "SQLiteCycleTargetAdjustmentDecisionStore",
 ]

@@ -33,6 +33,7 @@ from quant_trading.persistence import (
     SQLiteDailyVolatilityProfileStore,
     SQLiteReversalObservationStore,
     SQLiteCycleTargetPositionStore,
+    SQLiteCycleTargetAdjustmentDecisionStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -57,7 +58,10 @@ from quant_trading.market_history.composition import (
 )
 from quant_trading.market_history.config import AppSettings
 from quant_trading.market_history.storage import SQLiteHistoricalDataStore
-from quant_trading.decision import TargetAdjustmentDecisionService
+from quant_trading.decision import (
+    CycleTargetAdjustmentDecisionService,
+    TargetAdjustmentDecisionService,
+)
 from quant_trading.risk import (
     ResearchAssetCashFloorService,
     ResearchAssetCashAvailabilityService,
@@ -76,6 +80,7 @@ from quant_trading.orchestration import (
     SpectralHistoricalStudyCoordinator,
     ReversalObservationResearchCoordinator,
     CycleTargetPositionResearchCoordinator,
+    CycleTargetAdjustmentDecisionPreviewCoordinator,
 )
 
 from .audit_service import AuditService
@@ -296,6 +301,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         reversal_observation_store,
         cycle_target_position_service,
     )
+    cycle_target_adjustment_store = SQLiteCycleTargetAdjustmentDecisionStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    cycle_target_adjustment_store.initialize()
+    cycle_target_adjustment_service = CycleTargetAdjustmentDecisionService(
+        cycle_target_adjustment_store,
+        software,
+    )
+    cycle_target_adjustment_preview = CycleTargetAdjustmentDecisionPreviewCoordinator(
+        cycle_target_position_store,
+        cycle_target_adjustment_store,
+        cycle_target_adjustment_store,
+        cycle_target_adjustment_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+    )
     capital_store = SQLiteCapitalAllocationStore(
         root / "runtime" / "data" / "market_history.sqlite3"
     )
@@ -489,6 +510,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         cycle_target_position_service=cycle_target_position_service,
         cycle_target_position_queries=cycle_target_position_store,
         cycle_target_position_runner=cycle_target_position_runner,
+        cycle_target_adjustment_decision_preview=cycle_target_adjustment_preview,
+        cycle_target_adjustment_decision_queries=cycle_target_adjustment_store,
         linked_target_position_preview=linked_target_position_preview,
         target_adjustment_decision_preview=target_adjustment_preview,
         target_adjustment_decision_queries=target_adjustment_store,

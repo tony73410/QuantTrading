@@ -1,6 +1,7 @@
 # Architecture Decision Records
 
-- `ADR-0034-cycle-aware-bounded-target-position.md`: accepted the explicit exact-P28-step adapter, contrarian bounded linear/derivative-matched finite-exponential Target Position family, immutable per-symbol versions, additive Schema v18 and no downstream financial or execution consumer.
+- `ADR-0035-cycle-target-decision-preview.md`: accepted one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable P31 intent, additive Schema v19 and no Risk/downstream consumer.
+- `ADR-0034-cycle-aware-bounded-target-position.md`: accepted the explicit exact-P28-step adapter, contrarian bounded linear/derivative-matched finite-exponential Target Position family, immutable per-symbol versions and additive Schema v18; later ADR-0035 adds only the explicit disabled P23-4A Decision consumer.
 - `ADR-0033-symmetric-reversal-observation-laboratory.md`: accepted the disabled Asset-State-owned symmetric log-distance observer, exact P27/local evidence, two-session confirmation with next-session activation, additive Schema v17 and no formal-state or trading consumer.
 - `ADR-0032-robust-daily-volatility-profile.md`: accepted the complete explicit P26/R1 v1.0.0 median-MAD daily profile, secondary-only spectral evidence, additive Schema v16 and disabled existing-Factor-page inspection with no threshold or trading consumer.
 
@@ -44,7 +45,9 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 
 ## Index
 
-- [ADR-0034: Keep Cycle-Aware Target Position Bounded, Versioned and Non-Executing](ADR-0034-cycle-aware-bounded-target-position.md) — one explicit P28 Result/Run/Step, `ln(P/R)/k`, linear confirmation behavior, bounded derivative-matched acceleration, Schema v18 and no P23-4/trading consumer.
+- [ADR-0035: Preserve Decision Meaning While Adding Exact P29 Provenance](ADR-0035-cycle-target-decision-preview.md) — one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable intent, Schema v19 and no Risk/downstream consumer.
+
+- [ADR-0034: Keep Cycle-Aware Target Position Bounded, Versioned and Non-Executing](ADR-0034-cycle-aware-bounded-target-position.md) — one explicit P28 Result/Run/Step, `ln(P/R)/k`, linear confirmation behavior, bounded derivative-matched acceleration and Schema v18; ADR-0035 later admits only explicit disabled P23-4A Decision consumption, never trading.
 
 - [ADR-0033: Observe Symmetric Two-Session Reversals Before Formal State or Trading](ADR-0033-symmetric-reversal-observation-laboratory.md) — one explicit same-direction multiplier, forward-frozen exact evidence, day-1/day-2 confirmation, next-session activation, immutable replay and no financial consumer.
 

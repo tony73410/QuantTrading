@@ -6597,3 +6597,153 @@ The user explicitly requested `commit + push`. Task mode: **FAST publication che
 - Bug discovery audit: `BUG-20260810-015` was found and **Fixed**. The first Compass v82 publication rewrite had compressed away protected P28 Schema/safety phrases; all exact P23-2A, v17/110, read-only/no-Trading and disabled evidence was restored without weakening the regression test. No unresolved Bug was deferred.
 
 Rollback uses a normal future revert of the feature/checkpoint commits; do not rewrite shared history or delete immutable runtime validation evidence. Push status and the final checkpoint commit ID are reported to the user after Git confirms success.
+
+## EDIT-20260810-011 — Correct canonical P23-3A data-state wording before selecting the next slice
+
+### Date, scope and task mode
+
+2026-08-10 22:27:01 -07:00
+
+The user asked to continue development. Task mode began as **STANDARD next-slice planning**, with no approved new financial behavior. During the required current-state/architecture inspection, a small confirmed documentation defect was isolated and handled as **FAST**. Primary affected source is canonical architecture documentation; runtime modules and public interfaces are unchanged.
+
+### Change and evidence
+
+- `BUG-20260810-016` was recorded before repair and is **Fixed**.
+- `docs/architecture/OVERVIEW.md` advanced from v37 to v38 and replaced only the stale implementation-era claim that no P29 row exists. It now states the exact approved P30 boundary: one disabled local validation formula/configuration and three results, no automatic/default selection, no schedule and no downstream consumer.
+- `tests/architecture/test_target_position_boundaries.py` now protects the bounded P30 data statement and all `execution_allowed=false` / `live_allowed=false` safety wording while rejecting the stale phrase.
+- Focused Target Position architecture plus governance verification: **16 passed**.
+- Complete architecture verification after the repair: **96 passed**.
+
+### Impact, Compass audit and rollback
+
+Blast radius is `LOCAL`: architecture wording, one architecture regression, Bug Log and Edit Log. No code, Schema/data, GUI, dependency, configuration, formula, target, Decision, Risk, cash, broker or execution behavior changed. Intent alignment is exact current-state truth before further planning; architecture and safety alignment are preserved; no unapproved behavior or assumption was added. Compass itself did not require a version change because the runtime/project meaning was already correct there. Remaining drift risk is that a future reader could treat P30 test values as defaults; the corrected architecture explicitly prevents that interpretation. Rollback is a normal source revert, though doing so would restore a false current-state claim.
+
+No commit or push was requested for this follow-up inspection fix and none was performed.
+
+## EDIT-20260811-001 — Create proposal-only PROPOSAL-031 for a compatible P29-to-Decision preview
+
+### Date, authorization and task mode
+
+2026-08-11 10:52:33 -07:00
+
+After the published P29/P30 checkpoint, the user asked to continue development and selected option `A`: create the next P29-to-Decision proposal. Task mode: **STANDARD proposal-only** because the proposed future slice would span the existing Decision, Orchestration, Persistence, Run History and Algorithm Control boundaries and require an additive SQLite migration, but this task was authorized only to document and analyze it. Primary future module: existing `quant_trading.decision`; secondary future modules: `orchestration`, `persistence`, `run_history` and `algorithm_control`. Expected/actual changed files were Proposal, Compass, Project State, Roadmap, indexes, Bug/Edit history and architecture governance tests. No runtime source, public contract, database, configuration, GUI behavior or operational data was authorized or changed.
+
+### Pre-Implementation Compass and overlap audit
+
+The real goal is to make one exact P29 target result explainably become `INCREASE`, `DECREASE` or `HOLD` without skipping provenance or implying Risk/trading approval. Stable Core requires explicit immutable source identity, owner separation, GUI/business separation, versioned evidence, disabled/no-execution defaults and separate Risk authority. Existing Phase 5D already owns the approved exact rule: positive difference increases by the exact difference, negative difference decreases by its absolute amount and exact zero holds with no intent. It is implemented, verified and disabled, but its public input/source history is specifically tied to Phase 5C standardized-state/finite-knot evidence. P29 instead carries exact P28-step/cycle formula/configuration evidence, so pretending it is Phase 5C would corrupt audit history.
+
+The smallest compatible recommendation preserves every old Phase 5D public type and row, places one pure exact signed-difference kernel inside the existing Decision owner, and adds a P29-specific typed input/result/intent/source family that reuses the kernel. Application Orchestration would resolve one explicitly selected accepted P29 Result and exact Run; Persistence would append evidence; Run History would show `TARGET_POSITION → DECISION`; the existing Decision page would host a sibling inspector. No automatic latest/default source, Risk admission, cash, Backtesting, Accounting, Paper, Live or order consumer is proposed.
+
+### Proposal and decisions recorded
+
+`docs/proposals/PROPOSAL-031-cycle-target-decision-preview.md` is `NEEDS_CLARIFICATION`. Its recommended P31-D1–D10 package fixes the relationship to Phase 5D, shared mathematical kernel, exact source admission, positive/negative/zero mapping, zero-or-one type-distinct intent, `CYCLE_TARGET_DECISION_PREVIEW / NO_EXECUTION` Run, proposed additive central SQLite v18/116→v19/120 with four empty tables and zero backfill, existing-page GUI placement, zero implementation-time runtime data and no downstream consumer. Component `decision.cycle_target_adjustment.p23_4a.v1@1.0.0` would remain `DISABLED`, `execution_allowed=false` and `live_allowed=false`.
+
+Option A authorized proposal creation only. P31-D1–D10, the future public contracts, Schema-v19 migration, code, GUI behavior, local validation and any Risk adapter remain unapproved. The proposal contains the exact approval phrase `批准 PROPOSAL-031，采用推荐方案。`; no approval is inferred from its creation.
+
+### Files changed and verification
+
+- Proposal/governance: `docs/proposals/PROPOSAL-031-cycle-target-decision-preview.md`, `docs/proposals/README.md`, `docs/INDEX.md`, `PROJECT_COMPASS.md` v83, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`.
+- Current-state accuracy repair carried into this working tree: `docs/architecture/OVERVIEW.md` v38 and `docs/proposals/PROPOSAL-029-cycle-aware-bounded-target-position-laboratory.md`.
+- Regression evidence: `tests/architecture/test_governance_document_integrity.py`, `tests/architecture/test_target_position_boundaries.py`.
+- Audit: `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- Focused governance and Target Position boundary suite: **17 passed**.
+- Complete architecture suite: **97 passed**.
+- `git diff --check`: passed apart from informational LF→CRLF working-copy warnings; no whitespace error.
+
+### Bug discovery audit
+
+- `BUG-20260810-016`: **Fixed** before proposal selection; canonical architecture now states the bounded P30 data state instead of denying all P29 rows.
+- `BUG-20260811-001`: **Fixed**. Project State, INDEX and the P29 proposal now distinguish the initial zero-backfill checkpoint from the current one-config/three-result P30 evidence.
+- `BUG-20260811-002`: **Fixed**. A P28 Result ID transcription error introduced during the Compass-v83 long-line edit was caught before handoff, recorded, corrected and protected by the unchanged exact-ID regression assertion.
+- `BUG-20260811-003`: **Fixed**. The first P31 draft mixed failed operation statuses into the accepted Result contract; operation attempts now own failure states while accepted results are only `INTENT_CREATED` or `HOLD`.
+- No unresolved current issue was added to `KNOWN_ISSUES.md`; all four defects were documentation-only and verified in this pass.
+
+### Change Impact Report and rollback
+
+Current proposal-only blast radius is `LIMITED`: governance/proposal documentation and architecture regression tests. Future implementation blast radius would be `MULTI_MODULE`: primary Decision, secondary Orchestration/Persistence/Run History/Algorithm Control, additive public contracts and central SQLite v18/116→v19/120. Configuration has no default or active selection. GUI would remain within the existing Decision page and need no Launcher entry. Trading meaning would remain a hypothetical desired change; safety would remain disabled and stop before Risk. No external permission, network or execution capability is involved.
+
+Rollback before approval is a normal source revert of the P31 proposal/current-state references while preserving this append-only audit record. The two current-state wording repairs should not be reverted because that would restore false documentation. There is no database rollback because this task created no migration or runtime row.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: records exactly the user-selected next proposal and keeps implementation behind a new explicit approval.
+- Architecture alignment: existing Decision remains the sole policy owner; Orchestration, Persistence, Run History and GUI retain their established roles; old Phase 5D contracts/history remain untouched.
+- Safety alignment: proposal-only, `NO_EXECUTION`, no Risk admission, cash, order, broker, Paper or Live behavior.
+- Unapproved behavior added: none; no runtime source, Schema-v19 migration, GUI feature, Run/result/intent row or consumer exists.
+- Assumptions introduced: the recommended compatible family/shared-kernel design and four-table migration are proposed choices, not project behavior; they are individually exposed as P31-D1–D10.
+- Compass sections updated: version 83 metadata/current phase, DEC-017, INTENT-041, B16 and B17; Stable Core is unchanged.
+- Remaining drift risk: a future P31 intent could be mistaken for an existing Phase 5D or Risk-admissible intent. The proposal requires distinct types, source tables and visible no-Risk warnings, and Phase 6A must not consume it without another proposal.
+
+No commit or push was requested and none was performed. Suggested proposal commit message: `docs: propose P29 decision preview bridge`.
+
+## EDIT-20260811-002 — Implement approved PROPOSAL-031 P23-4A cycle-target Decision preview
+
+### Date, authorization and task mode
+
+2026-08-11 13:30:30 -07:00
+
+The user explicitly said `批准 PROPOSAL-031，采用推荐方案。`, approving P31-D1–D10 and the disabled implementation/migration scope. Task mode: **DEEP**. Primary module: existing `quant_trading.decision`; secondary modules: Orchestration, central Persistence, Run History and Algorithm Control. Expected and actual blast radius: `MULTI_MODULE`. Explicit exclusions were preserved: no new trading formula, numerical Risk, Portfolio Accounting persistence, Backtesting integration, Paper, Live, broker/account/order/fill access, automatic source selection or runtime P31 validation data.
+
+### Pre-Implementation Compass and overlap audit
+
+The real goal was to make one exact saved P29 target explainably become `INCREASE`, `DECREASE` or `HOLD` without fabricating Phase 5C lineage or implying Risk/trading approval. Existing Phase 5D already owned the approved exact sign mapping but its public evidence was bound to Phase 5C. The approved smallest reuse path therefore preserved every Phase 5D public contract/table/consumer, extracted one pure Decision-owned exact-difference kernel, and added a P29-specific type family. Decision owns mapping; Orchestration owns exact P29 resolution/call order; Persistence owns SQL/migration; Run History owns neutral navigation; GUI delegates and displays only. No Stable Core change or additional financial assumption was required.
+
+### Implementation
+
+- Added schema-v1 `CycleTargetDecisionInput`, operation/result/zero-or-one-intent/source-link/query/replay contracts, pure engine, service and deterministic read-only replay under component/policy `decision.cycle_target_adjustment.p23_4a.v1@1.0.0`.
+- Extracted `map_exact_target_difference()` and made both old Phase 5D and P31 engines use it. Positive difference maps to `INCREASE`, negative to `DECREASE` with positive absolute requested notional, and exact zero to `HOLD` with no intent. No tolerance, rounding, `EXIT`, quantity or price logic was added.
+- Added `CycleTargetAdjustmentDecisionPreviewCoordinator`: preflight validates one explicit accepted P29 Result/Run plus formula/configuration/P28 graph without writes; preview creates `CYCLE_TARGET_DECISION_PREVIEW / NO_EXECUTION` with ordered `TARGET_POSITION → DECISION` stages and exact parent/source navigation. Invalid/failed attempts remain durable and create no accepted result/intent/source link.
+- Added SQLite Store/query support and additive Schema v19 with exactly four P31 tables. Run History renders the P31 attempt→result→optional intent/source evidence and P29/P28 relationships.
+- Added JSON/CSV export and a sibling `Cycle Target Decision` inspector inside the existing Decision page with explicit source/reason, no-write preflight, history/filter/detail/compare/export and Open Run paths. No Launcher entry was added because this is not a new independently openable application.
+- Added ADR-0035 and synchronized Compass v84, canonical architecture/module map, Decision/orchestration/persistence/Run/GUI/Target documents, Proposal/index, Project State, Roadmap and Changelog.
+
+### Central SQLite migration evidence
+
+The ignored active database `runtime/data/market_history.sqlite3` was backed up before migration as `runtime/data/backups/market_history.schema-v18-to-v19.20260811T191208556475Z.sqlite3` (100,319,232 bytes). The backup is Schema v18/116; the active database is Schema v19/120. Both report `integrity_check=ok` and zero foreign-key violations. `algorithm_runs=54` and P29 formula/configuration/attempt/result counts `1/1/5/3` match before/after. All four P31 tables contain exactly zero rows, so implementation did not automatically choose or convert any P30 result.
+
+### Files and contracts
+
+- Decision: shared kernel plus new P31 models/interfaces/engine/service/replay and exports; old Phase 5D engine delegates only its unchanged mapping.
+- Orchestration/Run History: new exact-source preview coordinator, Run type, artifact/relationship rendering and exports.
+- Persistence: Schema v19 migration, P31 Store/query adapter, exports and all prior migration expectations advanced to v19/120.
+- Algorithm Control: P31 export service, inspector, existing Decision-page/main-panel/app composition and GUI tests.
+- Tests: P31 domain, SQLite/migration/reload/replay/Run/export, GUI and architecture suites; prior schema tests updated without weakening old row/integrity expectations.
+- Documentation/audit: files listed above plus `logs/BUG_LOG.md` and this append-only record. `KNOWN_ISSUES.md` is unchanged because every newly found working-tree defect was fixed before handoff.
+
+### Verification
+
+- Focused P31 domain/persistence/GUI/architecture: **19 passed**.
+- Complete architecture suite: **102 passed**.
+- Focused full-panel plus P31 GUI regression after the composition fix: **5 passed**, with the existing third-party warning and expected offscreen GPU fallback messages.
+- Complete repository rerun: **613 passed**, **1 warning** in 454.44 seconds. The warning is the pre-existing `websockets.legacy` deprecation.
+- `python -m compileall -q src tests`: passed.
+- `pip check`: no broken requirements.
+- `git diff --check`: passed; only informational working-copy LF→CRLF notices were emitted by later diff display.
+- Active/backup database read-only checks: exact schema/table/count values above, integrity `ok`, zero foreign-key violations.
+
+### Bug discovery audit
+
+- `BUG-20260811-004`: **Fixed**. A P31 conflict Run with an already established exact P29 parent now preserves its failed attempt; completed operations still require exact parent lineage.
+- `BUG-20260811-005`: **Fixed**. Equivalent aware UTC timestamp representations are compared as instants rather than unequal formatting text; identifiers, versions, fingerprints and Decimal evidence remain exact.
+- `BUG-20260811-006`: **Fixed**. The Run History architecture allowlist now includes only the three P31 Decision files that legitimately use neutral `SoftwareIdentity`.
+- `BUG-20260811-007`: **Fixed**. P31 dependencies are composed into the Decision page rather than Standardized State; complete Algorithm Control startup regression passes.
+- `BUG-20260811-008`: **Fixed**. P29 governance now requires P31 as the only explicit disabled Decision consumer instead of preserving the obsolete no-consumer statement; the final focused governance/boundary suite passes 22 tests.
+- No unresolved P31 defect was deferred and no current Known Issue was added.
+
+### Change Impact Report and rollback
+
+Primary module is Decision; secondary modules are Orchestration, Persistence, Run History and Algorithm Control. Public contracts are additive/type-distinct and schema-v1. There is no configuration default or Active selection. Database impact is additive v19/120 with zero P31 data. GUI impact is one existing-page sibling inspector. Permissions remained local file/SQLite only. Trading meaning is limited to the already approved exact hypothetical target difference; Risk/safety behavior remains fail-closed, `NO_EXECUTION`, `execution_allowed=false`, `live_allowed=false`. No migration deletes or rewrites older rows.
+
+Code rollback is a normal future revert of the P31 source/composition while preserving immutable audit records. Database rollback must never delete v19 evidence: stop v19 writers, preserve the active database, and restore the verified v18 backup only together with matching v18 code under a separately controlled rollback. No current P31 row requires conversion.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: exact approved P29→Decision preview and observability package is complete; the first runtime preview remains separately unapproved.
+- Architecture alignment: Decision owns mapping; Orchestration resolves public P29 evidence; Persistence owns SQL; GUI delegates; old Phase 5D and Risk owners are unchanged.
+- Safety alignment: disabled and `NO_EXECUTION`; no Risk admission, cash/accounting mutation, broker, order, Paper or Live path.
+- Unapproved behavior added: none.
+- Assumptions introduced: none beyond private engineering choices needed to realize P31-D1–D10; no new formula, threshold, tolerance, default or source selection was invented.
+- Compass sections updated: version 84 metadata/current phase, capability/owner tables, resolved DEC-017, ASM-058, INTENT-039/041, current constraints and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: a future caller could mistake the type-distinct P31 intent for a Risk-approved object. Architecture/type tests and GUI warnings prevent current admission; any Risk adapter, local real-result validation or downstream consumer requires a new explicit proposal/approval.
+
+No commit or push was requested or performed. Suggested commit message: `feat: add disabled cycle-target decision preview`.

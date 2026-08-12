@@ -4948,3 +4948,238 @@ Not added to `KNOWN_ISSUES.md` because this is a documentation-only regression d
 ### Final verification
 
 Compass v82 now retains the exact P28 `P23-2A`, `v16/104→v17/110`, separately approved read-only AAPL validation, no-Trading-access and `DISABLED/execution_allowed=false/live_allowed=false` phrases while separately recording feature commit `7ad1e1f` and P29/P30 evidence. The protected governance suite passes all 11 tests without weakening an assertion.
+
+## BUG-20260810-016
+
+### Title
+Canonical P23-3A architecture still denied the completed P30 validation rows
+
+### Status
+Fixed during next-slice inspection
+
+### Severity
+Low
+
+### Area
+Canonical architecture / P23-3A current persistence state
+
+### Reproduction and cause
+Read the P23-3A `Side effects / configuration` row in `docs/architecture/OVERVIEW.md` after completed PROPOSAL-030. It still says there is no real P29 row, although P30 intentionally and immutably created one disabled formula, one disabled AAPL configuration, five attempts, three results/traces and eighteen source links. P30 correctly changed no architecture, so the earlier implementation-era empty-data sentence was not synchronized when validation evidence was appended.
+
+### Expected behavior and planned fix
+Keep the architecture and safety meaning unchanged while replacing only the stale empty-data claim with the exact bounded P30 validation state: no automatic/default selection, only approved disabled local validation evidence, and no downstream consumer. Add an architecture regression assertion and update the architecture metadata version/date.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this is a documentation-only current-state defect discovered before selecting the next development slice and can be corrected immediately. Reverting the correction would not change runtime behavior but would again misrepresent the authoritative architecture state.
+
+### Final verification
+
+Canonical architecture v38 now records the exact bounded P30 state: only the approved disabled local formula/configuration and three results exist; there is no automatic/default selection, schedule or downstream consumer, and all evidence remains non-executable. A focused architecture/governance suite passes 16 tests, the complete architecture suite passes 96 tests, and a regression assertion rejects the obsolete `real P29 row or schedule` phrase.
+
+## BUG-20260811-001
+
+### Title
+Current P23-3A project/index/proposal summaries still claimed P29 validation data was absent
+
+### Status
+Fixed during PROPOSAL-031 proposal-only synchronization
+
+### Severity
+Low
+
+### Area
+Project State / documentation index / P29 proposal current-status summary
+
+### Reproduction and cause
+After completed PROPOSAL-030, read the P23-3A capability rows in `docs/project/PROJECT_STATE.md`, the P29 entry in `docs/INDEX.md`, and the opening current-status paragraph in PROPOSAL-029. Several statements still say there is no real P29 version/result or that all six P29 tables are empty. Those statements were true immediately after P29 implementation but were not converted to historical wording after the approved P30 disabled validation appended one formula, one AAPL configuration and three results.
+
+### Expected behavior and planned fix
+Preserve historical migration/implementation statements such as “began empty,” but update current summaries to name the bounded P30 disabled validation evidence and continue to state that no default, production parameter or P23-4 consumer exists. Add governance regression coverage across Project State, INDEX and the P29 proposal.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this is a documentation-only current-state synchronization defect that can be repaired before P31 proposal creation. Runtime, database and trading safety are unaffected.
+
+### Final verification
+Project State, Documentation Index and the P29 proposal now distinguish the historical zero-backfill implementation checkpoint from the current bounded P30 evidence: one disabled AAPL test configuration and three linear results, with no default or downstream consumer. The focused governance/boundary suite passes **17 tests** and the complete architecture suite passes **97 tests**.
+
+## BUG-20260811-002
+
+### Title
+P31 Compass synchronization briefly transcribed the protected P28 validation Result ID incorrectly
+
+### Status
+Fixed during PROPOSAL-031 proposal-only synchronization
+
+### Severity
+Low
+
+### Area
+Compass verification metadata / immutable evidence identity
+
+### Reproduction and cause
+Inspect `last_verified_commit_or_working_tree_state` immediately after the first Compass-v83 proposal-only patch. The P28 validation Result ID was accidentally changed from `4447da24-2d25-5fbd-a7fd-fb0c3e501249` to a mixed identifier while editing the long metadata line. This was a local documentation transcription error; no runtime record, database row or source code changed.
+
+### Expected behavior and planned fix
+Restore the exact already-verified P28 Result ID and retain the existing governance regression assertion that protects it. Run the focused governance and complete architecture suites before handoff.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because it was detected immediately in the uncommitted proposal-only working tree and can be corrected before handoff. Reverting only the incorrect Compass patch would also restore the ID but would lose the truthful P31 proposal-only status.
+
+### Final verification
+Compass v83 again records the exact protected Result ID `4447da24-2d25-5fbd-a7fd-fb0c3e501249`. The existing exact-ID assertion was retained unchanged; the focused governance/boundary suite passes **17 tests** and the complete architecture suite passes **97 tests**.
+
+## BUG-20260811-003
+
+### Title
+PROPOSAL-031 mixed failed operation states into the accepted Decision Result contract
+
+### Status
+Fixed during PROPOSAL-031 contract self-review
+
+### Severity
+Low
+
+### Area
+P31 proposed Decision contracts / persistence semantics
+
+### Reproduction and cause
+Read the proposed `decision.cycle_target_adjustment_result@1` status list. It includes `INVALID_INPUT` and `FAILED`, while the immediately following missing-value rule says failed attempts have no accepted result. The intended four-table design separates durable operation attempts from accepted results, but the first draft mixed those two lifecycles in one status list.
+
+### Expected behavior and planned fix
+Make the operation-attempt contract explicitly own `PENDING`, `RUNNING`, `COMPLETED`, `INVALID_INPUT` and `FAILED`. Restrict accepted Decision Result status to `INTENT_CREATED` or `HOLD`; failed/invalid operations preserve attempt and Run messages but create no accepted result, intent or source link. Add exact governance assertions before handoff.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this is an unapproved proposal-only contract inconsistency detected before implementation. No runtime code or data exists. Reverting the correction would reintroduce ambiguity into a future persistence implementation.
+
+### Final verification
+PROPOSAL-031 now defines a separate attempt contract with `PENDING/RUNNING/COMPLETED/INVALID_INPUT/FAILED`, while accepted Decision Results allow only `INTENT_CREATED/HOLD`; invalid and failed attempts create no result, intent or source link. Exact governance assertions protect this separation. The focused governance/boundary suite passes **17 tests** and the complete architecture suite passes **97 tests**.
+
+## BUG-20260811-004
+
+### Title
+P31 conflict failure could reject its own durable operation evidence when the preview Run already had a valid P29 parent
+
+### Status
+Fixed during PROPOSAL-031 implementation
+
+### Severity
+Medium
+
+### Area
+P31 preview orchestration / SQLite Run-context validation
+
+### Reproduction and cause
+Submit a second P31 command with an existing operation ID but a different fingerprint while both commands name a valid P29 source Result and Run. The coordinator can legitimately create the new failed preview Run with that P29 Run as its parent before detecting the operation conflict. The first store draft required every unresolved failure to have no parent, so it would reject the failed operation evidence instead of durably recording the conflict.
+
+### Expected behavior and planned fix
+For an unresolved failed operation, accept either no parent (when the source could not be resolved) or the explicitly requested P29 source Run (when source identity was already sufficient to establish lineage). Continue to require an exact P29 parent for every completed operation and never create an accepted result, intent or source link for the failure. Add a regression test covering the conflicting command and its persisted failed attempt.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this defect existed only in the uncommitted P31 implementation and was corrected before P31 handoff. Rollback is removal of the uncommitted P31 slice; no existing Phase-5D/P29 behavior or central-database row is affected.
+
+### Final verification
+The Store now accepts a failed P31 Run with either no parent when source resolution failed or the exact requested P29 parent when that lineage was already established; completed operations still require the exact resolved parent. The conflict integration test proves the failed attempt persists with no accepted result/intent/source link, and the focused P31 suite passes.
+
+## BUG-20260811-005
+
+### Title
+P31 source-integrity validation compared equivalent P29 timestamps as different text formats
+
+### Status
+Fixed during PROPOSAL-031 implementation
+
+### Severity
+Medium
+
+### Area
+P31 SQLite immutable-source validation
+
+### Reproduction and cause
+Create a valid P29 result whose UTC timestamps have zero microseconds, then submit it to P31. P29 persists Python `datetime.isoformat()` text such as `2026-08-10T20:00:00+00:00`; the first P31 validator formatted the same instant with forced microseconds, such as `2026-08-10T20:00:00.000000+00:00`. A raw string comparison therefore rejected valid immutable evidence and also prevented the derived failed attempt from being stored.
+
+### Expected behavior and planned fix
+Compare persisted timestamps as timezone-aware UTC instants while continuing exact text comparison for identifiers, versions, fingerprints and Decimal evidence. Add the completed-chain/reload integration regression that exposed the defect; no tolerance, rounding or financial arithmetic changes are permitted.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this affected only the uncommitted P31 implementation and was fixed before handoff. No central P31 runtime row has been created.
+
+### Final verification
+P31 source validation now parses both persisted values as aware datetimes, normalizes them to UTC and compares instants; all identifiers, versions, fingerprints and Decimal evidence remain exact. The complete temporary P28→P29→P31 chain, restart reload and deterministic replay tests pass, while the migrated central P31 tables remain empty.
+
+## BUG-20260811-006
+
+### Title
+Run History dependency boundary allowlist omitted the approved P31 Decision engine and replay service
+
+### Status
+Fixed during PROPOSAL-031 final architecture verification
+
+### Severity
+Low
+
+### Area
+Architecture regression tests / Decision dependency boundary
+
+### Reproduction and cause
+Run the complete architecture suite after adding P31. `test_only_approved_factor_service_depends_on_neutral_run_history` still listed only the two Phase 5D Decision files permitted to import the neutral `SoftwareIdentity`. P31's engine needs the same immutable software identity and its read-only replay reconstructs that exact identity, so the stale allowlist rejected an approved dependency even though neither file imports a repository, SQLite or concrete Run implementation.
+
+### Fix and verification
+Add only `cycle_target_adjustment_engine.py`, `cycle_target_adjustment_service.py` and `cycle_target_adjustment_replay.py` to the explicit Decision allowlist; the first rerun exposed that the service also receives the same immutable software identity, and the allowlist was completed accordingly. All other Decision files remain forbidden from importing Run History, and P31-specific architecture tests continue to forbid concrete Target Position, Persistence, Risk and Execution dependencies. The complete architecture suite is rerun after this correction.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this was an uncommitted test-maintenance defect corrected before handoff. Rollback would restore a false negative without changing runtime behavior.
+
+### Final verification
+The complete architecture suite passes **102 tests** after the exact three-file allowlist correction. The complete repository suite passes **613 tests** with one pre-existing third-party deprecation warning.
+
+## BUG-20260811-007
+
+### Title
+Main Algorithm Control composition passed P31 dependencies to the wrong owner page
+
+### Status
+Fixed during PROPOSAL-031 complete-suite verification
+
+### Severity
+High
+
+### Area
+Algorithm Control application composition / full-panel startup
+
+### Reproduction and cause
+Construct `AlgorithmControlPanel` without optional research services, as the existing main-controller tests do. The first P31 integration patch passed `cycle_target_adjustment_preview`, its query service and P29 queries into `StandardizedPriceStatePanel`, which does not own or accept them, instead of `DecisionManagementPanel`. Startup raised `TypeError` before the control center could render. The isolated P31 panel test did not exercise full main-panel construction.
+
+### Fix and verification
+Remove all P31 arguments from the Standardized State constructor and pass them only to the existing Decision owner page, whose public constructor already declares them. The three pre-existing full-panel tests are retained as regression coverage, the focused GUI suite and complete repository suite are rerun, and no business logic is moved into GUI composition.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the defect existed only in the uncommitted P31 working tree and was fixed before handoff. Reverting the P31 GUI composition is the local rollback; no database or financial semantics are involved.
+
+### Final verification
+The five focused main-panel/P31 GUI tests pass, and the complete repository rerun passes **613 tests** with one pre-existing third-party deprecation warning. Full Algorithm Control construction with absent optional P31 services now succeeds, while the P31 inspector remains owned by the Decision page.
+
+## BUG-20260811-008
+
+### Title
+P29 governance assertion still required the pre-P31 no-consumer sentence
+
+### Status
+Fixed during PROPOSAL-031 final documentation verification
+
+### Severity
+Low
+
+### Area
+Governance regression tests / Project State
+
+### Reproduction and cause
+After synchronizing Project State to say P31 is the only approved explicit disabled P29 Decision consumer, rerun the focused governance suite. The older P29 assertion still required the exact pre-P31 sentence that P30 had three results and no consumer, producing a false failure even though the new statement is more restrictive and truthful.
+
+### Fix and verification
+Require Project State to preserve the P30 one-configuration/three-result evidence and explicitly name P31 as the only disabled Decision consumer, with no default or Risk consumer. The focused governance suite is rerun; runtime code and financial semantics are unchanged.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this uncommitted test-maintenance defect was fixed before handoff. Rollback would restore a false pre-P31 current-state requirement.
+
+### Final verification
+The focused governance/P31/Target boundary suite passes **22 tests** after the assertion is updated. `git diff --check` remains clean apart from informational line-ending notices.

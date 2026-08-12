@@ -534,6 +534,25 @@ class SQLiteRunHistoryRepository:
                     relationships.add((RunRelationshipType.SOURCE, source_id))
             elif run.run_id in source_ids:
                 relationships.add((RunRelationshipType.LINKED_PREVIEW, target_id))
+        cycle_target_decision_links = connection.execute(
+            """SELECT decision_run_id, source_run_id, source_reversal_run_id
+               FROM cycle_target_decision_source_links
+               WHERE decision_run_id = ? OR source_run_id = ?
+                  OR source_reversal_run_id = ?""",
+            (str(run.run_id),) * 3,
+        ).fetchall()
+        for row in cycle_target_decision_links:
+            decision_id = UUID(row["decision_run_id"])
+            source_id = UUID(row["source_run_id"])
+            reversal_id = UUID(row["source_reversal_run_id"])
+            if decision_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, source_id))
+                relationships.add((RunRelationshipType.SOURCE, source_id))
+                relationships.add((RunRelationshipType.SOURCE, reversal_id))
+            elif run.run_id == source_id:
+                relationships.add((RunRelationshipType.CHILD, decision_id))
+            elif run.run_id == reversal_id:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, decision_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -2109,6 +2128,152 @@ class SQLiteRunHistoryRepository:
                     _field("error", operation["error_summary"]),
                 ),
                 children,
+            ))
+        cycle_target_decision_operations = connection.execute(
+            """SELECT o.*, r.symbol, r.source_session, r.source_result_id,
+                      r.source_run_id, r.source_reversal_result_id,
+                      r.source_reversal_run_id, r.source_region, r.source_status,
+                      r.target_fraction_text, r.research_capital_basis_usd_text,
+                      r.current_position_value_usd_text,
+                      r.target_position_value_usd_text, r.adjustment_value_usd_text,
+                      r.status AS result_status, r.action, r.reason_codes_json,
+                      r.explanation, r.policy_id, r.policy_version
+               FROM cycle_target_decision_operation_attempts o
+               LEFT JOIN cycle_target_decision_results r
+                 ON r.decision_result_id = o.decision_result_id
+               WHERE o.run_id = ? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in cycle_target_decision_operations:
+            result_children: tuple[RunArtifactView, ...] = ()
+            if operation["decision_result_id"]:
+                intent_rows = connection.execute(
+                    """SELECT * FROM cycle_target_decision_trade_intents
+                       WHERE decision_result_id = ? ORDER BY intent_id""",
+                    (operation["decision_result_id"],),
+                ).fetchall()
+                intent_children = tuple(
+                    RunArtifactView(
+                        "cycle_target_adjustment_trade_intent",
+                        row["intent_id"],
+                        RunStageName.DECISION.value,
+                        row["symbol"],
+                        row["action"],
+                        (
+                            f"{row['action'].upper()} exact target difference "
+                            f"{row['requested_notional_usd_text']} USD"
+                        ),
+                        _datetime(row["created_at_utc"]),
+                        (
+                            _field("current / target USD", (
+                                f"{row['current_exposure_usd_text']} / "
+                                f"{row['target_exposure_usd_text']}"
+                            )),
+                            _field("signed difference USD", row["desired_change_usd_text"]),
+                            _field("requested notional USD", row["requested_notional_usd_text"]),
+                            _field("reason codes", row["reason_codes_json"]),
+                            _field("policy", f"{row['policy_id']} {row['policy_version']}"),
+                            _field("execution / live", (
+                                f"{bool(row['execution_allowed'])} / {bool(row['live_allowed'])}"
+                            )),
+                        ),
+                    )
+                    for row in intent_rows
+                )
+                source_rows = connection.execute(
+                    """SELECT * FROM cycle_target_decision_source_links
+                       WHERE decision_result_id = ? ORDER BY source_link_id""",
+                    (operation["decision_result_id"],),
+                ).fetchall()
+                source_children = tuple(
+                    RunArtifactView(
+                        "cycle_target_adjustment_source_link",
+                        row["source_link_id"],
+                        RunStageName.TARGET_POSITION.value,
+                        operation["symbol"],
+                        "immutable_source",
+                        f"P29 Result {row['source_result_id']} / Run {row['source_run_id']}",
+                        _datetime(row["created_at_utc"]),
+                        (
+                            _field("P29 operation", row["source_operation_id"]),
+                            _field("P29 state / target stages", (
+                                f"{row['source_state_stage_id']} / {row['source_target_stage_id']}"
+                            )),
+                            _field("formula / configuration", (
+                                f"{row['source_formula_definition_id']} / "
+                                f"{row['source_configuration_id']}"
+                            )),
+                            _field("P28 result / Run / step", (
+                                f"{row['source_reversal_result_id']} / "
+                                f"{row['source_reversal_run_id']} / "
+                                f"{row['source_reversal_step_id']}"
+                            )),
+                        ),
+                    )
+                    for row in source_rows
+                )
+                result_children = (
+                    RunArtifactView(
+                        "cycle_target_adjustment_decision_result",
+                        operation["decision_result_id"],
+                        RunStageName.DECISION.value,
+                        operation["symbol"],
+                        operation["result_status"],
+                        operation["explanation"],
+                        _datetime(operation["completed_at_utc"]),
+                        (
+                            _field("action", operation["action"]),
+                            _field("P29 result / Run", (
+                                f"{operation['source_result_id']} / {operation['source_run_id']}"
+                            )),
+                            _field("P28 result / Run", (
+                                f"{operation['source_reversal_result_id']} / "
+                                f"{operation['source_reversal_run_id']}"
+                            )),
+                            _field("session / region / source status", (
+                                f"{operation['source_session']} / {operation['source_region']} / "
+                                f"{operation['source_status']}"
+                            )),
+                            _field("target fraction", operation["target_fraction_text"]),
+                            _field("basis / current / target / difference USD", (
+                                f"{operation['research_capital_basis_usd_text']} / "
+                                f"{operation['current_position_value_usd_text']} / "
+                                f"{operation['target_position_value_usd_text']} / "
+                                f"{operation['adjustment_value_usd_text']}"
+                            )),
+                            _field("reason codes", operation["reason_codes_json"]),
+                            _field("policy", (
+                                f"{operation['policy_id']} {operation['policy_version']}"
+                            )),
+                        ),
+                        source_children + intent_children,
+                    ),
+                )
+            artifacts.append(RunArtifactView(
+                "cycle_target_adjustment_decision_operation",
+                operation["attempt_id"],
+                RunStageName.DECISION.value,
+                operation["symbol"],
+                operation["status"],
+                "P23-4A exact P29-target Decision preview; DISABLED / NO EXECUTION",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation id", operation["operation_id"]),
+                    _field("requested P29 result / Run", (
+                        f"{operation['requested_source_result_id']} / "
+                        f"{operation['requested_source_run_id']}"
+                    )),
+                    _field("accepted result / intent", (
+                        f"{operation['decision_result_id'] or '—'} / "
+                        f"{operation['intent_id'] or '—'}"
+                    )),
+                    _field("error", operation["error_summary"]),
+                    _field("execution / live", (
+                        f"{bool(operation['execution_allowed'])} / "
+                        f"{bool(operation['live_allowed'])}"
+                    )),
+                ),
+                result_children,
             ))
         return tuple(artifacts)
 

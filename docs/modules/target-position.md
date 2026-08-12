@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified through disabled/unconsumed P23-3A research.** Phase 5A manual preview and Phase 5C exact linkage remain unchanged. P23-3A is a separately versioned exact-P28-step linear/finite-exponential family with no downstream consumer. Target Position itself creates no action, intent, Risk approval, order, fill, cash movement or account mutation.
+**Implemented and verified through disabled P23-3A research.** Phase 5A manual preview and Phase 5C exact linkage remain unchanged. P23-3A is a separately versioned exact-P28-step linear/finite-exponential family; its only approved downstream consumer is the explicit disabled P23-4A Decision adapter. Target Position itself creates no action, intent, Risk approval, order, fill, cash movement or account mutation.
 
 ## Purpose
 
@@ -78,7 +78,7 @@ No environment or configuration-file settings and no Active definition. Definiti
 
 ## Known limitations
 
-Manual and linked modes remain unchanged. P23-3A supplies exact P28/P27 cycle evidence but keeps capital/current values hypothetical and has no P23-4 consumer; Phase 5D still reads only the old Phase 5C link. There is no latest/default selection, factual account adapter, winner ranking, archive UI, numerical Risk approval, simulation consumer or execution authority. PROPOSAL-030 added one explicit disabled AAPL validation formula/configuration and three linear results only; they are not defaults or a portfolio state. Physical-display visual QA remains pending; offscreen regression is automated.
+Manual and linked modes remain unchanged. P23-3A supplies exact P28/P27 cycle evidence and keeps capital/current values hypothetical. P23-4A may consume only an explicitly selected accepted P29 Result/Run through public query contracts; Phase 5D still reads only the old Phase 5C link. There is no latest/default selection, factual account adapter, winner ranking, archive UI, numerical Risk approval, simulation consumer or execution authority. PROPOSAL-030 added one explicit disabled AAPL validation formula/configuration and three linear results only; they are not defaults or a portfolio state. Physical-display visual QA remains pending; offscreen regression is automated.
 
 ## Controlled AAPL validation evidence
 

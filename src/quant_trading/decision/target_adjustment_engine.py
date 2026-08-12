@@ -7,13 +7,13 @@ from uuid import UUID
 
 from quant_trading.run_history import SoftwareIdentity
 
+from .exact_target_difference import map_exact_target_difference
 from .models import DecisionAction
 from .target_adjustment_models import (
     LinkedTargetDecisionInput,
     TargetAdjustmentDecisionResult,
     TargetAdjustmentDecisionStatus,
     TargetAdjustmentTradeIntent,
-    ZERO,
 )
 
 
@@ -35,15 +35,15 @@ class TargetAdjustmentDecisionEngine:
         software: SoftwareIdentity,
     ) -> TargetAdjustmentDecisionResult:
         difference = source.adjustment_value_usd
-        if difference == ZERO:
-            action = DecisionAction.HOLD
+        mapping = map_exact_target_difference(difference)
+        action = mapping.action
+        if action is DecisionAction.HOLD:
             status = TargetAdjustmentDecisionStatus.HOLD
             intents: tuple[TargetAdjustmentTradeIntent, ...] = ()
-            reasons = ("TARGET_POSITION_EQUAL_CURRENT",)
+            reasons = (mapping.result_reason_code,)
         else:
-            action = DecisionAction.INCREASE if difference > ZERO else DecisionAction.DECREASE
             status = TargetAdjustmentDecisionStatus.INTENT_CREATED
-            reasons = ("TARGET_POSITION_DIFFERENCE",)
+            reasons = (mapping.result_reason_code,)
             intents = (
                 TargetAdjustmentTradeIntent(
                     intent_id,
@@ -59,7 +59,7 @@ class TargetAdjustmentDecisionEngine:
                     source.current_position_value_usd,
                     source.target_position_value_usd,
                     difference,
-                    abs(difference),
+                    mapping.requested_notional_usd,
                     reasons,
                     created_at_utc,
                 ),
