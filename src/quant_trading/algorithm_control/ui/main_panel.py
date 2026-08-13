@@ -47,6 +47,7 @@ from .research_asset_cash_panel import ResearchAssetCashPanel
 from .risk_chain_panel import RiskChainExplorerPanel
 from .target_adjustment_risk_panel import RiskManagementPanel, TargetAdjustmentRiskPanel
 from .cycle_target_risk_panel import CycleTargetRiskPanel
+from .cycle_target_asset_admission_panel import CycleTargetAssetAdmissionPanel
 from .workers import TaskWorker
 from quant_trading.portfolio_accounting.queries.interfaces import (
     EmptyPortfolioAccountingQueryService,
@@ -81,6 +82,7 @@ from quant_trading.decision import (
 )
 from quant_trading.risk import (
     CycleTargetRiskQueryService,
+    CycleTargetAssetAdmissionQueryService,
     EmptyExposureCapQueryService,
     EmptyResearchAssetCashQueryService,
     EmptyResearchCashFloorQueryService,
@@ -104,6 +106,7 @@ from quant_trading.asset_state import (
     EmptyAssetStateQueryService,
     ReversalObservationQueryService,
     ReversalObservationService,
+    AssetTradingControlQueryService,
 )
 from quant_trading.target_position import (
     CycleTargetPositionQueryService,
@@ -119,6 +122,8 @@ from quant_trading.factors.standardized_state_interfaces import (
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
 from quant_trading.orchestration import (
     CycleTargetRiskReviewCoordinator,
+    AssetTradingControlCoordinator,
+    CycleTargetAssetAdmissionCoordinator,
     CycleTargetPositionResearchRunner,
     CycleTargetAdjustmentDecisionPreviewCoordinator,
     StandardizedStateTargetPositionPreviewCoordinator,
@@ -212,6 +217,10 @@ class AlgorithmControlPanel(QMainWindow):
         cycle_target_adjustment_decision_queries: CycleTargetAdjustmentDecisionQueryService | None = None,
         cycle_target_risk_review: CycleTargetRiskReviewCoordinator | None = None,
         cycle_target_risk_queries: CycleTargetRiskQueryService | None = None,
+        asset_trading_control_coordinator: AssetTradingControlCoordinator | None = None,
+        asset_trading_control_queries: AssetTradingControlQueryService | None = None,
+        cycle_target_asset_admission_review: CycleTargetAssetAdmissionCoordinator | None = None,
+        cycle_target_asset_admission_queries: CycleTargetAssetAdmissionQueryService | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -321,6 +330,12 @@ class AlgorithmControlPanel(QMainWindow):
                 cycle_target_adjustment_decision_queries,
                 session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
             ),
+            asset_admission_panel=CycleTargetAssetAdmissionPanel(
+                cycle_target_asset_admission_review,
+                cycle_target_asset_admission_queries,
+                cycle_target_risk_queries,
+                session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
+            ),
         )
         self.execution_page = ExecutionControlPanel(controller)
         self.portfolio_ledger_page = PortfolioLedgerPanel(
@@ -339,6 +354,8 @@ class AlgorithmControlPanel(QMainWindow):
             daily_volatility_profile_queries,
             reversal_observation_runner,
             session_id=asset_state_session_id or capital_session_id,
+            trading_control_coordinator=asset_trading_control_coordinator,
+            trading_control_queries=asset_trading_control_queries,
         )
         self.target_position_page = TargetPositionPanel(
             target_position_service,

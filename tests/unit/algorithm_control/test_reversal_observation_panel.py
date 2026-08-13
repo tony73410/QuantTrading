@@ -77,8 +77,9 @@ def test_asset_state_workspace_keeps_manual_ledger_and_p28_as_separate_subtabs(t
         None, EmptyAssetStateQueryService(), service, store,
         EmptyDailyVolatilityProfileQueryService(), None, session_id="GUI-SESSION",
     )
-    assert workspace.tabs.count() == 2
+    assert workspace.tabs.count() == 3
     assert workspace.tabs.tabText(0) == "人工状态账本"
     assert workspace.tabs.tabText(1) == "P23-2 反转观察"
+    assert workspace.tabs.tabText(2) == "P23-4C1 Trading Control"
     workspace.close()
     assert app is not None

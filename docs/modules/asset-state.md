@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Provide restart-safe, versioned and replay-verifiable research history for per-symbol symbolic state/trading-cycle identity and a strictly separate disabled P23-2 reversal-observation laboratory.
+Provide restart-safe, versioned and replay-verifiable research history for per-symbol symbolic state/trading-cycle identity, a strictly separate disabled P23-2 reversal-observation laboratory, and the P23-4C1 authoritative append-only `ELIGIBLE/FROZEN` trading-control stream.
 
 ## Responsibilities
 
@@ -19,6 +19,7 @@ Provide restart-safe, versioned and replay-verifiable research history for per-s
 - Evaluate exact forward-frozen P27/local-market evidence with symmetric log distance, inclusive threshold, two expected-session confirmation and next-session activation.
 - Preserve every P23-2 daily step, candidate/confirmation/activation event, source link, failed attempt, exact replay and bounded comparison/export query.
 - Keep P23-2 research direction/events separate from existing formal `AssetStateTransitionEvent` facts.
+- Own explicit P23-4C1 `ELIGIBLE/FROZEN` facts separately from free-form manual state keys and generic Risk pauses; freeze is immediate, unfreeze begins at the next recognized XNYS session, and no missing-state default exists.
 
 ## Non-responsibilities
 
@@ -36,6 +37,8 @@ Built-in state names or financial meaning; Factor calculation; multiplier select
 - `ReversalObservationStore`, `ReversalObservationQueryService`
 - `ReversalObservationDefinition`, exact Command/Profile/Market evidence, DailyStep/Event/Result/Operation and bounded Query contracts
 - `ReversalObservationReplayService`, `replay_reversal_observation()`
+- `AssetTradingControlService`, `AssetTradingControlStore`, `AssetTradingControlQueryService`
+- `AssetTradingControlChangeCommand`, immutable Event/Operation/Calendar Evidence/Query contracts and `AssetTradingControlStatus`
 
 All contracts are schema version 1 and use explicit UUID identity/timezone-aware UTC. Manual-state contracts retain symbolic, non-financial values. P23-2 additionally preserves positive price text plus float64/IEEE-hex mathematical evidence; those research values do not authorize or imply a position.
 
@@ -57,7 +60,7 @@ The domain depends only on Python stdlib, centralized error codes and neutral Ru
 
 ## Side effects
 
-The domain has none outside injected ports. SQLite adapters append Schema-v5 manual-state and Schema-v17 P23-2 research evidence. The GUI requires explicit selections/actions for every write, performs local-only P28 preflight in a worker and can navigate to the related Run.
+The domain has none outside injected ports. SQLite adapters append Schema-v5 manual-state, Schema-v17 P23-2 and Schema-v21 P23-4C1 control evidence. The GUI requires explicit selection, reason and no-write preflight; it displays current/pending status, immutable history/filter/compare and Open Run without calculating policy.
 
 ## Failure modes
 
@@ -83,6 +86,8 @@ No default definition, multiplier, state, graph, symbol, P27 result, direction, 
 - Definitions are immutable/available; an archive operation is not exposed in Phase 4A.
 - Evidence references are exact local identities and explanatory only; their values are not copied or recalculated by Asset State.
 - State is not consumed by Capital Allocation, Accounting, Decision, Risk, Backtesting or Execution.
+- Only the type-distinct P35 Risk admission gate consumes the public neutralized P23-4C1 event. No other State branch is a trading-control source.
+- P23-4C2 daily opportunities are not counted; control events are not trades, orders or fills.
 - Historical correction/deletion and compensating state-event semantics are not implemented.
 - P23-2 has no multiplier default. One separately approved AAPL validation created explicit disabled definition version 1 with `M=1.5`, used initial `DOWN`, the latest immutable seed close available when P27 was created (`2026-08-05`, `310.94`) and three forward completed sessions through `2026-08-10`. Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` was `VALID_NO_REVERSAL`: zero candidates/confirmations/activations and final running low `308.17`. It is validation evidence, not an active parameter or trade.
 - Seed provenance is resolved from immutable spectral observations that were already available by P27 creation; later refreshes of the generic Market Bar cache cannot invalidate that history. Evaluated sessions still require exact local Raw/Split bars plus a frozen supported corporate-action snapshot covering the full range.

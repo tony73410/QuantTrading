@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It owns Phase 5C exact standardized-state-to-Target-Position call order, Phase 5D exact linked-target-to-Decision source resolution, Phase 6A–6D and P23-4B exact Risk-research source resolution, P23-1/P26 research call order and the P23-3A exact-P28-step adapter. It contains no formula or rule outcome and never reaches execution.
+**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It owns Phase 5C exact standardized-state-to-Target-Position call order, Phase 5D exact linked-target-to-Decision source resolution, Phase 6A–6D, P23-4B and P23-4C1 exact Risk-research source resolution, P23-1/P26 research call order and the P23-3A exact-P28-step adapter. It contains no formula or rule outcome and never reaches execution.
 
 ## Purpose
 
@@ -25,6 +25,8 @@ Coordinate explicitly approved cross-owner research call order while keeping eve
 - Record one parent-linked `TARGET_ADJUSTMENT_DECISION_PREVIEW` Run with ordered Target Position evidence then Decision mapping; expose the Phase 5C parent, target child and standardized-state source Runs without calculating their meaning.
 - Resolve one explicitly selected Phase 5D specialized intent and its exact source chain, capture application-owned safety metadata, then delegate structural disposition to the Risk-owned service under a parent-linked `TARGET_ADJUSTMENT_RISK_REVIEW` Run.
 - Resolve one explicitly selected P31 Intent/Decision Result/Decision Run and its exact P29/P28 chain, expose a no-write preflight, capture application-owned safety metadata, then delegate structural disposition to P23-4B under a parent-linked `CYCLE_TARGET_RISK_REVIEW` Run.
+- Accept an explicit Asset State trading-control change, resolve exact XNYS calendar evidence, expose a no-write preflight and coordinate a single `ASSET_TRADING_CONTROL_CHANGE / NO_EXECUTION` Run without inventing a default or state transition.
+- Resolve one explicitly selected P33 Result/Run plus the exact effective public trading-control event, neutralize that control evidence, expose a no-write preflight and delegate only locked admission outcomes to Risk under `CYCLE_TARGET_ASSET_ADMISSION_REVIEW / NO_EXECUTION`.
 - Accept one explicit P23-1E-A symbol/acquisition request, require the exact immutable R1 v1.1.0 definition, delegate evidence work to Market History and delegate calculation/persistence to the existing Factor service.
 - For P26, validate one explicit symbol/range and one/two exact locked definitions, create one parent study Run, request one shared Market History evidence set, call the existing Factor service chronologically for every session×definition pair, preserve complete membership and observe cancellation only between child calls.
 - For evidence/definition preparation failure, preserve a searchable failed `FACTOR_PREVIEW` Run with a failed `MARKET_DATA` stage and exact definition/symbol/acquisition bindings. Successful requests do not create a second orchestration Run; the Factor service owns the single top-level Run.
@@ -39,13 +41,17 @@ The public P23-4A orchestration surface is `CycleTargetAdjustmentDecisionPreflig
 
 `CycleTargetRiskReviewCoordinator` accepts explicit P31 Intent/Decision Result/Decision Run IDs, resolves public P31 queries only, validates the exact P31→P29→P28 identity and copied arithmetic, and maps them into a source-neutral `CycleTargetRiskReviewInput`. `preflight()` writes no Run or P33 row. `review()` creates `CYCLE_TARGET_RISK_REVIEW / NO_EXECUTION`, orders `DECISION` before `RISK`, binds exact P31/P33/safety versions and delegates every rule outcome to Risk. Invalid/failed attempts remain durable. It contains no structural or numerical rule, SQL, cash/count/freeze logic or execution route.
 
+## P23-4C1 trading-control and admission coordination
+
+`AssetTradingControlCoordinator` validates an explicit v1 symbol/XNYS mapping and exact calendar evidence, calculates only the approved effective-session boundary, and delegates immutable event meaning to Asset State. `CycleTargetAssetAdmissionCoordinator` accepts explicit P33 Result/Run IDs, resolves the exact effective public control event or proves that no state exists, converts it to the Risk-owned neutral DTO, and delegates every disposition to Risk. Their `preflight()` methods write nothing. Review Runs order `STATE` before `RISK`; missing/frozen/invalid evidence blocks and eligible evidence remains manual review. Orchestration contains no trading-control policy, Risk rule, SQL, daily counter, cash logic or execution route.
+
 ## Non-responsibilities
 
 No Market Data loading, SQL, Factor formula, decision/risk rule, portfolio interpretation, order conversion, broker access, GUI, or execution.
 
 ## Public interfaces
 
-`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`, `StandardizedStateTargetPositionPreviewCoordinator`, `CycleTargetPositionResearchCoordinator`, `CycleTargetPositionResearchRunner`, `CycleTargetAdjustmentDecisionPreviewCoordinator`, `CycleTargetRiskReviewCoordinator`, `CycleTargetRiskReviewPreflight`, `TargetAdjustmentDecisionPreviewCoordinator`, `TargetAdjustmentRiskReviewCoordinator`, `ManualSpectralPreviewRequest`, `ManualSpectralPreviewOutcome`, `ManualSpectralPreviewRunner`, `ManualSpectralPreviewCoordinator`, `SpectralHistoricalStudyRequest`, `SpectralHistoricalStudyDisclosure`, `SpectralHistoricalStudyRunner`, `SpectralHistoricalStudyCoordinator`.
+`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`, `StandardizedStateTargetPositionPreviewCoordinator`, `CycleTargetPositionResearchCoordinator`, `CycleTargetPositionResearchRunner`, `CycleTargetAdjustmentDecisionPreviewCoordinator`, `CycleTargetRiskReviewCoordinator`, `CycleTargetRiskReviewPreflight`, `AssetTradingControlCoordinator`, `AssetTradingControlPreflight`, `CycleTargetAssetAdmissionCoordinator`, `CycleTargetAssetAdmissionPreflight`, `TargetAdjustmentDecisionPreviewCoordinator`, `TargetAdjustmentRiskReviewCoordinator`, `ManualSpectralPreviewRequest`, `ManualSpectralPreviewOutcome`, `ManualSpectralPreviewRunner`, `ManualSpectralPreviewCoordinator`, `SpectralHistoricalStudyRequest`, `SpectralHistoricalStudyDisclosure`, `SpectralHistoricalStudyRunner`, `SpectralHistoricalStudyCoordinator`.
 
 ## Inputs
 
@@ -53,11 +59,11 @@ Injected Factor/Decision Engines plus a request containing a safe Market Data wi
 
 ## Outputs
 
-Analysis returns one `FactorSnapshot` and one non-executing `DecisionResult`; Trading Evaluation additionally returns zero or more generic `RiskDecision` objects and never an order. Phase 5D returns a specialized target-adjustment Decision identity. Phase 6A–6D return manual-review/block-only evidence. P23-1E-A returns a typed completed/failed preview outcome with Run and optional operation identity. P26 returns one immutable study with exact parent/child references and point counts. Neither has an action, intent, Risk, future-return or P&L field.
+Analysis returns one `FactorSnapshot` and one non-executing `DecisionResult`; Trading Evaluation additionally returns zero or more generic `RiskDecision` objects and never an order. Phase 5D returns a specialized target-adjustment Decision identity. Phase 6A–6D, P23-4B and P23-4C1 return manual-review/block-only evidence; the control coordinator returns an immutable Asset State event outcome. P23-1E-A returns a typed completed/failed preview outcome with Run and optional operation identity. P26 returns one immutable study with exact parent/child references and point counts. None creates an order, fill, future-return or P&L field.
 
 ## Dependencies
 
-May depend on public Factor/Decision/Risk engines and models, public Factor/P28 query contracts, public Target Position query/application contracts and neutral Run History contracts. Must not depend on concrete SQLite adapters, target/factor/state engine internals, calculators/policies/rules, Provider, Alpaca, GUI, or execution.
+May depend on public Factor/Decision/Risk engines and models, public Factor/P28/P29/P31/P33 and Asset State trading-control query contracts, public Target Position query/application contracts and neutral Run History contracts. Must not depend on concrete SQLite adapters, target/factor/state engine internals, calculators/policies/rules, Provider, Alpaca, GUI, or execution.
 
 ## Side effects
 
@@ -73,8 +79,8 @@ None. It passes two separate immutable parameter contexts.
 
 ## Tests
 
-Fake integration tests verify Factor → Snapshot → Decision and Factor → Decision → Risk flows. Local-workbench tests verify that one full Dry Run reloads as Market Data → Factor → Decision → Risk under one Run ID and retains condition-level Decision causality. Phase 5C/5D/6A/6B/6C/6D tests verify exact source propagation, related Run relationships, durable invalid/blocked/failed attempts, idempotency, locked rule order and restart reload. P23-1E-A tests cover exact version admission and durable preparation failures. P26 tests cover exact grid planning, definition-specific cutoff, fetch-once evidence, parent/child lineage, complete failure/cancellation membership, idempotency, restart reload and no orchestration formula/provider/SQL dependency.
+Fake integration tests verify Factor → Snapshot → Decision and Factor → Decision → Risk flows. Local-workbench tests verify that one full Dry Run reloads as Market Data → Factor → Decision → Risk under one Run ID and retains condition-level Decision causality. Phase 5C/5D/6A/6B/6C/6D and P23-4B/P23-4C1 tests verify exact source propagation, effective-control resolution, related Run relationships, durable invalid/blocked/failed attempts, idempotency, locked rule order and restart reload. P23-1E-A tests cover exact version admission and durable preparation failures. P26 tests cover exact grid planning, definition-specific cutoff, fetch-once evidence, parent/child lineage, complete failure/cancellation membership, idempotency, restart reload and no orchestration formula/provider/SQL dependency.
 
 ## Known limitations
 
-The general pipelines accept a prebuilt Market Data window; the general Algorithm Control adapter loads only local cached Bars. P23-1/P26 restrictions remain unchanged. Linked Target Position does not estimate standardized-state inputs. P23-3A requires exact P28 evidence and has exactly one approved Decision consumer: the explicit disabled P23-4A adapter. All target USD contexts remain manual/hypothetical. PROPOSAL-032 created three independently validated P23-4A AAPL results; their only approved Risk consumer is the explicit disabled P23-4B structural gate. PROPOSAL-034 validated all three through that gate as independent `MANUAL_REVIEW_REQUIRED` evidence without numerical approval, cash, count/freeze, Backtesting, Accounting or Execution consumption. Phase 5D's only consumer is isolated Phase 6A; Phase 6B–6D remain exact-source manual-review previews. Complete Risk approval, approved-order conversion and execution are **Not implemented**.
+The general pipelines accept a prebuilt Market Data window; the general Algorithm Control adapter loads only local cached Bars. P23-1/P26 restrictions remain unchanged. Linked Target Position does not estimate standardized-state inputs. P23-3A requires exact P28 evidence and has exactly one approved Decision consumer: the explicit disabled P23-4A adapter. All target USD contexts remain manual/hypothetical. PROPOSAL-032 created three independently validated P23-4A AAPL results; their only approved structural Risk consumer is P23-4B. PROPOSAL-034 validated all three through that gate, and P23-4C1 may review only one explicitly selected exact P33 source. No runtime P35 review exists. P23-4C2 counting, complete numerical Risk approval, approved-order conversion and execution are **Not implemented**.

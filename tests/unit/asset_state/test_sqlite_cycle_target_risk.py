@@ -102,7 +102,7 @@ def test_p33_preflight_review_reload_replay_export_and_run_history(tmp_path: Pat
     assert {p31.run_id, p29.run_id, p28.run_id} <= related
     assert any(item.artifact_type == "cycle_target_risk_operation" and item.children for item in detail.artifacts)
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 20
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 21
         assert connection.execute("SELECT COUNT(*) FROM cycle_target_risk_review_results").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM cycle_target_risk_rule_results").fetchone()[0] == 3
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
@@ -161,10 +161,10 @@ def test_p33_rejects_tampered_exact_p29_configuration(tmp_path: Path):
     assert attempts[0].error_code == "QT-RISK-CYCLE-TARGET-STORAGE-001"
 
 
-def test_v19_to_v20_migration_is_backed_up_additive_and_zero_backfill(tmp_path: Path):
+def test_v20_to_v21_migration_is_backed_up_additive_and_zero_backfill(tmp_path: Path):
     path = tmp_path / "central.sqlite3"
     with sqlite3.connect(path) as connection:
-        for version in range(1, 20):
+        for version in range(1, 21):
             connection.executescript(sqlite_database._MIGRATIONS[version][1])
             connection.execute("INSERT INTO schema_migrations VALUES (?, ?, ?)", (version, NOW.isoformat(), f"fixture {version}"))
         connection.execute(
@@ -176,32 +176,35 @@ def test_v19_to_v20_migration_is_backed_up_additive_and_zero_backfill(tmp_path: 
         connection.commit()
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
-    assert len(backups) == 1 and ".schema-v19-to-v20." in backups[0].name
+    assert len(backups) == 1 and ".schema-v20-to-v21." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 20
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 21
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "cycle_target_risk_operation_attempts", "cycle_target_risk_review_results",
             "cycle_target_risk_rule_results", "cycle_target_risk_source_links",
+            "asset_trading_control_operations", "asset_trading_control_events",
+            "cycle_target_asset_admission_operations", "cycle_target_asset_admission_results",
+            "cycle_target_asset_admission_rules", "cycle_target_asset_admission_source_links",
         ):
             assert connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0
-        assert len(sqlite_database.expected_schema_tables()) == 124
+        assert len(sqlite_database.expected_schema_tables()) == 130
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 
 
-def test_failed_v20_migration_restores_intact_v19_database(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_failed_v21_migration_restores_intact_v20_database(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     path = tmp_path / "central.sqlite3"
     with sqlite3.connect(path) as connection:
-        for version in range(1, 20):
+        for version in range(1, 21):
             connection.executescript(sqlite_database._MIGRATIONS[version][1])
             connection.execute("INSERT INTO schema_migrations VALUES (?, ?, ?)", (version, NOW.isoformat(), f"fixture {version}"))
         connection.commit()
-    broken = dict(sqlite_database._MIGRATIONS); broken[20] = ("broken P33", "CREATE TABL invalid")
+    broken = dict(sqlite_database._MIGRATIONS); broken[21] = ("broken P35", "CREATE TABL invalid")
     monkeypatch.setattr(sqlite_database, "_MIGRATIONS", broken)
     with pytest.raises(sqlite3.DatabaseError):
         CentralSQLiteDatabase(path).initialize()
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 19
-        assert connection.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='cycle_target_risk_review_results'").fetchone()[0] == 0
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 20
+        assert connection.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='cycle_target_asset_admission_results'").fetchone()[0] == 0
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"

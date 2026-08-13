@@ -5210,3 +5210,167 @@ Not added to `KNOWN_ISSUES.md` because this defect existed only in the uncommitt
 ### Final verification
 
 The affected P33/Phase-6A/architecture set passes **16 tests**, and the final complete repository rerun passes **627 tests** with one pre-existing third-party deprecation warning. Python compilation and diff hygiene also pass.
+
+## BUG-20260812-010
+
+### Title
+Governance regression tests fixed the Roadmap at the pre-P35 heading
+
+### Status
+Fixed during PROPOSAL-035 proposal verification
+
+### Severity
+Low
+
+### Area
+Governance documentation integrity tests / Roadmap proposal progression
+
+### Reproduction and cause
+Create proposal-only PROPOSAL-035 and truthfully change the Roadmap next-direction heading from `PROPOSAL-034 complete; next slice not approved` to `PROPOSAL-035 proposed; user decision required`, then run `tests/architecture/test_governance_document_integrity.py`. Three assertions still required the old literal heading, so they rejected the new proposal state even though P35 remained explicitly unapproved and no runtime behavior changed.
+
+### Fix and verification
+Update the three historical progression assertions to require the new unapproved-P35 heading, and add a dedicated P35 governance test that proves proposal-only status, P35-D1–D10 presence, exact overlap warnings, no preview-as-trade counting, future logical-action/first-fill semantics, proposed-not-applied v21 migration, cross-document references and the explicit lack of implementation approval.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the stale assertion existed only against the uncommitted P35 documentation change and was corrected before handoff. Reverting P35 documentation should also revert the matching assertion update; no product or database rollback is involved.
+
+### Final verification
+The focused governance suite passes **16 tests**, including the new P35 proposal-only assertion. `git diff --check` passes with informational Windows LF→CRLF notices only. No runtime code or database behavior changed.
+
+## BUG-20260812-011
+
+### Title
+Initial P35 SQLite inserts and GUI enum handling could fail before saving evidence
+
+### Status
+Fixed during PROPOSAL-035 implementation
+
+### Severity
+Medium
+
+### Area
+P23-4C1 Persistence / Algorithm Control GUI
+
+### Reproduction and cause
+Exercise the first uncommitted P35 Store and panel revisions. The initial SQL used placeholder counts that did not match the approved v21 column lists, and the first panel test double did not model Qt combo-box enum data consistently. A valid control/admission request could therefore fail in persistence or during GUI command construction instead of producing the required terminal evidence.
+
+### Fix and verification
+Align every INSERT placeholder/value count with the six v21 table contracts, deserialize Qt combo data through the typed enum contract, and cover completed/failed persistence plus both panels. Focused Store/GUI tests and the exhaustive repository shards pass.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because both defects existed only in the uncommitted implementation and are fixed with regression coverage. Safe rollback disables P35 composition while retaining any v21 audit evidence; reverting the fixes alone is unsafe.
+
+## BUG-20260812-012
+
+### Title
+P35 GUI regenerated a different command after successful no-write preflight
+
+### Status
+Fixed during PROPOSAL-035 implementation
+
+### Severity
+High
+
+### Area
+P23-4C1 Algorithm Control GUI / exact preflight identity
+
+### Reproduction and cause
+Run a successful Trading Control or Asset Admission preflight and then press the write/review button. Both first panel revisions called `_command()` again, generating a new operation ID, request ID and timestamp; admission could also resolve a different effective control event. The visible preflight therefore did not prove the exact command submitted for persistence.
+
+### Fix and verification
+Cache the exact typed command accepted by preflight, invalidate it on every source/status/reason edit, and submit that same object once. GUI tests assert object identity across preflight→save/review, and architecture tests continue to prove the panels contain no business or SQL logic.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the defect was fixed before handoff. Reverting this change would violate the approved exact-preflight contract and is not a safe rollback.
+
+## BUG-20260812-013
+
+### Title
+P35 first control event could be retroactively effective at client request time
+
+### Status
+Fixed during PROPOSAL-035 implementation
+
+### Severity
+High
+
+### Area
+P23-4C1 Asset State effective-time semantics
+
+### Reproduction and cause
+Construct a valid command whose aware `requested_at_utc` is earlier than the actual accepted operation time. The first service revision made an immediate freeze or first explicit status effective at the supplied request timestamp. A caller could therefore make a newly accepted control appear effective in historical queries, contrary to the approved no-backdating rule.
+
+### Fix and verification
+The coordinator now freezes exact calendar evidence at an injected accepted time; the service requires accepted time to be no earlier than the request, makes immediate/first events effective at accepted time, and delays only `FROZEN→ELIGIBLE` to the next XNYS open. Regression coverage proves an old request does not affect the symbol before acceptance.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md`; this uncommitted defect is fixed. Reverting would change financial safety meaning and is not an acceptable local rollback.
+
+## BUG-20260812-014
+
+### Title
+P35 invalid control caught at rule two could not form a valid blocked result
+
+### Status
+Fixed during PROPOSAL-035 implementation
+
+### Severity
+High
+
+### Area
+P23-4C1 Risk result invariant
+
+### Reproduction and cause
+Evaluate an otherwise valid exact P33 source with a mismatched or invalid trading-control DTO. The engine correctly stopped on `ASSET_TRADING_CONTROL_AVAILABILITY`, but the first result invariant allowed `BLOCKED_INVALID_SOURCE` only after rule one. Result construction raised instead of returning durable fail-closed Risk evidence.
+
+### Fix and verification
+Permit `BLOCKED_INVALID_SOURCE` only at locked rule prefix length one or two, while retaining exact rule identity/order enforcement. Dedicated Risk tests cover invalid P33 at rule one, invalid control at rule two, missing control, frozen both directions and eligible manual review.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because the issue was fixed before handoff. The safe rollback is to disable P35, not weaken the invariant or bypass Risk.
+
+## BUG-20260812-015
+
+### Title
+Missing P33 admission could reference a nonexistent parent Run and lose durable failure evidence
+
+### Status
+Fixed during PROPOSAL-035 implementation
+
+### Severity
+High
+
+### Area
+P23-4C1 Orchestration / Run History / Persistence
+
+### Reproduction and cause
+Request P35 review with nonexistent P33 Result/Run IDs. The first coordinator revision started the P35 Run with the requested nonexistent P33 Run as its database parent. The Run foreign key could fail before the approved invalid attempt was recorded.
+
+### Fix and verification
+Only a successfully resolved exact P33 source becomes the parent Run. Unresolved IDs remain immutable requested fields on a parentless failed P35 Run, and the Store validates that accepted operations have the exact P33 parent while failed operations do not claim one. Regression coverage proves the invalid attempt and failed Run survive reload with no accepted result.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md`; fixed before handoff. Reverting would break the durable-failure acceptance criterion.
+
+## BUG-20260812-016
+
+### Title
+Failed-v21 migration test incorrectly expected the restored database to remain v21
+
+### Status
+Fixed during PROPOSAL-035 verification
+
+### Severity
+Low
+
+### Area
+Central SQLite migration regression test
+
+### Reproduction and cause
+Inject invalid v21 DDL while migrating a complete v20 fixture. The migration correctly restores the verified pre-migration database at v20, but the first new assertion expected `MAX(schema_migrations.version)=21`, falsely reporting the correct rollback as a failure.
+
+### Fix and verification
+Require restored version 20, absence of the v21 result table and `integrity_check=ok`. The corrected migration test passes along with additive v20→v21 backup/zero-backfill tests and active/backup read-only verification.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this was an uncommitted test expectation defect. It changed no runtime data or financial meaning.

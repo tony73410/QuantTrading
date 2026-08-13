@@ -163,6 +163,14 @@ Approved PROPOSAL-033 adds a compatible, type-distinct sibling for one explicitl
 
 P33 supports no-write preflight, exact-id idempotency, deterministic write-free replay, bounded queries, JSON/CSV export and P33→P31→P29→P28 Run navigation. It remains `DISABLED`. Approved PROPOSAL-034 completed three independent local AAPL `NO_EXECUTION` validations: all exact P31 sources and the current safety state passed before write, all three results are `MANUAL_REVIEW_REQUIRED`, and P33 attempts/results/rules/source-links are `3/3/9/3`. Daily trade count, second-opportunity timing, frozen-stock authority, numerical Risk, cash, Backtesting, Accounting, Paper, Live, orders and fills are not part of P33.
 
+## P23-4C1 frozen-asset admission
+
+Approved PROPOSAL-035 / ADR-0037 adds a type-distinct Risk gate after one explicit exact P33 Result/Run. Orchestration resolves one exact effective public Asset State trading-control event and converts it to source-neutral `AssetTradingControlEvidence`; Risk never imports Asset State or queries SQLite.
+
+Locked order is `P33_STRUCTURAL_REVIEW_INTEGRITY@1`, `ASSET_TRADING_CONTROL_AVAILABILITY@1`, then `FROZEN_ASSET_BLOCK@1`. Missing evidence fails closed, FROZEN blocks both INCREASE and DECREASE, invalid evidence blocks, and ELIGIBLE ends only at `MANUAL_REVIEW_REQUIRED`. The unchanged requested Decimal USD notional is evidence only; approved notional/intent are always absent and execution/live flags are always false.
+
+`CycleTargetAssetAdmissionService` owns engine invocation and durable result/source construction. Public Store/query/replay contracts provide restart reload, exact idempotency, deterministic replay, JSON/CSV export and P35/P33/P31/P29/P28/control Run navigation. Generic `paused_symbols` remains an independent immediate Risk safety mechanism and is neither populated nor replaced by this strategy control stream. P23-4C2 daily counting is not implemented.
+
 ## Phase 6B single-asset exposure-cap preview
 
 `SingleAssetExposureCapService` owns immutable symbol-specific positive Decimal USD definition versions and one locked rule, `MAX_TARGET_EXPOSURE_USD@1`. New or revised definitions are append-only; archiving appends an immutable `ARCHIVED` successor, after which no version in that chain is eligible for a new preview. There is no amount or active/default definition after migration.

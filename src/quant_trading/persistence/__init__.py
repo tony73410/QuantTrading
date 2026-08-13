@@ -21,6 +21,8 @@ from .cycle_target_adjustment_decision_sqlite_store import (
     SQLiteCycleTargetAdjustmentDecisionStore,
 )
 from .cycle_target_risk_sqlite_store import SQLiteCycleTargetRiskStore
+from .asset_trading_control_sqlite_store import SQLiteAssetTradingControlStore
+from .cycle_target_asset_admission_sqlite_store import SQLiteCycleTargetAssetAdmissionStore
 from .sqlite_database import (
     CentralSchemaInspection,
     CentralSQLiteDatabase,
@@ -52,4 +54,6 @@ __all__ = [
     "SQLiteCycleTargetPositionStore",
     "SQLiteCycleTargetAdjustmentDecisionStore",
     "SQLiteCycleTargetRiskStore",
+    "SQLiteAssetTradingControlStore",
+    "SQLiteCycleTargetAssetAdmissionStore",
 ]

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v20/124 adds four P23-4B structural Risk attempt/result/rule/source-link tables to the v19 P31 capabilities. Existing P31 evidence remains exactly `3/3/3/3`; old Phase 6A remains empty and approved P34 adds P33 evidence `3/3/9/3`. No P29 default, numerical Risk approval, production algorithm or execution path is active.
+**Implemented and verified.** Central Schema v21/130 adds six P23-4C1 control/admission tables to v20/124. Migration performs zero control/admission backfill. Existing P31 evidence remains `3/3/3/3` and P33 remains `3/3/9/3`; no P35 runtime validation is created automatically. No daily counter, numerical Risk approval, production algorithm or execution path is active.
 
 ## Purpose
 
@@ -30,6 +30,8 @@ Use one local SQLite file for Market History and durable algorithm research evid
 - Persist P23-3A immutable formula definitions, explicit per-symbol configurations, every operation attempt, accepted bounded result, binary64/IEEE/Decimal calculation trace and exact P28/P27/P26/Market source links while revalidating configuration/source/Run/stage identity transactionally.
 - Persist every P23-4A attempt plus accepted result, zero-or-one type-distinct intent and exact P29/P28 source link; revalidate copied arithmetic, immutable versions, safety, Run/stages and object cardinality transactionally.
 - Persist every P23-4B attempt plus accepted manual-review/blocked result, ordered structural rules and exact P31/P29/P28 source link; revalidate copied arithmetic, source safety, Run/stages, cardinality and permanent absence of approved output transactionally.
+- Persist P23-4C1 control operations and append-only events with exact predecessor, explicit v1 symbol/XNYS mapping, frozen calendar evidence and effective time; enforce transaction-time predecessor/current-state integrity.
+- Persist P23-4C1 admission attempts/results/rules/source links; transactionally revalidate the exact P33 row and exact effective control event (or prove it is missing) before commit.
 - Persist every linked standardized-state-to-Target-Position attempt and each accepted immutable source/result link while revalidating source schema/unit/value/symbol/time/definition/Run/stage, target result and parent/child Run identity in one transaction.
 - Persist every target-adjustment Decision attempt plus accepted result, zero-or-one specialized intent and immutable source link; revalidate the exact Phase 5C link, source/target results, copied arithmetic, action/notional/cardinality and all Run/stage identities transactionally.
 - Persist every Phase 6A structural Risk and Phase 6B exposure-cap attempt/result/rule/source link, including immutable cap definitions and exact source/formula validation.
@@ -67,7 +69,7 @@ No Market Data download, Factor formula, `available_at_utc` policy, Decision/Ris
 
 ## Inputs
 
-Validated public Run History, Factor, Decision including type-distinct P23-4A, specialized target-adjustment Decision, generic/specialized Risk including P23-4B, exposure-cap, research-cash-floor and research-asset-cash, Capital Allocation, Asset State, Target Position including P23-3A cycle-target contracts, standardized-state and linked provenance contracts. Factor calculation attempts may carry optional top-level Run/Stage IDs.
+Validated public Run History, Factor, Decision including type-distinct P23-4A, specialized target-adjustment Decision, generic/specialized Risk including P23-4B/P23-4C1, exposure-cap, research-cash-floor and research-asset-cash, Capital Allocation, Asset State including trading-control contracts, Target Position including P23-3A, standardized-state and linked provenance contracts. Factor calculation attempts may carry optional top-level Run/Stage IDs.
 
 ## Outputs
 
@@ -79,7 +81,7 @@ Python standard library `sqlite3`, neutral Run History contracts, and public Fac
 
 ## Side effects
 
-Creates additive Schema v20 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision/Risk rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2, v18 P23-3A, v19 P23-4A and v20 P23-4B evidence. No migration backfilled a historical algorithm claim.
+Creates additive Schema v21 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision/Risk rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2, v18 P23-3A, v19 P23-4A, v20 P23-4B and v21 P23-4C1 evidence. No migration backfilled a historical algorithm claim.
 
 The verified real v6→v7 migration created `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`, preserved all 44 pre-existing business-table counts including 215,340 Market Bars and 365 Fetch History rows, and left all five new tables empty. Backup and active copies returned `integrity_check=ok` and zero foreign-key violations.
 
@@ -129,7 +131,9 @@ Before approved PROPOSAL-032 writes, the active database was copied to verified 
 
 Schema v20 adds exactly four normalized P23-4B tables: `cycle_target_risk_operation_attempts`, `cycle_target_risk_review_results`, `cycle_target_risk_rule_results` and `cycle_target_risk_source_links`. The approved v19→v20 migration created verified 100,442,112-byte backup `market_history.schema-v19-to-v20.20260812T015933497519Z.sqlite3`, expanded 120→124 logical tables with zero backfill and changed only the migration ledger. Backup v19 and active v20 report `integrity_check=ok` and zero foreign-key violations. Runs/stages/symbols/bindings remain `57/107/55/270`, P31 remains `3/3/3/3`, old Phase 6A remains `0/0/0/0`, and all four P33 tables are `0/0/0/0`. Temporary-database tests also prove a failed v20 migration restores intact v19.
 
-Before approved PROPOSAL-034 writes, the active v20/124 database was copied to verified 100,552,704-byte backup `market_history.before-p34-validation.20260812T073041241799Z.sqlite3` (SHA-256 `d10ef53a956196bf511ade06be2413c48a452897bf092259e974312f92efeedb`). Compared with that backup, the only nonzero logical-table deltas are Runs `+3`, stages `+6`, symbols `+3`, bindings `+9`, messages `+3`, P33 attempts `+3`, review results `+3`, rule results `+9` and source links `+3`. Final Run/stage/symbol/binding/message counts are `60/113/58/279/289`; P33 is `3/3/9/3`; P31 and old Phase 6A are unchanged. Backup and active databases remain integral with zero foreign-key violations.
+Before approved PROPOSAL-034 writes, the active v20/124 database was copied to verified 100,552,704-byte backup `market_history.before-p34-validation.20260812T073041241799Z.sqlite3` (SHA-256 `d10ef53a956196bf511ade06be2413c48a452897bf092259e974312f92efeedb`). Compared with that backup, the only nonzero logical-table deltas are Runs `+3`, stages `+6`, symbols `+3`, bindings `+9`, messages `+3`, P33 attempts `+3`, review results `+3`, rule results `+9` and source links `+3`. Final Run/stage/symbol/binding/message counts before P35 migration are `60/113/58/279/289`; P33 is `3/3/9/3`; P31 and old Phase 6A are unchanged. Backup and active databases remain integral with zero foreign-key violations.
+
+Schema v21 adds exactly six normalized P23-4C1 tables: `asset_trading_control_operations`, `asset_trading_control_events`, `cycle_target_asset_admission_operations`, `cycle_target_asset_admission_results`, `cycle_target_asset_admission_rules` and `cycle_target_asset_admission_source_links`. The approved v20→v21 migration created verified 100,593,664-byte backup `market_history.schema-v20-to-v21.20260813T042448969415Z.sqlite3` (SHA-256 `b24573f6654de937e870045f76056780ba362f157536c203db96b68d44564c10`), expanded 124→130, and created no control/admission row. Backup v20 and active v21 both report `integrity_check=ok` and zero foreign-key violations; Run/stage/symbol/binding/message counts remain `60/113/58/279/289`, P31 remains `3/3/3/3`, and P33 remains `3/3/9/3`. Temporary-database tests also prove failed-v21 rollback to intact v20.
 
 Before approved PROPOSAL-030 writes, the active database was copied to `market_history.before-p30-validation.20260811T0428081654404Z.sqlite3`. The active six-table counts are now `1/1/5/3/3/18` for formula/configuration/attempt/result/trace/source link. Compared with that backup, only those six tables plus `algorithm_runs`, `algorithm_run_stages`, `algorithm_run_symbols` and `algorithm_run_bindings` changed; every other table retained its row count. Active integrity is `ok` with zero foreign-key violations. The stored formula/configuration remain disabled and all three result Runs are `NO_EXECUTION`.
 
@@ -158,7 +162,7 @@ Target Position and standardized-state persistence stores research evidence only
 - No production Factor exists. Current stored algorithm results come only from explicit local previews/Dry Runs.
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
-- Current Schema v20 rollback requires stopping writers, preserving the v20 file and restoring verified `market_history.schema-v19-to-v20.20260812T015933497519Z.sqlite3` with matching v19 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
+- Current Schema v21 rollback requires stopping writers, preserving the v21 file and restoring verified `market_history.schema-v20-to-v21.20260813T042448969415Z.sqlite3` with matching v20 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.

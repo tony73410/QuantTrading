@@ -46,6 +46,8 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 
 ## Index
 
+- [ADR-0037: Separate Persistent Strategy Freeze from Transient Risk Pause](ADR-0037-versioned-frozen-asset-admission.md) — Asset-State-owned append-only `ELIGIBLE/FROZEN` events, exact P33/control Risk admission, Schema v21 and explicit P23-4C2 deferral.
+
 - [ADR-0035: Preserve Decision Meaning While Adding Exact P29 Provenance](ADR-0035-cycle-target-decision-preview.md) — one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable intent, Schema v19 and no Risk/downstream consumer.
 - [ADR-0036: Preserve Risk Authority While Admitting Exact P31 Evidence](ADR-0036-cycle-target-risk-manual-review-gate.md) — type-distinct P33 evidence, shared private structural kernel, exact P31/P29/P28 source chain, Schema v20 and no Risk-approved output.
 

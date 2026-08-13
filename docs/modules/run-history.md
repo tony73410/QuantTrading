@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified through Phase 6E inspection and P23-1 Spectral Volatility Research.** The supported execution mode is exclusively `NO_EXECUTION`.
+**Implemented and verified through disabled P23-4C1 inspection.** The supported execution mode is exclusively `NO_EXECUTION`.
 
 ## Purpose
 
@@ -69,6 +69,8 @@ Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence 
 - P23-3A definition/configuration saves: one `CYCLE_TARGET_POSITION_RESEARCH` Run records one `TARGET_POSITION` stage and exact immutable bindings. Preview Runs parent to the exact P28 Run, record ordered `STATE` then `TARGET_POSITION` stages, expose P28/P27/P26 source relationships and render source links, region predicates, solver evidence, target/difference and disabled safety metadata. Run History never calculates or repairs P29.
 - P23-4A preview: one `CYCLE_TARGET_DECISION_PREVIEW` Run parents to the exact P29 Run, records ordered `TARGET_POSITION` then `DECISION` stages and exposes exact P29/P28 relationships. Its operation artifact owns an accepted result child, one immutable source-link child and zero-or-one type-distinct intent child. Run History displays copied current/target/difference and policy/safety evidence but never calculates the action or implies Risk review.
 - P23-4B review: one `CYCLE_TARGET_RISK_REVIEW` Run parents to the exact P31 Run, records ordered `DECISION` then `RISK` stages and exposes exact P31/P29/P28 relationships. Its operation artifact owns an accepted manual-review/blocked result, exact source link and two or three locked rule children. Run History displays the unchanged requested notional and permanent absence of approved output; it never recalculates or implies numerical approval.
+- P23-4C1 control change: one `ASSET_TRADING_CONTROL_CHANGE` Run records one `STATE` stage and renders immutable predecessor/status/effective-session/calendar/reason evidence. It never changes Risk or creates a trade.
+- P23-4C1 admission: one `CYCLE_TARGET_ASSET_ADMISSION_REVIEW` Run parents to exact P33, records ordered `STATE` then `RISK` stages, and exposes P33 plus optional exact effective control Run relationships. Its operation/result/source/rule artifacts preserve missing/frozen/eligible meaning and permanent absence of approved output.
 
 Approved PROPOSAL-034 adds exactly three local P23-4B Run histories under Session `P34-AAPL-P33-VALIDATION-20260812`. Each has one P31 parent plus P29/P28 source navigation, ordered Decision/Risk stages, three bindings, one manual-review warning and three locked rule children. Fresh-process Run detail and all four Open Run paths were verified; none contains approved or executable output.
 
@@ -147,7 +149,7 @@ Completed previews automatically open their Run detail. GUI code consumes only `
 
 ## Known limitations
 
-- Phase 4A state remains disabled. Phase 5C has the explicitly approved Phase 5D Decision consumer; P23-3A has the explicit P23-4A Decision consumer. Phase 5D is consumed only by the disabled Phase 6A→6B→6C→6D research chain, while P23-4A has only the disabled structural P23-4B Risk consumer. Neither reaches complete Risk approval, Backtesting, Accounting or Execution.
+- Phase 4A symbolic state remains disabled. P23-4C1 trading control is a separate explicit authority consumed only by the disabled P35 gate. Phase 5C has the approved Phase 5D Decision consumer; P23-3A has P23-4A; P23-4A has P23-4B; and P23-4B can enter P35 only by explicit exact selection. None reaches complete Risk approval, daily counting, Backtesting, Accounting or Execution.
 
 - Backtesting remains in its existing immutable JSON repository; Phase 1 does not duplicate large daily artifacts into SQLite or register historical backtests retroactively.
 - Run History Explorer itself performs view replay only. P23-2 and P23-3A owning services provide exact isolated recalculation replay from normalized stored inputs; divergence is visible and history is never repaired.

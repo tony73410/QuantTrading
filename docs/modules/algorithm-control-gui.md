@@ -1,5 +1,7 @@
 # Algorithm Control Center GUI
 
+P23-4C1 adds sibling inspectors inside the existing Asset State and Risk pages. The Asset State `Trading Control` subtab requires symbol, exact v1 mapping, status, reason and successful no-write preflight; it shows current/pending state, immutable timeline, filtering/comparison and Open Run. The Risk `Cycle Target Asset Admission` subtab requires one exact P33 result and successful no-write preflight; it shows control evidence, all locked rules, history/filter/compare, JSON/CSV export and complete Run navigation. Neither subtab contains calculation/SQL/order logic, and no Launcher entry was added.
+
 ## Purpose
 
 Provide a separate PySide6 management application for registered Factor, Trading Decision, and Risk components. It exposes a passive Algorithm Idea Notebook, Factor lifecycle/authoring, restricted Decision authoring, versioned configuration, local preview requests, a Risk-gated dry run, read-only execution status and an audit trail without owning Factor/Decision/Risk formulas or order behavior.
@@ -71,7 +73,7 @@ Registered metadata, restricted Factor definitions, user configuration edits/Fac
 
 ## Outputs
 
-Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision/linked-target/target-adjustment/P33 history views, an exact-version Factor/source-price Figure, and explicit bounded Factor/P23-4A/P23-4B CSV/JSON copies. Tracked previews return Run identity; Phase 5D views open Decision/Phase-5C/Target/source Runs, P23-4A views open P31/P29/P28 Runs and P23-4B views open P33/P31/P29/P28 Runs. A preview, persisted Run, intent, chart or export is never Risk approval, an order or execution authorization.
+Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision/linked-target/target-adjustment/P33/P35 history views, an exact-version Factor/source-price Figure, and explicit bounded Factor/P23-4A/P23-4B/P23-4C1 CSV/JSON copies. Tracked previews return Run identity; P23-4C1 views open P35/P33/P31/P29/P28/control Runs. A preview, persisted Run, intent, control event, chart or export is never Risk approval, a trade, order or execution authorization.
 
 ## Dependencies
 

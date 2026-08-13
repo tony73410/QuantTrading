@@ -59,6 +59,14 @@ from .cycle_target_risk_review import (
     CycleTargetRiskReviewCoordinator,
     CycleTargetRiskReviewPreflight,
 )
+from .asset_trading_control import (
+    AssetTradingControlCoordinator,
+    AssetTradingControlPreflight,
+)
+from .cycle_target_asset_admission import (
+    CycleTargetAssetAdmissionCoordinator,
+    CycleTargetAssetAdmissionPreflight,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -94,4 +102,8 @@ __all__ = [
     "CycleTargetAdjustmentDecisionPreviewCoordinator",
     "CycleTargetRiskReviewCoordinator",
     "CycleTargetRiskReviewPreflight",
+    "AssetTradingControlCoordinator",
+    "AssetTradingControlPreflight",
+    "CycleTargetAssetAdmissionCoordinator",
+    "CycleTargetAssetAdmissionPreflight",
 ]

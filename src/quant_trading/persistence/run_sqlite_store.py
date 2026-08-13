@@ -574,6 +574,25 @@ class SQLiteRunHistoryRepository:
                 relationships.add((RunRelationshipType.CHILD, risk_id))
             else:
                 relationships.add((RunRelationshipType.LINKED_PREVIEW, risk_id))
+        asset_admission_links = connection.execute(
+            """SELECT admission_run_id, p33_run_id, control_run_id
+               FROM cycle_target_asset_admission_source_links
+               WHERE admission_run_id = ? OR p33_run_id = ? OR control_run_id = ?""",
+            (str(run.run_id),) * 3,
+        ).fetchall()
+        for row in asset_admission_links:
+            admission_id = UUID(row["admission_run_id"])
+            p33_id = UUID(row["p33_run_id"])
+            control_id = UUID(row["control_run_id"]) if row["control_run_id"] else None
+            if admission_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, p33_id))
+                relationships.add((RunRelationshipType.SOURCE, p33_id))
+                if control_id is not None:
+                    relationships.add((RunRelationshipType.SOURCE, control_id))
+            elif p33_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, admission_id))
+            elif control_id == run.run_id:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, admission_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -2373,6 +2392,129 @@ class SQLiteRunHistoryRepository:
                     _field("operation id", operation["operation_id"]),
                     _field("requested P31 intent / result / Run", f"{operation['requested_intent_id']} / {operation['requested_decision_result_id']} / {operation['requested_decision_run_id']}"),
                     _field("accepted review", operation["review_result_id"] or "none"),
+                    _field("error", operation["error_summary"]),
+                    _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),
+                ),
+                result_children,
+            ))
+        trading_control_operations = connection.execute(
+            """SELECT * FROM asset_trading_control_operations
+               WHERE run_id = ? ORDER BY completed_at_utc, attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in trading_control_operations:
+            event_children: tuple[RunArtifactView, ...] = ()
+            if operation["event_id"]:
+                event = connection.execute(
+                    "SELECT * FROM asset_trading_control_events WHERE event_id=?",
+                    (operation["event_id"],),
+                ).fetchone()
+                event_children = (
+                    RunArtifactView(
+                        "asset_trading_control_event", event["event_id"],
+                        RunStageName.STATE.value, event["symbol"], event["new_status"],
+                        f"{event['previous_status'] or 'NO_PRIOR_STATUS'} -> {event['new_status']} effective {event['effective_at_utc']}",
+                        _datetime(event["created_at_utc"]),
+                        (
+                            _field("predecessor", event["predecessor_event_id"] or "none"),
+                            _field("requested / effective", f"{event['requested_at_utc']} / {event['effective_at_utc']}"),
+                            _field("effective session", event["effective_session"]),
+                            _field("mapping / calendar", f"{event['mapping_id']}@{event['mapping_version']} / {event['calendar_definition_id']}"),
+                            _field("calendar snapshot / fingerprint", f"{event['calendar_snapshot_id']} / {event['schedule_fingerprint']}"),
+                            _field("reason / actor", f"{event['reason']} / {event['created_by']}"),
+                            _field("execution / live", f"{bool(event['execution_allowed'])} / {bool(event['live_allowed'])}"),
+                        ),
+                    ),
+                )
+            artifacts.append(RunArtifactView(
+                "asset_trading_control_operation", operation["attempt_id"],
+                RunStageName.STATE.value, operation["requested_symbol"], operation["status"],
+                "P23-4C1 explicit immutable trading-control change; NO EXECUTION",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation id", operation["operation_id"]),
+                    _field("requested status / predecessor", f"{operation['requested_status']} / {operation['requested_predecessor_event_id'] or 'none'}"),
+                    _field("accepted event", operation["event_id"] or "none"),
+                    _field("error", operation["error_summary"]),
+                    _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),
+                ),
+                event_children,
+            ))
+        admission_operations = connection.execute(
+            """SELECT * FROM cycle_target_asset_admission_operations
+               WHERE run_id = ? ORDER BY completed_at_utc, attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in admission_operations:
+            result_children: tuple[RunArtifactView, ...] = ()
+            if operation["result_id"]:
+                result = connection.execute(
+                    "SELECT * FROM cycle_target_asset_admission_results WHERE result_id=?",
+                    (operation["result_id"],),
+                ).fetchone()
+                rules = connection.execute(
+                    "SELECT * FROM cycle_target_asset_admission_rules WHERE result_id=? ORDER BY evaluation_order",
+                    (operation["result_id"],),
+                ).fetchall()
+                rule_children = tuple(
+                    RunArtifactView(
+                        "cycle_target_asset_admission_rule", row["rule_result_id"],
+                        RunStageName.RISK.value, result["symbol"], row["status"],
+                        f"{row['evaluation_order']}. {row['rule_name']}: {row['status']}",
+                        _datetime(row["evaluated_at_utc"]),
+                        (
+                            _field("rule", f"{row['rule_id']}@{row['rule_version']}"),
+                            _field("input", row["input_summary"]),
+                            _field("required condition", row["expected_condition"]),
+                            _field("reason codes", row["reason_codes_json"]),
+                            _field("severity / stop", f"{row['severity']} / {bool(row['stop_processing'])}"),
+                        ),
+                    ) for row in rules
+                )
+                link = connection.execute(
+                    "SELECT * FROM cycle_target_asset_admission_source_links WHERE result_id=?",
+                    (operation["result_id"],),
+                ).fetchone()
+                link_children = () if link is None else (
+                    RunArtifactView(
+                        "cycle_target_asset_admission_source_link", link["source_link_id"],
+                        RunStageName.STATE.value, result["symbol"], "immutable_source",
+                        f"P33 {link['p33_result_id']} / control {link['control_event_id'] or 'missing'}",
+                        _datetime(link["created_at_utc"]),
+                        (
+                            _field("P33 Result / Run", f"{link['p33_result_id']} / {link['p33_run_id']}"),
+                            _field("P31 result / intent", f"{link['p31_decision_result_id']} / {link['p31_intent_id']}"),
+                            _field("P29 / P28 results", f"{link['p29_result_id']} / {link['p28_result_id']}"),
+                            _field("control event / Run", f"{link['control_event_id'] or 'missing'} / {link['control_run_id'] or 'missing'}"),
+                        ),
+                    ),
+                )
+                result_children = (
+                    RunArtifactView(
+                        "cycle_target_asset_admission_result", result["result_id"],
+                        RunStageName.RISK.value, result["symbol"], result["status"],
+                        f"{result['action'].upper()} {result['requested_notional_usd_text']} USD; approved amount remains none",
+                        _datetime(result["created_at_utc"]),
+                        (
+                            _field("P33 Result / Run", f"{result['p33_result_id']} / {result['p33_run_id']}"),
+                            _field("control event / Run", f"{result['control_event_id'] or 'missing'} / {result['control_run_id'] or 'missing'}"),
+                            _field("requested / approved USD", f"{result['requested_notional_usd_text']} / none"),
+                            _field("reason codes", result["reason_codes_json"]),
+                            _field("gate", f"{result['gate_id']} {result['gate_version']}"),
+                            _field("execution / live", f"{bool(result['execution_allowed'])} / {bool(result['live_allowed'])}"),
+                        ),
+                        link_children + rule_children,
+                    ),
+                )
+            artifacts.append(RunArtifactView(
+                "cycle_target_asset_admission_operation", operation["attempt_id"],
+                RunStageName.RISK.value, operation["resolved_symbol"], operation["status"],
+                "P23-4C1 frozen-asset admission; NO EXECUTION / NO APPROVED OUTPUT",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation id", operation["operation_id"]),
+                    _field("requested P33 Result / Run", f"{operation['requested_p33_result_id']} / {operation['requested_p33_run_id']}"),
+                    _field("accepted result", operation["result_id"] or "none"),
                     _field("error", operation["error_summary"]),
                     _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),
                 ),

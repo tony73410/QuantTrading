@@ -156,8 +156,19 @@ from .research_asset_cash_models import (
     TargetAdjustmentResearchAssetCashPreviewResult,
 )
 from .research_asset_cash_service import ResearchAssetCashAvailabilityService
+from .asset_admission_engine import CycleTargetAssetAdmissionEngine
+from .asset_admission_interfaces import (
+    CycleTargetAssetAdmissionQueryService,
+    CycleTargetAssetAdmissionStore,
+    EmptyCycleTargetAssetAdmissionQueryService,
+)
+from .asset_admission_models import *
+from .asset_admission_models import __all__ as _asset_admission_exports
+from .asset_admission_service import CycleTargetAssetAdmissionService
+from .asset_admission_replay import CycleTargetAssetAdmissionReplayService
 
 __all__ = [
+    *_asset_admission_exports,
     "AccountingAccountSnapshotProvider",
     "AccountingPortfolioSnapshotProvider",
     "AccountSnapshot",
@@ -294,4 +305,10 @@ __all__ = [
     "ResearchAssetCashStore",
     "TargetAdjustmentResearchAssetCashPreviewCommand",
     "TargetAdjustmentResearchAssetCashPreviewResult",
+    "CycleTargetAssetAdmissionEngine",
+    "CycleTargetAssetAdmissionQueryService",
+    "CycleTargetAssetAdmissionService",
+    "CycleTargetAssetAdmissionReplayService",
+    "CycleTargetAssetAdmissionStore",
+    "EmptyCycleTargetAssetAdmissionQueryService",
 ]

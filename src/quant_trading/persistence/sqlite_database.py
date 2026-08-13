@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 20
+SCHEMA_VERSION = 21
 
 
 _SCHEMA_V1 = """
@@ -3829,6 +3829,224 @@ ON cycle_target_risk_source_links(decision_run_id, source_run_id, source_reversa
 """
 
 
+_SCHEMA_V21 = """
+CREATE TABLE asset_trading_control_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL UNIQUE,
+    command_fingerprint TEXT NOT NULL,
+    requested_symbol TEXT NOT NULL,
+    requested_status TEXT NOT NULL CHECK (requested_status IN ('eligible', 'frozen')),
+    requested_predecessor_event_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    event_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    CHECK (
+        (status = 'completed' AND event_id IS NOT NULL AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('invalid_input', 'failed') AND event_id IS NULL AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_asset_trading_control_terminal_operation
+ON asset_trading_control_operations(operation_id) WHERE status = 'completed';
+CREATE INDEX idx_asset_trading_control_operations_lookup
+ON asset_trading_control_operations(requested_symbol, requested_at_utc DESC, status);
+
+CREATE TABLE asset_trading_control_events (
+    event_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL UNIQUE,
+    predecessor_event_id TEXT UNIQUE,
+    symbol TEXT NOT NULL,
+    previous_status TEXT CHECK (previous_status IS NULL OR previous_status IN ('eligible', 'frozen')),
+    new_status TEXT NOT NULL CHECK (new_status IN ('eligible', 'frozen')),
+    requested_at_utc TEXT NOT NULL,
+    effective_at_utc TEXT NOT NULL,
+    effective_session TEXT NOT NULL,
+    mapping_id TEXT NOT NULL,
+    mapping_version INTEGER NOT NULL CHECK (mapping_version >= 1),
+    calendar_definition_id TEXT NOT NULL,
+    calendar_snapshot_id TEXT NOT NULL,
+    calendar_engine_name TEXT NOT NULL,
+    calendar_engine_version TEXT NOT NULL,
+    exchange_calendar_name TEXT NOT NULL,
+    schedule_fingerprint TEXT NOT NULL,
+    session_open_utc TEXT NOT NULL,
+    session_close_utc TEXT NOT NULL,
+    calendar_observed_at_utc TEXT NOT NULL,
+    calendar_json TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    component_id TEXT NOT NULL CHECK (component_id = 'asset_state.trading_control.p23_4c1.v1'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (predecessor_event_id) REFERENCES asset_trading_control_events(event_id) ON DELETE RESTRICT,
+    CHECK (previous_status IS NULL OR previous_status <> new_status)
+);
+
+CREATE INDEX idx_asset_trading_control_events_effective
+ON asset_trading_control_events(symbol, effective_at_utc DESC, created_at_utc DESC);
+
+CREATE TABLE cycle_target_asset_admission_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    state_stage_id TEXT NOT NULL,
+    risk_stage_id TEXT,
+    command_fingerprint TEXT NOT NULL,
+    requested_p33_result_id TEXT NOT NULL,
+    requested_p33_run_id TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('manual_review_required', 'blocked_frozen_asset', 'blocked_missing_trading_control', 'blocked_invalid_source', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_symbol TEXT,
+    result_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    CHECK (
+        (status IN ('manual_review_required', 'blocked_frozen_asset', 'blocked_missing_trading_control', 'blocked_invalid_source')
+         AND risk_stage_id IS NOT NULL AND result_id IS NOT NULL AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('invalid_input', 'failed') AND result_id IS NULL AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_cycle_target_asset_admission_terminal_operation
+ON cycle_target_asset_admission_operations(operation_id)
+WHERE status IN ('manual_review_required', 'blocked_frozen_asset', 'blocked_missing_trading_control', 'blocked_invalid_source');
+CREATE INDEX idx_cycle_target_asset_admission_operations_lookup
+ON cycle_target_asset_admission_operations(requested_p33_result_id, resolved_symbol, status, requested_at_utc DESC);
+
+CREATE TABLE cycle_target_asset_admission_results (
+    result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL UNIQUE,
+    source_json TEXT NOT NULL,
+    control_evidence_json TEXT,
+    p33_result_id TEXT NOT NULL,
+    p33_run_id TEXT NOT NULL,
+    control_event_id TEXT,
+    control_run_id TEXT,
+    symbol TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    requested_notional_usd_text TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('manual_review_required', 'blocked_frozen_asset', 'blocked_missing_trading_control', 'blocked_invalid_source')),
+    reason_codes_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    approved_notional_usd_text TEXT CHECK (approved_notional_usd_text IS NULL),
+    risk_approved_intent_id TEXT CHECK (risk_approved_intent_id IS NULL),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    gate_id TEXT NOT NULL CHECK (gate_id = 'risk.cycle_target_asset_admission.p23_4c1.v1'),
+    gate_version TEXT NOT NULL CHECK (gate_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p33_result_id) REFERENCES cycle_target_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p33_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (control_event_id) REFERENCES asset_trading_control_events(event_id) ON DELETE RESTRICT,
+    FOREIGN KEY (control_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    CHECK ((control_event_id IS NULL AND control_run_id IS NULL) OR (control_event_id IS NOT NULL AND control_run_id IS NOT NULL))
+);
+
+CREATE INDEX idx_cycle_target_asset_admission_results_lookup
+ON cycle_target_asset_admission_results(symbol, action, status, created_at_utc DESC);
+
+CREATE TABLE cycle_target_asset_admission_rules (
+    rule_result_id TEXT PRIMARY KEY,
+    result_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    stage_id TEXT NOT NULL,
+    rule_id TEXT NOT NULL CHECK (rule_id IN ('P33_STRUCTURAL_REVIEW_INTEGRITY', 'ASSET_TRADING_CONTROL_AVAILABILITY', 'FROZEN_ASSET_BLOCK')),
+    rule_version TEXT NOT NULL CHECK (rule_version = '1'),
+    rule_name TEXT NOT NULL,
+    evaluation_order INTEGER NOT NULL CHECK (evaluation_order BETWEEN 1 AND 3),
+    status TEXT NOT NULL CHECK (status IN ('passed', 'manual_review', 'blocked')),
+    input_summary TEXT NOT NULL,
+    expected_condition TEXT NOT NULL,
+    reason_codes_json TEXT NOT NULL,
+    severity TEXT NOT NULL CHECK (severity IN ('info', 'warning', 'critical')),
+    stop_processing INTEGER NOT NULL CHECK (stop_processing IN (0, 1)),
+    evaluated_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (result_id, evaluation_order),
+    UNIQUE (result_id, rule_id),
+    FOREIGN KEY (result_id) REFERENCES cycle_target_asset_admission_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_asset_admission_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    result_id TEXT NOT NULL UNIQUE,
+    admission_run_id TEXT NOT NULL UNIQUE,
+    admission_stage_id TEXT NOT NULL UNIQUE,
+    p33_result_id TEXT NOT NULL,
+    p33_run_id TEXT NOT NULL,
+    p31_decision_result_id TEXT NOT NULL,
+    p31_intent_id TEXT NOT NULL,
+    p29_result_id TEXT NOT NULL,
+    p28_result_id TEXT NOT NULL,
+    control_event_id TEXT,
+    control_run_id TEXT,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (result_id) REFERENCES cycle_target_asset_admission_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (admission_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (admission_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p33_result_id) REFERENCES cycle_target_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p33_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p31_decision_result_id) REFERENCES cycle_target_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p31_intent_id) REFERENCES cycle_target_decision_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p29_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (p28_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (control_event_id) REFERENCES asset_trading_control_events(event_id) ON DELETE RESTRICT,
+    FOREIGN KEY (control_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    CHECK ((control_event_id IS NULL AND control_run_id IS NULL) OR (control_event_id IS NOT NULL AND control_run_id IS NOT NULL))
+);
+
+CREATE INDEX idx_cycle_target_asset_admission_source_links
+ON cycle_target_asset_admission_source_links(p33_run_id, control_run_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -3850,6 +4068,7 @@ _MIGRATIONS = {
     18: ("P23-3A cycle-aware bounded target-position research", _SCHEMA_V18),
     19: ("P23-4A P29 cycle-target Decision preview evidence", _SCHEMA_V19),
     20: ("P23-4B P31 cycle-target structural Risk review evidence", _SCHEMA_V20),
+    21: ("P23-4C1 versioned frozen-asset admission evidence", _SCHEMA_V21),
 }
 
 

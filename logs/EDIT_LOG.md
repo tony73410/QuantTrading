@@ -7111,3 +7111,104 @@ The real goal is to preserve the current tested P23-4A/P23-4B source, tests, mig
 - Remaining drift risk: readers may mistake an unchanged requested amount for an approved amount or independent P34 cases for sequential actions. The published contracts and documentation explicitly deny both interpretations.
 
 Authorized publication command sequence: stage the reviewed working tree, commit as `feat: add structural risk review for cycle targets`, and push branch `main` to `origin`. The next development plan will be created only after this checkpoint is published and will not implement unresolved daily-count/freeze or numerical-Risk semantics without separate approval.
+
+## EDIT-20260812-004 — Create proposal-only P23-4C1 frozen-asset admission plan
+
+### Date, authorization and task mode
+
+2026-08-12 20:17:00 -07:00
+
+After commit `828f956` successfully published CHECKPOINT-20260812-007 to `origin/main`, the user asked to start the next development plan. Task mode: **STANDARD proposal/governance planning only**. No source, Schema, runtime database, GUI behavior, state event, Risk result, trading formula, counter, order or execution capability was authorized or changed.
+
+### Pre-Implementation Compass, overlap and architecture audit
+
+The real goal is to advance the user's earlier low-frequency rule—non-frozen stocks may adjust at most one/two times per session and frozen stocks trade zero—without manufacturing authoritative facts that do not exist. Applicable Stable Core principles are explicit versioning, immutable history, exact source identity, Risk fail-closed authority, GUI/business separation and no execution expansion.
+
+Read-only inspection confirmed three overlaps: generic Risk can block a transient `paused_symbols` context but has no persistent versioned source; manual Asset State persists arbitrary symbolic transitions but intentionally assigns no built-in financial meaning to state keys; P28 is observation-only and P31/P33 are hypothetical non-approved evidence. Market Bar `trade_count` is market aggregate data and is unrelated. Reusing any of these as a durable P23 freeze/count fact would cause project drift.
+
+### Proposal result
+
+Created `PROPOSAL-035` with three choices. Recommended option A splits P23-4C:
+
+- P23-4C1: Asset State would own explicit append-only `ELIGIBLE/FROZEN` control events, generic Risk pauses would remain separate, missing control would fail closed, freeze would be immediate, unfreeze would take effect next recognized session, and a type-distinct Risk review after explicit P33 would remain manual-review/block-only.
+- P23-4C2: no current implementation. Future counting would reserve one logical portfolio-adjustment action and consume it on its first positive simulated/future fill; partial fills/replacements share the same action ID, terminal zero-fill outcomes release the reservation, session identity comes from exact calendar evidence, v1 would recommend explicit cap 1 and any second opportunity would require a later versioned rule.
+
+The proposed P23-4C1 implementation would be a `DEEP`/`MULTI_MODULE` task with new public contracts and an additive v20/124→v21/130 six-table migration, so it cannot start without explicit approval. Option B defers freeze and count together; option C may describe another user-selected design. No option is treated as approved.
+
+### Documents and verification
+
+Added `docs/proposals/PROPOSAL-035-versioned-frozen-asset-admission-and-daily-opportunity-semantics.md`; synchronized `docs/proposals/README.md`, `docs/INDEX.md`, `docs/project/ROADMAP.md`, `docs/project/PROJECT_STATE.md`, `PROJECT_COMPASS.md` v92/DEC-021/INTENT-045 and this append-only record. Canonical architecture and module documents are unchanged because no implementation or accepted architecture decision exists.
+
+The first governance rerun exposed `BUG-20260812-010`: three assertions still fixed the Roadmap at its pre-P35 heading. The test was updated to require the truthful unapproved-P35 heading and gained dedicated P35 proposal-only coverage. The final focused governance suite passes **16 tests**, and `git diff --check` passes with informational Windows LF→CRLF notices only. No product Bug or Known Issue was discovered. Rollback is deletion/revert of the unapproved proposal-document/test changes only; published commit `828f956`, Schema v20 runtime evidence and all algorithm behavior remain unchanged.
+
+### Post-Implementation Compass Audit
+
+- Intent alignment: records the next decision in plain language and preserves the user's freeze/low-frequency objective.
+- Architecture alignment: recommends existing Asset State/Risk ownership and explicitly rejects a new umbrella runtime owner; no architecture was changed.
+- Safety alignment: no default eligibility, preview-as-trade count, numerical approval or execution path is admitted.
+- Unapproved behavior added: none; PROPOSAL-035 is `PROPOSED_NEEDS_USER_DECISION`.
+- Assumptions introduced: recommended effective-time and future reservation/fill semantics are labeled recommendations, not user decisions.
+- Compass sections updated: v92 current phase/working-tree state, Open DEC-021, narrative, proposed INTENT-045 and Next Approved Direction; Stable Core is unchanged.
+- Remaining drift risk: future work could conflate strategy freeze with emergency Risk pause or count each partial fill/preview. P35 keeps these concepts type-distinct and blocks implementation pending approval.
+- Bug audit: `BUG-20260812-010` records and fixes only the stale governance heading assertion; no runtime defect was found.
+
+## EDIT-20260812-005 — Implement approved P23-4C1 frozen-asset admission
+
+### Date, authorization and task mode
+
+2026-08-12 22:05:00 -07:00
+
+The user explicitly selected option A and approved `PROPOSAL-035` P35-D1–D10, limited to P23-4C1; P23-4C2 remains pending. Task mode: **DEEP** because this adds versioned cross-module public contracts, two Run types, a central SQLite v20→v21 migration and existing-page GUI capabilities. Primary owners are existing `asset_state` for durable trading control and existing `risk` for admission; Orchestration, Persistence, Run History and Algorithm Control are secondary. Blast radius is `MULTI_MODULE`. No new top-level module, dependency, trading formula, numerical Risk, cash/position/accounting/backtest consumer, Paper/Live content, broker, order, fill or execution authority was approved.
+
+### Pre-Implementation Compass, overlap and impact audit
+
+The real goal is to make “this stock is sealed and must not trade” an explicit, restart-safe, versioned fact and enforce it after one exact P33 structural review, without pretending that a preview is a trade or deciding the future daily one/two-opportunity counter. Stable Core requirements applied: business/GUI separation, exact version and Run provenance, immutable history, fail-closed missing evidence, Risk non-expansion/non-reversal, no silent default, no history overwrite and no execution expansion.
+
+Read-only overlap inspection confirmed that generic `paused_symbols` is transient emergency Risk context, manual symbolic Asset State has no built-in financial meaning, and P28/P31/P33 are observation/preview evidence. The approved reuse path therefore keeps those contracts unchanged and introduces a type-distinct Asset-State-owned control stream plus a type-distinct Risk gate. Public contracts are additive. Configuration and dependencies are unchanged. Database impact is additive Schema v21/130 with zero backfill. GUI impact is limited to sibling subtabs in the existing Asset State and Risk pages; Launcher assessment found no new independently openable tool, so no Launcher change is required. Rollback disables composition and inspectors while retaining immutable v21 evidence; physical downgrade requires stopping writers, preserving v21 and restoring the verified v20 backup with matching v20 code.
+
+### Implementation
+
+- Added `asset_state.trading_control.p23_4c1.v1@1.0.0`: explicit v1 symbol/XNYS mapping, immutable `ELIGIBLE/FROZEN` commands/events/attempts, exact predecessor concurrency, durable failure, deterministic idempotency, no initial default, immediate accepted-time freeze and first status, and next-recognized-XNYS-session unfreeze. Old request timestamps cannot backdate effective control.
+- Added `risk.cycle_target_asset_admission.p23_4c1.v1@1.0.0`: one explicit exact P33 Result/Run plus exact effective neutral control evidence, locked `P33_STRUCTURAL_REVIEW_INTEGRITY@1 → ASSET_TRADING_CONTROL_AVAILABILITY@1 → FROZEN_ASSET_BLOCK@1`, missing/frozen/invalid blocking, eligible manual review, both directions blocked while frozen, and structurally absent approved amount/intent.
+- Added application coordinators with no-write preflight and `ASSET_TRADING_CONTROL_CHANGE` / `CYCLE_TARGET_ASSET_ADMISSION_REVIEW`, both `NO_EXECUTION`. Failed source resolution creates a parentless durable failed Run instead of claiming a nonexistent P33 parent. GUI submits the exact command object that passed preflight.
+- Added independent SQLite Stores and six normalized v21 tables for control operations/events and admission operations/results/rules/source links. Transaction-time checks revalidate exact Run/stage, latest predecessor, exact P33 row and exact effective control event. Run History exposes event/result/rule/source artifacts and P35↔P33/control relationships.
+- Added Asset State `P23-4C1 Trading Control` and Risk `Cycle Target Asset Admission` subtabs with explicit source/reason selection, no-write preflight, history/status filters, immutable comparison, JSON/CSV export where applicable and Open Run navigation. GUI contains no policy, rule, SQL, account or execution logic.
+- Migrated the active ignored central database only after automatic backup. Migration created no event, admission result or daily-counter row.
+
+### Active database evidence
+
+Verified pre-migration backup `runtime/data/backups/market_history.schema-v20-to-v21.20260813T042448969415Z.sqlite3` is 100,593,664 bytes with SHA-256 `B24573F6654DE937E870045F76056780BA362F157536C203DB96B68D44564C10`. It remains Schema v20/124 with `integrity_check=ok`, zero foreign-key violations, Run/stage/symbol/binding/message `60/113/58/279/289`, P31 `3/3/3/3` and P33 `3/3/9/3`.
+
+Active `runtime/data/market_history.sqlite3` is Schema v21/130 with `integrity_check=ok` and zero foreign-key violations. The same Run/P31/P33 counts are preserved, and P35 control operations/events/admission operations/results/rules/source links are exactly `0/0/0/0/0/0`. Both runtime paths remain ignored by `runtime/*`. No runtime P35 validation was authorized or created.
+
+### Files added and modified
+
+- New domain/application/persistence files: `src/quant_trading/asset_state/trading_control_models.py`, `trading_control_interfaces.py`, `trading_control_service.py`; `src/quant_trading/risk/asset_admission_models.py`, `asset_admission_interfaces.py`, `asset_admission_engine.py`, `asset_admission_service.py`, `asset_admission_replay.py`; `src/quant_trading/orchestration/asset_trading_control.py`, `cycle_target_asset_admission.py`; `src/quant_trading/persistence/asset_trading_control_sqlite_store.py`, `cycle_target_asset_admission_sqlite_store.py`; `src/quant_trading/algorithm_control/cycle_target_asset_admission_export.py`, `ui/asset_trading_control_panel.py`, `ui/cycle_target_asset_admission_panel.py`.
+- Modified composition/public/index files: `src/quant_trading/asset_state/__init__.py`, `risk/__init__.py`, `orchestration/__init__.py`, `persistence/__init__.py`, `run_history/models.py`, `error_codes.py`, `persistence/sqlite_database.py`, `persistence/run_sqlite_store.py`, `algorithm_control/app.py`, `algorithm_control/ui/main_panel.py`, `asset_state_workspace_panel.py`, `target_adjustment_risk_panel.py`.
+- New/modified tests: `tests/architecture/test_asset_trading_control_admission_boundaries.py`, `test_governance_document_integrity.py`, `test_run_history_boundaries.py`; `tests/unit/algorithm_control/test_asset_trading_control_admission_panels.py`, `test_reversal_observation_panel.py`; `tests/unit/asset_state/test_sqlite_asset_trading_control_and_admission.py`, `test_sqlite_cycle_target_risk.py` plus all central-schema current-version fixtures under Asset State; new `tests/unit/risk/test_asset_admission.py` plus current-version fixtures under Risk; current-version migration assertions under Capital Allocation, Decision, Factors, Run History and Target Position.
+- Governance/docs: new `docs/decisions/ADR-0037-versioned-frozen-asset-admission.md` and completed `docs/proposals/PROPOSAL-035-versioned-frozen-asset-admission-and-daily-opportunity-semantics.md`; modified `PROJECT_COMPASS.md`, `CHANGELOG.md`, `docs/INDEX.md`, `docs/architecture/OVERVIEW.md`, `MODULE_MAP.md`, `docs/decisions/README.md`, `docs/modules/asset-state.md`, `risk-control.md`, `central-persistence.md`, `run-history.md`, `analysis-decision-pipeline.md`, `algorithm-control-gui.md`, `docs/project/PROJECT_STATE.md`, `ROADMAP.md`, `docs/proposals/README.md`, `logs/BUG_LOG.md` and this record.
+
+### Verification
+
+- `pytest --collect-only -q`: **646 tests collected** after all P35 regressions were added.
+- Exhaustive non-overlapping shards: **646 passed** total — architecture 116; Algorithm Control/Backtesting/Launcher 127; Asset State/Capital/Decision/Target 95; Factors/Market History 191; Risk/Run History/Portfolio Accounting/Orchestration/unit-root/integration 117. Final post-fix reruns passed all **116 architecture** and **97 Algorithm Control** tests.
+- Focused final P35 domain/store/GUI/architecture set: **17 passed**. It covers frozen INCREASE/DECREASE, missing/invalid/eligible outcomes, accepted-time no-backdating, next-session unfreeze, predecessor conflicts, missing-P33 durable failure, idempotency, restart reload, replay/export, exact Run artifacts/relationships and presentation-only GUI.
+- `.venv\Scripts\python.exe -m compileall -q src tests`: passed after one transient Windows `__pycache__` replacement permission collision during parallel checks; isolated rerun passed.
+- `.venv\Scripts\python.exe -m pip check`: `No broken requirements found`.
+- `git diff --check`: passed with informational Windows LF→CRLF notices only.
+- Active and backup read-only SQLite checks: versions/table counts/integrity/foreign keys and exact Run/P31/P33/P35 counts match the evidence above.
+- Runtime ignore check passed. Changed-file credential-pattern review found only documented environment-variable/safety references and existing composition reads; no credential value, token, private key or runtime database is part of the working tree.
+- The only pytest warning remains the existing third-party `websockets.legacy` deprecation. Headless Qt logged a GLES3→GLES2/software fallback after passing GUI tests; it did not change results.
+
+### Bug discovery and Post-Implementation Compass Audit
+
+- Bugs found and fixed: `BUG-20260812-011` (initial SQL placeholder/GUI enum persistence path), `BUG-20260812-012` (different command after preflight), `BUG-20260812-013` (request-time backdating), `BUG-20260812-014` (rule-two invalid control could not form blocked result), `BUG-20260812-015` (missing P33 false parent prevented durable failure), and `BUG-20260812-016` (rollback test expected v21 rather than restored v20). None remains user-impacting, so `KNOWN_ISSUES.md` is unchanged.
+- Intent alignment: only the approved P23-4C1 freeze/admission boundary is implemented; P23-4C2 remains pending.
+- Architecture alignment: Asset State owns control facts, Risk owns locked disposition, Orchestration resolves public evidence, Persistence owns SQL, Run History stays neutral and GUI stays presentation-only. The complete architecture suite passes.
+- Safety alignment: missing state fails closed; frozen blocks both directions; eligible remains manual review; approved output, execution and Live flags remain absent/false. Existing generic pause and symbolic state semantics are unchanged.
+- Unapproved behavior added: none. No daily counter/cap, automatic freeze/unfreeze, financial formula, numerical Risk, capital/position/accounting/backtest consumer, order/fill or Paper/Live behavior exists.
+- Assumptions introduced: none beyond ordinary internal implementation details. The user-approved accepted-time/next-session semantics and exact v1 XNYS mapping are recorded in ADR-0037; no symbol is automatically initialized.
+- Compass sections updated: v93 metadata/current phase, capability/module inventories, DEC-021, approval narrative, INTENT-045 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: future work could mistake P35 manual review for approval, infer eligibility for a missing symbol, or implement P23-4C2 by counting previews. Contracts, empty runtime evidence and governance tests explicitly reject those interpretations.
+
+No commit or push was requested or performed. Suggested commit message: `feat: add versioned frozen-asset admission`.

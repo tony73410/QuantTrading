@@ -110,11 +110,12 @@ class TargetAdjustmentRiskPanel(QWidget):
 class RiskManagementPanel(QWidget):
     preview_requested = Signal(object); state_changed = Signal(); open_run_requested = Signal(object)
 
-    def __init__(self, component_panel: QWidget, specialized_panel: TargetAdjustmentRiskPanel, exposure_cap_panel: QWidget | None = None, research_cash_floor_panel: QWidget | None = None, research_asset_cash_panel: QWidget | None = None, parent=None, *, risk_chain_panel: QWidget | None = None, cycle_target_panel: QWidget | None = None):
-        super().__init__(parent); self.components = component_panel; self.specialized = specialized_panel; self.exposure_cap = exposure_cap_panel; self.research_cash_floor = research_cash_floor_panel; self.research_asset_cash = research_asset_cash_panel; self.risk_chain = risk_chain_panel; self.cycle_target = cycle_target_panel; self.list = component_panel.list
+    def __init__(self, component_panel: QWidget, specialized_panel: TargetAdjustmentRiskPanel, exposure_cap_panel: QWidget | None = None, research_cash_floor_panel: QWidget | None = None, research_asset_cash_panel: QWidget | None = None, parent=None, *, risk_chain_panel: QWidget | None = None, cycle_target_panel: QWidget | None = None, asset_admission_panel: QWidget | None = None):
+        super().__init__(parent); self.components = component_panel; self.specialized = specialized_panel; self.exposure_cap = exposure_cap_panel; self.research_cash_floor = research_cash_floor_panel; self.research_asset_cash = research_asset_cash_panel; self.risk_chain = risk_chain_panel; self.cycle_target = cycle_target_panel; self.asset_admission = asset_admission_panel; self.list = component_panel.list
         tabs = QTabWidget()
         if risk_chain_panel is not None: tabs.addTab(risk_chain_panel, "Consolidated Risk Chain Explorer")
         if cycle_target_panel is not None: tabs.addTab(cycle_target_panel, "Cycle Target Risk Review")
+        if asset_admission_panel is not None: tabs.addTab(asset_admission_panel, "Cycle Target Asset Admission")
         tabs.addTab(specialized_panel, "Target Adjustment Manual Review")
         if exposure_cap_panel is not None: tabs.addTab(exposure_cap_panel, "Single-Asset Exposure Cap")
         if research_cash_floor_panel is not None: tabs.addTab(research_cash_floor_panel, "Research Asset Cash Floor")
@@ -127,6 +128,7 @@ class RiskManagementPanel(QWidget):
         if research_asset_cash_panel is not None: research_asset_cash_panel.open_run_requested.connect(self.open_run_requested)
         if risk_chain_panel is not None: risk_chain_panel.open_run_requested.connect(self.open_run_requested)
         if cycle_target_panel is not None: cycle_target_panel.open_run_requested.connect(self.open_run_requested)
+        if asset_admission_panel is not None: asset_admission_panel.open_run_requested.connect(self.open_run_requested)
 
     def reload(self):
         self.components.reload(); self.specialized.reload()
@@ -135,6 +137,7 @@ class RiskManagementPanel(QWidget):
         if self.research_asset_cash is not None: self.research_asset_cash.reload()
         if self.risk_chain is not None: self.risk_chain.reload()
         if self.cycle_target is not None: self.cycle_target.reload()
+        if self.asset_admission is not None: self.asset_admission.reload()
 
 
 __all__ = ["RiskManagementPanel", "TargetAdjustmentRiskPanel"]

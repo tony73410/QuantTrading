@@ -10,12 +10,14 @@ from quant_trading.asset_state import (
     AssetStateService,
     ReversalObservationQueryService,
     ReversalObservationService,
+    AssetTradingControlQueryService,
 )
 from quant_trading.factors.daily_volatility_profile_interfaces import DailyVolatilityProfileQueryService
-from quant_trading.orchestration import ReversalObservationResearchRunner
+from quant_trading.orchestration import AssetTradingControlCoordinator, ReversalObservationResearchRunner
 
 from .asset_state_panel import AssetStatePanel
 from .reversal_observation_panel import ReversalObservationPanel
+from .asset_trading_control_panel import AssetTradingControlPanel
 
 
 class AssetStateWorkspacePanel(QWidget):
@@ -31,6 +33,8 @@ class AssetStateWorkspacePanel(QWidget):
         reversal_runner: ReversalObservationResearchRunner | None,
         *,
         session_id: str,
+        trading_control_coordinator: AssetTradingControlCoordinator | None = None,
+        trading_control_queries: AssetTradingControlQueryService | None = None,
     ) -> None:
         super().__init__()
         layout = QVBoxLayout(self)
@@ -44,13 +48,19 @@ class AssetStateWorkspacePanel(QWidget):
         )
         self.tabs.addTab(self.manual, "人工状态账本")
         self.tabs.addTab(self.reversal, "P23-2 反转观察")
+        self.trading_control = AssetTradingControlPanel(
+            trading_control_coordinator, trading_control_queries, session_id=session_id
+        )
+        self.tabs.addTab(self.trading_control, "P23-4C1 Trading Control")
         layout.addWidget(self.tabs)
         self.manual.open_run_requested.connect(self.open_run_requested)
         self.reversal.open_run_requested.connect(self.open_run_requested)
+        self.trading_control.open_run_requested.connect(self.open_run_requested)
 
     def reload(self) -> None:
         self.manual.reload()
         self.reversal.reload()
+        self.trading_control.reload()
 
 
 __all__ = ["AssetStateWorkspacePanel"]
