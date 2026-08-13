@@ -46,6 +46,7 @@ from .research_cash_floor_panel import ResearchCashFloorPanel
 from .research_asset_cash_panel import ResearchAssetCashPanel
 from .risk_chain_panel import RiskChainExplorerPanel
 from .target_adjustment_risk_panel import RiskManagementPanel, TargetAdjustmentRiskPanel
+from .cycle_target_risk_panel import CycleTargetRiskPanel
 from .workers import TaskWorker
 from quant_trading.portfolio_accounting.queries.interfaces import (
     EmptyPortfolioAccountingQueryService,
@@ -79,6 +80,7 @@ from quant_trading.decision import (
     TargetAdjustmentDecisionQueryService,
 )
 from quant_trading.risk import (
+    CycleTargetRiskQueryService,
     EmptyExposureCapQueryService,
     EmptyResearchAssetCashQueryService,
     EmptyResearchCashFloorQueryService,
@@ -116,6 +118,7 @@ from quant_trading.factors.standardized_state_interfaces import (
 )
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
 from quant_trading.orchestration import (
+    CycleTargetRiskReviewCoordinator,
     CycleTargetPositionResearchRunner,
     CycleTargetAdjustmentDecisionPreviewCoordinator,
     StandardizedStateTargetPositionPreviewCoordinator,
@@ -207,6 +210,8 @@ class AlgorithmControlPanel(QMainWindow):
         cycle_target_position_runner: CycleTargetPositionResearchRunner | None = None,
         cycle_target_adjustment_decision_preview: CycleTargetAdjustmentDecisionPreviewCoordinator | None = None,
         cycle_target_adjustment_decision_queries: CycleTargetAdjustmentDecisionQueryService | None = None,
+        cycle_target_risk_review: CycleTargetRiskReviewCoordinator | None = None,
+        cycle_target_risk_queries: CycleTargetRiskQueryService | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -309,6 +314,12 @@ class AlgorithmControlPanel(QMainWindow):
                     research_asset_cash_queries
                     or EmptyResearchAssetCashQueryService(),
                 )
+            ),
+            cycle_target_panel=CycleTargetRiskPanel(
+                cycle_target_risk_review,
+                cycle_target_risk_queries,
+                cycle_target_adjustment_decision_queries,
+                session_id=(target_position_session_id or asset_state_session_id or capital_session_id),
             ),
         )
         self.execution_page = ExecutionControlPanel(controller)

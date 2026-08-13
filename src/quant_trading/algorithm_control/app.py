@@ -34,6 +34,7 @@ from quant_trading.persistence import (
     SQLiteReversalObservationStore,
     SQLiteCycleTargetPositionStore,
     SQLiteCycleTargetAdjustmentDecisionStore,
+    SQLiteCycleTargetRiskStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -63,6 +64,7 @@ from quant_trading.decision import (
     TargetAdjustmentDecisionService,
 )
 from quant_trading.risk import (
+    CycleTargetRiskService,
     ResearchAssetCashFloorService,
     ResearchAssetCashAvailabilityService,
     RiskSafetyStateSnapshot,
@@ -70,6 +72,7 @@ from quant_trading.risk import (
     TargetAdjustmentRiskService,
 )
 from quant_trading.orchestration import (
+    CycleTargetRiskReviewCoordinator,
     StandardizedStateTargetPositionPreviewCoordinator,
     TargetAdjustmentDecisionPreviewCoordinator,
     TargetAdjustmentExposureCapPreviewCoordinator,
@@ -317,6 +320,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         AlgorithmRunService(run_history_queries),
         software,
     )
+    cycle_target_risk_store = SQLiteCycleTargetRiskStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    cycle_target_risk_store.initialize()
+    cycle_target_risk_service = CycleTargetRiskService(
+        cycle_target_risk_store,
+        software,
+    )
     capital_store = SQLiteCapitalAllocationStore(
         root / "runtime" / "data" / "market_history.sqlite3"
     )
@@ -407,6 +418,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             software.worktree_state.value,
             datetime.now(UTC),
         )
+
+    cycle_target_risk_review = CycleTargetRiskReviewCoordinator(
+        cycle_target_adjustment_store,
+        cycle_target_risk_store,
+        cycle_target_risk_store,
+        cycle_target_risk_service,
+        AlgorithmRunService(run_history_queries),
+        software,
+        safety_snapshot_factory,
+    )
 
     target_adjustment_risk_review = TargetAdjustmentRiskReviewCoordinator(
         target_adjustment_store,
@@ -512,6 +533,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         cycle_target_position_runner=cycle_target_position_runner,
         cycle_target_adjustment_decision_preview=cycle_target_adjustment_preview,
         cycle_target_adjustment_decision_queries=cycle_target_adjustment_store,
+        cycle_target_risk_review=cycle_target_risk_review,
+        cycle_target_risk_queries=cycle_target_risk_store,
         linked_target_position_preview=linked_target_position_preview,
         target_adjustment_decision_preview=target_adjustment_preview,
         target_adjustment_decision_queries=target_adjustment_store,

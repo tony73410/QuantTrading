@@ -6747,3 +6747,367 @@ Code rollback is a normal future revert of the P31 source/composition while pres
 - Remaining drift risk: a future caller could mistake the type-distinct P31 intent for a Risk-approved object. Architecture/type tests and GUI warnings prevent current admission; any Risk adapter, local real-result validation or downstream consumer requires a new explicit proposal/approval.
 
 No commit or push was requested or performed. Suggested commit message: `feat: add disabled cycle-target decision preview`.
+
+## EDIT-20260811-003 — Publish P31 and create proposal-only P32 validation plan
+
+### Date, authorization and task mode
+
+2026-08-11 17:22:22 -07:00
+
+The user requested `commit+push然后继续开发`. Publication was **FAST** and the next bounded validation proposal was **STANDARD**. Primary module for the proposed future operation is the existing `quant_trading.decision`; secondary evidence owners are Orchestration, Persistence, Run History and the existing Algorithm Control inspector. This record does not authorize or report a P31 runtime validation.
+
+### Publication result
+
+- Staged the complete approved P31 working tree, committed it as `4099fe4` with message `feat: add disabled cycle-target decision preview`, and successfully pushed `main` to `origin/main` (`88834fe..4099fe4`).
+- The published checkpoint contains the already verified P31 code, additive Schema-v19 support, history/replay/export/GUI evidence, documentation and P31 implementation record. Runtime SQLite files and backups remain ignored and were not published.
+
+### Proposal-only continuation
+
+- Added `PROPOSAL-032` for the smallest separately approved next step: use the exact three immutable P30/P29 AAPL Result/Run pairs, perform all three read-only preflights before any write, then—only after explicit approval—create three independent local `NO_EXECUTION` P31 previews under one validation session.
+- Read-only inspection froze the exact expected mapping: 2026-08-06 `DECREASE 1807.00189157667612249724698`, 2026-08-07 `DECREASE 2808.44497397660930460006057`, and 2026-08-10 `INCREASE 3337.76295311476456362242970`. These are hypothetical Decimal USD adjustment suggestions, not shares, orders, Risk approvals or an AAPL recommendation.
+- P32-D1–D8 explicitly exclude Market Data refresh, a fabricated HOLD case, sequential holding/cash meaning, new code/contracts/schema/GUI, Risk, Accounting, Backtesting, Paper, Live, broker access and orders.
+- Synchronized Proposal/index, Compass v85 with open DEC-018 and proposed INTENT-042, Project State, Roadmap and governance assertions. No architecture/module source changed because P32 proposes runtime use of existing public contracts only.
+
+### Read-only evidence and verification
+
+- Active central SQLite remains Schema v19/120. Baseline counts are `algorithm_runs=54`, stages `101`, symbols `52`, bindings `261`; P31 attempts/results/intents/source links are all `0`. `integrity_check=ok` and foreign-key violations are `0`.
+- Focused governance/P31/Target boundaries: **23 passed**.
+- Complete architecture suite: **103 passed**.
+- `git diff --check`: passed; only informational LF→CRLF working-copy notices were emitted.
+- No P32 pre-validation backup, Run, result, intent, source link, network call or database write occurred.
+
+### Change Impact Report and rollback
+
+Primary/secondary module runtime behavior, public contracts, configuration, database schema, GUI and trading semantics are unchanged. The current uncommitted change set contains proposal/governance/test documentation only; blast radius is `LOCAL` until P32 is approved. Rollback is a normal revert of these proposal-only files. Existing P31/P30 evidence and published commit `4099fe4` are unaffected.
+
+### Bug discovery and Compass audit
+
+- Bug discovery: no product defect or credible unresolved defect was found. One governance assertion initially failed because the revised Compass metadata omitted earlier P28/P30 checkpoint text; the metadata was corrected to preserve that verified history, after which all tests passed. This was an in-progress documentation correction, not a shipped product bug, so no Bug ID was created.
+- Intent alignment: the requested publication is complete and continuation stopped at the required approval boundary.
+- Architecture alignment: P32 reuses the existing Decision service and public evidence ports; it adds no module, dependency, contract or migration.
+- Safety alignment: proposal-only, local, disabled and stopped before Risk; automatic submission and Live remain disabled.
+- Unapproved behavior added: none.
+- Assumptions introduced: the all-three/all-preflight-first/independent-run package is a recommendation exposed as P32-D1–D8, not a user decision.
+- Compass sections updated: version 85 metadata/current phase, DEC-018, INTENT-042, known limitations and Next Approved Direction; Stable Core is unchanged.
+- Remaining drift risk: predicted P31 actions could be mistaken for executed trades or a sequential portfolio. P32 therefore labels them hypothetical, independent and unexecuted and requires separate approval before any write.
+
+The P32 proposal/governance changes remain uncommitted pending user review. Suggested future commit message: `docs: propose controlled P31 local validation`.
+
+## EDIT-20260811-004 — Complete approved PROPOSAL-032 local P31 validation
+
+### Date, authorization and task mode
+
+2026-08-11 17:44:32 -07:00
+
+The user explicitly approved `PROPOSAL-032` and the recommended P32-D1–D8 package with the exact phrase `批准 PROPOSAL-032，采用推荐方案执行三条本地验证。` Task mode: **STANDARD**. Primary module: existing `quant_trading.decision`; secondary evidence owners: Orchestration, central Persistence, Run History and the existing Algorithm Control inspector. Expected and actual blast radius: `LIMITED`. No code, public contract, configuration, schema, GUI behavior, formula, default or module dependency changed.
+
+### Pre-Implementation Compass and overlap audit
+
+The real goal was to prove that the published disabled P31 bridge can read all three exact P30/P29 AAPL results, preserve their Decimal target differences, and create understandable/reproducible Decision evidence before any Risk proposal. Existing P31 already owned the full operation; therefore the approved smallest path reused its preflight, preview, Store, Run, replay, export and query contracts unchanged. The three dates remain independent hypothetical contexts, not sequential portfolio holdings. Stable Core traceability, user authority, modularity and no-execution safety applied. The user approval covered exactly these three local sources and no later source or downstream use.
+
+### All-source no-write preflight
+
+One shared validation Session `proposal-032-aapl-local-validation-20260811` and Request IDs `proposal-032-aapl-01` through `03` were prepared. Deterministic operation IDs make duplicate recognition explicit:
+
+- `134a85f5-285d-5a97-bd9d-c8c98b552b99` for P29 Result `9cd2e18e-d07a-4e12-967d-37aeaf7e98c4` / Run `0b3c8422-ac0c-4ddd-a7fe-b47c8de723ee`.
+- `32711cad-7f90-5579-bd6b-c41a4f9708f6` for P29 Result `a167b424-7b94-4be2-9f71-c96e502337e4` / Run `9229bb8d-be23-4707-b24c-5ab8e58a3857`.
+- `3f4b55df-8ef5-5fef-9bbd-8bb4e3f0c315` for P29 Result `eb386f12-6beb-4211-8933-ffe4b615bba6` / Run `59a6538b-2066-4e34-bde4-6dffda3d40e6`.
+
+All three exact source/formula/configuration/P28/arithmetic/safety checks passed before any backup or validation write. Counts remained Runs/stages/symbols/bindings `54/101/52/261` and P31 attempts/results/intents/source links `0/0/0/0` before and after preflight.
+
+### Backup and completed results
+
+The active database was copied to `runtime/data/backups/market_history.before-p32-validation.20260812T0041129668196Z.sqlite3` (100,409,344 bytes). Backup and active baseline were verified as Schema v19/120 with `integrity_check=ok`, zero foreign-key violations and identical counts before writes.
+
+Three existing P31 previews then completed under software revision `4099fe47ffd9962bb250a933c0c28eaa23dc8142`; `worktree_state=dirty` truthfully records the uncommitted P32 governance documentation:
+
+- Session `2026-08-06`: Run `80c98c9f-7146-4baf-8aff-368d1449df49`, result `40e500b2-e263-4eeb-b2f1-d9da14451b9a`, intent `c8351c6c-7928-46d1-bd62-ea541e87a0d8`, exact `DECREASE 1807.00189157667612249724698 USD`.
+- Session `2026-08-07`: Run `270e400a-2ed0-4d30-aec2-cf568d2d559e`, result `2aa38bac-fe18-4bc1-bc94-d99b20fc6362`, intent `da7ec54a-db24-4ac9-a511-d846af90d865`, exact `DECREASE 2808.44497397660930460006057 USD`.
+- Session `2026-08-10`: Run `7c4d1207-92d4-4e9b-b76a-2c755ec1d01b`, result `b88b4752-cafd-47d4-ba27-1a81e1421927`, intent `a2be77c9-46d2-4fb6-88e6-b03ffaf15e75`, exact `INCREASE 3337.76295311476456362242970 USD`.
+
+Every operation is `COMPLETED`, every result `INTENT_CREATED`, every Run `NO_EXECUTION`, and every result/intent has `execution_allowed=false` and `live_allowed=false`. Each Run has two completed stages, three exact bindings, one AAPL symbol, exact P29 parent/P28 source navigation and zero warning/error messages.
+
+### Verification and database evidence
+
+- A fresh process reloaded and deterministically recalculated all three results exactly.
+- Existing P31 inspector queries and Run History queries returned exactly these three records/Runs. Temporary JSON/CSV exports preserved IDs, action, exact Decimal notional and false execution/live flags.
+- Comparing every logical-table count between backup and active database found only approved changes: Runs `+3`, stages `+6`, symbols `+3`, bindings `+9`, P31 attempts/results/intents/source links each `+3`. Final counts are `57/107/55/270` and `3/3/3/3`; all unrelated logical tables are unchanged.
+- Backup and active Schema remain v19/120, integrity `ok`, foreign-key violations `0`.
+- Focused Decision/Persistence/Run History/GUI Controller/governance suite: **54 passed**.
+- Complete architecture suite: **103 passed**.
+- No Market Data refresh, Provider/network, Risk, cash, Capital mutation, Accounting, Backtesting, Paper, Live, broker, account, position, order or fill path was called.
+
+### Documentation, Change Impact and rollback
+
+Updated PROPOSAL-032 to `DRY_RUN`; synchronized Proposal/index, Compass v86 with resolved DEC-018/completed INTENT-042, Project State, Roadmap, Changelog, architecture/current module status, governance assertions and this append-only record. Primary/secondary runtime code and public contracts are unchanged. Database impact is append-only exact evidence under existing Schema v19; trading semantics remain the already approved hypothetical signed-difference mapping.
+
+Immutable P31/Run evidence must not be deleted or overwritten. Normal operational rollback is to stop selecting the three results. If database corruption is later demonstrated, preserve the active file for investigation and restore the verified pre-P32 backup only through a separately controlled rollback; this run found no corruption and does not authorize restoration.
+
+### Bug discovery and Post-Implementation Compass Audit
+
+- Bug discovery: no product defect or credible unresolved defect was found. During verification, a diagnostic initially counted the internal SQLite `sqlite_sequence` table in addition to the 120 project-required tables; the check was corrected to use the canonical required-table set. Proposal-only governance assertions were updated to completed P32 evidence. Neither was a runtime product defect, so no Bug ID or Known Issue was created.
+- Intent alignment: all and only the three explicitly approved local sources were validated, with exact expected actions and durable evidence.
+- Architecture alignment: Decision continued to own mapping; Orchestration resolved public P29 evidence; Persistence owned SQL; Run History/GUI remained read-only presentation consumers.
+- Safety alignment: all evidence is disabled and `NO_EXECUTION`; no Risk admission, affordability claim, cash reservation, broker or order behavior exists.
+- Unapproved behavior added: none.
+- Assumptions introduced: deterministic operation IDs are a reversible internal idempotency detail with no financial meaning; no new formula/default/source policy was introduced.
+- Compass sections updated: version 86 metadata/current phase, capability evidence, resolved DEC-018, ASM-058 evidence, INTENT-041/042, limitations and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: users could misread independent desired-adjustment amounts as sequential trades. Documentation and GUI safety evidence continue to label them hypothetical, independent, non-Risk-reviewed and non-executable.
+
+No commit or push was requested or performed for the P32 record. Suggested commit message: `test: record controlled P31 local validation`.
+
+## EDIT-20260811-005 — Create proposal-only P33 structural Risk bridge
+
+### Date, authorization and task mode
+
+2026-08-11 18:22:13 -07:00
+
+After completing approved P32, the user asked to continue development. Task mode: **STANDARD proposal/read-only inspection**. Primary proposed owner: existing `quant_trading.risk`; secondary future owners: Orchestration, Persistence, Run History and Algorithm Control. Decision remains a read-only evidence source. No implementation, public contract, migration, GUI runtime behavior or Risk run was authorized.
+
+### Pre-Implementation Compass and overlap audit
+
+The real goal is to continue the P29→P31 mathematical chain into a safe Risk boundary without fabricating approval. Existing PROPOSAL-018 Phase 6A already owns the approved three structural gates, but its public contracts and SQLite evidence require old Phase 5D/Phase 5C lineage. P31 instead preserves P29/P28 lineage and is intentionally type-incompatible. Casting P31 into Phase 6A would fabricate source facts; duplicating a second gate implementation could drift. The smallest recommended reuse path is a P31-specific public Risk sibling under the same owner, sharing only one private Risk structural manual-review kernel while retaining distinct source/result/Store evidence.
+
+P23 also records a one/two-trades-per-day cap and frozen-stock behavior, but the authoritative facts remain Open: no user decision says whether Intent, Risk candidate, planned/submitted order or fill consumes a count, and no approved automatic freeze source exists. P33 therefore excludes both rather than silently treating a hypothetical P31 intent as a completed trade or reinterpreting manual Asset State/P28 observation.
+
+### Proposal result
+
+- Created `PROPOSAL-033` with recommended P33-D1–D10 for component `risk.cycle_target_manual_review_gate.p23_4b.v1@1.0.0`.
+- Proposed exact admission is one explicit accepted P31 Intent plus Result/Run identity; no latest/default lookup and no automatic review of the three P32 intents.
+- Proposed locked order remains `SOURCE_CHAIN_INTEGRITY@1`, `NON_EXECUTION_SAFETY_STATE@1`, `NUMERICAL_RISK_POLICY_AVAILABILITY@1`. Valid/safe evidence can only be `MANUAL_REVIEW_REQUIRED`; unsafe state blocks; invalid/failure remains durable. Approved amount and approved intent are permanently absent.
+- Proposed Run is `CYCLE_TARGET_RISK_REVIEW / NO_EXECUTION` with `DECISION → RISK`, exact P31 parent and P31→P29→P28 navigation.
+- Proposed additive central migration is v19/120→v20/124 with four empty P33 tables, zero backfill, formal backup/count/integrity/FK/failure-rollback evidence and no implementation-time runtime P33 data.
+- Proposed GUI is one sibling mode in the existing Risk page with explicit source/preflight, rule history, compare/export/Open Run and visible no-execution/no-approval/no-count-freeze warnings.
+- Explicitly excluded Phase 6B–6D reuse, numerical Risk, count/freeze, cash/account facts, state mutation, Backtesting, Accounting, Paper, Live, broker, order and fill behavior.
+
+### Read-only evidence and documentation
+
+Active central SQLite remains Schema v19/120, integrity `ok`, foreign-key violations `0`. Runs/stages/symbols/bindings are `57/107/55/270`; P31 counts are `3/3/3/3`; existing Phase 6A operation/result/rule/source-link counts remain `0/0/0/0`. No database write occurred.
+
+Synchronized Proposal/index, Compass v87 with open DEC-019/proposed INTENT-043, Project State, Roadmap, governance assertions and this Edit Log. No module/architecture behavior document changed for P33 because the component and Schema v20 do not exist.
+
+### Verification, impact and rollback
+
+- Governance integrity suite: **14 passed**.
+- No source/runtime test was needed because P33 is proposal-only; the existing complete architecture evidence from P32 remains unchanged.
+- Change impact: documentation/governance only, `LOCAL` blast radius now; approved implementation would be `MULTI_MODULE` and requires explicit P33 approval.
+- Rollback: normal revert of P33 proposal/current-state references; P31/P32 runtime evidence and published commit `4099fe4` remain untouched.
+
+### Bug discovery and Compass audit
+
+- Bug discovery: no product defect or credible unresolved issue was found; no Bug ID or Known Issue was created.
+- Intent alignment: proposes the smallest next Risk boundary and does not conflate structural review with numerical approval.
+- Architecture alignment: one Risk owner, private logic reuse, typed public provenance, orchestration-only source resolution and Persistence-only SQL.
+- Safety alignment: proposed disabled/manual-review-only behavior; no approved output, count/freeze assumption or execution path.
+- Unapproved behavior added: none.
+- Assumptions introduced: the sibling-family/private-kernel/Schema-v20 shape is explicitly labeled P33-D1–D10 recommendation, not a user decision.
+- Compass sections updated: version 87 current phase, DEC-019, INTENT-043, limitations and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: users could assume P33 includes the requested one/two-trades cap or frozen-stock blocking. Proposal/roadmap explicitly state those need authoritative-event/state decisions in later P23-4C.
+
+No commit or push was requested or performed. Suggested proposal commit message: `docs: propose P31 structural Risk gate`.
+
+## EDIT-20260811-006 — Implement approved P33 structural Risk manual-review gate
+
+### Date, authorization and task mode
+
+2026-08-11 19:10:46 -07:00
+
+The user explicitly approved `PROPOSAL-033` with the recommended P33-D1–D10 package. Task mode: **DEEP** because the work adds cross-module public contracts, one Run type, a central SQLite v19→v20 migration and an existing-page GUI capability. Primary owner: existing `quant_trading.risk`; secondary owners: Orchestration, Persistence, Run History and Algorithm Control. Decision remains a public read-only source. No numerical Risk, daily count/freeze, cash, Backtesting, Portfolio Accounting persistence, Paper, Live, broker, order, fill or execution behavior was authorized.
+
+### Pre-Implementation Compass, overlap and change-impact audit
+
+The real goal was to let one explicit nonzero P31 intent reach an observable Risk boundary without fabricating old Phase 5C provenance or pretending that structural eligibility is financial approval. Existing Phase 6A already owned the approved three-rule structural sequence but its public contracts and stored evidence are Phase-5D-specific. The approved solution preserves those public types/rows, extracts only a private Risk-owned pure kernel and adds a type-distinct P31/P29/P28 sibling. Blast radius was `MULTI_MODULE`; rollback is composition disablement with immutable v20 evidence retained, while physical database restoration requires the verified v19 backup and matching old code under a separate controlled operation.
+
+Applicable Stable Core principles were GUI/business separation, immutable exact-version evidence, fail-closed Risk authority, type-distinct approval boundaries, persistence ownership of SQL and disabled/no-execution defaults. No financial formula, amount, ratio, source default, trade count or freeze authority was assumed. Completion evidence required old Phase 6A equivalence, exact-source rejection, safe/unsafe gates, migration/failure rollback, restart reload/replay/export, Run navigation, GUI/controller and architecture/governance tests.
+
+### Implementation
+
+- Added P23-4B domain contracts, service, deterministic write-free replay and component identity `risk.cycle_target_manual_review_gate.p23_4b.v1@1.0.0`.
+- Added one private structural kernel shared by old Phase 6A and P33. The locked order remains `SOURCE_CHAIN_INTEGRITY@1`, `NON_EXECUTION_SAFETY_STATE@1`, `NUMERICAL_RISK_POLICY_AVAILABILITY@1`; old public models/history remain separate and existing behavior tests pass.
+- Added exact-source Orchestration preflight/review over one P31 Intent/Result/Run. The Run type is `CYCLE_TARGET_RISK_REVIEW / NO_EXECUTION`, with `DECISION → RISK`, exact P31 parent and P31→P29→P28 relationships. Invalid/failure attempts and Run messages remain durable.
+- Added central SQLite Schema v20/124 with exactly four P33 tables: operation attempts, review results, ordered rule results and source links. There is zero backfill and no automatic review of the three P32 intents.
+- Added transactional Store validation of exact P31 intent/result/source link, P29 result/configuration and arithmetic; immutable result/query/reload support; Run History artifacts/relationships; bounded JSON/CSV export.
+- Added one sibling inspector in the existing Risk page for exact selection, no-write preflight, explicit manual review, history/rules, compare, export and Open P33/P31/P29/P28 Run. Persistent banners state NO EXECUTION, NO NUMERICAL RISK, NO APPROVAL and NO COUNT/FREEZE. GUI contains no rule, SQL or execution logic.
+- Updated ADR-0036, Proposal/index, Compass v88, architecture/module docs, Project State, Roadmap, Changelog, governance assertions, Bug Log and this append-only record.
+
+### Migration and runtime evidence
+
+Before migration, active central SQLite was v19/120 with integrity `ok`, zero foreign-key violations, Run/stage/symbol/binding counts `57/107/55/270`, P31 counts `3/3/3/3` and old Phase 6A counts `0/0/0/0`. Verified backup `runtime/data/backups/market_history.schema-v19-to-v20.20260812T015933497519Z.sqlite3` is 100,442,112 bytes and remains v19/120 with integrity `ok` and zero foreign-key violations.
+
+Active `runtime/data/market_history.sqlite3` is 100,552,704 bytes at v20/124, integrity `ok` and zero foreign-key violations. Every pre-migration business-table count is unchanged; Run/stage/symbol/binding remain `57/107/55/270`, P31 remains `3/3/3/3`, old Phase 6A remains `0/0/0/0`, and P33 attempts/results/rules/source-links are `0/0/0/0`. No runtime P33 Run/result was created and no network, account, position, order or fill access occurred.
+
+### Changed files
+
+- Governance/docs: `CHANGELOG.md`, `PROJECT_COMPASS.md`, `docs/INDEX.md`, `docs/architecture/MODULE_MAP.md`, `docs/architecture/OVERVIEW.md`, `docs/decisions/ADR-0036-cycle-target-risk-manual-review-gate.md`, `docs/decisions/README.md`, `docs/modules/algorithm-control-gui.md`, `docs/modules/analysis-decision-pipeline.md`, `docs/modules/central-persistence.md`, `docs/modules/risk-control.md`, `docs/modules/run-history.md`, `docs/modules/trading-decision.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/proposals/PROPOSAL-033-cycle-target-risk-manual-review-gate.md`, `docs/proposals/README.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- Runtime source: `src/quant_trading/algorithm_control/app.py`, `src/quant_trading/algorithm_control/cycle_target_risk_export.py`, `src/quant_trading/algorithm_control/ui/cycle_target_risk_panel.py`, `src/quant_trading/algorithm_control/ui/main_panel.py`, `src/quant_trading/algorithm_control/ui/target_adjustment_risk_panel.py`, `src/quant_trading/error_codes.py`, `src/quant_trading/orchestration/__init__.py`, `src/quant_trading/orchestration/cycle_target_risk_review.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/persistence/cycle_target_risk_sqlite_store.py`, `src/quant_trading/persistence/run_sqlite_store.py`, `src/quant_trading/persistence/sqlite_database.py`, `src/quant_trading/risk/__init__.py`, `src/quant_trading/risk/_structural_manual_review_kernel.py`, `src/quant_trading/risk/cycle_target_risk_engine.py`, `src/quant_trading/risk/cycle_target_risk_interfaces.py`, `src/quant_trading/risk/cycle_target_risk_models.py`, `src/quant_trading/risk/cycle_target_risk_replay.py`, `src/quant_trading/risk/cycle_target_risk_service.py`, `src/quant_trading/risk/target_adjustment_engine.py`, `src/quant_trading/run_history/models.py`.
+- Tests: `tests/architecture/test_cycle_target_risk_boundaries.py`, `tests/architecture/test_governance_document_integrity.py`, `tests/architecture/test_run_history_boundaries.py`, `tests/unit/algorithm_control/test_cycle_target_risk_panel.py`, `tests/unit/asset_state/test_sqlite_cycle_target_risk.py`, and the Schema-v20 expected-table assertions in `tests/unit/asset_state/test_sqlite_asset_state.py`, `tests/unit/asset_state/test_sqlite_cycle_target_adjustment_decision.py`, `tests/unit/asset_state/test_sqlite_cycle_target_position.py`, `tests/unit/asset_state/test_sqlite_reversal_observation.py`, `tests/unit/capital_allocation/test_sqlite_capital_allocation.py`, `tests/unit/decision/test_sqlite_target_adjustment_decision.py`, `tests/unit/factors/test_daily_volatility_profile.py`, `tests/unit/factors/test_spectral_history_research.py`, `tests/unit/factors/test_sqlite_spectral_volatility.py`, `tests/unit/factors/test_sqlite_standardized_state.py`, `tests/unit/risk/test_sqlite_exposure_cap.py`, `tests/unit/risk/test_sqlite_research_asset_cash.py`, `tests/unit/risk/test_sqlite_research_cash_floor.py`, `tests/unit/risk/test_sqlite_target_adjustment_risk.py`, `tests/unit/run_history/test_research_history.py`, `tests/unit/run_history/test_sqlite_run_history.py`, `tests/unit/target_position/test_linked_target_position.py`, `tests/unit/target_position/test_sqlite_target_position.py`.
+
+### Verification
+
+- Final complete repository suite: **627 passed**, one known third-party `websockets.legacy` deprecation warning.
+- Affected P33/old Phase 6A/architecture regression: **16 passed** after final source-integrity hardening.
+- Governance/architecture focused set: **28 passed**.
+- Python `compileall`: passed.
+- `git diff --check`: passed; only informational Windows LF→CRLF notices were emitted.
+- Active and backup SQLite integrity, foreign keys, versions and exact table counts: passed.
+
+### Bug discovery and Post-Implementation Compass Audit
+
+- Bug discovery/fix: `BUG-20260811-009` identified that the first uncommitted Store revision revalidated P31/P29 result evidence but not the exact P29 configuration row. The Store now compares configuration version, formula identity/version, symbol, constraint fingerprint, schema and disabled flags inside the completion transaction. A tamper regression proves `FAILED` evidence and zero accepted P33 result. No unresolved P33 Bug or new Known Issue remains.
+- Intent alignment: implements exactly the approved P33 structural gate and stops before every excluded capability.
+- Architecture alignment: Risk owns the kernel/rules; Orchestration resolves public evidence; Persistence owns SQL; Run History and GUI inspect typed results; Decision does not import Risk and P33 does not reuse Phase 6A public types.
+- Safety alignment: safe input can only require manual review, unsafe input blocks, and approved amount/intent fields are structurally absent. P33 is disabled, non-executable and has no consumer.
+- Unapproved behavior added: none.
+- Assumptions introduced: only reversible internal UUID/idempotency and presentation details without financial meaning.
+- Compass sections updated: version 88 metadata/current phase, capability/module inventory, resolved DEC-019, ASM-059, completed INTENT-043, limitations and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: a user may read `MANUAL_REVIEW_REQUIRED` as approval or assume daily 1/2-count/freeze checks exist. Domain types, GUI banners, docs and empty runtime tables explicitly prevent those claims; P23-4C and numerical Risk remain separately unapproved.
+
+No commit or push was requested or performed. Suggested commit message: `feat: add disabled P31 structural risk gate`.
+
+## EDIT-20260812-001 — Create proposal-only P34 controlled P33 validation
+
+### Date, authorization and task mode
+
+2026-08-12 00:17:03 -07:00
+
+After completing approved PROPOSAL-033, the user asked to continue development. Task mode: **STANDARD proposal/read-only inspection**. Primary proposed runtime owner: existing `quant_trading.risk`; secondary existing owners: Orchestration, Persistence, Run History and Algorithm Control. No code, public contract, configuration, schema, GUI runtime behavior, database backup/write, P33 Run or external access was authorized.
+
+### Pre-Implementation Compass and overlap audit
+
+The real goal is to validate the newly implemented P33 boundary using existing exact evidence before designing another algorithm or Risk layer. P33 already exists and its four runtime tables are intentionally empty. P32 already supplies the complete frozen three-intent AAPL set, covering two `DECREASE` and one `INCREASE`; rerunning P28/P29/P31, fabricating HOLD, refreshing Market Data or selecting only the latest would add less controlled or misleading evidence.
+
+The recommended reuse path is a validation-only P34 package: all three exact P31 Intent/Result/Run triples plus the exact current non-execution safety values pass no-write checks before any backup or write; only then create three independent P33 Runs. Each must retain the original requested notional as unapproved evidence and stop at `MANUAL_REVIEW_REQUIRED`. Daily count/freeze, numerical Risk and every downstream consumer remain excluded.
+
+### Proposal result and impact
+
+- Created `PROPOSAL-034` with recommended P34-D1–D10 and exact approval phrase.
+- Frozen candidate sources are Intent IDs `c8351c6c-7928-46d1-bd62-ea541e87a0d8`, `da7ec54a-db24-4ac9-a511-d846af90d865`, `a2be77c9-46d2-4fb6-88e6-b03ffaf15e75`, their exact P31 Result/Run IDs and requested USD `1807.00189157667612249724698`, `2808.44497397660930460006057`, `3337.76295311476456362242970`.
+- Recommended safety precondition is exactly `ALPACA_PAPER`, live/automatic/execution-capability false and manual confirmation true. Any mismatch stops before write; P34 does not propose weakening safety to manufacture a blocked row.
+- Recommended bounded post-validation counts are Run/stage/symbol/binding/message `60/113/58/279/289` and P33 attempt/result/rule/source-link `3/3/9/3`, with all unrelated tables unchanged.
+- Conflict assessment: `NO_CONFLICT`. No new component, contract, adapter, migration, financial meaning or permission is proposed. Expected approved-run blast radius would be `LIMITED`; the current proposal-only blast radius is `LOCAL` documentation/governance.
+- Rollback before approval is a normal documentation revert. After a successful future validation, immutable evidence must be retained; disabling P33 composition is the ordinary behavioral rollback, and physical backup restore requires a separately controlled corruption-recovery decision.
+
+### Read-only evidence and documentation
+
+Active central SQLite remains Schema v20/124 with integrity `ok` and zero foreign-key violations. Run/stage/symbol/binding/message counts are `57/107/55/270/286`; P31 counts are `3/3/3/3`; old Phase 6A and P33 counts are both `0/0/0/0`. No backup, database write, Run, network, account, position, order or fill access occurred.
+
+Updated `docs/proposals/PROPOSAL-034-aapl-p33-controlled-local-validation.md`, Proposal/Documentation indexes, Compass v89 with open DEC-020/proposed INTENT-044, Project State, Roadmap, Changelog, governance assertions and this append-only record. Runtime/module/architecture documents are unchanged because P34 adds no behavior.
+
+### Verification
+
+- Governance document integrity suite: **15 passed**.
+- Read-only central SQLite verification: Schema v20/124, integrity `ok`, zero foreign-key violations, Run/stage/symbol/binding/message `57/107/55/270/286`, P31 `3/3/3/3`, old Phase 6A `0/0/0/0` and P33 `0/0/0/0`.
+- `git diff --check`: passed.
+
+### Bug discovery and Post-Implementation Compass Audit
+
+- Bug discovery: no product defect or credible unresolved issue was found; no Bug ID or Known Issue was created.
+- Intent alignment: selects the smallest evidence-producing next step and does not silently execute it.
+- Architecture alignment: existing Risk operation remains owner; P31/P29/P28 are public read-only sources; Persistence owns future SQL; GUI/Run History remain inspectors.
+- Safety alignment: proposed outputs remain manual-review-only with structurally absent approval fields; precheck fails before write on unsafe state.
+- Unapproved behavior added: none.
+- Assumptions introduced: all-three/independent/current-safe/bounded-delta choices are explicitly labeled P34-D1–D10 recommendations, not user decisions.
+- Compass sections updated: version 89 metadata/current phase, open DEC-020, P33/P34 narrative, proposed INTENT-044, drift warning and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: users could mistake P34 approval for trade approval or assume a blocked-branch production test. Proposal language requires manual-review-only safe results and excludes unsafe-state mutation, count/freeze, numerical Risk and downstream use.
+
+No commit, push, backup or runtime validation was requested or performed. Suggested proposal commit message: `docs: propose controlled P33 local validation`.
+
+## EDIT-20260812-002 — Execute approved P34 controlled local P33 validation
+
+### Date, authorization and task mode
+
+2026-08-12 00:40:18 -07:00
+
+The user explicitly approved `PROPOSAL-034` with the recommended P34-D1–D10 package and exact three-record local validation boundary. Task mode: **STANDARD controlled runtime validation**. Primary owner remained existing `quant_trading.risk`; Orchestration, Persistence, Run History and Algorithm Control were existing supporting owners. No code, public contract, configuration, schema, GUI behavior, numerical Risk, daily count/freeze, cash, Backtesting, Accounting, Paper/Live, broker, order, fill or execution capability was authorized or changed.
+
+### Pre-Implementation Compass, overlap and change-impact audit
+
+The real goal was to prove that the implemented disabled P33 boundary can consume the complete frozen P32/P31 AAPL source set while remaining visibly non-approved and non-executable. P33 already owned the exact structural review behavior and P32 already supplied two `DECREASE` plus one `INCREASE` intent, so no algorithm, source refresh, HOLD fabrication, parameter change or new component was needed.
+
+Applicable Stable Core principles were exact-source/version evidence, GUI/business separation, Risk fail-closed authority, immutable history, no silent default selection and disabled/no-execution safety. Expected blast radius was `LIMITED`: one verified backup plus exact append-only Run/P33 evidence. Public contracts, configuration and Schema remained unchanged. Ordinary rollback is to stop selecting the immutable results; physical backup restoration is only for separately approved corruption recovery.
+
+### No-write preflight and backup
+
+All three exact P31 Intent/Result/Run triples passed before backup or first P33 write. Each resolved the exact P31→P29→P28 chain, AAPL session, action, Decimal requested notional and false source/Decision/intent execution/live flags. The current application safety state was exactly `ALPACA_PAPER`, paper=true, live=false, automatic=false, manual-confirmation=true and execution-capability=false. Preflight left Run/stage/symbol/binding/message counts at `57/107/55/270/286` and P33 at `0/0/0/0`.
+
+Created verified backup `runtime/data/backups/market_history.before-p34-validation.20260812T073041241799Z.sqlite3`: 100,552,704 bytes, SHA-256 `d10ef53a956196bf511ade06be2413c48a452897bf092259e974312f92efeedb`, Schema v20/124, integrity `ok`, zero foreign-key violations and exact equality for every pre-validation logical-table count.
+
+### Runtime results
+
+All three operations share Session `P34-AAPL-P33-VALIDATION-20260812`, use distinct Request IDs and deterministic operation IDs, and completed as independent `CYCLE_TARGET_RISK_REVIEW / NO_EXECUTION` Runs:
+
+- 2026-08-06: operation `8efadd51-c04d-5295-8d37-4074ffb0e8ac`, Run `5cdfc926-3d32-4373-8b12-85d9f2f32eec`, result `befe5720-7a2e-43aa-b90d-3084fa8eb149`, `DECREASE 1807.00189157667612249724698` USD.
+- 2026-08-07: operation `2f017ea0-9a9f-5bfe-ad4d-e9c9aa8a5875`, Run `48ab8065-3baa-4ed8-aa7a-a42c56517e3d`, result `46179699-32a8-4451-8e7e-1b2163697956`, `DECREASE 2808.44497397660930460006057` USD.
+- 2026-08-10: operation `7bf9150f-72f9-5411-b711-17a75b4a221e`, Run `d02c3e3a-da25-4501-99ac-4a5418dd9da0`, result `16bde342-bf0f-4850-9d61-62a3da3882c5`, `INCREASE 3337.76295311476456362242970` USD.
+
+Every result is `MANUAL_REVIEW_REQUIRED` and contains locked rules `SOURCE_CHAIN_INTEGRITY@1` passed, `NON_EXECUTION_SAFETY_STATE@1` passed and `NUMERICAL_RISK_POLICY_AVAILABILITY@1` manual-review/stop. The requested notional is copied unchanged but remains unapproved; `approved_notional_usd` and `risk_approved_intent_id` are `None`, and execution/live flags are false.
+
+Compared with the backup, the only nonzero logical-table deltas are Runs `+3`, stages `+6`, symbols `+3`, bindings `+9`, messages `+3`, P33 attempts `+3`, results `+3`, rules `+9` and source links `+3`. Final Run/stage/symbol/binding/message counts are `60/113/58/279/289`; P31 remains `3/3/3/3`; old Phase 6A remains `0/0/0/0`; P33 is `3/3/9/3`. Every unrelated logical-table count is unchanged.
+
+### Reload, replay, GUI and verification
+
+- Fresh-process reload and deterministic recalculation replay matched all three results with zero differences.
+- Three temporary JSON and three CSV exports preserved exact IDs, Decimal amounts, empty approved amount and false execution/live flags; temporary files were removed after verification.
+- Fresh Run History detail verified `DECISION → RISK`, exact P31 parent plus P29/P28 relationships, three bindings, one manual-review warning and typed operation/result/rule artifacts for each Run.
+- Three deterministic retries returned the original outcomes and created zero rows.
+- The active offscreen Risk inspector displayed three eligible P31 sources, three P33 attempts and three accepted results; selecting one rendered three rules and opened exact P33/P31/P29/P28 Run IDs without a write.
+- P33 Persistence/GUI regression: **7 passed**. P33/Run History architecture boundaries: **14 passed**. Governance document integrity after completion updates: **15 passed**. The final combined architecture/governance rerun passed **29 tests**.
+- The first combined four-file test invocation reached its 120-second command limit after five passing tests and no failure output; the same files were split and all completed successfully as the 7+14 results above.
+- One one-off verification harness completed all reload/replay/export/idempotency assertions, then raised `TypeError` only while joining an integer into its final display line. The corrected fresh-process harness exited successfully. This did not affect product code or database evidence and is not a repository Bug.
+- Final active/backup audit: Schema v20/124, integrity `ok`, zero foreign-key violations and exact approved deltas. `git diff --check` passed with informational Windows LF→CRLF notices only.
+- The complete 627-test suite was not repeated because no code, contract or Schema changed; the directly affected runtime, GUI, architecture and governance suites were run against the current tree.
+
+### Documentation and changed files
+
+Updated `docs/proposals/PROPOSAL-034-aapl-p33-controlled-local-validation.md` to completed `DRY_RUN`; synchronized `CHANGELOG.md`, `PROJECT_COMPASS.md` v90, `docs/INDEX.md`, `docs/proposals/README.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/architecture/MODULE_MAP.md`, `docs/architecture/OVERVIEW.md`, `docs/modules/algorithm-control-gui.md`, `docs/modules/analysis-decision-pipeline.md`, `docs/modules/central-persistence.md`, `docs/modules/risk-control.md`, `docs/modules/run-history.md`, `docs/modules/trading-decision.md`, governance assertions and this append-only record. No runtime source file was modified by P34 execution.
+
+### Bug discovery and Post-Implementation Compass Audit
+
+- Bug discovery: no product defect or credible unresolved issue was found; no Bug ID or Known Issue was created.
+- Intent alignment: executed exactly the approved three-source P34 package and stopped at structural manual review.
+- Architecture alignment: Risk evaluated the locked rules; Orchestration resolved public exact evidence; Persistence owned SQL; Run History and GUI remained read-only inspectors.
+- Safety alignment: every result has absent approval fields and false execution/live flags; no unsafe state was manufactured and no numerical/downstream capability was called.
+- Unapproved behavior added: none.
+- Assumptions introduced: deterministic operation identity and temporary export locations are internal reversible validation details without financial meaning; all material P34 choices were user-approved.
+- Compass sections updated: version 90 metadata/current phase, resolved DEC-020, P33/P34 narrative, completed INTENT-044, drift warning and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: `MANUAL_REVIEW_REQUIRED` can be mistaken for approval, or the three independent amounts can be mistaken for sequential trades. Contracts, inspector text and documentation retain absent approval fields, independent-study meaning and no downstream consumer.
+
+No commit or push was requested or performed. Suggested commit message: `test: record controlled P33 local validation`.
+
+## EDIT-20260812-003 — Prepare verified P32/P33/P34 publication checkpoint
+
+### Date, authorization and task mode
+
+2026-08-12 19:58:44 -07:00
+
+The user explicitly requested `commit+push` and then the next development plan. Task mode: **STANDARD version publication checkpoint**. Primary scope is Git/governance publication of the already approved P32/P33/P34 work; no new runtime, trading, Risk, configuration, Schema or GUI behavior is admitted by this record.
+
+### Pre-publication Compass and change-impact audit
+
+The real goal is to preserve the current tested P23-4A/P23-4B source, tests, migrations, proposals and validation evidence as one reproducible Git checkpoint before considering the next slice. Stable Core requirements applied: immutable version/history, exact Run/source evidence, Risk fail-closed authority, ignored runtime data, no secrets, no automatic submission and no Live authority. The approved blast radius is `MULTI_MODULE` only because P33 legitimately spans Risk, Orchestration, Persistence, Run History and an existing Risk inspector; no additional module or dependency direction is introduced by publication.
+
+`PROJECT_COMPASS.md` v91 and `docs/project/VERSION_HISTORY.md` identify `CHECKPOINT-20260812-007` as the commit containing this record. The prior published commit is `4099fe4`; package version remains `0.1.0`; the central contract remains Schema v20/124. Runtime databases and the verified P34 backup remain under ignored `runtime/data/` and are excluded from staging.
+
+### Verification
+
+- `pytest --collect-only -q`: **628 tests collected**.
+- Exhaustive non-overlapping pytest shards: **628 passed** total — architecture/integration 116, core/state 156, signal 104, app/data 144, risk/history/target 98 and unit-root 10.
+- One existing third-party `websockets.legacy` deprecation warning is preserved. A headless Qt GPU-context fallback message occurred after a passing GUI shard and did not change its exit code.
+- Two attempted single-command full-suite runs reached command limits at 33%/120 seconds and 80%/600 seconds with no failures; the exhaustive shards provide the completed evidence.
+- `.venv\Scripts\python.exe -m compileall -q src tests`: passed.
+- `git diff --check`: passed with informational LF→CRLF notices only.
+- High-confidence credential-pattern scan over every changed/untracked file: no match.
+- `git check-ignore` confirms `runtime/data/backups/market_history.before-p34-validation.20260812T073041241799Z.sqlite3` is excluded by `runtime/*`.
+
+### Bug discovery and Post-Implementation Compass Audit
+
+- Bug discovery: no new product defect or credible unresolved issue was found; no Bug ID or Known Issue was created. Missing pytest in the system Python and command time limits were environment/tooling conditions; the repository `.venv` and completed shards supplied valid coverage.
+- Intent alignment: only the approved P32/P33/P34 implementation and evidence are being published.
+- Architecture alignment: source ownership and dependency boundaries pass all architecture/integration tests; this checkpoint adds no architecture behavior.
+- Safety alignment: P33 remains manual-review/block-only with permanently absent approval output, and runtime databases/secrets remain outside Git.
+- Unapproved behavior added: none.
+- Assumptions introduced: the checkpoint commit is self-identified as “the Git commit containing this record”; this is a documentation convention, not a financial or runtime assumption.
+- Compass sections updated: metadata/current verified checkpoint only; Stable Core and algorithm semantics are unchanged.
+- Remaining drift risk: readers may mistake an unchanged requested amount for an approved amount or independent P34 cases for sequential actions. The published contracts and documentation explicitly deny both interpretations.
+
+Authorized publication command sequence: stage the reviewed working tree, commit as `feat: add structural risk review for cycle targets`, and push branch `main` to `origin`. The next development plan will be created only after this checkpoint is published and will not implement unresolved daily-count/freeze or numerical-Risk semantics without separate approval.

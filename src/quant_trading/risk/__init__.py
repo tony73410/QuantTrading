@@ -45,6 +45,28 @@ from .target_adjustment_models import (
     TargetAdjustmentStructuralRuleResult,
 )
 from .target_adjustment_service import TargetAdjustmentRiskService
+from .cycle_target_risk_engine import CycleTargetRiskEngine
+from .cycle_target_risk_interfaces import (
+    CycleTargetRiskQueryService,
+    CycleTargetRiskStore,
+    EmptyCycleTargetRiskQueryService,
+)
+from .cycle_target_risk_models import (
+    CYCLE_TARGET_RISK_COMPONENT_ID,
+    CYCLE_TARGET_RISK_COMPONENT_VERSION,
+    CycleTargetRiskOperationAttempt,
+    CycleTargetRiskQuery,
+    CycleTargetRiskReplayReport,
+    CycleTargetRiskReviewCommand,
+    CycleTargetRiskReviewInput,
+    CycleTargetRiskReviewOutcome,
+    CycleTargetRiskReviewResult,
+    CycleTargetRiskSourceLink,
+    CycleTargetRiskStatus,
+    CycleTargetStructuralRiskRuleResult,
+)
+from .cycle_target_risk_replay import CycleTargetRiskReplayService
+from .cycle_target_risk_service import CycleTargetRiskService
 from .exposure_cap_engine import SingleAssetExposureCapEngine
 from .exposure_cap_interfaces import (
     EmptyExposureCapQueryService,
@@ -177,6 +199,24 @@ __all__ = [
     "TargetAdjustmentRiskStatus",
     "TargetAdjustmentRiskStore",
     "TargetAdjustmentStructuralRuleResult",
+    "CYCLE_TARGET_RISK_COMPONENT_ID",
+    "CYCLE_TARGET_RISK_COMPONENT_VERSION",
+    "CycleTargetRiskEngine",
+    "CycleTargetRiskOperationAttempt",
+    "CycleTargetRiskQuery",
+    "CycleTargetRiskQueryService",
+    "CycleTargetRiskReplayReport",
+    "CycleTargetRiskReplayService",
+    "CycleTargetRiskReviewCommand",
+    "CycleTargetRiskReviewInput",
+    "CycleTargetRiskReviewOutcome",
+    "CycleTargetRiskReviewResult",
+    "CycleTargetRiskService",
+    "CycleTargetRiskSourceLink",
+    "CycleTargetRiskStatus",
+    "CycleTargetRiskStore",
+    "CycleTargetStructuralRiskRuleResult",
+    "EmptyCycleTargetRiskQueryService",
     "EXPOSURE_CAP_COMPONENT_ID",
     "EXPOSURE_CAP_COMPONENT_VERSION",
     "EXPOSURE_CAP_RULE_ID",

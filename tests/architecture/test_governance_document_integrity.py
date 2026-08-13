@@ -24,7 +24,7 @@ def test_canonical_architecture_invariants_are_monotonic_and_unique() -> None:
     assert numbers == list(range(1, len(numbers) + 1))
 
 
-def test_compass_verification_metadata_preserves_p28_p30_and_records_p31() -> None:
+def test_compass_verification_metadata_preserves_history_and_records_p34() -> None:
     compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
     metadata = compass.split("```yaml", 1)[1].split("```", 1)[0]
     assert "last_verified_commit_or_working_tree_state:" in metadata
@@ -47,9 +47,18 @@ def test_compass_verification_metadata_preserves_p28_p30_and_records_p31() -> No
     assert "market_history.before-p30-validation.20260811T0428081654404Z.sqlite3" in metadata
     assert "v19/120" in metadata
     assert "market_history.schema-v18-to-v19.20260811T191208556475Z.sqlite3" in metadata
-    assert "all four new P31 tables have zero rows" in metadata
-    assert "approved PROPOSAL-031 code" in metadata
-    assert "no network, Risk/downstream, broker or execution authority" in metadata
+    assert "market_history.schema-v19-to-v20.20260812T015933497519Z.sqlite3" in metadata
+    assert "active SQLite is v20/124" in metadata
+    assert "market_history.before-p32-validation.20260812T0041129668196Z.sqlite3" in metadata
+    assert "54/101/52/261→57/107/55/270" in metadata
+    assert "0/0/0/0→3/3/3/3" in metadata
+    assert "40e500b2-e263-4eeb-b2f1-d9da14451b9a" in metadata
+    assert "2aa38bac-fe18-4bc1-bc94-d99b20fc6362" in metadata
+    assert "b88b4752-cafd-47d4-ba27-1a81e1421927" in metadata
+    assert "market_history.before-p34-validation.20260812T073041241799Z.sqlite3" in metadata
+    assert "current Run/stage/symbol/binding/message counts are 60/113/58/279/289" in metadata
+    assert "P33 is 3/3/9/3" in metadata
+    assert "all three P33 results are MANUAL_REVIEW_REQUIRED" in metadata
     assert "one separately approved AAPL validation exists" in compass
     assert "no default, real-symbol validation or financial consumer" not in compass
 
@@ -69,8 +78,12 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     assert "its five local operations are complete" in next_direction
     assert "All three are `VALID_LINEAR`" in next_direction
     assert "PROPOSAL-031 is approved, implemented and verified disabled" in next_direction
-    assert "Migration created no P31 runtime row" in next_direction
-    assert "Risk admission remains unapproved" in next_direction
+    assert "PROPOSAL-033 is approved, implemented and verified disabled" in next_direction
+    assert "PROPOSAL-034 is approved and completed as a bounded `DRY_RUN`" in next_direction
+    assert "P33 is its sole approved structural Risk consumer" in next_direction
+    assert "numerical approval and every later consumer remain unapproved" in next_direction
+    assert "PROPOSAL-032 is approved and completed as a bounded `DRY_RUN`" in next_direction
+    assert "P32 itself created no Risk review or downstream behavior" in next_direction
 
 
 def test_compass_does_not_deny_verified_research_backtesting() -> None:
@@ -225,10 +238,128 @@ def test_proposal_031_is_implemented_disabled_and_preserves_decision_boundaries(
     assert "P23-4A Cycle-Target Decision Preview" in compass
     assert "PROPOSAL-031 is approved, implemented and verified disabled" in compass
     assert "Implemented approved `PROPOSAL-031` P23-4A" in project_state
-    assert "Schema v19/120" in project_state
+    assert "v19/120→v20/124" in project_state
 
 
-def test_roadmap_records_completed_p26_through_p31() -> None:
+def test_proposal_032_completed_the_bounded_p31_validation() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-032-aapl-p31-controlled-local-validation.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
+    assert "- Status: `DRY_RUN`" in proposal
+    assert "P32-D1" in proposal and "P32-D8" in proposal
+    assert "run read-only preflight for all three first" in proposal
+    assert "any failure stops the entire validation before the first write" in proposal
+    assert "9cd2e18e-d07a-4e12-967d-37aeaf7e98c4" in proposal
+    assert "a167b424-7b94-4be2-9f71-c96e502337e4" in proposal
+    assert "eb386f12-6beb-4211-8933-ffe4b615bba6" in proposal
+    assert "`-1807.00189157667612249724698`" in proposal
+    assert "`-2808.44497397660930460006057`" in proposal
+    assert "`3337.76295311476456362242970`" in proposal
+    assert "two `DECREASE` and one `INCREASE`" in proposal
+    assert "stop before Risk" in proposal
+    assert "algorithm_runs` | `54` | `57`" in proposal
+    assert "P31 operation attempts | `0` | `3`" in proposal
+    assert "批准 PROPOSAL-032，采用推荐方案执行三条本地验证。" in proposal
+    assert "approved in full on 2026-08-11" in proposal
+    assert "market_history.before-p32-validation.20260812T0041129668196Z.sqlite3" in proposal
+    assert "80c98c9f-7146-4baf-8aff-368d1449df49" in proposal
+    assert "270e400a-2ed0-4d30-aec2-cf568d2d559e" in proposal
+    assert "7c4d1207-92d4-4e9b-b76a-2c755ec1d01b" in proposal
+    assert "40e500b2-e263-4eeb-b2f1-d9da14451b9a" in proposal
+    assert "2aa38bac-fe18-4bc1-bc94-d99b20fc6362" in proposal
+    assert "b88b4752-cafd-47d4-ba27-1a81e1421927" in proposal
+    assert "Fresh-process reload and deterministic recalculation replay matched" in proposal
+    assert "Final counts are `57/107/55/270` and `3/3/3/3`" in proposal
+    assert "PROPOSAL-032" in proposal_index
+    assert "approved and completed `DRY_RUN`" in proposal_index
+    assert "PROPOSAL-032-aapl-p31-controlled-local-validation.md" in docs_index
+    assert "DEC-018" in compass and "INTENT-042" in compass
+    assert "PROPOSAL-032 is approved and completed as a bounded `DRY_RUN`" in compass
+    assert "Approved PROPOSAL-031/032 provide three exact independent AAPL P31 Decision previews" in project_state
+    assert "`PROPOSAL-032` 已获批准并完成`DRY_RUN`" in roadmap
+
+
+def test_proposal_033_is_implemented_disabled_and_preserves_risk_authority() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-033-cycle-target-risk-manual-review-gate.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
+    assert "- Status: `IMPLEMENTED_VERIFIED_DISABLED`" in proposal
+    assert "P33-D1" in proposal and "P33-D10" in proposal
+    assert "compatible P31-specific sibling under the same Risk owner" in proposal
+    assert "one private Risk-owned pure structural manual-review kernel" in proposal
+    assert "one explicit accepted P31 Intent ID plus exact P31 Result/Run IDs" in proposal
+    assert "SOURCE_CHAIN_INTEGRITY@1" in proposal
+    assert "NON_EXECUTION_SAFETY_STATE@1" in proposal
+    assert "NUMERICAL_RISK_POLICY_AVAILABILITY@1" in proposal
+    assert "approved_notional_usd=None" in proposal
+    assert "risk_approved_intent_id=None" in proposal
+    assert "CYCLE_TARGET_RISK_REVIEW / NO_EXECUTION" in proposal
+    assert "v19/120→v20/124 with four P33 tables and zero backfill" in proposal
+    assert "no Phase 6B reuse, numerical Risk, daily count, freeze" in proposal
+    assert "which authoritative event consumes a count" in proposal
+    assert "Decision intent, Risk-reviewed candidate, planned order, submitted order or fill" in proposal
+    assert "批准 PROPOSAL-033，采用推荐方案。" in proposal
+    assert "no migration, code implementation or Risk run" in proposal
+    assert "market_history.schema-v19-to-v20.20260812T015933497519Z.sqlite3" in proposal
+    assert "all four P33 tables empty" in proposal
+    assert "PROPOSAL-033" in proposal_index
+    assert "`IMPLEMENTED_VERIFIED_DISABLED` P23-4B compatible Risk sibling" in proposal_index
+    assert "PROPOSAL-033-cycle-target-risk-manual-review-gate.md" in docs_index
+    assert "DEC-019" in compass and "INTENT-043" in compass
+    assert "PROPOSAL-033 is implemented and verified disabled" in compass
+    assert "Implemented approved `PROPOSAL-033`" in project_state
+    assert "PROPOSAL-034 complete; next slice not approved" in roadmap
+
+
+def test_proposal_034_records_completed_bounded_p33_validation() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-034-aapl-p33-controlled-local-validation.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
+    assert "- Status: `DRY_RUN`" in proposal
+    assert "P34-D1" in proposal and "P34-D10" in proposal
+    assert "all three source preflights and one current-safety precheck" in proposal
+    assert "ALPACA_PAPER" in proposal
+    assert "three independent `CYCLE_TARGET_RISK_REVIEW / NO_EXECUTION` Runs" in proposal
+    assert "1807.00189157667612249724698" in proposal
+    assert "2808.44497397660930460006057" in proposal
+    assert "3337.76295311476456362242970" in proposal
+    assert "`algorithm_runs` | `57` | `60`" in proposal
+    assert "P33 rule results | `0` | `9`" in proposal
+    assert "approved_notional_usd" in proposal and "risk_approved_intent_id" in proposal
+    assert "If current safety is not exact" in proposal
+    assert "批准 PROPOSAL-034，采用推荐方案执行三条本地 P33 验证。" in proposal
+    assert "market_history.before-p34-validation.20260812T073041241799Z.sqlite3" in proposal
+    assert "befe5720-7a2e-43aa-b90d-3084fa8eb149" in proposal
+    assert "46179699-32a8-4451-8e7e-1b2163697956" in proposal
+    assert "16bde342-bf0f-4850-9d61-62a3da3882c5" in proposal
+    assert "Final Run/stage/symbol/binding/message counts are `60/113/58/279/289`" in proposal
+    assert "P33 counts are `3/3/9/3`" in proposal
+    assert "Deterministic retry of all three operation IDs created zero new rows" in proposal
+    assert "PROPOSAL-034" in proposal_index
+    assert "approved and completed bounded `DRY_RUN`" in proposal_index
+    assert "PROPOSAL-034-aapl-p33-controlled-local-validation.md" in docs_index
+    assert "DEC-020" in compass and "INTENT-044" in compass
+    assert "PROPOSAL-034 is approved and completed as a bounded `DRY_RUN`" in compass
+    assert "Approved P34 completed three exact local P33" in project_state
+    assert "PROPOSAL-034 complete; next slice not approved" in roadmap
+
+
+def test_roadmap_records_completed_p26_through_p34() -> None:
     roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
     assert "P26已完成一次另行批准的真实AAPL只读验证" in roadmap
     assert "PROPOSAL-027` P23-1F 已批准并完成" in roadmap
@@ -241,10 +372,18 @@ def test_roadmap_records_completed_p26_through_p31() -> None:
     assert "三条结果均为`VALID_LINEAR`" in roadmap
     assert "P30测试值也不是默认值或AAPL投资建议" in roadmap
     assert "当前没有下一项已批准开发或验证工作" in roadmap
-    assert "PROPOSAL-031 implemented; next slice not approved" in roadmap
+    assert "PROPOSAL-034 complete; next slice not approved" in roadmap
     assert "`PROPOSAL-031` 已批准并按P31-D1–D10实现" in roadmap
     assert "中央SQLite v19/120已验证" in roadmap
-    assert "四张P31表仍为空" in roadmap
+    assert "`PROPOSAL-032` 已获批准并完成`DRY_RUN`" in roadmap
+    assert "两条`DECREASE`和一条`INCREASE`" in roadmap
+    assert "重启重放、Run上下游、临时导出、逐表增量" in roadmap
+    assert "`PROPOSAL-033` 已批准并按P33-D1–D10实现" in roadmap
+    assert "中央SQLite v20/124和全部检查能力已验证" in roadmap
+    assert "`PROPOSAL-034` 已获批准并完成`DRY_RUN`" in roadmap
+    assert "三条结果均为`MANUAL_REVIEW_REQUIRED`" in roadmap
+    assert "P33/P31/P29/P28 Run导航、幂等重试、逐表增量" in roadmap
+    assert "每日1/2次上限与股票封存没有并入P33" in roadmap
     assert "中央SQLite v18已纳入已验证实现" in roadmap
     assert "中央SQLite v16已纳入已验证实现" not in roadmap
     assert "真实AAPL网络验证未执行" not in roadmap

@@ -41,6 +41,7 @@ class AlgorithmRunType(StrEnum):
     REVERSAL_OBSERVATION_RESEARCH = "reversal_observation_research"
     CYCLE_TARGET_POSITION_RESEARCH = "cycle_target_position_research"
     CYCLE_TARGET_DECISION_PREVIEW = "cycle_target_decision_preview"
+    CYCLE_TARGET_RISK_REVIEW = "cycle_target_risk_review"
 
 
 class AlgorithmRunStatus(StrEnum):

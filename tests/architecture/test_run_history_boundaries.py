@@ -74,7 +74,8 @@ def test_only_approved_factor_service_depends_on_neutral_run_history() -> None:
         risk_root / "target_adjustment_service.py",
         risk_root / "exposure_cap_service.py",
         risk_root / "research_cash_floor_service.py",
-        risk_root / "research_asset_cash_service.py",
+            risk_root / "research_asset_cash_service.py",
+            risk_root / "cycle_target_risk_service.py",
     }
     for path in risk_root.rglob("*.py"):
         imports = _file_imports(path)

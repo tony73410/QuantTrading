@@ -20,6 +20,7 @@ from .cycle_target_position_sqlite_store import SQLiteCycleTargetPositionStore
 from .cycle_target_adjustment_decision_sqlite_store import (
     SQLiteCycleTargetAdjustmentDecisionStore,
 )
+from .cycle_target_risk_sqlite_store import SQLiteCycleTargetRiskStore
 from .sqlite_database import (
     CentralSchemaInspection,
     CentralSQLiteDatabase,
@@ -50,4 +51,5 @@ __all__ = [
     "SQLiteReversalObservationStore",
     "SQLiteCycleTargetPositionStore",
     "SQLiteCycleTargetAdjustmentDecisionStore",
+    "SQLiteCycleTargetRiskStore",
 ]

@@ -5183,3 +5183,30 @@ Not added to `KNOWN_ISSUES.md` because this uncommitted test-maintenance defect 
 
 ### Final verification
 The focused governance/P31/Target boundary suite passes **22 tests** after the assertion is updated. `git diff --check` remains clean apart from informational line-ending notices.
+
+## BUG-20260811-009
+
+### Title
+P33 completion persistence initially did not revalidate the exact P29 configuration fingerprint
+
+### Status
+Fixed during PROPOSAL-033 implementation verification
+
+### Severity
+High
+
+### Area
+P23-4B Risk persistence / exact P31→P29 provenance validation
+
+### Reproduction and cause
+Create an otherwise valid P31 source, then alter the referenced `cycle_target_asset_configurations.constraint_fingerprint` before a P33 review is committed. The first uncommitted P33 Store revision revalidated the P31 intent/result/source link and P29 result but did not compare the immutable P29 configuration row itself. A tampered configuration could therefore have retained a matching copied fingerprint in P31 evidence and reached durable P33 result insertion without direct configuration-row proof.
+
+### Fix and verification
+`SQLiteCycleTargetRiskStore` now requires the exact P29 configuration row and compares its version, formula identity/version, symbol, constraint fingerprint, schema and non-execution flags inside the same `BEGIN IMMEDIATE` transaction as P33 persistence. A regression test tampers only that configuration fingerprint and verifies fail-closed `FAILED` evidence with no accepted P33 result. The complete suite is rerun after this fix.
+
+### Known Issues disposition and rollback
+Not added to `KNOWN_ISSUES.md` because this defect existed only in the uncommitted P33 implementation and was fixed before handoff. Reverting the validation would weaken exact provenance and is not an acceptable operational rollback; the safe rollback is to disable P33 composition while retaining Schema-v20 evidence.
+
+### Final verification
+
+The affected P33/Phase-6A/architecture set passes **16 tests**, and the final complete repository rerun passes **627 tests** with one pre-existing third-party deprecation warning. Python compilation and diff hygiene also pass.

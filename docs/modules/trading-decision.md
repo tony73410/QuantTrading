@@ -1,12 +1,12 @@
 # Trading Decision Engine
 
-Decision has three deliberately type-distinct research paths. The existing Factor-policy path may propose a positive USD `requested_notional` from exact FactorSnapshot evidence. Phase 5D accepts one completed Phase 5C linked Target Position. P23-4A accepts one explicit completed P29 cycle-target Result/Run. The two specialized paths share one exact signed-difference kernel but preserve separate source/result/intent contracts. Only the isolated Phase 6A structural Risk gate may inspect the old Phase 5D intent, and it cannot approve it; P23-4A has no Risk consumer. None creates an order.
+Decision has three deliberately type-distinct research paths. The existing Factor-policy path may propose a positive USD `requested_notional` from exact FactorSnapshot evidence. Phase 5D accepts one completed Phase 5C linked Target Position. P23-4A accepts one explicit completed P29 cycle-target Result/Run. The two specialized paths share one exact signed-difference kernel but preserve separate source/result/intent contracts. Isolated Phase 6A may inspect only old Phase 5D; isolated P23-4B may inspect only an explicit P31 intent. Neither can approve it. None creates an order.
 
 Restricted expressions use Decimal arithmetic and typed namespaces: `asset.*`, `market.*`, `account.cash`, `account.equity`, `position.quantity`, and `position.market_value`. Account/position values come from immutable `SizingContext`; they are not Factors. Unknown, missing, non-finite or non-positive results fail closed. Risk may preserve, reduce, reject or defer the notional and may never increase it.
 
 ## Status
 
-**Implemented and verified for restricted Factor-policy plus disabled Phase 5D and P23-4A target-adjustment research.** No production decision policy, P31 Risk admission or executable trading rule is active.
+**Implemented and verified for restricted Factor-policy plus disabled Phase 5D and P23-4A target-adjustment research.** P31 has only the disabled, type-distinct P23-4B structural manual-review consumer; no numerical Risk approval, production decision policy or executable trading rule is active.
 
 ## Purpose
 
@@ -21,7 +21,7 @@ Own traceable action-proposal meaning after an approved upstream research result
 - Validate that policy output references the supplied factor snapshots and policy version.
 - Validate exact linked-target or copied P29 arithmetic and deterministically map positive difference to `INCREASE`, negative to `DECREASE`, and exact zero to `HOLD` with no intent through one shared pure kernel.
 - Preserve current/target/signed-difference USD values and emit one positive `requested_notional_usd = abs(difference)` for non-zero specialized results, with no tolerance or rounding.
-- Keep old `TargetAdjustmentTradeIntent`, new `CycleTargetAdjustmentTradeIntent` and generic `TradeIntent` type-distinct. Only the old Phase 5D type has the non-approving Phase 6A consumer; P31 cannot enter any Risk path.
+- Keep old `TargetAdjustmentTradeIntent`, new `CycleTargetAdjustmentTradeIntent` and generic `TradeIntent` type-distinct. The old type has only Phase 6A; P31 has only the source-neutral P23-4B adapter and cannot enter Phase 6A, generic Risk or numerical Phase 6B–6D.
 
 ## Non-responsibilities
 
@@ -103,4 +103,4 @@ Phase 5D tests additionally cover positive/negative/exact-zero/target-zero Decim
 - Independent Risk contracts/engine now exist downstream. Phase 6B can apply one explicit research-only exposure cap after the Phase 6A structural gate, Phase 6C can apply one explicit hypothetical research-cash floor, and Phase 6D can apply one explicitly selected non-reserving research-plan asset-cash limit. None is complete Risk approval; Decision output cannot bypass Risk or be executed directly.
 - The specialized Phase 5D intent remains disabled except for the isolated Phase 6A structural review. That review can only require manual review or block; it emits no approved amount/object and cannot feed Backtesting, Portfolio Accounting or Execution. Numerical Risk evidence/admission, factual capital/current holdings, minimum trade size, `EXIT`, rounding and order conversion require separate approval.
 - P23-4A tests cover positive/negative/tiny/exact-zero mapping, exact Phase-5D equivalence, copied P29 arithmetic/safety validation, preflight no-write behavior, one/zero intent cardinality, idempotency/conflict, durable source/storage failures, restart reload, export, P29/P28 Run navigation, Schema v18→v19 backup/zero-backfill/rollback and GUI delegation.
-- The P23-4A path is implemented but its four central tables intentionally remain empty until a separate local validation is approved. Its intent has no Risk/cash/Backtesting/Accounting/Paper/Live/order consumer.
+- The separately approved PROPOSAL-032 local validation created exactly three independent AAPL P23-4A results: two `DECREASE` and one `INCREASE`, each with one type-distinct non-executable intent. Exact restart replay, Run lineage and export matched. These are hypothetical validation records, not sequential holdings or an AAPL recommendation. P23-4B is their only approved Risk admission path; approved PROPOSAL-034 explicitly reviewed all three and stopped each at `MANUAL_REVIEW_REQUIRED`, with no numerical/cash/Backtesting/Accounting/Paper/Live/order consumer.

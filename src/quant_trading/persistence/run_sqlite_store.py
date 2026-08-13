@@ -553,6 +553,27 @@ class SQLiteRunHistoryRepository:
                 relationships.add((RunRelationshipType.CHILD, decision_id))
             elif run.run_id == reversal_id:
                 relationships.add((RunRelationshipType.LINKED_PREVIEW, decision_id))
+        cycle_target_risk_links = connection.execute(
+            """SELECT risk_run_id, decision_run_id, source_run_id, source_reversal_run_id
+               FROM cycle_target_risk_source_links
+               WHERE risk_run_id = ? OR decision_run_id = ? OR source_run_id = ?
+                  OR source_reversal_run_id = ?""",
+            (str(run.run_id),) * 4,
+        ).fetchall()
+        for row in cycle_target_risk_links:
+            risk_id = UUID(row["risk_run_id"])
+            decision_id = UUID(row["decision_run_id"])
+            source_id = UUID(row["source_run_id"])
+            reversal_id = UUID(row["source_reversal_run_id"])
+            if risk_id == run.run_id:
+                relationships.add((RunRelationshipType.PARENT, decision_id))
+                relationships.add((RunRelationshipType.SOURCE, decision_id))
+                relationships.add((RunRelationshipType.SOURCE, source_id))
+                relationships.add((RunRelationshipType.SOURCE, reversal_id))
+            elif decision_id == run.run_id:
+                relationships.add((RunRelationshipType.CHILD, risk_id))
+            else:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, risk_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -2272,6 +2293,88 @@ class SQLiteRunHistoryRepository:
                         f"{bool(operation['execution_allowed'])} / "
                         f"{bool(operation['live_allowed'])}"
                     )),
+                ),
+                result_children,
+            ))
+        cycle_target_risk_operations = connection.execute(
+            """SELECT * FROM cycle_target_risk_operation_attempts
+               WHERE run_id = ? ORDER BY completed_at_utc, attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in cycle_target_risk_operations:
+            result_children: tuple[RunArtifactView, ...] = ()
+            if operation["review_result_id"]:
+                result = connection.execute(
+                    "SELECT * FROM cycle_target_risk_review_results WHERE review_result_id=?",
+                    (operation["review_result_id"],),
+                ).fetchone()
+                rule_rows = connection.execute(
+                    """SELECT * FROM cycle_target_risk_rule_results
+                       WHERE review_result_id=? ORDER BY evaluation_order""",
+                    (operation["review_result_id"],),
+                ).fetchall()
+                rule_children = tuple(
+                    RunArtifactView(
+                        "cycle_target_structural_risk_rule_result", row["rule_result_id"],
+                        RunStageName.RISK.value, result["symbol"], row["status"],
+                        f"{row['evaluation_order']}. {row['rule_name']}: {row['status']}",
+                        _datetime(row["evaluated_at_utc"]),
+                        (
+                            _field("rule", f"{row['rule_id']}@{row['rule_version']}"),
+                            _field("input", row["input_summary"]),
+                            _field("required condition", row["expected_condition"]),
+                            _field("reason codes", row["reason_codes_json"]),
+                            _field("severity / stop", f"{row['severity']} / {bool(row['stop_processing'])}"),
+                        ),
+                    )
+                    for row in rule_rows
+                )
+                link = connection.execute(
+                    "SELECT * FROM cycle_target_risk_source_links WHERE review_result_id=?",
+                    (operation["review_result_id"],),
+                ).fetchone()
+                link_children = () if link is None else (
+                    RunArtifactView(
+                        "cycle_target_risk_source_link", link["source_link_id"],
+                        RunStageName.DECISION.value, result["symbol"], "immutable_source",
+                        f"P31 {link['decision_result_id']} / P29 {link['source_result_id']} / P28 {link['source_reversal_result_id']}",
+                        _datetime(link["created_at_utc"]),
+                        (
+                            _field("P31 intent / Run", f"{link['intent_id']} / {link['decision_run_id']}"),
+                            _field("P29 Result / Run", f"{link['source_result_id']} / {link['source_run_id']}"),
+                            _field("P28 Result / Run / step", f"{link['source_reversal_result_id']} / {link['source_reversal_run_id']} / {link['source_reversal_step_id']}"),
+                            _field("formula / configuration", f"{link['source_formula_definition_id']} / {link['source_configuration_id']}"),
+                        ),
+                    ),
+                )
+                result_children = (
+                    RunArtifactView(
+                        "cycle_target_risk_review_result", result["review_result_id"],
+                        RunStageName.RISK.value, result["symbol"], result["status"],
+                        f"{result['action'].upper()} {result['requested_notional_usd_text']} USD remains unapproved",
+                        _datetime(result["created_at_utc"]),
+                        (
+                            _field("current / target / difference USD", f"{result['current_exposure_usd_text']} / {result['target_exposure_usd_text']} / {result['desired_change_usd_text']}"),
+                            _field("requested / approved USD", f"{result['requested_notional_usd_text']} / none"),
+                            _field("P31 / P29 / P28 Runs", f"{result['decision_run_id']} / {result['source_run_id']} / {result['source_reversal_run_id']}"),
+                            _field("reason codes", result["reason_codes_json"]),
+                            _field("gate", f"{result['gate_id']} {result['gate_version']}"),
+                            _field("execution / live", f"{bool(result['execution_allowed'])} / {bool(result['live_allowed'])}"),
+                        ),
+                        link_children + rule_children,
+                    ),
+                )
+            artifacts.append(RunArtifactView(
+                "cycle_target_risk_operation", operation["attempt_id"],
+                RunStageName.RISK.value, operation["resolved_symbol"], operation["status"],
+                "P23-4B structural manual-review gate; DISABLED / NO EXECUTION / NO RISK APPROVAL",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation id", operation["operation_id"]),
+                    _field("requested P31 intent / result / Run", f"{operation['requested_intent_id']} / {operation['requested_decision_result_id']} / {operation['requested_decision_run_id']}"),
+                    _field("accepted review", operation["review_result_id"] or "none"),
+                    _field("error", operation["error_summary"]),
+                    _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),
                 ),
                 result_children,
             ))

@@ -21,19 +21,24 @@
 - 完成阶段 6D：Risk所有者以一个显式正Phase 6C候选、一个显式Phase 3A `RESEARCH_INPUT`计划及其精确最新守恒快照为输入，在继承规则1/2后执行`MAX_RESEARCH_ASSET_CASH_DEPLOYMENT_USD@1`规则3。INCREASE受同股票`ASSET_CASH`规划余额限制，long-only DECREASE保持；所有结果均记录`research_cash_reserved=false`，正候选仍需人工复核。Schema v13、完整上游/Capital Snapshot Run导航和既有Risk页子页签已验证；无默认计划、资金预留/转移、事实现金、approved object、回测或执行消费者。
 - 完成阶段 6E：在既有Risk页面增加只读Consolidated Risk Chain Explorer，从Phase 6D结果通过公共查询合同精确解析Phase 6C/6B/6A结果与source links，结构门与数值规则1–3分开展示，支持含可选inclusive UTC as-of边界的有界筛选、两个显式历史链的精确A/B相等性比较及九条Open Run路径。缺失/不一致证据明确失败；Schema仍为v13，无重算、写入、审批、预留、导出、回测或执行能力。
 - 完成 `PROPOSAL-024` P23-1A–D、`PROPOSAL-025` P23-1E-A 和 `PROPOSAL-026` P23-1E-B：锁定禁用的频谱波动研究现具备精确日历/Raw+Split/公司行动证据、不可变R1 v1.0.0/v1.1.0、纯Factor计算、Schema-v15完整历史、人工最新交易日与2–250日历史运行、父子Run、后台GUI、重启重载、图表/导出与Open Run。P26没有未来收益/P&L/排名，也没有状态、仓位、Decision、Risk批准或交易消费者。
+- 完成获批 `PROPOSAL-033` P23-4B：Risk所有者只接受一个显式非零P31 Intent/Result/Run，精确重验P31/P29/P28来源和非执行安全状态，与旧Phase 6A只共享Risk私有纯结构内核。安全输入固定为`MANUAL_REVIEW_REQUIRED`，不安全状态固定为`BLOCKED`，批准金额和批准intent结构性缺失。中央SQLite v20/124、重放/导出/Run导航和既有Risk页兄弟检查器均已验证；P34随后以显式批准增加三组精确人工审查历史，没有自动来源选择或数值/交易下游。
 
 ## Approved next
 
 - 无。
 
-## Next direction — PROPOSAL-031 implemented; next slice not approved
+## Next direction — PROPOSAL-034 complete; next slice not approved
 
 - `PROPOSAL-027` P23-1F 已批准并完成：从一项显式、完整的P26历史研究中，只读取R1 v1.0.0在评估日前已经形成的60/120/250窗口趋势标准化MAD；先对三个窗口取中位数，再对20–250个完整评估日取中位数，形成每只股票独立的日常对数波动尺度。Schema v16、Run/结果历史、现有Factor页子页签和本地AAPL复用验证均完成，仍为禁用且无消费者。
 - `PROPOSAL-028` 已批准、实现并验证：第一版在Asset State所有者内建立独立反转观察实验室，不改正式股票状态；上涨转下跌与下跌转上涨使用同一个显式版本化正倍数。完整公式、只允许冻结后前向数据、两日确认/下一交易日生效、中央SQLite v17/110六表、Run重放/比较/导出和既有Asset State页子页签均已完成，仍为禁用且无消费者。
 - `PROPOSAL-029` 已批准、实现并验证为禁用的P23-3A研究能力：显式选择一条精确P28 Result/Run/日步骤，以`ln(P/R)/k`形成无量纲进度；普通、反向和确认期保持线性，已生效同向进度在`A`与`B`之间使用导数匹配、连续且有界的有限指数目标仓位，达到`B`后饱和。算法定义、股票配置和每日结果分开版本化且无默认值。Schema v18/116、重放/导出和既有Target Position页兄弟子页签已验证；P31是唯一显式禁用Decision消费者。
 - `PROPOSAL-030` 已批准并完成 `DRY_RUN`：只使用现有AAPL P28 Result/Run和三条精确日步骤，不刷新行情；一个禁用且无默认的对称P29验证配置`0.20/0.50/0.80`、`s=0.05`、`A=2`、`B=4`，以相互独立的假设`$100,000/$50,000`上下文运行三次。三条结果均为`VALID_LINEAR`，目标比例约为48.1930%、47.1916%和53.3378%；重启重载、确定性重算、Run关系、SQLite完整性及批准影响范围全部通过。
-- `PROPOSAL-031` 已批准并按P31-D1–D10实现：既有Decision所有者保留旧Phase 5D公共合同/历史，两条路径共享一个精确差额内核；一条显式P29 Result/Run可进入类型独立、可追溯且止于Risk之前的P23-4A预览。只读preflight、重放/导出、Run导航、既有Decision页检查器及中央SQLite v19/120已验证；四张P31表仍为空，没有自动选择P30结果或接入Risk。
-- P27结果不能单独成为反转阈值，P28也没有默认倍数。P30测试值也不是默认值或AAPL投资建议；第一次真实P31预览、P23-4 Risk/count/freeze、P23-5模拟及任何Accounting/Paper/Live仍需分别批准。当前没有下一项已批准开发或验证工作。
+- `PROPOSAL-031` 已批准并按P31-D1–D10实现：既有Decision所有者保留旧Phase 5D公共合同/历史，两条路径共享一个精确差额内核；一条显式P29 Result/Run可进入类型独立、可追溯的P23-4A预览。只读preflight、重放/导出、Run导航、既有Decision页检查器及中央SQLite v19/120已验证；没有自动选择P30结果，P33是唯一获批Risk消费者。
+- `PROPOSAL-032` 已获批准并完成`DRY_RUN`：P30保存的三条精确AAPL P29 Result/Run在任何写入前全部通过只读preflight，随后创建三个相互独立的`NO_EXECUTION` P31 Run。结果为两条`DECREASE`和一条`INCREASE`；重启重放、Run上下游、临时导出、逐表增量、备份/活动数据库完整性和外键全部通过。不制造HOLD、不刷新行情、不接Risk。
+- `PROPOSAL-033` 已批准并按P33-D1–D10实现：现有Risk所有者增加P31专属的结构人工审查兄弟路径，与旧Phase 6A只共享一个Risk私有内核，同时保持P31/P29/P28来源和持久化类型独立；安全输入只能`MANUAL_REVIEW_REQUIRED`，不安全状态阻止，永不产生批准金额。中央SQLite v20/124和全部检查能力已验证；P34现已增加三条精确本地人工审查证据。
+- `PROPOSAL-034` 已获批准并完成`DRY_RUN`：完整复用三条P32/P31 AAPL Intent/Result/Run，所有来源和当前安全状态在备份/写入前一次性通过无写入检查，然后分别创建三条独立`NO_EXECUTION` P33 Run。三条结果均为`MANUAL_REVIEW_REQUIRED`，原金额保持未批准；重启重放、临时导出、活动检查器、P33/P31/P29/P28 Run导航、幂等重试、逐表增量和数据库完整性全部通过。
+- 每日1/2次上限与股票封存没有并入P33：目前尚未批准由Intent、Risk候选、计划订单、提交订单或成交中的哪一种消耗次数，也没有批准把手工Asset State或P28观察当成自动封存事实。二者保留给后续P23-4C决定，避免过早改变交易含义。
+- P27结果不能单独成为反转阈值，P28也没有默认倍数。P30测试值也不是默认值或AAPL投资建议；额外P31来源、P23-4 count/freeze与数值Risk组合、P23-5模拟及任何Accounting/Paper/Live仍需分别批准。当前没有下一项已批准开发或验证工作。
 
 - P26已完成一次另行批准的真实AAPL只读验证：20个XNYS评估日×2个锁定版本共40点全部保存并重启重载成功；只访问历史行情/公司行动，没有访问Trading、账户、持仓、订单或成交。该证据没有跨窗口稳定周期，不能被当成已批准的日常波动范围或交易信号。
 
@@ -75,7 +80,7 @@
 - 后续具体业务目标；不得从历史数据浏览器推断交易策略或实盘需求。
 - `P23-1-R1` 的数学/数据问题和P23-1A–D/P23-1E-A实现已解决：每个请求显式把美股/ETF映射到`US_EQUITIES_REGULAR_V1`且不自动发现交易所；R1 v1.0.0保留旧窗口语义，R1 v1.1.0把最新已完成评估日纳入60/120/250窗口；人工Runner和一次获批AAPL只读日线/公司行动验证已经完成。
 - `PROPOSAL-026` 的实施决策和一次另行批准的AAPL历史验证已经完成：2–250日范围、最多两个R1版本、事后调整研究语义、父子Run结构、Schema v15五张表和本地/显式只读获取均已实现；AAPL 20日×2版本结果可重载，但没有形成跨窗口稳定周期。
-- `PROPOSAL-027` 的每股日常波动档案、`PROPOSAL-028` 的对称反转观察实验室、`PROPOSAL-029` 的周期目标仓位实验室和`PROPOSAL-031` 的周期目标Decision预览均已完成。P28已完成一次单独批准的真实AAPL验证，显式倍数为1.5但默认值仍不存在；P30已有一项禁用AAPL测试配置和三条线性P29结果；P31仅允许显式选择其中一条已接受结果，但尚未创建运行数据。Risk、资金、回测或交易消费者仍未批准。
+- `PROPOSAL-027` 的每股日常波动档案、`PROPOSAL-028` 的对称反转观察实验室、`PROPOSAL-029` 的周期目标仓位实验室和`PROPOSAL-031` 的周期目标Decision预览均已完成。P28已完成一次单独批准的真实AAPL验证，显式倍数为1.5但默认值仍不存在；P30已有一项禁用AAPL测试配置和三条线性P29结果；P32已将这三条结果分别转换成禁用P31验证证据。Risk、资金、回测或交易消费者仍未批准。
 - `numpy>=2.3.3,<3`、`exchange_calendars>=4.13.2,<5`、专用公开合同和中央SQLite v18已纳入已验证实现。小波候选、真实/默认反转倍数、真实/默认P29仓位参数、第二次交易机会、次数计数、封存进入/退出、成本/滑点/成交顺序仍待后续单独决定和批准。
 - 跨版本图表/排名、Decision导出、行业资金、动态权重、储备借贷、Market Data adapter、自动source/curve选择、进一步Capital/Accounting adapter、事实/预留现金、完整数值Risk批准/更多规则组合、完整回测整合、Accounting持久化、Paper/Live均需要后续独立范围与批准；Phase 6D仅是三条有序、未消费且不预留资金的数值研究约束，不自动授权Risk批准或这些后续能力。
 

@@ -155,6 +155,14 @@ The approved specialized path is separate from the generic `RiskEngine`. It acce
 
 The type-distinct `TargetAdjustmentRiskReviewResult` always has `approved_notional_usd=None` and `risk_approved_intent_id=None`; it is not a generic `RiskDecision` and cannot be consumed by Backtesting, Portfolio Accounting or Execution. Central Schema v10 stores operation, accepted review, ordered rule and exact source-link evidence. Algorithm Control displays this through a separate SQL-free Risk subtab with related-Run navigation and no approval or settings-override control.
 
+## P23-4B cycle-target manual-review gate
+
+Approved PROPOSAL-033 adds a compatible, type-distinct sibling for one explicitly selected P31 `CycleTargetAdjustmentTradeIntent`. Orchestration resolves exact Intent/Decision Result/Decision Run IDs and freezes the full P31→P29→P28 identity, arithmetic, version and disabled-safety graph into `CycleTargetRiskReviewInput`. Risk does not import the Decision implementation type.
+
+`CycleTargetRiskEngine` and the old Phase 6A engine share one private source-neutral structural kernel, so the three locked rule identities, order and terminal meanings cannot drift. Their public inputs/results/rules/Stores remain distinct. Safe valid P33 evidence ends at `MANUAL_REVIEW_REQUIRED`; unsafe runtime state ends at `BLOCKED`; invalid and unexpected failures are durable. `approved_notional_usd=None`, `risk_approved_intent_id=None`, `execution_allowed=false` and `live_allowed=false` are enforced by contracts and SQLite.
+
+P33 supports no-write preflight, exact-id idempotency, deterministic write-free replay, bounded queries, JSON/CSV export and P33→P31→P29→P28 Run navigation. It remains `DISABLED`. Approved PROPOSAL-034 completed three independent local AAPL `NO_EXECUTION` validations: all exact P31 sources and the current safety state passed before write, all three results are `MANUAL_REVIEW_REQUIRED`, and P33 attempts/results/rules/source-links are `3/3/9/3`. Daily trade count, second-opportunity timing, frozen-stock authority, numerical Risk, cash, Backtesting, Accounting, Paper, Live, orders and fills are not part of P33.
+
 ## Phase 6B single-asset exposure-cap preview
 
 `SingleAssetExposureCapService` owns immutable symbol-specific positive Decimal USD definition versions and one locked rule, `MAX_TARGET_EXPOSURE_USD@1`. New or revised definitions are append-only; archiving appends an immutable `ARCHIVED` successor, after which no version in that chain is eligible for a new preview. There is no amount or active/default definition after migration.

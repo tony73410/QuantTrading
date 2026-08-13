@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 19
+SCHEMA_VERSION = 20
 
 
 _SCHEMA_V1 = """
@@ -3665,6 +3665,170 @@ ON cycle_target_decision_results(source_result_id, source_run_id);
 """
 
 
+_SCHEMA_V20 = """
+CREATE TABLE cycle_target_risk_operation_attempts (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    decision_stage_id TEXT NOT NULL,
+    risk_stage_id TEXT,
+    command_fingerprint TEXT NOT NULL,
+    requested_intent_id TEXT NOT NULL,
+    requested_decision_result_id TEXT NOT NULL,
+    requested_decision_run_id TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('manual_review_required', 'blocked', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_source_json TEXT,
+    safety_snapshot_json TEXT,
+    resolved_symbol TEXT,
+    resolved_action TEXT CHECK (resolved_action IS NULL OR resolved_action IN ('increase', 'decrease')),
+    resolved_source_session TEXT,
+    review_result_id TEXT,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    CHECK (
+        (status IN ('manual_review_required', 'blocked') AND risk_stage_id IS NOT NULL
+         AND resolved_source_json IS NOT NULL AND safety_snapshot_json IS NOT NULL
+         AND review_result_id IS NOT NULL AND error_code IS NULL AND error_summary IS NULL)
+        OR
+        (status IN ('invalid_input', 'failed') AND review_result_id IS NULL
+         AND error_code IS NOT NULL AND error_summary IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX uq_cycle_target_risk_terminal_operation
+ON cycle_target_risk_operation_attempts(operation_id)
+WHERE status IN ('manual_review_required', 'blocked');
+
+CREATE INDEX idx_cycle_target_risk_operations_lookup
+ON cycle_target_risk_operation_attempts(operation_id, requested_intent_id, resolved_symbol, status, requested_at_utc DESC);
+
+CREATE TABLE cycle_target_risk_review_results (
+    review_result_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL UNIQUE,
+    source_json TEXT NOT NULL,
+    safety_snapshot_json TEXT NOT NULL,
+    safety_snapshot_id TEXT NOT NULL,
+    decision_result_id TEXT NOT NULL,
+    intent_id TEXT NOT NULL UNIQUE,
+    decision_run_id TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_reversal_result_id TEXT NOT NULL,
+    source_reversal_run_id TEXT NOT NULL,
+    source_reversal_step_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    source_session TEXT NOT NULL,
+    source_available_at_utc TEXT NOT NULL,
+    action TEXT NOT NULL CHECK (action IN ('increase', 'decrease')),
+    current_exposure_usd_text TEXT NOT NULL,
+    target_exposure_usd_text TEXT NOT NULL,
+    desired_change_usd_text TEXT NOT NULL,
+    requested_notional_usd_text TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('manual_review_required', 'blocked')),
+    reason_codes_json TEXT NOT NULL,
+    warnings_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    approved_notional_usd_text TEXT CHECK (approved_notional_usd_text IS NULL),
+    risk_approved_intent_id TEXT CHECK (risk_approved_intent_id IS NULL),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    gate_id TEXT NOT NULL CHECK (gate_id = 'risk.cycle_target_manual_review_gate.p23_4b.v1'),
+    gate_version TEXT NOT NULL CHECK (gate_version = '1.0.0'),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id) REFERENCES cycle_target_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id) REFERENCES cycle_target_decision_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_cycle_target_risk_results_lookup
+ON cycle_target_risk_review_results(symbol, action, status, source_session DESC, created_at_utc DESC);
+
+CREATE TABLE cycle_target_risk_rule_results (
+    rule_result_id TEXT PRIMARY KEY,
+    review_result_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    stage_id TEXT NOT NULL,
+    rule_id TEXT NOT NULL CHECK (rule_id IN ('SOURCE_CHAIN_INTEGRITY', 'NON_EXECUTION_SAFETY_STATE', 'NUMERICAL_RISK_POLICY_AVAILABILITY')),
+    rule_version TEXT NOT NULL CHECK (rule_version = '1'),
+    rule_name TEXT NOT NULL,
+    evaluation_order INTEGER NOT NULL CHECK (evaluation_order BETWEEN 1 AND 3),
+    status TEXT NOT NULL CHECK (status IN ('passed', 'manual_review', 'blocked')),
+    input_summary TEXT NOT NULL,
+    expected_condition TEXT NOT NULL,
+    reason_codes_json TEXT NOT NULL,
+    severity TEXT NOT NULL CHECK (severity IN ('info', 'warning', 'critical')),
+    stop_processing INTEGER NOT NULL CHECK (stop_processing IN (0, 1)),
+    evaluated_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (review_result_id, evaluation_order),
+    UNIQUE (review_result_id, rule_id),
+    FOREIGN KEY (review_result_id) REFERENCES cycle_target_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE cycle_target_risk_source_links (
+    source_link_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL UNIQUE,
+    review_result_id TEXT NOT NULL UNIQUE,
+    risk_run_id TEXT NOT NULL UNIQUE,
+    risk_stage_id TEXT NOT NULL UNIQUE,
+    decision_result_id TEXT NOT NULL,
+    intent_id TEXT NOT NULL UNIQUE,
+    decision_run_id TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_reversal_result_id TEXT NOT NULL,
+    source_reversal_run_id TEXT NOT NULL,
+    source_reversal_step_id TEXT NOT NULL,
+    source_formula_definition_id TEXT NOT NULL,
+    source_configuration_id TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (review_result_id) REFERENCES cycle_target_risk_review_results(review_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (risk_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_result_id) REFERENCES cycle_target_decision_results(decision_result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (intent_id) REFERENCES cycle_target_decision_trade_intents(intent_id) ON DELETE RESTRICT,
+    FOREIGN KEY (decision_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_reversal_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_formula_definition_id) REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_configuration_id) REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_cycle_target_risk_source_links_lookup
+ON cycle_target_risk_source_links(decision_run_id, source_run_id, source_reversal_run_id);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -3685,6 +3849,7 @@ _MIGRATIONS = {
     17: ("P23-2 symmetric reversal observation research", _SCHEMA_V17),
     18: ("P23-3A cycle-aware bounded target-position research", _SCHEMA_V18),
     19: ("P23-4A P29 cycle-target Decision preview evidence", _SCHEMA_V19),
+    20: ("P23-4B P31 cycle-target structural Risk review evidence", _SCHEMA_V20),
 }
 
 

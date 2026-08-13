@@ -1,5 +1,6 @@
 # Architecture Decision Records
 
+- `ADR-0036-cycle-target-risk-manual-review-gate.md`: accepted a type-distinct P31 structural Risk sibling, one private shared structural kernel, exact P31/P29/P28 provenance, additive Schema v20 and permanent absence of approved output.
 - `ADR-0035-cycle-target-decision-preview.md`: accepted one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable P31 intent, additive Schema v19 and no Risk/downstream consumer.
 - `ADR-0034-cycle-aware-bounded-target-position.md`: accepted the explicit exact-P28-step adapter, contrarian bounded linear/derivative-matched finite-exponential Target Position family, immutable per-symbol versions and additive Schema v18; later ADR-0035 adds only the explicit disabled P23-4A Decision consumer.
 - `ADR-0033-symmetric-reversal-observation-laboratory.md`: accepted the disabled Asset-State-owned symmetric log-distance observer, exact P27/local evidence, two-session confirmation with next-session activation, additive Schema v17 and no formal-state or trading consumer.
@@ -46,6 +47,7 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 ## Index
 
 - [ADR-0035: Preserve Decision Meaning While Adding Exact P29 Provenance](ADR-0035-cycle-target-decision-preview.md) — one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable intent, Schema v19 and no Risk/downstream consumer.
+- [ADR-0036: Preserve Risk Authority While Admitting Exact P31 Evidence](ADR-0036-cycle-target-risk-manual-review-gate.md) — type-distinct P33 evidence, shared private structural kernel, exact P31/P29/P28 source chain, Schema v20 and no Risk-approved output.
 
 - [ADR-0034: Keep Cycle-Aware Target Position Bounded, Versioned and Non-Executing](ADR-0034-cycle-aware-bounded-target-position.md) — one explicit P28 Result/Run/Step, `ln(P/R)/k`, linear confirmation behavior, bounded derivative-matched acceleration and Schema v18; ADR-0035 later admits only explicit disabled P23-4A Decision consumption, never trading.
 
