@@ -7343,3 +7343,133 @@ No commit or push was requested or performed. Required next approval: `批准 PR
 - Compass sections updated: metadata/current phase, DEC-022, INTENT-045/046, narrative and Next Approved Direction. Stable Core is unchanged.
 - Remaining drift risk: AAPL now has a durable `ELIGIBLE` control fact that could be misunderstood as investment approval. Documents and GUI evidence explicitly preserve its structural/manual-review-only meaning; any successor event or downstream use needs separate approval.
 - Bug discovery: `BUG-20260813-002` documentation defect fixed. No new product/runtime defect was found; no Known Issue was added.
+
+## EDIT-20260814-001 — Publish P36 checkpoint and create proposal-only P23-2B mathematical cycle plan
+
+### Authorization and task mode
+
+- User explicitly authorized `commit + push` of the completed P36 state and then creation of the next proposal.
+- Task mode: `DEEP` because the proposed future work would add public Asset State contracts, an additive database migration and multi-module inspection; this edit performs Git publication plus proposal/governance work only.
+- Primary future owner: existing `asset_state`; supporting future owners: public P28 resolution in Orchestration, Central Persistence, Run History and existing Algorithm Control Asset State page.
+- Excluded now: source code, Schema migration, GUI behavior, runtime state, AAPL promotion, automatic scheduling, Target/Decision/Risk/count/cash/simulation/order/Execution consumers.
+
+### Published checkpoint
+
+- Added `CHECKPOINT-20260814-009` with the exact P36 backup/hash, control/P35 result identities, final counts, safety state, validation and rollback evidence.
+- Governance integrity passed **17 tests** before publication; staged diff/credential checks passed and runtime/backup files remained ignored.
+- Created main commit `a8f00c5` (`docs: record completed P36 eligible-path validation`) and pushed `b147e60..a8f00c5` successfully to `origin/main`.
+
+### Existing-work and Compass audit before proposal
+
+- User goal: make the agreed upward/downward stock cycle a durable formal mathematical state after the P28 observer, without treating state as a trade.
+- Stable Core applied: user owns financial meaning; GUI remains presentation-only; Asset State owns state; exact history is append-only; no execution permission follows from implementation.
+- Existing behavior preserved: Phase 4A manual symbolic state remains manual/non-financial; P28 remains immutable observation; P35 remains independent eligibility/freeze control; P29/P31/P33/P35 retain exact current source contracts and histories.
+- Assumption: the smallest safe next slice is a separate sibling stream rather than modifying the manual ledger or making P28 itself mutable current state. This is recorded as a recommendation requiring approval, not a user decision.
+- Financial meaning: proposed formal direction/reference semantics are financially relevant, so implementation/public contracts/Schema require explicit P37 approval. No current financial behavior changed.
+
+### Proposal created
+
+- Added `PROPOSAL-037-versioned-mathematical-cycle-state-promotion.md` with recommended P37-D1–D12.
+- Recommended component: `asset_state.mathematical_cycle.p23_2b.v1@1.0.0`, disabled/no-execution, no default/active stream.
+- Proposed exact source is one explicit cumulative successful P28 Result/Run. Initial stream direction/seed/profile/definition are copied rather than overridden or inferred.
+- Proposed cumulative extension requires the same seed/versions/calendar and an exact normalized semantic prefix. Only provisional confirmation attribution may progress to committed/discarded; that resolution is append-only and never rewrites the earlier snapshot.
+- Proposed state timing keeps the old operational direction through confirmation day 2, closes after confirmed day-2 close, activates the new cycle at exact day-3 session open and uses the prior reversal extreme as the new movement reference.
+- Proposed Schema v22/137 adds seven empty normalized tables with zero backfill only after later approval and verified v21 backup/rollback.
+- Proposed GUI is a sibling `Mathematical Cycles` inspector in the existing Asset State page; no Launcher entry, Provider access, formula or consumer is added.
+- Any real AAPL stream remains a separate post-implementation validation approval.
+
+### Documentation and verification
+
+- Updated Proposal/Documentation indexes, Compass v97 with open DEC-023 and proposed INTENT-047, Project State, Roadmap and governance regression coverage.
+- No module/architecture/ADR/Changelog update was made because P37 behavior is not implemented.
+- Governance integrity after proposal synchronization: **18 passed**.
+- No new Bug or Known Issue was found; `BUG_LOG.md` and `KNOWN_ISSUES.md` require no P37 entry.
+- Proposal work remains uncommitted after the separately completed P36 push, matching the user's requested operation order.
+
+### Change Impact Report
+
+- Current edit: documentation/governance only; blast radius `LOCAL`.
+- Proposed implementation: Asset State primary plus Orchestration/Persistence/Run History/Algorithm Control support; blast radius `MULTI_MODULE`.
+- Public contracts/configuration/database/GUI/trading semantics now: unchanged.
+- Proposed future database: additive v22/137, zero backfill, backup and failure rollback mandatory.
+- Permissions/safety: proposal creates no runtime permission; execution/live false; no network, Trading client, account, cash, order or fill path.
+- Rollback: revert only the uncommitted P37 proposal/governance edits. Published P36 commit `a8f00c5` and immutable runtime evidence remain unchanged.
+
+### Post-Implementation Compass and Bug audit
+
+- Intent alignment: records the requested next development plan while reserving financial implementation decisions for explicit approval.
+- Architecture alignment: extends the existing Asset State owner through a proposed type-distinct sibling and narrow public P28 adapter; no new top-level module or reverse dependency.
+- Safety alignment: proposal forbids default/latest selection, historical rewrites, P35 bypass, downstream consumption and execution.
+- Unapproved behavior added: none.
+- Assumptions introduced: only the recommended separate-stream architecture and exact cumulative-prefix policy; both are visible P37 decisions awaiting approval.
+- Compass sections updated: metadata/current phase, DEC-023, INTENT-047, historical narrative and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: future developers could equate the proposed mathematical direction with manual state, P35 eligibility or a trading signal. P37 explicitly keeps all three separate and requires an exact future adapter for any consumer.
+- Bug discovery: none.
+
+Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用的 P23-2B 数学周期状态。`
+
+## EDIT-20260814-002 — Implement approved disabled P23-2B mathematical-cycle state
+
+### Authorization and task mode
+
+- User explicitly approved `PROPOSAL-037` and P37-D1–D12 for disabled implementation.
+- Task mode: `DEEP`; primary owner `quant_trading.asset_state`; supporting owners `orchestration`, `persistence`, `run_history` and the existing Algorithm Control Asset State page.
+- Approved scope: type-distinct mathematical-cycle contracts/engine/service/replay, exact cumulative P28 promotion, Run evidence, additive central SQLite v21/130→v22/137 migration, read-only existing-page inspection, tests and governance records.
+- Excluded and unchanged: manual symbolic Asset State meaning, P28 observation history, P35 eligibility/freeze control, P29–P35 consumers, real-symbol stream creation, scheduler, numerical Risk, daily opportunity counting, cash/positions, full-chain simulation, Portfolio Accounting persistence, Paper/Live, orders, fills and execution.
+
+### Pre-Implementation Compass and architecture audit
+
+- User goal: turn the already approved two-session reversal semantics into a durable per-stock mathematical-cycle state while preserving correct day-3 activation and confirmation-buffer history, without treating state as a trade.
+- Stable Core applied: Asset State owns state; exact historical evidence is append-only; GUI is presentation-only; implementation grants no financial or execution authority; user remains owner of formulas, consumers and real-symbol activation.
+- Existing behavior preserved: manual State, immutable P28 observations, P35 controls and exact P29/P31/P33/P35 source contracts remain separate and unchanged.
+- Approved assumption: multiple explicit named streams may coexist, but none is default/primary/active. Every promotion names exact P28 Result/Run evidence.
+- Financial meaning is limited to the explicitly approved upward/downward cycle, prior-reversal-extreme reference and day-2/day-3 timing. No target, buy/sell, Risk, count or funding meaning was inferred.
+- Blast radius: `MULTI_MODULE`, additive only. Public contracts and Schema changed under explicit approval; no new top-level module, dependency, external service or permission was added.
+
+### Implementation
+
+- Added immutable versioned P23-2B definition, operation, stream, cycle, snapshot, transition and source-link models plus public Store/query protocols.
+- Added a pure deterministic engine, service and replay verifier. The engine copies initial direction/seed/P27/P28/calendar facts exactly; cumulative promotion requires a strict semantic prefix and exact source compatibility.
+- Day 1 and confirmation day 2 remain in the old operational cycle. A successful confirmation closes the old cycle only after day-2 close and activates the new cycle at exact next XNYS session 09:30; the prior reversal extreme becomes the new reference. Candidate attribution resolves through appended `COMMITTED_TO_NEW_CYCLE` or `DISCARDED_FOR_NEW_CYCLE` events without rewriting prior snapshots.
+- Added a narrow Orchestration adapter from public immutable P28 evidence. Missing/tampered/divergent evidence fails closed before state mutation. Deterministic operation retry reuses the existing result.
+- Added `MATHEMATICAL_CYCLE_STATE_DEFINITION` and `MATHEMATICAL_CYCLE_STATE_PROMOTION` `NO_EXECUTION` Run types, typed Run artifacts and transition child evidence.
+- Added `SQLiteMathematicalCycleStateStore` and exactly seven v22 tables. The active central database migrated from v21/130 to v22/137 after the verified automatic backup; every old business-table count is preserved and all seven P37 tables remain empty.
+- Added a read-only `Mathematical Cycles` subtab inside the existing Asset State page. It supports filters, history/detail and Open Run only; the GUI cannot define, promote, select a default or execute a cycle.
+- Added ADR-0038 and synchronized architecture, module, proposal, Compass, State, Roadmap, Changelog and version evidence.
+
+### Bug discovery and fix
+
+- `BUG-20260814-001` was discovered and fixed. The first operation-table design foreign-keyed requested missing P28 IDs, preventing durable failure evidence. Requested IDs are now searchable without source FKs; accepted snapshot/transition/source-link facts remain foreign-key constrained. A regression test proves failed Run/operation persistence with zero state rows.
+- No unresolved P37 Bug or current Known Issue remains. `KNOWN_ISSUES.md` is unchanged.
+
+### Migration and validation evidence
+
+- Backup: `runtime/data/backups/market_history.schema-v21-to-v22.20260814T192644633800Z.sqlite3`, 100,790,272 bytes, Schema v21/130, SHA-256 `5F20AA8702397B167DF8C5DE8DC43311AE4B4A15E59AE0348140AAFED338EB0B`, integrity `ok`, zero foreign-key violations.
+- Active: `runtime/data/market_history.sqlite3`, 100,913,152 bytes, Schema v22/137, SHA-256 `7344BD0C70DDBF62396BF0F9F5D93078DDF2F26ACCBC5C02BDFCEE04386818C2`, integrity `ok`, zero foreign-key violations.
+- All seven P37 table counts are zero. Run/stage/symbol/binding/message remains `64/120/62/286/292`; P35 remains `1/1/3/3/9/3`; no runtime Algorithm Run or mathematical state was created.
+- All **657** collected tests passed in exhaustive non-overlapping shards: affected Asset State/Algorithm Control/Run History `149`; Factor/Market History/integration `197`; Capital/Decision/Orchestration/Accounting/Risk/Target `151`; Backtesting/Execution/Launcher `30`; root unit plus all architecture/governance `130`.
+- Python compileall, `pip check`, `git diff --check`, forbidden execution scan and forbidden downstream-consumer scan passed. The only warning is the pre-existing third-party `websockets.legacy` deprecation; the offscreen GUI run also emitted a non-failing GLES3→GLES2 environment fallback.
+
+### Changed files
+
+- Domain/orchestration/persistence/Run: `src/quant_trading/asset_state/__init__.py`, `src/quant_trading/asset_state/mathematical_cycle_engine.py`, `src/quant_trading/asset_state/mathematical_cycle_interfaces.py`, `src/quant_trading/asset_state/mathematical_cycle_models.py`, `src/quant_trading/asset_state/mathematical_cycle_replay.py`, `src/quant_trading/asset_state/mathematical_cycle_service.py`, `src/quant_trading/orchestration/__init__.py`, `src/quant_trading/orchestration/mathematical_cycle_state_promotion.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/persistence/mathematical_cycle_state_sqlite_store.py`, `src/quant_trading/persistence/run_sqlite_store.py`, `src/quant_trading/persistence/sqlite_database.py`, `src/quant_trading/run_history/models.py`.
+- GUI/composition: `src/quant_trading/algorithm_control/app.py`, `src/quant_trading/algorithm_control/ui/asset_state_workspace_panel.py`, `src/quant_trading/algorithm_control/ui/main_panel.py`, `src/quant_trading/algorithm_control/ui/mathematical_cycle_panel.py`.
+- Direct tests: `tests/unit/asset_state/test_mathematical_cycle_state.py`, `tests/unit/asset_state/test_sqlite_mathematical_cycle_state.py`, `tests/unit/algorithm_control/test_mathematical_cycle_panel.py`, `tests/architecture/test_asset_state_boundaries.py`, `tests/architecture/test_governance_document_integrity.py`, `tests/unit/algorithm_control/test_reversal_observation_panel.py`.
+- Schema-current regression fixtures: `tests/unit/asset_state/test_sqlite_asset_state.py`, `tests/unit/asset_state/test_sqlite_asset_trading_control_and_admission.py`, `tests/unit/asset_state/test_sqlite_cycle_target_adjustment_decision.py`, `tests/unit/asset_state/test_sqlite_cycle_target_position.py`, `tests/unit/asset_state/test_sqlite_cycle_target_risk.py`, `tests/unit/asset_state/test_sqlite_reversal_observation.py`, `tests/unit/capital_allocation/test_sqlite_capital_allocation.py`, `tests/unit/decision/test_sqlite_target_adjustment_decision.py`, `tests/unit/factors/test_daily_volatility_profile.py`, `tests/unit/factors/test_spectral_history_research.py`, `tests/unit/factors/test_sqlite_spectral_volatility.py`, `tests/unit/factors/test_sqlite_standardized_state.py`, `tests/unit/risk/test_sqlite_exposure_cap.py`, `tests/unit/risk/test_sqlite_research_asset_cash.py`, `tests/unit/risk/test_sqlite_research_cash_floor.py`, `tests/unit/risk/test_sqlite_target_adjustment_risk.py`, `tests/unit/run_history/test_research_history.py`, `tests/unit/run_history/test_sqlite_run_history.py`, `tests/unit/target_position/test_linked_target_position.py`, `tests/unit/target_position/test_sqlite_target_position.py`.
+- Architecture/proposal/module/project records: `docs/decisions/ADR-0038-separate-mathematical-cycle-state.md`, `docs/decisions/README.md`, `docs/proposals/PROPOSAL-037-versioned-mathematical-cycle-state-promotion.md`, `docs/proposals/README.md`, `docs/architecture/OVERVIEW.md`, `docs/architecture/MODULE_MAP.md`, `docs/modules/asset-state.md`, `docs/modules/analysis-decision-pipeline.md`, `docs/modules/central-persistence.md`, `docs/modules/run-history.md`, `docs/modules/algorithm-control-gui.md`, `docs/INDEX.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/project/VERSION_HISTORY.md`, `PROJECT_COMPASS.md`, `CHANGELOG.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+
+### Change Impact Report and rollback
+
+- Primary: Asset State. Secondary: Orchestration, Persistence, Run History, Algorithm Control. Public contracts: additive P23-2B protocols/models and two Run types. Configuration/dependencies/external permissions: unchanged. Database: additive v22/137. GUI: existing-page read-only subtab. Trading/safety: no consumer or authority. Blast radius: `MULTI_MODULE`, bounded by exact public P28 input and no downstream output adapter.
+- Code rollback before publication is a normal revert of this uncommitted P37 file set. Preserve the ignored v22 database and backup for audit. Physical downgrade requires stopping writers, preserving v22, restoring the verified v21 backup and using matching v21 code; never erase immutable P36 history as ordinary rollback.
+
+### Post-Implementation Compass and Bug audit
+
+- Intent alignment: exact approved P37-D1–D12 delivered; no real-symbol state or downstream financial behavior was added.
+- Architecture alignment: Asset State owns the state; Orchestration alone resolves public P28 evidence; SQLite and Qt remain outside the domain; no existing contract was repurposed.
+- Safety alignment: explicit sources only, fail closed, no default stream, `NO_EXECUTION`, execution/live false and no consumer in Target/Decision/Risk/Capital/Backtesting/Accounting/Execution.
+- Unapproved behavior added: none.
+- Assumptions introduced: none beyond the explicitly approved XNYS/UTC, Decimal/IEEE and multiple-named-stream decisions recorded in P37.
+- Compass sections updated: metadata/current phase, capability/module tables, DEC-023, implementation narrative, INTENT-047 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: future code could mistake a named mathematical stream for the current/default strategy state or redirect P29 automatically. Architecture tests and docs prohibit both; every real-symbol stream and consumer requires separate approval.
+- Bug discovery: `BUG-20260814-001` fixed with regression coverage; no deferred P37 Bug or Known Issue.

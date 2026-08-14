@@ -5,7 +5,7 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v21 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2/P23-3A/P23-4A/P23-4B/P23-4C1/Decision/Risk/Capital/State/Target evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v22 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2A/P23-2B/P23-3A/P23-4A/P23-4B/P23-4C1/Decision/Risk/Capital/State/Target evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
@@ -36,6 +36,7 @@
 | AAPL P33 controlled local validation | `proposals/PROPOSAL-034-aapl-p33-controlled-local-validation.md` | 已批准并完成DRY_RUN：三条精确P32/P31来源全部通过无写入来源与安全预检，随后建立三条独立NO_EXECUTION P33人工审查历史；不改代码/Schema、不产生批准、不含次数/封存或下游 |
 | P23-4C1 frozen-asset admission | `proposals/PROPOSAL-035-versioned-frozen-asset-admission-and-daily-opportunity-semantics.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：Asset State保存不可变ELIGIBLE/FROZEN控制事件，Risk对显式精确P33与有效控制证据执行封存阻止；Schema v21六表零回填，既有页面支持检查/比较/导出/Run导航；P23-4C2每日次数继续待定 |
 | AAPL P35 eligible-path validation | `proposals/PROPOSAL-036-aapl-p35-eligible-path-controlled-local-validation.md` | 已批准并完成DRY_RUN：一条明确AAPL ELIGIBLE首事件加三条精确P34/P33→P35本地人工审查结果；重载/重放/导出/GUI/Run导航/幂等与精确增量通过，不改代码/Schema、不产生交易权限 |
+| P23-2B mathematical cycle state | `proposals/PROPOSAL-037-versioned-mathematical-cycle-state-promotion.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：Asset State内的独立、版本化、可重放多命名数学周期流，只晋升显式精确累计P28证据；Schema v22七表零回填、Run与既有页只读检查已完成；不改人工状态/P35控制/P29–P35历史，未创建真实股票流或交易权限 |
 | P23-2A architecture decision | `decisions/ADR-0033-symmetric-reversal-observation-laboratory.md` | 记录同倍数、前向冻结、确认/生效分离、六表持久化及严格无交易消费者边界 |
 | P23-1F daily volatility profile | `proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md` | 已批准的完整P26/R1 v1.0.0日常波动档案公式、Schema v16、GUI、验证与严格非交易边界 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |

@@ -37,10 +37,15 @@ from quant_trading.persistence import (
     SQLiteCycleTargetRiskStore,
     SQLiteAssetTradingControlStore,
     SQLiteCycleTargetAssetAdmissionStore,
+    SQLiteMathematicalCycleStateStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
-from quant_trading.asset_state import AssetStateService, AssetTradingControlService, ReversalObservationService
+from quant_trading.asset_state import (
+    AssetStateService,
+    AssetTradingControlService,
+    ReversalObservationService,
+)
 from quant_trading.target_position import CycleTargetPositionService, TargetPositionService
 from quant_trading.target_position import LinkedTargetPositionService
 from quant_trading.factors.standardized_state_service import StandardizedPriceStateService
@@ -296,6 +301,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         local_market_store,
         reversal_observation_service,
     )
+    mathematical_cycle_store = SQLiteMathematicalCycleStateStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    mathematical_cycle_store.initialize()
     cycle_target_position_store = SQLiteCycleTargetPositionStore(
         root / "runtime" / "data" / "market_history.sqlite3"
     )
@@ -574,6 +583,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         asset_trading_control_queries=asset_trading_control_store,
         cycle_target_asset_admission_review=cycle_target_asset_admission_review,
         cycle_target_asset_admission_queries=cycle_target_asset_admission_store,
+        mathematical_cycle_queries=mathematical_cycle_store,
         linked_target_position_preview=linked_target_position_preview,
         target_adjustment_decision_preview=target_adjustment_preview,
         target_adjustment_decision_queries=target_adjustment_store,

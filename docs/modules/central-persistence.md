@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v21/130 adds six P23-4C1 control/admission tables to v20/124. Migration performs zero control/admission backfill. Existing P31 evidence remains `3/3/3/3` and P33 remains `3/3/9/3`; approved PROPOSAL-036 later added bounded P35 counts `1/1/3/3/9/3`. No daily counter, numerical Risk approval, production algorithm or execution path is active.
+**Implemented and verified.** Central Schema v22/137 adds seven disabled P23-2B mathematical-cycle tables to v21/130 with zero backfill. Every prior table count is preserved; existing P35 counts remain `1/1/3/3/9/3`. No mathematical-cycle definition/stream, daily counter, numerical Risk approval, production algorithm or execution path is active.
 
 ## Purpose
 
@@ -25,6 +25,7 @@ Use one local SQLite file for Market History and durable algorithm research evid
 - Persist immutable Decision/TradeIntent and Risk/rule-result evidence without moving calculation logic into persistence.
 - Persist immutable research capital plans, bucket definitions, accepted transfers, complete snapshots and every operation attempt without treating them as account facts.
 - Persist immutable Asset State definitions/edges, trading cycles, start/close events, manual transitions, exact evidence bindings, snapshots and every successful/invalid/failed operation attempt without assigning financial meaning.
+- Persist separate disabled mathematical-cycle definitions, operations, named streams, monotonic cycle close facts, immutable per-session snapshots, append-only transitions and exact P28 source links while transactionally revalidating stream cursors.
 - Revalidate completed Asset State definition/transition/cycle inputs, exact predecessor/edge relationships, idempotent operation identity and optional local Run/Factor evidence in the same transaction.
 - Persist immutable standardized-state definitions, raw successful/invalid/failed operations, exact positive manual USD inputs, deviation/state traces and optional evidence while revalidating definition/result/Run/stage provenance transactionally.
 - Persist P23-3A immutable formula definitions, explicit per-symbol configurations, every operation attempt, accepted bounded result, binary64/IEEE/Decimal calculation trace and exact P28/P27/P26/Market source links while revalidating configuration/source/Run/stage identity transactionally.
@@ -81,7 +82,7 @@ Python standard library `sqlite3`, neutral Run History contracts, and public Fac
 
 ## Side effects
 
-Creates additive Schema v21 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision/Risk rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2, v18 P23-3A, v19 P23-4A, v20 P23-4B and v21 P23-4C1 evidence. No migration backfilled a historical algorithm claim.
+Creates additive Schema v22 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision/Risk rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2, v18 P23-3A, v19 P23-4A, v20 P23-4B, v21 P23-4C1 and v22 P23-2B formal mathematical-cycle evidence. No migration backfilled a historical algorithm claim.
 
 The verified real v6→v7 migration created `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`, preserved all 44 pre-existing business-table counts including 215,340 Market Bars and 365 Fetch History rows, and left all five new tables empty. Backup and active copies returned `integrity_check=ok` and zero foreign-key violations.
 
@@ -137,6 +138,8 @@ Schema v21 adds exactly six normalized P23-4C1 tables: `asset_trading_control_op
 
 Before approved PROPOSAL-036 writes, active v21/130 was copied to verified 100,757,504-byte backup `market_history.before-p36-validation.20260814T062213721771Z.sqlite3` (SHA-256 `5281a239ae8581bcbadcd2ce60659b686660047f6875802703202951b8e57f28`). Exact nonzero deltas are Runs `+4`, stages `+7`, symbols `+4`, bindings `+7`, messages `+3`, control operations/events `+1/+1`, and admission operations/results/rules/source-links `+3/+3/+9/+3`. Final Run/stage/symbol/binding/message counts are `64/120/62/286/292`; active and backup databases remain v21/130 with integrity `ok` and zero foreign-key violations. Fresh-process reload/replay, temporary export and deterministic retry passed.
 
+Schema v22 adds exactly seven normalized tables: `mathematical_cycle_state_definitions`, `mathematical_cycle_state_operations`, `mathematical_cycle_streams`, `mathematical_trading_cycles`, `mathematical_cycle_snapshots`, `mathematical_cycle_transition_events` and `mathematical_cycle_source_links`. The approved migration created verified 100,790,272-byte backup `market_history.schema-v21-to-v22.20260814T192644633800Z.sqlite3` (SHA-256 `5f20aa8702397b167df8c5de8dc43311ae4b4a15e59ae0348140aafed338eb0b`), expanded 130→137, preserved every prior logical-table count and left all seven P37 tables empty. Backup v21 and active v22 both report `integrity_check=ok` and zero foreign-key violations. Run/stage/symbol/binding/message counts remain `64/120/62/286/292`; P35 remains `1/1/3/3/9/3`. Temporary migration tests prove failed DDL restores intact v21.
+
 Before approved PROPOSAL-030 writes, the active database was copied to `market_history.before-p30-validation.20260811T0428081654404Z.sqlite3`. The active six-table counts are now `1/1/5/3/3/18` for formula/configuration/attempt/result/trace/source link. Compared with that backup, only those six tables plus `algorithm_runs`, `algorithm_run_stages`, `algorithm_run_symbols` and `algorithm_run_bindings` changed; every other table retained its row count. Active integrity is `ok` with zero foreign-key violations. The stored formula/configuration remain disabled and all three result Runs are `NO_EXECUTION`.
 
 Schema v15 adds five normalized P26 tables: `spectral_historical_evidence_sets`, `spectral_historical_evidence_observations`, `spectral_historical_studies`, `spectral_historical_study_definitions` and `spectral_historical_study_points`. `SQLiteSpectralHistoricalStudyStore` persists one shared source set, the exact ordered definition list and every requested point membership while referencing existing operation attempts for numerical detail. Exact local lookup never promotes generic Bars or unrelated P25 operations. The v14→v15 migration creates a v14 backup, preserves all prior row counts, expands 94→99 required logical tables, performs no study backfill and must pass foreign-key/integrity checks.
@@ -164,7 +167,7 @@ Target Position and standardized-state persistence stores research evidence only
 - No production Factor exists. Current stored algorithm results come only from explicit local previews/Dry Runs.
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
-- Current Schema v21 rollback requires stopping writers, preserving the v21 file and restoring verified `market_history.schema-v20-to-v21.20260813T042448969415Z.sqlite3` with matching v20 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
+- Current Schema v22 rollback requires stopping writers, preserving the v22 file and restoring verified `market_history.schema-v21-to-v22.20260814T192644633800Z.sqlite3` with matching v21 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.

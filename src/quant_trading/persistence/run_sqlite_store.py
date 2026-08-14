@@ -2520,6 +2520,53 @@ class SQLiteRunHistoryRepository:
                 ),
                 result_children,
             ))
+        mathematical_cycle_operations = connection.execute(
+            """SELECT o.*, s.symbol, s.stream_name, s.latest_sequence
+               FROM mathematical_cycle_state_operations o
+               LEFT JOIN mathematical_cycle_streams s ON s.stream_id = o.stream_id
+               WHERE o.run_id = ? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in mathematical_cycle_operations:
+            children: tuple[RunArtifactView, ...] = ()
+            if operation["stream_id"]:
+                transition_rows = connection.execute(
+                    """SELECT * FROM mathematical_cycle_transition_events
+                       WHERE stream_id=? AND source_run_id=? ORDER BY sequence""",
+                    (operation["stream_id"], operation["requested_source_run_id"]),
+                ).fetchall()
+                children = tuple(
+                    RunArtifactView(
+                        "mathematical_cycle_transition", row["transition_id"],
+                        RunStageName.STATE.value, operation["symbol"], row["event_type"],
+                        f"{row['session']} · {row['event_type']} · {row['reason']}",
+                        _datetime(row["created_at_utc"]),
+                        (
+                            _field("old/new direction", f"{row['old_direction']} / {row['new_direction'] or '—'}"),
+                            _field("origin", f"{row['origin_session']} / {row['origin_price_text']}"),
+                            _field("activation session", row["activation_effective_session"]),
+                            _field("attribution resolution", f"{row['attribution_from'] or '—'} / {row['attribution_to'] or '—'}"),
+                            _field("P28 Result / Run", f"{row['source_result_id']} / {row['source_run_id']}"),
+                        ),
+                    ) for row in transition_rows
+                )
+            artifacts.append(RunArtifactView(
+                "mathematical_cycle_state_operation", operation["attempt_id"],
+                RunStageName.STATE.value, operation["symbol"], operation["status"],
+                "P23-2B exact P28 mathematical-cycle promotion; DISABLED / NO EXECUTION",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("operation", f"{operation['operation_type']} / {operation['operation_id']}"),
+                    _field("definition", f"{operation['definition_id'] or '—'} v{operation['definition_version'] or '—'}"),
+                    _field("stream", f"{operation['stream_name'] or '—'} / {operation['stream_id'] or '—'}"),
+                    _field("P28 Result / Run", f"{operation['requested_source_result_id'] or '—'} / {operation['requested_source_run_id'] or '—'}"),
+                    _field("latest sequence / snapshot", f"{operation['latest_sequence'] or '—'} / {operation['latest_snapshot_id'] or '—'}"),
+                    _field("warnings", operation["warnings_json"]),
+                    _field("error", operation["error_summary"]),
+                    _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),
+                ),
+                children,
+            ))
         return tuple(artifacts)
 
 

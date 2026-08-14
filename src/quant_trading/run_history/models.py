@@ -44,6 +44,8 @@ class AlgorithmRunType(StrEnum):
     CYCLE_TARGET_RISK_REVIEW = "cycle_target_risk_review"
     ASSET_TRADING_CONTROL_CHANGE = "asset_trading_control_change"
     CYCLE_TARGET_ASSET_ADMISSION_REVIEW = "cycle_target_asset_admission_review"
+    MATHEMATICAL_CYCLE_STATE_DEFINITION = "mathematical_cycle_state_definition"
+    MATHEMATICAL_CYCLE_STATE_PROMOTION = "mathematical_cycle_state_promotion"
 
 
 class AlgorithmRunStatus(StrEnum):

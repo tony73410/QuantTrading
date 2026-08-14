@@ -483,3 +483,46 @@ After this checkpoint the user authorized creation of a proposal-only next plan 
 ### Rollback
 
 Use a normal Git revert of this checkpoint commit without rewriting history. Preserve immutable v21 P36 evidence. Restore the verified pre-P36 backup only for proven corruption under a separately controlled recovery; do not erase accepted control/review history as ordinary rollback. Keep Live and automatic submission disabled throughout.
+
+## WORKTREE-20260814-010
+
+### Identity
+
+- Recorded at: 2026-08-14T19:50:04Z
+- Branch: `main`
+- Published baseline: `a8f00c5`
+- Git identity: approved P37 implementation is complete but uncommitted in the current working tree
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v22, 137 logical tables
+- Governance versions: PROJECT_COMPASS v98; canonical architecture v41; ADR-0038
+- Purpose: record the completed disabled PROPOSAL-037 P37-D1–D12 implementation without implying publication, real-symbol activation or trading authority.
+
+### Included approved work
+
+- Added separate Asset-State-owned P23-2B definitions, named streams, mathematical cycles, per-session snapshots, append-only transition/attribution-resolution events, exact P28 source links, pure engine/service/replay and narrow orchestration.
+- Initial stream facts copy exact P28/P27/seed/calendar lineage. Cumulative updates require an exact semantic prefix. Day 1 and day 2 retain the old operational direction; confirmation closes the old cycle after day-2 close and activates the new direction only at exact day-3 XNYS open with the prior reversal extreme as reference.
+- Added `MATHEMATICAL_CYCLE_STATE_DEFINITION` and `MATHEMATICAL_CYCLE_STATE_PROMOTION` `NO_EXECUTION` Runs, typed artifacts and transition children.
+- Added a read-only `Mathematical Cycles` subtab inside the existing Asset State workspace. It can filter and inspect durable evidence and open Runs, but has no create/promote/default/active control.
+- No mathematical-cycle definition, AAPL/real-symbol stream or P29–P35 consumer was created. P23-4C2, numerical Risk, cash, simulation, Accounting, Paper/Live, orders, fills and execution remain absent or unapproved.
+
+### Migration and runtime evidence
+
+- Automatic pre-migration backup `market_history.schema-v21-to-v22.20260814T192644633800Z.sqlite3` is 100,790,272 bytes, Schema v21/130, integral with zero foreign-key violations and SHA-256 `5F20AA8702397B167DF8C5DE8DC43311AE4B4A15E59AE0348140AAFED338EB0B`.
+- Active `market_history.sqlite3` is 100,913,152 bytes, Schema v22/137, `integrity_check=ok`, zero foreign-key violations and SHA-256 `7344BD0C70DDBF62396BF0F9F5D93078DDF2F26ACCBC5C02BDFCEE04386818C2`.
+- The seven P37 tables are all zero. Every earlier business-table count is preserved; Run/stage/symbol/binding/message remains `64/120/62/286/292` and P35 remains `1/1/3/3/9/3`.
+- Temporary migration tests prove additive v21→v22 zero backfill and failure rollback to intact v21.
+
+### Validation evidence
+
+- All **657** collected tests passed in exhaustive non-overlapping shards: affected Asset State/Algorithm Control/Run History `149`; Factor/Market History/integration `197`; Capital/Decision/Orchestration/Accounting/Risk/Target `151`; Backtesting/Execution/Launcher `30`; root unit plus all architecture/governance `130`.
+- Python compileall, dependency consistency (`pip check`), `git diff --check`, forbidden P37 execution scan and forbidden downstream-consumer scan passed.
+- The only test warning is the pre-existing third-party `websockets.legacy` deprecation. Offscreen Qt emitted an environment-only GLES3→GLES2 fallback message while the GUI tests still passed.
+- `BUG-20260814-001` was found and fixed with regression coverage: missing exact P28 requests now persist failed operation/Run evidence without fabricating accepted source or state rows.
+
+### Safety state and next approval boundary
+
+P23-2B remains `IMPLEMENTED_VERIFIED_DISABLED`, `execution_allowed=false` and `live_allowed=false`. Implementation is not activation. A real-symbol definition/stream/promotion, any P29–P35 consumer, daily opportunity counting, numerical Risk, factual cash/positions, full-chain simulation, Accounting persistence, Paper/Live or order behavior each require a separate approved task.
+
+### Rollback
+
+Before commit, revert only the P37 working-tree source/document/test edits while preserving the ignored active v22 database and backup for audit. After a future commit, use normal Git revert without rewriting history. Physical downgrade requires stopping all writers, preserving v22, restoring the verified v21 backup and running matching v21 code; never delete immutable P36 evidence as ordinary rollback.

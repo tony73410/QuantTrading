@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It owns Phase 5C exact standardized-state-to-Target-Position call order, Phase 5D exact linked-target-to-Decision source resolution, Phase 6A–6D, P23-4B and P23-4C1 exact Risk-research source resolution, P23-1/P26 research call order and the P23-3A exact-P28-step adapter. It contains no formula or rule outcome and never reaches execution.
+**Implemented and verified as an interface-level boundary and local Algorithm Control preview adapter.** It also owns the P23-2B exact cumulative-P28-to-neutral-cycle-source adapter. It contains no formula, state-transition rule outcome or execution route.
 
 ## Purpose
 
@@ -20,6 +20,7 @@ Coordinate explicitly approved cross-owner research call order while keeping eve
 - Restricted Decision evaluation records structured condition values/outcomes and exact sizing inputs at calculation time before persistence; orchestration forwards the immutable result without calculating or reconstructing the trace.
 - Resolve one exact accepted standardized-state calculation through its public query, create a top-level linked-preview Run, and delegate a source-neutral exact scalar/symbol/time input to the Target Position linked service.
 - Resolve one explicitly selected successful P28 Result/Run and exact Daily Step through the public query, copy its P28/P27/P26/Market identities and `P/R/k`/direction/candidate evidence into a source-neutral Target Position DTO, then delegate to P23-3A without selecting latest evidence or calculating a curve.
+- Resolve one explicitly selected successful cumulative P28 Result/Run, normalize its exact seed/profile/calendar/step/event evidence without selecting latest data, and delegate stream creation/advance to Asset State. Missing sources become durable failed P23-2B Runs; orchestration never computes a cycle transition.
 - Preserve source/parent/child Run identity, return idempotent exact retries, durably fail conflicts/missing evidence, and never select a latest/default result.
 - Resolve one explicitly selected completed Phase 5C link plus its exact source/target results, freeze a source-neutral `LinkedTargetDecisionInput`, and delegate action/notional interpretation to Decision.
 - Record one parent-linked `TARGET_ADJUSTMENT_DECISION_PREVIEW` Run with ordered Target Position evidence then Decision mapping; expose the Phase 5C parent, target child and standardized-state source Runs without calculating their meaning.
@@ -45,6 +46,10 @@ The public P23-4A orchestration surface is `CycleTargetAdjustmentDecisionPreflig
 
 `AssetTradingControlCoordinator` validates an explicit v1 symbol/XNYS mapping and exact calendar evidence, calculates only the approved effective-session boundary, and delegates immutable event meaning to Asset State. `CycleTargetAssetAdmissionCoordinator` accepts explicit P33 Result/Run IDs, resolves the exact effective public control event or proves that no state exists, converts it to the Risk-owned neutral DTO, and delegates every disposition to Risk. Their `preflight()` methods write nothing. Review Runs order `STATE` before `RISK`; missing/frozen/invalid evidence blocks and eligible evidence remains manual review. Orchestration contains no trading-control policy, Risk rule, SQL, daily counter, cash logic or execution route.
 
+## P23-2B exact cumulative P28 promotion
+
+`MathematicalCyclePromotionCoordinator` accepts only explicit P28 Result/Run IDs. `prepare()` reads the public P28 query, verifies successful disabled schema-v1 evidence and produces a source-neutral cumulative DTO with stable semantic fingerprints. `promote()` delegates all state meaning to `MathematicalCycleStateService`; missing exact evidence is recorded as a failed parentless Run. The adapter contains no Provider, SQL, Factor calculation, cycle formula, Target/Decision/Risk/count/cash/simulation or execution behavior.
+
 Approved PROPOSAL-036 exercised the public coordinators without adding code: one exact AAPL control command passed no-write preflight before submission, then all three exact P33 sources independently passed admission preflight and produced manual-review-only results. Four deterministic operation retries created no row, proving the public orchestration path remains exact-source and idempotent across restart.
 
 ## Non-responsibilities
@@ -53,7 +58,7 @@ No Market Data loading, SQL, Factor formula, decision/risk rule, portfolio inter
 
 ## Public interfaces
 
-`AnalysisDecisionPipeline`, `AnalysisDecisionRequest`, `AnalysisDecisionResult`, `TradingEvaluationPipeline`, `TradingEvaluationRequest`, `TradingEvaluationResult`, `StandardizedStateTargetPositionPreviewCoordinator`, `CycleTargetPositionResearchCoordinator`, `CycleTargetPositionResearchRunner`, `CycleTargetAdjustmentDecisionPreviewCoordinator`, `CycleTargetRiskReviewCoordinator`, `CycleTargetRiskReviewPreflight`, `AssetTradingControlCoordinator`, `AssetTradingControlPreflight`, `CycleTargetAssetAdmissionCoordinator`, `CycleTargetAssetAdmissionPreflight`, `TargetAdjustmentDecisionPreviewCoordinator`, `TargetAdjustmentRiskReviewCoordinator`, `ManualSpectralPreviewRequest`, `ManualSpectralPreviewOutcome`, `ManualSpectralPreviewRunner`, `ManualSpectralPreviewCoordinator`, `SpectralHistoricalStudyRequest`, `SpectralHistoricalStudyDisclosure`, `SpectralHistoricalStudyRunner`, `SpectralHistoricalStudyCoordinator`.
+The public surface additionally includes `MathematicalCyclePromotionCoordinator`, `MathematicalCyclePromotionPreflight` and `MathematicalCyclePromotionRunner`.
 
 ## Inputs
 

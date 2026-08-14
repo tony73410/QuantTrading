@@ -90,7 +90,7 @@ def test_schema_v1_to_current_migration_backs_up_and_preserves_rows(tmp_path: Pa
         assert backup.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 1
         assert backup.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
     with sqlite3.connect(database_path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 21
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
@@ -199,7 +199,7 @@ def test_current_schema_initialization_rejects_a_migration_history_gap(
             )
         )
     assert 7 not in versions
-    assert versions[-1] == 21
+    assert versions[-1] == 22
 
 
 def _start_run(repository: SQLiteRunHistoryRepository):

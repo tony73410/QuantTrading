@@ -2,6 +2,8 @@
 
 P23-4C1 adds sibling inspectors inside the existing Asset State and Risk pages. The Asset State `Trading Control` subtab requires symbol, exact v1 mapping, status, reason and successful no-write preflight; it shows current/pending state, immutable timeline, filtering/comparison and Open Run. The Risk `Cycle Target Asset Admission` subtab requires one exact P33 result and successful no-write preflight; it shows control evidence, all locked rules, history/filter/compare, JSON/CSV export and complete Run navigation. Neither subtab contains calculation/SQL/order logic, and no Launcher entry was added.
 
+P23-2B adds a read-only `Mathematical Cycles` sibling inside the existing Asset State page. It lists explicitly named disabled streams, current operational direction, exact definition/P28 identity, immutable snapshots/transitions and operation Runs. It has no Create/Promote/Active control and does not calculate state, select latest evidence or add a Launcher entry.
+
 Approved PROPOSAL-036 verified these existing GUI surfaces against real local evidence after restart: Trading Control showed one AAPL `ELIGIBLE` event and one operation; Cycle Target Asset Admission showed three results, three operations and nine rules. Every available control/P35/P33/P31/P29/P28 Open Run target was enabled and resolved. Inspection created no database write and exposed no approval or execution control.
 
 ## Purpose
@@ -31,6 +33,7 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - Provide a passive local `算法 Idea 笔记` page for free-form notes, tags, archive and restore without registering or invoking any algorithm component.
 - Provide a Capital Allocation owner page over injected typed services: explicit research-plan creation, conserved bucket/snapshot inspection, manual asset-cash transfer history and `Open Run` navigation.
 - Provide an Asset State owner page over injected typed services: explicit symbolic definition creation, cycle start/close, manual allowed-edge transitions, immutable timeline/replay display and `Open Run` navigation.
+- Provide a separate read-only P23-2B inspector over `MathematicalCycleStateQueryService`; never treat its direction as manual state or P35 eligibility.
 - Provide a Target Position owner page over injected typed services: explicit finite-knot definition creation, explicit manual scalar/USD preview inputs, immutable result/trace history, exact persisted curve chart and `Open Run` navigation.
 - In a visually separate linked Target Position mode, require explicit persisted Standardized State and exact curve selections, display immutable source evidence, collect only the two manual USD values/reason, and show linked history with source/parent/child `Open Run` navigation.
 - In a sibling `P23-3 周期目标仓位` mode, create immutable disabled formula and per-symbol parameter versions through typed services; require an explicit successful P28 Result/Run and exact Daily Step plus hypothetical USD basis/current values; show `P/R/k/x`, candidate/linear gates, region/solver/target evidence; replay/compare/export history and open P29/P28/P27/P26 Runs. Composition creates no default; P30 data remains explicitly approved disabled validation evidence only.
@@ -67,7 +70,7 @@ Qt按钮signal通过显式adapter与DecisionCondition等业务对象参数隔离
 
 ## Public interfaces
 
-`AlgorithmComponentRegistry`, `ComponentMetadata`, `DataContractDeclaration`, `ChangeAdmissionService`, `ConflictAssessment`, `PipelineAdmissionResult`, `FeatureState`, `Capability`, `ParameterSchema`, `ConfigurationRecord`, `PreviewRequest`, `PreviewResult`, `ConfigurationService`, `ConfigurationValidator`, `PreviewService`, `AlgorithmControlController`, `IdeaNotebookService`, `IdeaNotebookPanel`, `RunHistoryPanel`, `FactorHistoryPanel`, `FactorHistoryChartBuilder`, `FactorHistoryExportService`, `SpectralVolatilityPanel`, injected `ManualSpectralPreviewRunner`, `SpectralVolatilityExportService`, `DecisionHistoryPanel`, `TargetAdjustmentDecisionPanel`, `CycleTargetAdjustmentDecisionPanel`, `TargetAdjustmentRiskPanel`, `CycleTargetRiskPanel`, `CycleTargetRiskExportService`, `RiskChainInspectionService`, `TargetAdjustmentRiskChainView`, `RiskChainExplorerPanel`, `ResearchAssetCashPanel`, `RiskManagementPanel`, `CapitalAllocationPanel`, `AssetStatePanel`, `TargetPositionPanel`, `CycleTargetPositionPanel`, `build_controller()`, `AlgorithmControlPanel`, and `AlgorithmControlPanel.select_page()`.
+The public presentation surface additionally includes `MathematicalCyclePanel` as a query-only child of `AssetStateWorkspacePanel`.
 
 ## Inputs
 
@@ -75,7 +78,7 @@ Registered metadata, restricted Factor definitions, user configuration edits/Fac
 
 ## Outputs
 
-Versioned configuration, validation, audit, non-executing preview results, read-only Factor/Decision/linked-target/target-adjustment/P33/P35 history views, an exact-version Factor/source-price Figure, and explicit bounded Factor/P23-4A/P23-4B/P23-4C1 CSV/JSON copies. Tracked previews return Run identity; P23-4C1 views open P35/P33/P31/P29/P28/control Runs. A preview, persisted Run, intent, control event, chart or export is never Risk approval, a trade, order or execution authorization.
+Versioned configuration, validation, audit, non-executing preview results and read-only Factor/Decision/P23 history views. The P23-2B inspector opens exact definition/promotion Runs and displays persisted mathematical-cycle evidence only. A stream, preview, persisted Run, intent, control event, chart or export is never Risk approval, a trade, order or execution authorization.
 
 ## Dependencies
 

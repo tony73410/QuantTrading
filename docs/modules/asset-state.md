@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Provide restart-safe, versioned and replay-verifiable research history for per-symbol symbolic state/trading-cycle identity, a strictly separate disabled P23-2 reversal-observation laboratory, and the P23-4C1 authoritative append-only `ELIGIBLE/FROZEN` trading-control stream.
+Provide restart-safe, versioned and replay-verifiable research history for per-symbol symbolic state/trading-cycle identity, a strictly separate disabled P23-2 reversal-observation laboratory, the disabled P23-2B mathematical-cycle stream, and the P23-4C1 authoritative append-only `ELIGIBLE/FROZEN` trading-control stream.
 
 ## Responsibilities
 
@@ -19,11 +19,14 @@ Provide restart-safe, versioned and replay-verifiable research history for per-s
 - Evaluate exact forward-frozen P27/local-market evidence with symmetric log distance, inclusive threshold, two expected-session confirmation and next-session activation.
 - Preserve every P23-2 daily step, candidate/confirmation/activation event, source link, failed attempt, exact replay and bounded comparison/export query.
 - Keep P23-2 research direction/events separate from existing formal `AssetStateTransitionEvent` facts.
+- Own disabled P23-2B definitions/streams that promote only an explicit exact successful cumulative P28 Result/Run into durable mathematical cycles, per-session snapshots, transitions and source links.
+- Preserve the old operational direction through confirmation close, activate the new direction only on day 3, use the prior reversal extreme as the new reference, and record later provisional-attribution resolution as a new event without rewriting snapshots.
+- Reject source switching, gaps, incompatible semantic prefixes, stale stream cursors, operation-ID conflicts and unsafe metadata; provide deterministic stored-view replay.
 - Own explicit P23-4C1 `ELIGIBLE/FROZEN` facts separately from free-form manual state keys and generic Risk pauses; freeze is immediate, unfreeze begins at the next recognized XNYS session, and no missing-state default exists.
 
 ## Non-responsibilities
 
-Built-in state names or financial meaning; Factor calculation; multiplier selection/default; baseline linear buying/selling; exponential trading; formal automatic state mutation; hysteresis; saturation/reset algorithms; Target Position; Decision/TradeIntent; numerical Risk; capital transfer; accounting facts; Backtesting consumption; fills; orders; Paper or Live.
+Built-in manual state names; P27/P28 calculation; multiplier selection/default; baseline linear buying/selling; exponential trading; scheduler-driven state mutation; hysteresis; saturation/reset algorithms; Target Position; Decision/TradeIntent; numerical Risk; capital transfer; accounting facts; Backtesting consumption; fills; orders; Paper or Live.
 
 ## Public interfaces
 
@@ -39,6 +42,8 @@ Built-in state names or financial meaning; Factor calculation; multiplier select
 - `ReversalObservationReplayService`, `replay_reversal_observation()`
 - `AssetTradingControlService`, `AssetTradingControlStore`, `AssetTradingControlQueryService`
 - `AssetTradingControlChangeCommand`, immutable Event/Operation/Calendar Evidence/Query contracts and `AssetTradingControlStatus`
+- `MathematicalCycleStateService`, `MathematicalCycleEngine`, `MathematicalCycleStateStore`, `MathematicalCycleStateQueryService`
+- immutable mathematical definition/promotion/source/stream/cycle/snapshot/transition/operation contracts plus `MathematicalCycleReplayService`
 
 All contracts are schema version 1 and use explicit UUID identity/timezone-aware UTC. Manual-state contracts retain symbolic, non-financial values. P23-2 additionally preserves positive price text plus float64/IEEE-hex mathematical evidence; those research values do not authorize or imply a position.
 
@@ -60,7 +65,7 @@ The domain depends only on Python stdlib, centralized error codes and neutral Ru
 
 ## Side effects
 
-The domain has none outside injected ports. SQLite adapters append Schema-v5 manual-state, Schema-v17 P23-2 and Schema-v21 P23-4C1 control evidence. The GUI requires explicit selection, reason and no-write preflight; it displays current/pending status, immutable history/filter/compare and Open Run without calculating policy.
+The domain has none outside injected ports. SQLite adapters append Schema-v5 manual-state, Schema-v17 P23-2, Schema-v21 P23-4C1 control and Schema-v22 P23-2B mathematical-cycle evidence. The P23-2B GUI is read-only and displays streams, snapshots, transitions, exact P28 provenance and Open Run without creating or selecting an active stream.
 
 ## Failure modes
 
@@ -79,6 +84,9 @@ No default definition, multiplier, state, graph, symbol, P27 result, direction, 
 - `tests/unit/asset_state/test_sqlite_reversal_observation.py` covers definition/result/step/event/source persistence, restart, deterministic recalculation replay, Run artifact and v16→v17 migration.
 - `tests/unit/orchestration/test_reversal_observation_research.py` covers exact local forward evidence and missing-session failure.
 - `tests/unit/algorithm_control/test_reversal_observation_panel.py` covers no defaults, immutable definition versions and separate Asset State subtabs.
+- `test_mathematical_cycle_state.py` covers day-2 close/day-3 activation, prior-extreme reference, append-only attribution resolution, divergence rejection and replay.
+- `test_sqlite_mathematical_cycle_state.py` covers exact P28 adaptation, idempotency, durable source failure, restart replay, Run artifacts and v21→v22 backup/zero-backfill/rollback.
+- `test_mathematical_cycle_panel.py` covers the read-only no-default inspector.
 
 ## Known limitations
 
@@ -91,4 +99,5 @@ No default definition, multiplier, state, graph, symbol, P27 result, direction, 
 - Approved PROPOSAL-036 created and reloaded AAPL's first authoritative control event `edc6ee3e-8d73-4606-8bf3-0643d8c024b3` as `ELIGIBLE` under Run `0fc2ca64-5941-4c1d-9750-462d451c6488`. The event remains immutable/effective until a separately authorized successor; it is validation evidence, not a buy instruction or default for another symbol.
 - Historical correction/deletion and compensating state-event semantics are not implemented.
 - P23-2 has no multiplier default. One separately approved AAPL validation created explicit disabled definition version 1 with `M=1.5`, used initial `DOWN`, the latest immutable seed close available when P27 was created (`2026-08-05`, `310.94`) and three forward completed sessions through `2026-08-10`. Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` was `VALID_NO_REVERSAL`: zero candidates/confirmations/activations and final running low `308.17`. It is validation evidence, not an active parameter or trade.
+- P23-2B is implemented but has no persisted definition, stream or real-symbol state after the zero-backfill migration. The existing AAPL P28 result was not promoted. No scheduler or downstream consumer exists.
 - Seed provenance is resolved from immutable spectral observations that were already available by P27 creation; later refreshes of the generic Market Bar cache cannot invalidate that history. Evaluated sessions still require exact local Raw/Split bars plus a frozen supported corporate-action snapshot covering the full range.

@@ -5421,3 +5421,29 @@ Updated the current chain to v1→v21 and named P23-4B v20 and P23-4C1 v21. Gove
 ### Known Issues disposition and rollback
 
 Not added to `KNOWN_ISSUES.md` because the documentation defect was fixed in the same handoff. Rollback is a documentation-only revert, though it would reintroduce the stale version statement.
+
+## BUG-20260814-001
+
+### Title
+P37 missing-source failures could not be persisted durably
+
+### Status
+Fixed during PROPOSAL-037 implementation
+
+### Severity
+Medium
+
+### Area
+P23-2B mathematical-cycle persistence and orchestration
+
+### Reproduction and cause
+
+Request promotion with an unknown exact P28 Result/Run identity. The coordinator correctly fails closed before changing mathematical-cycle state, but the first v22 operation-table design also declared foreign keys from the *requested* source IDs to accepted P28 rows. SQLite therefore rejected the failure-attempt insert itself, so the invalid request could not satisfy the approved requirement that failures remain searchable after restart.
+
+### Resolution and regression evidence
+
+Removed foreign keys only from the requested-source fields on `mathematical_cycle_state_operations`. Accepted source facts remain foreign-key constrained in snapshots, transition events and source links. Added a parentless durable source-failure path that records an `INVALID_INPUT`/`NO_EXECUTION` Run and failed operation without creating a definition, stream, cycle, snapshot, transition or source link. Repository integration tests verify restart reload, zero state mutation and exact Run linkage for an unknown P28 source.
+
+### Known Issues disposition and rollback
+
+Not added to `KNOWN_ISSUES.md` because the defect was found and fixed before P37 handoff and never affected the active database: all seven P37 tables remain empty. A normal code/schema-definition revert of the uncommitted P37 implementation is sufficient; do not restore or discard existing P36 evidence.

@@ -107,6 +107,7 @@ from quant_trading.asset_state import (
     ReversalObservationQueryService,
     ReversalObservationService,
     AssetTradingControlQueryService,
+    MathematicalCycleStateQueryService,
 )
 from quant_trading.target_position import (
     CycleTargetPositionQueryService,
@@ -221,6 +222,7 @@ class AlgorithmControlPanel(QMainWindow):
         asset_trading_control_queries: AssetTradingControlQueryService | None = None,
         cycle_target_asset_admission_review: CycleTargetAssetAdmissionCoordinator | None = None,
         cycle_target_asset_admission_queries: CycleTargetAssetAdmissionQueryService | None = None,
+        mathematical_cycle_queries: MathematicalCycleStateQueryService | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -356,6 +358,7 @@ class AlgorithmControlPanel(QMainWindow):
             session_id=asset_state_session_id or capital_session_id,
             trading_control_coordinator=asset_trading_control_coordinator,
             trading_control_queries=asset_trading_control_queries,
+            mathematical_cycle_queries=mathematical_cycle_queries,
         )
         self.target_position_page = TargetPositionPanel(
             target_position_service,

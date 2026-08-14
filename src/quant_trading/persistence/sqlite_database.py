@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 21
+SCHEMA_VERSION = 22
 
 
 _SCHEMA_V1 = """
@@ -4047,6 +4047,246 @@ ON cycle_target_asset_admission_source_links(p33_run_id, control_run_id);
 """
 
 
+_SCHEMA_V22 = """
+CREATE TABLE mathematical_cycle_state_definitions (
+    definition_id TEXT PRIMARY KEY,
+    definition_version INTEGER NOT NULL CHECK (definition_version >= 1),
+    predecessor_definition_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('disabled', 'archived')),
+    component_id TEXT NOT NULL CHECK (component_id = 'asset_state.mathematical_cycle.p23_2b.v1'),
+    component_version TEXT NOT NULL CHECK (component_version = '1.0.0'),
+    source_policy TEXT NOT NULL,
+    confirmation_state_policy TEXT NOT NULL,
+    activation_policy TEXT NOT NULL,
+    reference_policy TEXT NOT NULL,
+    attribution_policy TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (component_id, definition_version),
+    FOREIGN KEY (predecessor_definition_id) REFERENCES mathematical_cycle_state_definitions(definition_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE mathematical_cycle_state_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    run_id TEXT NOT NULL UNIQUE,
+    stage_id TEXT NOT NULL UNIQUE,
+    operation_type TEXT NOT NULL CHECK (operation_type IN ('save_definition', 'create_stream', 'advance_stream')),
+    command_fingerprint TEXT NOT NULL,
+    definition_id TEXT,
+    definition_version INTEGER,
+    stream_id TEXT,
+    requested_source_result_id TEXT,
+    requested_source_run_id TEXT,
+    expected_latest_snapshot_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'invalid_input', 'source_not_found', 'source_incompatible', 'source_prefix_divergence', 'concurrency_conflict', 'failed')),
+    latest_snapshot_id TEXT,
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    warnings_json TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (definition_id) REFERENCES mathematical_cycle_state_definitions(definition_id) ON DELETE RESTRICT,
+    CHECK ((status IN ('completed', 'completed_with_warnings') AND error_code IS NULL AND error_summary IS NULL) OR (status NOT IN ('completed', 'completed_with_warnings') AND error_code IS NOT NULL AND error_summary IS NOT NULL))
+);
+CREATE UNIQUE INDEX uq_mathematical_cycle_terminal_operation
+ON mathematical_cycle_state_operations(operation_id)
+WHERE status IN ('completed', 'completed_with_warnings');
+
+CREATE TABLE mathematical_cycle_streams (
+    stream_id TEXT PRIMARY KEY,
+    stream_name TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    definition_id TEXT NOT NULL,
+    definition_version INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('open', 'archived')),
+    original_source_result_id TEXT NOT NULL,
+    original_source_run_id TEXT NOT NULL,
+    source_definition_id TEXT NOT NULL,
+    source_definition_version INTEGER NOT NULL,
+    profile_result_id TEXT NOT NULL,
+    profile_run_id TEXT NOT NULL,
+    profile_definition_id TEXT NOT NULL,
+    profile_definition_version INTEGER NOT NULL,
+    seed_session TEXT NOT NULL,
+    seed_observation_id TEXT NOT NULL,
+    seed_price_text TEXT NOT NULL,
+    seed_price_value REAL NOT NULL,
+    seed_price_hex TEXT NOT NULL,
+    initial_direction TEXT NOT NULL CHECK (initial_direction IN ('up', 'down')),
+    calendar_fingerprint TEXT NOT NULL,
+    latest_source_result_id TEXT NOT NULL,
+    latest_source_run_id TEXT NOT NULL,
+    latest_snapshot_id TEXT NOT NULL,
+    latest_sequence INTEGER NOT NULL CHECK (latest_sequence >= 1),
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (symbol, stream_name, definition_id),
+    FOREIGN KEY (definition_id) REFERENCES mathematical_cycle_state_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (original_source_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (original_source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (latest_source_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (latest_source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE mathematical_trading_cycles (
+    cycle_id TEXT PRIMARY KEY,
+    stream_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL CHECK (ordinal >= 1),
+    direction TEXT NOT NULL CHECK (direction IN ('up', 'down')),
+    operational_start_session TEXT NOT NULL,
+    operational_start_utc TEXT NOT NULL,
+    reference_session TEXT NOT NULL,
+    reference_price_text TEXT NOT NULL,
+    reference_price_value REAL NOT NULL,
+    reference_price_hex TEXT NOT NULL,
+    predecessor_cycle_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('open', 'closed')),
+    confirmed_close_session TEXT,
+    confirmed_close_utc TEXT,
+    activation_transition_id TEXT,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (stream_id, ordinal),
+    FOREIGN KEY (stream_id) REFERENCES mathematical_cycle_streams(stream_id) ON DELETE RESTRICT,
+    FOREIGN KEY (predecessor_cycle_id) REFERENCES mathematical_trading_cycles(cycle_id) ON DELETE RESTRICT,
+    CHECK ((status = 'open' AND confirmed_close_session IS NULL AND confirmed_close_utc IS NULL) OR (status = 'closed' AND confirmed_close_session IS NOT NULL AND confirmed_close_utc IS NOT NULL))
+);
+
+CREATE TABLE mathematical_cycle_snapshots (
+    snapshot_id TEXT PRIMARY KEY,
+    stream_id TEXT NOT NULL,
+    cycle_id TEXT NOT NULL,
+    sequence INTEGER NOT NULL CHECK (sequence >= 1),
+    session TEXT NOT NULL,
+    direction_at_open TEXT NOT NULL CHECK (direction_at_open IN ('up', 'down')),
+    direction_at_close TEXT NOT NULL CHECK (direction_at_close IN ('up', 'down')),
+    reference_session TEXT NOT NULL,
+    reference_price_text TEXT NOT NULL,
+    reference_price_value REAL NOT NULL,
+    reference_price_hex TEXT NOT NULL,
+    running_extreme_before_text TEXT NOT NULL,
+    running_extreme_before_value REAL NOT NULL,
+    running_extreme_before_hex TEXT NOT NULL,
+    running_extreme_after_text TEXT NOT NULL,
+    running_extreme_after_value REAL NOT NULL,
+    running_extreme_after_hex TEXT NOT NULL,
+    candidate_state TEXT NOT NULL,
+    threshold_value REAL NOT NULL,
+    threshold_hex TEXT NOT NULL,
+    directional_log_distance_value REAL NOT NULL,
+    directional_log_distance_hex TEXT NOT NULL,
+    attribution_at_recording TEXT NOT NULL,
+    cumulative_new_cycle_movement_value REAL NOT NULL,
+    cumulative_new_cycle_movement_hex TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_step_id TEXT NOT NULL,
+    source_observation_id TEXT NOT NULL,
+    predecessor_snapshot_id TEXT,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (stream_id, sequence),
+    UNIQUE (stream_id, session),
+    FOREIGN KEY (stream_id) REFERENCES mathematical_cycle_streams(stream_id) ON DELETE RESTRICT,
+    FOREIGN KEY (cycle_id) REFERENCES mathematical_trading_cycles(cycle_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT,
+    FOREIGN KEY (predecessor_snapshot_id) REFERENCES mathematical_cycle_snapshots(snapshot_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE mathematical_cycle_transition_events (
+    transition_id TEXT PRIMARY KEY,
+    stream_id TEXT NOT NULL,
+    sequence INTEGER NOT NULL CHECK (sequence >= 1),
+    session TEXT NOT NULL,
+    event_type TEXT NOT NULL CHECK (event_type IN ('candidate_observed', 'candidate_cancelled', 'reversal_confirmed', 'cycle_activated', 'attribution_resolved')),
+    old_cycle_id TEXT,
+    new_cycle_id TEXT,
+    old_direction TEXT NOT NULL CHECK (old_direction IN ('up', 'down')),
+    new_direction TEXT CHECK (new_direction IS NULL OR new_direction IN ('up', 'down')),
+    origin_session TEXT NOT NULL,
+    origin_price_text TEXT NOT NULL,
+    origin_price_value REAL NOT NULL,
+    origin_price_hex TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_event_id TEXT,
+    source_day1_step_id TEXT,
+    source_day2_step_id TEXT,
+    activation_effective_session TEXT,
+    related_snapshot_id TEXT,
+    attribution_from TEXT,
+    attribution_to TEXT,
+    reason TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (stream_id, sequence),
+    FOREIGN KEY (stream_id) REFERENCES mathematical_cycle_streams(stream_id) ON DELETE RESTRICT,
+    FOREIGN KEY (old_cycle_id) REFERENCES mathematical_trading_cycles(cycle_id) ON DELETE RESTRICT,
+    FOREIGN KEY (new_cycle_id) REFERENCES mathematical_trading_cycles(cycle_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_event_id) REFERENCES reversal_observation_events(event_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_day1_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_day2_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT,
+    FOREIGN KEY (related_snapshot_id) REFERENCES mathematical_cycle_snapshots(snapshot_id) ON DELETE RESTRICT,
+    CHECK ((event_type = 'attribution_resolved' AND source_event_id IS NULL AND attribution_from IS NOT NULL AND attribution_to IS NOT NULL) OR (event_type <> 'attribution_resolved' AND source_event_id IS NOT NULL AND attribution_from IS NULL AND attribution_to IS NULL))
+);
+
+CREATE TABLE mathematical_cycle_source_links (
+    link_id TEXT PRIMARY KEY,
+    stream_id TEXT NOT NULL,
+    snapshot_id TEXT NOT NULL UNIQUE,
+    sequence INTEGER NOT NULL CHECK (sequence >= 1),
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_step_id TEXT NOT NULL,
+    source_observation_id TEXT NOT NULL,
+    stable_semantic_fingerprint TEXT NOT NULL,
+    recorded_attribution TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    UNIQUE (stream_id, sequence),
+    FOREIGN KEY (stream_id) REFERENCES mathematical_cycle_streams(stream_id) ON DELETE RESTRICT,
+    FOREIGN KEY (snapshot_id) REFERENCES mathematical_cycle_snapshots(snapshot_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_mathematical_cycle_streams_lookup
+ON mathematical_cycle_streams(symbol, status, created_at_utc DESC);
+CREATE INDEX idx_mathematical_cycle_operations_lookup
+ON mathematical_cycle_state_operations(stream_id, status, completed_at_utc DESC);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -4069,6 +4309,7 @@ _MIGRATIONS = {
     19: ("P23-4A P29 cycle-target Decision preview evidence", _SCHEMA_V19),
     20: ("P23-4B P31 cycle-target structural Risk review evidence", _SCHEMA_V20),
     21: ("P23-4C1 versioned frozen-asset admission evidence", _SCHEMA_V21),
+    22: ("P23-2B disabled versioned mathematical-cycle state", _SCHEMA_V22),
 }
 
 

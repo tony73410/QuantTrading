@@ -4,8 +4,8 @@
 document: SYSTEM_ARCHITECTURE
 status: active
 canonical: true
-version: 40
-last_updated_utc: 2026-08-13T06:00:00Z
+version: 41
+last_updated_utc: 2026-08-14T19:30:00Z
 ```
 
 ## Purpose
@@ -33,6 +33,7 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - exact-version Factor/source-price visualization joined only to the persisted final source Bar, explicit missing/status gaps, bounded CSV/JSON copies, and one business-neutral Plotly/QWebEngine renderer shared by Market History and Algorithm Control;
 - a disabled, in-memory Portfolio Accounting scaffold with separate append-only Trading Ledger, state derivation, reconciliation-reporting, and read-only query boundaries.
 - a separate disabled/unconsumed research Capital Allocation domain with an explicit USD basis, protected reserve/asset-cash buckets, exact Decimal conservation, immutable transfers/snapshots, central persistence and an Algorithm Control owner page;
+- a separate disabled P23-2B mathematical-cycle stream under Asset State, promoted only from explicit exact cumulative P28 evidence, with day-3 activation, append-only attribution resolution, Schema-v22 persistence and a read-only existing-page inspector;
 - a separate disabled/unconsumed Asset State research domain with immutable user-defined symbolic graphs, one open cycle per symbol, explicit manual transitions, durable attempts, deterministic replay, central Schema v5 persistence and an Algorithm Control owner page;
 - a separate disabled/unconsumed Target Position research domain with immutable user-defined monotone finite-knot curves, exact manual scalar/USD previews, structured Decimal traces, central Schema v6 persistence and an Algorithm Control owner page;
 - a Factor-owned disabled manual standardized-price-state research branch with exact positive Decimal USD price/reference/scale inputs, structured dimensionless traces, central Schema v7 persistence and an Algorithm Control owner page;
@@ -356,7 +357,7 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
-| Status | Implemented and verified with central Schema v21/130 plus additive v1→v21 migration evidence |
+| Status | Implemented and verified with central Schema v22/137 plus additive v1→v22 migration evidence |
 | Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor/P23-1, generic/specialized Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance ownership/contracts independent. |
 | Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, P23-1/P26/P23-1F/P23-2/P23-3A/P23-4A/P23-4B/P23-4C1 stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
 | Non-responsibilities | Market Data download, algorithm calculation, availability semantics, GUI, cleanup deletion, broker, accounting or execution. |
@@ -543,16 +544,16 @@ The Ledger is the source of recorded facts; accounting state is derived; broker 
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.asset_state` / `src/quant_trading/asset_state/` |
-| Status | Implemented and verified with separate manual ledger, P23-2 observation and P23-4C1 trading-control branches; no execution authority |
-| Purpose | Preserve user-defined symbolic state history, independently observe reversals and own explicit append-only strategy trading-control facts without conflating those branches. |
-| Responsibilities | Existing immutable graph/cycle/manual-transition history; P23-2 immutable reversal research; and P23-4C1 exact-mapping `ELIGIBLE/FROZEN` operation/event history with immediate freeze, next-session unfreeze, predecessor concurrency and public effective-event queries. |
-| Non-responsibilities | Default state/control/multiplier, automatic price-driven transitions, formulas/trades/targets, Capital/Accounting mutation, Risk outcomes, daily opportunity counting, broker, orders, Paper or Live. |
-| Public interfaces | Existing manual Asset State contracts plus `ReversalObservationService`, engine, Store/query/replay ports and exact schema-v1 Definition/Command/Profile/Market/Step/Event/Result/Operation contracts. |
+| Status | Implemented and verified with separate manual ledger, P23-2 observation, disabled P23-2B mathematical cycle and P23-4C1 trading-control branches; no execution authority |
+| Purpose | Preserve user-defined symbolic history, observe reversals, materialize an explicitly selected mathematical cycle and own strategy trading-control facts without conflating the branches. |
+| Responsibilities | Existing manual history; P23-2 observation; exact cumulative-P28 promotion into named/versioned mathematical streams with old-direction-through-day2, day3 activation, prior-extreme reference and append-only attribution resolution; and P23-4C1 `ELIGIBLE/FROZEN` history. |
+| Non-responsibilities | Default/active state/control/multiplier/stream, scheduler or Provider, P27/P28 calculation, formulas/trades/targets, Capital/Accounting mutation, Risk outcomes, daily opportunity counting, broker, orders, Paper or Live. |
+| Public interfaces | Existing manual/P23-2/P23-4C1 contracts plus `MathematicalCycleStateService`, pure engine, Store/query/replay ports and type-distinct definition/promotion/source/stream/cycle/snapshot/transition/operation contracts. |
 | Inputs / outputs | Explicit manual-ledger commands or, separately, one explicit P28 definition, exact positive P27 result, explicit direction/seed/end and application-resolved local evidence / immutable isolated research evidence and terminal `NO_EXECUTION` Runs. |
 | Allowed dependencies | stdlib, shared errors and neutral Run History contracts. |
 | Forbidden dependencies | Persistence/SQLite, PySide6, Capital Allocation, Portfolio Accounting, Market/Factor/Decision/Risk, Backtesting, Alpaca and Execution. |
-| Side effects / configuration | None in the domain; injected Stores own Schema-v5/manual, Schema-v17/P23-2 and Schema-v21/P23-4C1 writes. No default control event, automatic source, credential or schedule. Only P35 may read the control event through a public exact query. |
-| Tests / documentation | domain/repository/migration/Run/GUI/orchestration/replay/architecture tests; [`asset-state.md`](../modules/asset-state.md), ADR-0020/0033. |
+| Side effects / configuration | None in the domain; injected Stores own Schema-v5/manual, v17/P23-2, v21/P23-4C1 and v22/P23-2B writes. No default control event/stream, automatic source, credential or schedule. |
+| Tests / documentation | domain/repository/migration/Run/GUI/orchestration/replay/architecture tests; [`asset-state.md`](../modules/asset-state.md), ADR-0020/0033/0038. |
 
 ### Research Target Position
 
@@ -1074,7 +1075,7 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
 | Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented central local persistence, Schema v21/130 | all prior evidence plus P23-4C1 Asset State control and exact-P33 Risk admission attempts/events/results/rules/source links and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
+| SQLite | Implemented central local persistence, Schema v22/137 | all prior evidence plus seven zero-backfill P23-2B mathematical-cycle tables and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -1116,7 +1117,7 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters remain separate immutable typed contexts. Generic FactorSnapshot, specialized P23-1/P26/P23-1F, P23-2 observations, P23-3A targets, P23-4A Decision, P23-4B/P23-4C1/other Risk, Capital, manual Asset State, P23-4C1 control, Target and linked evidence persist through separate public Store Protocols/adapters. Central Schema v21 is additive. P23-2/P23-3A/P23-4A/P23-4B/P23-4C1 consume only explicit exact public evidence through application orchestration; P23-4C1 stops at block/manual review before numerical approval and has no financial/execution authority. Persistence/query capability grants neither production activation nor execution authority.
+Factor and Decision parameters remain separate immutable typed contexts. Generic and specialized algorithm evidence, including P23-2 observation, P23-2B mathematical cycle, P23-3A target, P23-4A Decision and P23-4B/P23-4C1 Risk/control histories, persists through separate public Store Protocols/adapters. Central Schema v22 is additive. Every cross-owner path consumes only explicit exact public evidence through orchestration; P23-2B has no downstream consumer and P23-4C1 stops at block/manual review. Persistence/query capability grants neither production activation nor execution authority.
 
 ## Testing Boundaries
 
@@ -1271,6 +1272,11 @@ Factor and Decision parameters remain separate immutable typed contexts. Generic
 133. P23-4C1 Risk admission accepts only one explicit exact P33 Result/Run plus the exact effective neutral control event. Missing, frozen or invalid control blocks; eligible evidence remains manual-review-only. Both P31 directions are blocked while frozen, and approval amount/intent remain absent.
 134. Schema v21 adds exactly six normalized P23-4C1 tables, expands 124→130 and performs zero backfill. The verified v20 backup and active v21 preserve all prior counts; all six P35 tables remain empty after implementation.
 135. P23-4C2 daily opportunity counting is not implemented. No preview, intent, control event or Risk result consumes a count; logical action/reservation/fill semantics and any first/second opportunity require separate approval.
+136. P23-2B mathematical-cycle state is a separate Asset State stream. It cannot reinterpret manual symbolic states, P28 observations or P35 `ELIGIBLE/FROZEN` control, and no branch is an implicit default for another.
+137. P23-2B admits only one explicit exact successful cumulative P28 Result/Run. Initial seed/direction/P28 definition/P27 profile/calendar identities are copied, extensions must add sessions with an exact semantic prefix, and incompatible/gapped/stale evidence fails without accepted mutation.
+138. Day 1 and day 2 remain under the old operational cycle. Confirmation closes it only after day-2 close; new direction becomes operational only at exact day-3 activation, with the prior reversal extreme as mathematical reference.
+139. P23-2B snapshots are immutable. Provisional attribution may later resolve only to committed or discarded through a new append-only `ATTRIBUTION_RESOLVED` transition; it never rewrites an earlier snapshot, Decision, Risk result or fill.
+140. Schema v22 adds exactly seven normalized P23-2B tables, expands 130→137 and performs zero backfill. The verified v21 backup and active v22 preserve every prior table count; no definition/stream/AAPL state, scheduler, downstream consumer or execution authority exists.
 
 Changing an invariant requires an impact proposal, explicit user approval, relevant ADR/docs/tests, and a rollback method.
 

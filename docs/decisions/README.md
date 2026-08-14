@@ -46,6 +46,7 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 
 ## Index
 
+- [ADR-0038: Separate Mathematical Cycle State from Observation and Manual Labels](ADR-0038-separate-mathematical-cycle-state.md) — exact cumulative P28 promotion into a disabled Asset-State-owned cycle stream, day-3 activation, append-only attribution resolution and Schema v22 zero backfill.
 - [ADR-0037: Separate Persistent Strategy Freeze from Transient Risk Pause](ADR-0037-versioned-frozen-asset-admission.md) — Asset-State-owned append-only `ELIGIBLE/FROZEN` events, exact P33/control Risk admission, Schema v21 and explicit P23-4C2 deferral.
 
 - [ADR-0035: Preserve Decision Meaning While Adding Exact P29 Provenance](ADR-0035-cycle-target-decision-preview.md) — one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable intent, Schema v19 and no Risk/downstream consumer.
