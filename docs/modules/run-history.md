@@ -74,6 +74,8 @@ Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence 
 
 Approved PROPOSAL-034 adds exactly three local P23-4B Run histories under Session `P34-AAPL-P33-VALIDATION-20260812`. Each has one P31 parent plus P29/P28 source navigation, ordered Decision/Risk stages, three bindings, one manual-review warning and three locked rule children. Fresh-process Run detail and all four Open Run paths were verified; none contains approved or executable output.
 
+Approved PROPOSAL-036 adds exactly four local Runs under Session `P36-AAPL-P35-ELIGIBLE-VALIDATION-20260813`: control Run `0fc2ca64-5941-4c1d-9750-462d451c6488` and admission Runs `03d98ad0-b32a-4976-821e-be426763f664`, `f0342eca-9d69-4a8f-bc7e-6316d9b15dbe` and `9aa9b639-e0c0-4c47-a8d2-28efb0641df8`. Fresh-process details and all seven control/P35/P33/P31/P29/P28 Run targets were verified. The admission Runs complete with warnings and contain no approved or executable output.
+
 Approved PROPOSAL-030 created formula/configuration Runs `a7dfa5bf-d5ee-4a25-b92f-63a53a027559` and `7c2766a6-e5a8-4465-8380-0466612b3be1`, followed by preview Runs `0b3c8422-ac0c-4ddd-a7fe-b47c8de723ee`, `9229bb8d-be23-4707-b24c-5ab8e58a3857` and `59a6538b-2066-4e34-bde4-6dffda3d40e6`. All previews reload as `COMPLETED_WITH_WARNINGS`, preserve exact P28 parent/source relationships and have no downstream Run. The warnings state that only frozen local evidence was used.
 
 The approved AAPL validation definition Run is `f97a70c6-7dcd-49a6-85ca-e74fc098789f`; preview Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6` completed with warnings under `NO_EXECUTION`, parents to the exact P27 Run and exposes result `4447da24-2d25-5fbd-a7fd-fb0c3e501249`. Three earlier prerequisite failures are intentionally retained: incomplete local evidence, the confirmed mapping foreign-key defect, and one fail-closed incompatible-mapping preflight during repair. They are audit evidence, not hidden or rewritten as successes.
@@ -84,7 +86,7 @@ The Risk stage has three ordered approved-for-research numerical preview rules, 
 
 ## Migration and rollback
 
-The current additive migration chain is v1→v19. Each step preserves earlier meaning; P23-1 adds v14, P26 v15, P23-1F v16, P23-2 v17, P23-3A v18 and P23-4A v19 evidence.
+The current additive migration chain is v1→v21. Each step preserves earlier meaning; P23-1 adds v14, P26 v15, P23-1F v16, P23-2 v17, P23-3A v18, P23-4A v19, P23-4B v20 and P23-4C1 v21 evidence.
 
 Schema v1→v2, v2→v3, v3→v4 and v4→v5 are additive. Before migration, `CentralSQLiteDatabase` creates a consistent backup under `runtime/data/backups/`, applies each version in a transaction, and verifies prior table row counts, foreign keys, and `PRAGMA integrity_check`. Failure rolls the transaction back. Rollback after a successful migration requires stopping writers, preserving the newer database and restoring the matching verified backup; the application does not pretend code rollback alone can downgrade the database.
 

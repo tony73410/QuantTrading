@@ -7212,3 +7212,134 @@ Active `runtime/data/market_history.sqlite3` is Schema v21/130 with `integrity_c
 - Remaining drift risk: future work could mistake P35 manual review for approval, infer eligibility for a missing symbol, or implement P23-4C2 by counting previews. Contracts, empty runtime evidence and governance tests explicitly reject those interpretations.
 
 No commit or push was requested or performed. Suggested commit message: `feat: add versioned frozen-asset admission`.
+
+## EDIT-20260813-001 — Record published P35 checkpoint before next planning
+
+### Date, authorization and task mode
+
+2026-08-13 19:00:16 -07:00
+
+The user asked to continue development after feature commit `b147e60` was pushed to `origin/main`. The next-direction preflight was planning-only, but it exposed stale publication metadata. Task mode changed to **FAST** for a documentation-only correction before any new proposal or runtime validation. No source, test logic, database, runtime row, algorithm, state, Risk disposition, cash, Backtesting, Accounting, Paper/Live, order, fill or execution behavior changed.
+
+### Correction and impact
+
+Recorded `BUG-20260813-001`: Compass and the Proposal index still called `828f956` the published baseline and P35 an uncommitted working-tree implementation after `b147e60` had already been pushed. Updated `PROJECT_COMPASS.md` to v94, `docs/proposals/README.md`, `docs/project/PROJECT_STATE.md` and append-only `docs/project/VERSION_HISTORY.md` CHECKPOINT-20260813-008 to identify `b147e60d2d20576de7cd360344825b6cc1e59fc2` as the published P35 feature commit. The record preserves Schema v21/130, six empty P35 tables, disabled/non-executable status and the explicit absence of P23-4C2 or runtime validation approval.
+
+Primary scope is project governance; no secondary runtime module exists. Public contracts, configuration, database, GUI, tests and trading semantics are unchanged. Blast radius is `LOCAL` documentation only. Rollback is a normal revert of these metadata changes; do not rewrite the already published feature history.
+
+### Verification and audit
+
+- `tests/architecture/test_governance_document_integrity.py`: **16 passed**.
+- `git diff --check`: passed with informational Windows LF→CRLF notices only.
+- Bug discovery: `BUG-20260813-001` fixed; no current Known Issue remains.
+- Intent alignment: future work now starts from the actual published P35 baseline.
+- Architecture and safety alignment: no architecture, financial meaning or authority changed.
+- Unapproved behavior added: none.
+- Assumptions introduced: none; commit and remote identities were verified directly from Git.
+- Compass sections updated: metadata/current publication narrative only; Stable Core is unchanged.
+- Remaining drift risk: P35 runtime tables are empty, and a future validation must not infer AAPL `ELIGIBLE` or `FROZEN`. P23-4C2 remains deferred until separately approved logical-action/fill facts exist.
+
+No commit or push was requested for this correction.
+
+## EDIT-20260813-002 — Create proposal-only AAPL P35 eligible-path validation plan
+
+### Date, authorization and task mode
+
+2026-08-13 23:04:12 -07:00
+
+After P35 publication and checkpoint-metadata correction, the user selected next-planning option A. Task mode: **STANDARD proposal/governance planning only**. The selection authorized creation of `PROPOSAL-036`; it did not approve a backup, AAPL control event, P35 Run/result, code change, Schema change or runtime validation.
+
+### Existing evidence and proposal result
+
+Read-only inspection confirmed active central SQLite remains v21/130; Run/stage/symbol/binding/message counts remain `60/113/58/279/289`; P33 remains three accepted results with exact IDs `befe5720-7a2e-43aa-b90d-3084fa8eb149`, `46179699-32a8-4451-8e7e-1b2163697956` and `16bde342-bf0f-4850-9d61-62a3da3882c5`; all six P35 control/admission tables remain `0/0/0/0/0/0`. Existing P35 tests already cover missing/frozen/eligible branches, so the proposal does not manufacture a runtime frozen event.
+
+Created `docs/proposals/PROPOSAL-036-aapl-p35-eligible-path-controlled-local-validation.md` with recommended P36-D1–D10: one explicit first AAPL `ELIGIBLE` event using exact mapping `1e18d4b2-bb93-581e-bed5-5d08bdece68b@1`, then three independent exact P33-to-P35 reviews. Expected successful bounded totals are Run/stage/symbol/binding/message `64/120/62/286/292`, control `1/1`, admission `3/3/9/3`; all results remain `MANUAL_REVIEW_REQUIRED`, approval fields remain absent and execution/live remain false. The proposal documents preflight, backup, restart/replay/export/GUI/Run checks, deterministic retry and truthful partial-write handling. An accepted control event remains immutable and effective rather than being silently deleted if a later review fails.
+
+Updated Proposal/Documentation indexes, Compass v95 with open DEC-022 and proposed INTENT-046, Project State, Roadmap and the governance regression test. No architecture/module document changed because no public contract or runtime behavior changed. No Changelog entry was added because this is not a user-visible implemented feature.
+
+### Verification and Change Impact Report
+
+- Governance integrity: **17 passed**.
+- `git diff --check`: passed with informational Windows LF→CRLF notices only.
+- Post-document read-only database check: Schema v21, P35 `0/0/0/0/0/0`, Run totals unchanged.
+- Primary scope: proposal governance for existing Asset State/Risk operations; secondary planned runtime use would be existing Orchestration/Persistence/Run History/Algorithm Control only.
+- Public contracts/configuration/Schema/GUI/runtime permissions/trading semantics: unchanged.
+- Expected blast radius: `LOCAL` documentation now; proposed future validation is `LIMITED` and separately gated.
+- Rollback: revert the proposal/governance/test edits only; published `b147e60` and runtime database remain unchanged.
+
+### Post-Implementation Compass and Bug audit
+
+- Intent alignment: records the user's option-A validation direction without converting it into runtime approval.
+- Architecture alignment: reuses existing P35 owners and public interfaces; no new component or dependency is proposed.
+- Safety alignment: first eligibility must be explicit; eligible remains manual review; frozen-path manufacturing, daily counting and execution remain excluded.
+- Unapproved behavior added: none.
+- Assumptions introduced: none; exact IDs/counts/mapping were read from the local published implementation/database, while actor/reason and expected deltas are labeled proposal decisions.
+- Compass sections updated: metadata/current phase, DEC-022, INTENT-046 and Next Approved Direction; Stable Core is unchanged.
+- Remaining drift risk: a later operator could mistake `ELIGIBLE` for buy approval or attempt to erase a partial event. The proposal explicitly denies both meanings.
+- Bug discovery: no new product defect was found during proposal creation. `BUG-20260813-001` from the preceding publication preflight remains fixed; no Known Issue was added.
+
+No commit or push was requested or performed. Required next approval: `批准 PROPOSAL-036，采用 P36-D1–D10 执行 AAPL ELIGIBLE 路径本地验证。`
+
+## EDIT-20260813-003 — Complete approved P36 AAPL P35 ELIGIBLE-path local validation
+
+### Authorization and task mode
+
+- User explicitly approved: `PROPOSAL-036`, P36-D1–D10 and the bounded AAPL `ELIGIBLE` local validation.
+- Task mode: `STANDARD` controlled local validation. Primary owners: existing Asset State control and Risk admission. Secondary: Orchestration, Central Persistence, Run History and existing Algorithm Control inspectors.
+- Approved scope: one pre-write backup, one first AAPL `ELIGIBLE` control operation and three independent exact P34/P33→P35 reviews, followed by reload/replay/export/GUI/Run/idempotency/database checks.
+- Excluded: new formula, P23-4C2 daily counting, numerical Risk, cash/Accounting, Backtesting/simulation, broker, Paper/Live, orders, fills and execution.
+
+### Pre-write evidence and backup
+
+- Read-only preflight verified Schema v21/130, `integrity_check=ok`, zero foreign-key violations, Run/stage/symbol/binding/message baseline `60/113/58/279/289`, P33 `3/3/9/3`, all six P35 tables zero and no AAPL predecessor control event.
+- Exact P33 sources remained manual-review-only/non-executable: `befe5720-7a2e-43aa-b90d-3084fa8eb149`, `46179699-32a8-4451-8e7e-1b2163697956` and `16bde342-bf0f-4850-9d61-62a3da3882c5`.
+- Created ignored pre-write backup `runtime/data/backups/market_history.before-p36-validation.20260814T062213721771Z.sqlite3`, size `100757504`, SHA-256 `5281A239AE8581BCBADCD2CE60659B686660047F6875802703202951B8E57F28`. It reloads as v21/130 with integrity `ok`, zero foreign-key violations and the exact baseline counts.
+
+### Accepted runtime evidence
+
+- Session: `P36-AAPL-P35-ELIGIBLE-VALIDATION-20260813`; published revision: `b147e60d2d20576de7cd360344825b6cc1e59fc2`; package `0.1.0`.
+- Deterministic control operation `ade1874a-72b4-551a-9f3c-155afe0a58b2` accepted event `edc6ee3e-8d73-4606-8bf3-0643d8c024b3` under Run `0fc2ca64-5941-4c1d-9750-462d451c6488`. It is AAPL's first `ELIGIBLE` event, effective `2026-08-14T06:22:14.739865+00:00` for exact session/mapping/calendar evidence.
+- Three deterministic P35 operations created results `4147db98-0e77-4eb0-ace6-6176df73864a`, `b649d38e-8997-46ab-8d38-780685d84b1b` and `f65e825c-4477-4fe4-92b6-cbe2203c0cf9` under Runs `03d98ad0-b32a-4976-821e-be426763f664`, `f0342eca-9d69-4a8f-bc7e-6316d9b15dbe` and `9aa9b639-e0c0-4c47-a8d2-28efb0641df8`.
+- All three results are `MANUAL_REVIEW_REQUIRED` with exact ordered reasons `P35_P33_SOURCE_VALID`, `P35_TRADING_CONTROL_AVAILABLE`, `P35_ELIGIBLE_MANUAL_REVIEW`. Requested amounts remain unchanged/unapproved; approved amount/intent are absent; execution/live are false.
+- Final exact counts: Run/stage/symbol/binding/message `64/120/62/286/292`; P35 control-operation/event/admission-operation/result/rule/source-link `1/1/3/3/9/3`. Every other logical table was unchanged.
+
+### Validation
+
+- Fresh-process event/result reload and deterministic replay: exact for all four operations.
+- Temporary export: three JSON plus three CSV files verified and removed.
+- Existing GUI: Trading Control reloaded `1/1`; Admission reloaded `3/3/9`; all seven control/P35/P33/P31/P29/P28 Run targets were enabled and resolved; inspection wrote no row.
+- Deterministic retry: all four operation IDs created zero additional rows.
+- Focused domain/repository/GUI/architecture/Run History/governance suite: **43 passed**.
+- Governance integrity alone: **17 passed** after documentation synchronization.
+- `compileall -q src tests`: passed. `pip check`: no broken requirements. `git diff --check`: passed with informational LF→CRLF notices only.
+- Final active and backup SQLite read-only checks: v21/130, integrity `ok`, zero foreign-key violations and exact active/baseline counts. Backup remains ignored.
+- One ad hoc read-only diagnostic initially used the wrong `algorithm_runs` timestamp column name; it made no write and the corrected query completed. This was an operator query mistake, not a product defect.
+
+### Documentation and changed files
+
+- Updated `PROPOSAL-036`, proposal/docs indexes, Roadmap, Project State, Compass v96 and Changelog from proposed to completed `DRY_RUN` with exact evidence.
+- Updated affected module docs: Asset State, Risk Control, Central Persistence, Run History, Algorithm Control GUI and Analysis/Decision Pipeline.
+- Updated `tests/architecture/test_governance_document_integrity.py` to require the completed P36 status/evidence.
+- Appended `BUG-20260813-002` after finding and fixing the stale Run History v1→v19 migration summary; no Known Issue remains.
+- No source code, public contract, configuration, Schema or migration changed. No commit or push was requested or performed.
+
+### Change Impact Report
+
+- Primary modules: existing Asset State and Risk runtime evidence.
+- Secondary modules: existing Orchestration, Central Persistence, Run History and Algorithm Control inspection.
+- Public interfaces/configuration/Schema/GUI code: unchanged.
+- Database: bounded append-only evidence only; exact deltas matched P36. Backup and rollback evidence retained.
+- Permissions/trading semantics/safety: local SQLite only; `ELIGIBLE` permits structural manual review but is not approval or a buy signal. P35 cannot enlarge/reverse P33, and no execution consumer exists.
+- Blast radius: `LIMITED`.
+- Rollback: preserve immutable audit evidence. Use the verified backup only for proven corruption under a separately controlled recovery; ordinary history must not be erased.
+
+### Post-Implementation Compass and Bug audit
+
+- Intent alignment: completed exactly the user-approved AAPL eligible-path validation and stopped after P35.
+- Architecture alignment: reused existing public services and owner boundaries; GUI remained inspection-only; no new module/dependency/interface was added.
+- Safety alignment: all results remain terminal manual review, approval fields absent, execution/live false; no network or excluded financial consumer was used.
+- Unapproved behavior added: none.
+- Assumptions introduced: none beyond accepted timestamps generated by the approved existing services; exact sources, mapping, actor and reason were frozen by P36-D1–D10.
+- Compass sections updated: metadata/current phase, DEC-022, INTENT-045/046, narrative and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: AAPL now has a durable `ELIGIBLE` control fact that could be misunderstood as investment approval. Documents and GUI evidence explicitly preserve its structural/manual-review-only meaning; any successor event or downstream use needs separate approval.
+- Bug discovery: `BUG-20260813-002` documentation defect fixed. No new product/runtime defect was found; no Known Issue was added.

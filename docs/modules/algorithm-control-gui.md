@@ -2,6 +2,8 @@
 
 P23-4C1 adds sibling inspectors inside the existing Asset State and Risk pages. The Asset State `Trading Control` subtab requires symbol, exact v1 mapping, status, reason and successful no-write preflight; it shows current/pending state, immutable timeline, filtering/comparison and Open Run. The Risk `Cycle Target Asset Admission` subtab requires one exact P33 result and successful no-write preflight; it shows control evidence, all locked rules, history/filter/compare, JSON/CSV export and complete Run navigation. Neither subtab contains calculation/SQL/order logic, and no Launcher entry was added.
 
+Approved PROPOSAL-036 verified these existing GUI surfaces against real local evidence after restart: Trading Control showed one AAPL `ELIGIBLE` event and one operation; Cycle Target Asset Admission showed three results, three operations and nine rules. Every available control/P35/P33/P31/P29/P28 Open Run target was enabled and resolved. Inspection created no database write and exposed no approval or execution control.
+
 ## Purpose
 
 Provide a separate PySide6 management application for registered Factor, Trading Decision, and Risk components. It exposes a passive Algorithm Idea Notebook, Factor lifecycle/authoring, restricted Decision authoring, versioned configuration, local preview requests, a Risk-gated dry run, read-only execution status and an audit trail without owning Factor/Decision/Risk formulas or order behavior.

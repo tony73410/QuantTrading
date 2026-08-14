@@ -171,6 +171,8 @@ Locked order is `P33_STRUCTURAL_REVIEW_INTEGRITY@1`, `ASSET_TRADING_CONTROL_AVAI
 
 `CycleTargetAssetAdmissionService` owns engine invocation and durable result/source construction. Public Store/query/replay contracts provide restart reload, exact idempotency, deterministic replay, JSON/CSV export and P35/P33/P31/P29/P28/control Run navigation. Generic `paused_symbols` remains an independent immediate Risk safety mechanism and is neither populated nor replaced by this strategy control stream. P23-4C2 daily counting is not implemented.
 
+Approved PROPOSAL-036 completed the first bounded AAPL eligible-path dry run over all three exact P34/P33 sources. Results `4147db98-0e77-4eb0-ace6-6176df73864a`, `b649d38e-8997-46ab-8d38-780685d84b1b` and `f65e825c-4477-4fe4-92b6-cbe2203c0cf9` all remain `MANUAL_REVIEW_REQUIRED` with the exact ordered three-rule chain. P35 operation/result/rule/source-link counts are `3/3/9/3`; approved notional/intent remain absent and deterministic retry added no row.
+
 ## Phase 6B single-asset exposure-cap preview
 
 `SingleAssetExposureCapService` owns immutable symbol-specific positive Decimal USD definition versions and one locked rule, `MAX_TARGET_EXPOSURE_USD@1`. New or revised definitions are append-only; archiving appends an immutable `ARCHIVED` successor, after which no version in that chain is eligible for a new preview. There is no amount or active/default definition after migration.

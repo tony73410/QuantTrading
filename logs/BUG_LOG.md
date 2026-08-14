@@ -5374,3 +5374,50 @@ Require restored version 20, absence of the v21 result table and `integrity_chec
 
 ### Known Issues disposition and rollback
 Not added to `KNOWN_ISSUES.md` because this was an uncommitted test expectation defect. It changed no runtime data or financial meaning.
+## BUG-20260813-001
+
+### Title
+Published P35 feature commit was still described as an uncommitted working tree
+
+### Status
+Fixed during next-direction preflight
+
+### Severity
+Low
+
+### Area
+Project governance / checkpoint metadata
+
+### Reproduction and cause
+
+After commit `b147e60` was pushed to `origin/main`, `PROJECT_COMPASS.md` and `docs/proposals/README.md` still described CHECKPOINT-20260812-007 at `828f956` as the published baseline and P35 as an uncommitted working-tree implementation. The feature implementation record intentionally preceded publication, but no follow-up checkpoint metadata had yet replaced that transient wording.
+
+### Resolution and regression evidence
+
+Updated Compass metadata and narrative, Proposal status, Project State and append-only Version History to identify `b147e60` as the published P35 feature commit while preserving P23-4C2 and runtime-validation exclusions. Governance integrity tests and `git diff --check` are required before the correction is considered complete.
+
+## BUG-20260813-002
+
+### Title
+Run History module migration summary stopped at Schema v19 after v20/v21 were implemented
+
+### Status
+Fixed during PROPOSAL-036 documentation synchronization
+
+### Severity
+Low
+
+### Area
+Run History module documentation
+
+### Reproduction and cause
+
+Read `docs/modules/run-history.md` after the published P35 implementation. Its Migration and rollback summary still called v1→v19 the current additive chain even though the same repository and Central Persistence documentation establish Schema v20 for P23-4B and v21 for P23-4C1. This was stale documentation; runtime migration code and active SQLite were already correct.
+
+### Resolution and regression evidence
+
+Updated the current chain to v1→v21 and named P23-4B v20 and P23-4C1 v21. Governance integrity and diff checks cover the synchronized documentation. No source code, Schema, database row, public contract or trading behavior changed.
+
+### Known Issues disposition and rollback
+
+Not added to `KNOWN_ISSUES.md` because the documentation defect was fixed in the same handoff. Rollback is a documentation-only revert, though it would reintroduce the stale version statement.

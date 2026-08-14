@@ -396,3 +396,90 @@ The next candidate slice is P23-4C daily opportunity-count and frozen-stock admi
 ### Rollback
 
 Use a normal Git revert of this checkpoint commit without rewriting history. Feature rollback may unregister/hide the P33 composition while retaining immutable Schema-v20 evidence for audit. A physical database downgrade requires stopping writers, preserving v20 and restoring the verified v19 backup together with matching v19 code; a Git revert alone is not a database downgrade. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260813-008
+
+### Identity
+
+- Recorded at: 2026-08-14T02:00:16Z
+- Branch: `main`
+- Previous published checkpoint: CHECKPOINT-20260812-007 at `828f956`
+- Published feature commit: `b147e60d2d20576de7cd360344825b6cc1e59fc2`
+- Checkpoint-record commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v21, 130 logical tables
+- Governance versions: PROJECT_COMPASS v94; canonical architecture v40
+- Purpose: record publication of approved PROPOSAL-035 P35-D1–D10 as disabled P23-4C1 without expanding it into P23-4C2 or execution.
+
+### Included approved work
+
+- Asset State owns explicit append-only `ELIGIBLE/FROZEN` control events with exact v1 XNYS mapping evidence, accepted-time freeze, next-session unfreeze, no inferred initial state and immutable failed attempts.
+- Risk accepts one explicit exact P33 Result/Run plus the exact effective neutral control event. Missing, frozen or invalid evidence blocks; eligible evidence remains `MANUAL_REVIEW_REQUIRED`; approved amount and approved intent remain absent.
+- Orchestration supplies no-write preflight and exact source resolution. Run History records the type-distinct control and admission Runs, artifacts and relationships, while existing Asset State/Risk pages provide inspection without a new Launcher entry.
+- The additive v20/124→v21/130 migration adds exactly six normalized P35 tables with zero backfill after verified backup `market_history.schema-v20-to-v21.20260813T042448969415Z.sqlite3`.
+
+### Runtime and validation evidence
+
+- Active ignored SQLite is Schema v21/130 with `integrity_check=ok`, zero foreign-key violations and unchanged Run/P31/P33 counts. All six P35 tables remain empty because runtime P35 validation was not approved.
+- All 646 collected repository tests pass in exhaustive non-overlapping shards. Focused P35, architecture, GUI, migration/rollback, replay/export and restart evidence pass; compileall, dependency and diff checks also pass.
+- Runtime databases, backups, credentials and generated files remain outside Git.
+
+### Current algorithm and safety state
+
+- P35 is disabled and non-executable. `execution_allowed=false` and `live_allowed=false` remain locked.
+- Generic Risk pause, manual symbolic Asset State and P23-4C1 trading control remain separate concepts.
+- P23-4C2 daily opportunity counting, numerical Risk, factual cash/positions, Portfolio Accounting persistence, P23-5 simulation, Paper/Live, orders, fills and execution remain unapproved or unimplemented.
+
+### Current focus and unapproved work
+
+The smallest next candidate is a separately approved bounded local P35 validation over explicit existing P34/P33 sources and one explicit user-chosen control event. It must not infer whether AAPL is eligible or frozen. Alternatively, planning may move to P23-5 historical simulation while leaving P35 runtime tables empty. P23-4C2 cannot truthfully consume previews and remains deferred until a separately approved logical-action/fill fact exists.
+
+### Rollback
+
+Use a normal Git revert of feature commit `b147e60` and its checkpoint-record commit without rewriting history. Preserve immutable v21 evidence; a physical database downgrade requires stopping writers and restoring the verified v20 backup together with matching v20 code. Keep Live and automatic submission disabled throughout rollback.
+
+## CHECKPOINT-20260814-009
+
+### Identity
+
+- Recorded at: 2026-08-14T18:34:13Z
+- Branch: `main`
+- Previous published feature commit: `b147e60d2d20576de7cd360344825b6cc1e59fc2`
+- Checkpoint commit: the Git commit containing this record
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v21, 130 logical tables
+- Governance versions: PROJECT_COMPASS v96; canonical architecture v40
+- Purpose: publish the approved PROPOSAL-036 bounded AAPL P35 `ELIGIBLE`-path local validation and its exact audit evidence without adding P23-4C2, numerical approval or execution.
+
+### Included approved work
+
+- A verified pre-write v21/130 backup precedes one explicit first AAPL `ELIGIBLE` control event and three independent P35 reviews over the complete exact P34/P33 source set.
+- Every accepted P35 result remains `MANUAL_REVIEW_REQUIRED` with the exact locked structural/control/frozen rule chain. Approved amount/intent are absent and execution/live remain false.
+- Proposal, Compass, Project State, Roadmap, Changelog, affected module documents, governance tests and Edit/Bug logs preserve exact source/result/Run/count evidence and the distinction between eligibility and trading approval.
+- No source code, public contract, configuration, Schema, migration or GUI behavior changed in P36.
+
+### Runtime and validation evidence
+
+- Backup `market_history.before-p36-validation.20260814T062213721771Z.sqlite3` is 100,757,504 bytes with SHA-256 `5281A239AE8581BCBADCD2CE60659B686660047F6875802703202951B8E57F28`; backup and active SQLite are v21/130, `integrity_check=ok` and have zero foreign-key violations.
+- Control event `edc6ee3e-8d73-4606-8bf3-0643d8c024b3` belongs to Run `0fc2ca64-5941-4c1d-9750-462d451c6488`. P35 results are `4147db98-0e77-4eb0-ace6-6176df73864a`, `b649d38e-8997-46ab-8d38-780685d84b1b` and `f65e825c-4477-4fe4-92b6-cbe2203c0cf9`.
+- Final Run/stage/symbol/binding/message counts are `64/120/62/286/292`; P35 control-operation/event/admission-operation/result/rule/source-link counts are `1/1/3/3/9/3`; every unrelated logical table is unchanged.
+- Fresh-process reload/replay, six temporary exports, existing GUI inspectors, all seven control/upstream Run targets, deterministic retry and exact database deltas passed.
+- Focused domain/repository/GUI/architecture/governance verification passed **43 tests**; the governance subset passed **17 tests** after synchronization. Compileall, dependency and diff checks passed.
+- Runtime databases, backups, credentials, logs and generated files remain ignored and are not included in this checkpoint.
+
+### Current algorithm and safety state
+
+- AAPL `ELIGIBLE` means only that P35 may continue to terminal manual review. It is not a buy recommendation, Risk approval, planned order or trade.
+- P23-4C2 daily opportunity counting remains unimplemented. Existing previews/control/reviews do not consume a count.
+- Formal automatic P23-2 cycle mutation, complete numerical Risk, factual cash/positions, Portfolio Accounting persistence, full-chain P23-5 simulation, Paper/Live, orders, fills and execution remain unapproved or unimplemented.
+- Automatic submission and Live Trading remain disabled; Paper and Live remain empty sibling execution boundaries.
+
+### Current focus and unapproved work
+
+After this checkpoint the user authorized creation of a proposal-only next plan for converting exact P23-2 reversal observations into a separate formal mathematical cycle-state stream. That proposal must preserve the existing manual symbolic ledger and immutable P28/P29/P31/P33/P35 histories, define initial state and transition authority explicitly, and stop before automatic Target Position, Decision, Risk, simulation or execution. Proposal creation is not implementation approval.
+
+### Rollback
+
+Use a normal Git revert of this checkpoint commit without rewriting history. Preserve immutable v21 P36 evidence. Restore the verified pre-P36 backup only for proven corruption under a separately controlled recovery; do not erase accepted control/review history as ordinary rollback. Keep Live and automatic submission disabled throughout.
