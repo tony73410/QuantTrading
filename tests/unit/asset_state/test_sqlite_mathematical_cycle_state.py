@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
@@ -108,11 +109,14 @@ def test_exact_p28_promotes_to_restart_safe_disabled_stream_and_run_artifact(tmp
     )
     coordinator = MathematicalCyclePromotionCoordinator(reversal, service)
     preflight = coordinator.prepare(command)
-    operation = coordinator.promote(command)
-    retry = coordinator.promote(command)
+    source = replace(preflight.source, warnings=(
+        "LOCAL_ONLY frozen evidence; no Provider or broker call was made.",
+    ))
+    operation = service.promote(command, source)
+    retry = service.promote(command, source)
 
     assert "exact P28" in preflight.summary
-    assert operation.status is MathematicalCycleOperationStatus.COMPLETED
+    assert operation.status is MathematicalCycleOperationStatus.COMPLETED_WITH_WARNINGS
     assert retry == operation
     assert operation.stream_id is not None
     reloaded = SQLiteMathematicalCycleStateStore(path)
@@ -124,6 +128,10 @@ def test_exact_p28_promotes_to_restart_safe_disabled_stream_and_run_artifact(tmp
     assert detail.snapshots[2].direction_at_open.value == "down"
     run_detail = runs.get_run_detail(operation.run_id)
     assert any(item.artifact_type == "mathematical_cycle_state_operation" for item in run_detail.artifacts)
+    assert run_detail.summary.warning_count == 1
+    assert len(run_detail.messages) == 1
+    assert run_detail.messages[0].code == "QT-MATHEMATICAL-CYCLE-SOURCE-WARNING"
+    assert run_detail.messages[0].message == operation.warnings[0]
     with sqlite3.connect(path) as connection:
         assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
         assert connection.execute("SELECT COUNT(*) FROM mathematical_cycle_streams").fetchone()[0] == 1

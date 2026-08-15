@@ -81,6 +81,8 @@ Approved PROPOSAL-030 created formula/configuration Runs `a7dfa5bf-d5ee-4a25-b92
 
 The approved AAPL validation definition Run is `f97a70c6-7dcd-49a6-85ca-e74fc098789f`; preview Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6` completed with warnings under `NO_EXECUTION`, parents to the exact P27 Run and exposes result `4447da24-2d25-5fbd-a7fd-fb0c3e501249`. Three earlier prerequisite failures are intentionally retained: incomplete local evidence, the confirmed mapping foreign-key defect, and one fail-closed incompatible-mapping preflight during repair. They are audit evidence, not hidden or rewritten as successes.
 
+Approved PROPOSAL-038 adds definition Run `7f4431ec-044b-4c4c-9bc2-1fec6ccd4b51` and AAPL promotion Run `f1981c65-1fe7-45af-abab-9c1256e6cbec` under Session `P38-AAPL-P37-INITIALIZATION-VALIDATION-20260814`. The promotion Run parents to exact P28 Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`, completes with one local-only warning message and exposes the disabled P37 operation/stream artifact. Fresh-process GUI inspection opened both Runs. Final Run/stage/symbol/binding/message counts are `66/122/63/289/293`.
+
 Tracked previews persist their Factor result by default because Decision/Risk evidence must reference a durable Factor snapshot. Exact Factor content deduplication remains unchanged: repeated calculations retain distinct calculation attempts while reusing identical immutable snapshots.
 
 The Risk stage has three ordered approved-for-research numerical preview rules, but no complete or production approval policy. Positive candidates remain manual-review evidence. A persisted result or selected cash balance is never approval, reservation or authority to trade.

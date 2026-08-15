@@ -88,6 +88,12 @@ No default definition, multiplier, state, graph, symbol, P27 result, direction, 
 - `test_sqlite_mathematical_cycle_state.py` covers exact P28 adaptation, idempotency, durable source failure, restart replay, Run artifacts and v21→v22 backup/zero-backfill/rollback.
 - `test_mathematical_cycle_panel.py` covers the read-only no-default inspector.
 
+## P38 controlled AAPL initialization evidence
+
+Approved PROPOSAL-038 created disabled definition `058e1979-fafa-5d1e-8dbc-b3eed1579b11@1` and explicitly named stream `f0bccf2c-ab66-5fc0-8427-27c1e344a5d2` (`AAPL P23-2B research stream v1`) from exact P28 Result/Run `4447da24-2d25-5fbd-a7fd-fb0c3e501249` / `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`. Fresh-process replay proves one open `DOWN` cycle, three 2026-08-06/07/10 snapshots, three exact source links, zero transitions and final extreme `308.17`. This is initialization only: the source is `VALID_NO_REVERSAL`, no primary/default selection exists, and no P29–P35 or trading consumer was invoked.
+
+`BUG-20260814-002` corrected P37 promotion observability so every accepted source warning is also recorded as a stage-scoped Run History message. The operation warning, Run status and Run message now agree; mathematical-state facts and financial semantics are unchanged.
+
 ## Known limitations
 
 - Existing formal Asset State still permits only explicit manual transitions. P23-2 automatically evaluates only its separate research direction/event result and cannot mutate that ledger.
@@ -99,5 +105,5 @@ No default definition, multiplier, state, graph, symbol, P27 result, direction, 
 - Approved PROPOSAL-036 created and reloaded AAPL's first authoritative control event `edc6ee3e-8d73-4606-8bf3-0643d8c024b3` as `ELIGIBLE` under Run `0fc2ca64-5941-4c1d-9750-462d451c6488`. The event remains immutable/effective until a separately authorized successor; it is validation evidence, not a buy instruction or default for another symbol.
 - Historical correction/deletion and compensating state-event semantics are not implemented.
 - P23-2 has no multiplier default. One separately approved AAPL validation created explicit disabled definition version 1 with `M=1.5`, used initial `DOWN`, the latest immutable seed close available when P27 was created (`2026-08-05`, `310.94`) and three forward completed sessions through `2026-08-10`. Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` was `VALID_NO_REVERSAL`: zero candidates/confirmations/activations and final running low `308.17`. It is validation evidence, not an active parameter or trade.
-- P23-2B is implemented but has no persisted definition, stream or real-symbol state after the zero-backfill migration. The existing AAPL P28 result was not promoted. No scheduler or downstream consumer exists.
+- P23-2B has one approved disabled definition and one explicitly named non-default AAPL research stream from P38. It is initialization/replay evidence only and contains no reversal transition. No scheduler, default selector or downstream consumer exists.
 - Seed provenance is resolved from immutable spectral observations that were already available by P27 creation; later refreshes of the generic Market Bar cache cannot invalidate that history. Evaluated sessions still require exact local Raw/Split bars plus a frozen supported corporate-action snapshot covering the full range.

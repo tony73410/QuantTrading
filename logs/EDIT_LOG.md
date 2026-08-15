@@ -7473,3 +7473,133 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 - Compass sections updated: metadata/current phase, capability/module tables, DEC-023, implementation narrative, INTENT-047 and Next Approved Direction. Stable Core is unchanged.
 - Remaining drift risk: future code could mistake a named mathematical stream for the current/default strategy state or redirect P29 automatically. Architecture tests and docs prohibit both; every real-symbol stream and consumer requires separate approval.
 - Bug discovery: `BUG-20260814-001` fixed with regression coverage; no deferred P37 Bug or Known Issue.
+
+## EDIT-20260814-003 — Publish P37 and create proposal-only AAPL P38 validation plan
+
+### Authorization and task mode
+
+- User selected option A: first commit and push the completed P37 implementation, then create PROPOSAL-038 for a controlled AAPL initialization/replay validation.
+- Publication mode: `STANDARD`; proposal mode: `STANDARD proposal-only with read-only evidence inspection`.
+- Primary future runtime owner remains existing `asset_state` P23-2B. Existing Orchestration, Persistence, Run History and Algorithm Control are supporting query/operation surfaces only.
+- Excluded from this task: runtime backup, definition/stream/Run/state creation, Market Data refresh, P28 extension, code/Schema/GUI change, P29–P35 consumer, daily count, Risk/cash/simulation/Accounting/Paper/Live/order/execution behavior.
+
+### P37 publication
+
+- Pre-publication checks confirmed all P37 files staged, `git diff --cached --check` passed, active database/backup remained ignored and the P37 credential/execution scan found no match.
+- Created commit `86c69d48276c626bc77c33dffcbf5c54516e91b6` with message `feat: add disabled mathematical cycle state`.
+- Pushed `a8f00c5..86c69d4` successfully to `origin/main` without force, merge, rebase or history rewrite.
+- The published feature retains the recorded **657-test** verification, Schema v22/137 migration evidence, zero P37 runtime rows and execution/live false.
+
+### Read-only P38 preflight evidence
+
+- Active central SQLite remains Schema v22/137, SHA-256 `7344BD0C70DDBF62396BF0F9F5D93078DDF2F26ACCBC5C02BDFCEE04386818C2`; all seven P37 tables are zero.
+- Exactly one AAPL P28 Result exists: `4447da24-2d25-5fbd-a7fd-fb0c3e501249`, exact Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`, definition `2954f4c8-c57c-4054-a535-738e7a868aaf@1` and P27 profile Result/Run `6ae54c4a-8d3b-5ae1-8c82-4bb2fb5bbef5` / `2cdd69d9-5960-4e0a-aa6c-c85a9354a302`.
+- The source is `VALID_NO_REVERSAL`, initial/final direction `DOWN`, seed/reference session 2026-08-05 at exact split close `310.94`, sessions 2026-08-06/07/10, final extreme `308.17`, and candidate/cancellation/confirmation/activation `0/0/0/0`.
+- The exact source warning states local-only frozen evidence and no Provider/broker call. Execution/live are false. No source or database row was modified.
+
+### Proposal created
+
+- Added `PROPOSAL-038-aapl-p37-mathematical-cycle-initialization-validation.md` with recommended P38-D1–D10.
+- Recommended bounded result: one disabled version-1 P37 definition, one named non-default stream `AAPL P23-2B research stream v1`, one open `DOWN` cycle, three chronological snapshots/source links and zero transitions.
+- Proposed baseline/deltas, pre-write backup, all-source no-write checks, fresh-process replay, GUI/Run inspection, deterministic retry, partial-write semantics and corruption-only recovery are explicit.
+- The proposal states that this validates real AAPL initialization only; it cannot claim a real AAPL reversal because the source contains no event.
+- Runtime approval is still absent. Required approval phrase is recorded in the proposal.
+
+### Changed files after publication
+
+- `docs/proposals/PROPOSAL-038-aapl-p37-mathematical-cycle-initialization-validation.md`
+- `docs/proposals/README.md`
+- `docs/INDEX.md`
+- `PROJECT_COMPASS.md`
+- `docs/project/PROJECT_STATE.md`
+- `docs/project/ROADMAP.md`
+- `docs/project/VERSION_HISTORY.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/EDIT_LOG.md`
+
+### Proposal verification
+
+- Focused governance integrity passed **19 tests**; the complete architecture suite passed **121 tests** after P38 synchronization.
+- `git diff --check` passed with informational Windows LF→CRLF notices only.
+- Final read-only SQLite check remains Schema v22/137, `integrity_check=ok`, zero foreign-key violations, Run counts `64/120/62/286/292` and P37 counts `0/0/0/0/0/0/0`.
+- `HEAD` and `origin/main` both resolve to published P37 commit `86c69d48276c626bc77c33dffcbf5c54516e91b6`. The current uncommitted working tree contains proposal/governance/test documentation only.
+
+### Change Impact Report
+
+- Current proposal edit: documentation/governance only, blast radius `LOCAL`.
+- Proposed validation if later approved: existing Asset State P23-2B primary plus existing Orchestration/Persistence/Run/GUI support, blast radius `LIMITED` local evidence.
+- Public interfaces, dependencies, configuration, Schema and GUI code: unchanged.
+- Proposed database effect: exactly one definition, two operations, one stream, one cycle, three snapshots, zero transitions and three source links plus two Runs; all values remain disabled/non-default.
+- Permissions/trading semantics: local SQLite and ignored backup only; `DOWN` means mathematical state, not sell/short/Risk approval; no external or execution permission.
+- Rollback: proposal-only files can be normally reverted. Published P37 uses normal Git revert if necessary. No P38 runtime row exists to undo.
+
+### Compass and Bug audit
+
+- Intent alignment: preserves the user's requested order—publish P37 first, then plan the smallest real-evidence validation.
+- Architecture alignment: reuses the exact published P37 owner/contracts and does not add a parallel state path.
+- Safety alignment: proposal-only, explicit source, no latest/default, no refresh, no consumer and execution/live false.
+- Unapproved behavior added: none.
+- Assumptions introduced: only recommended stream name, one-definition scope and bounded expected deltas; all are visible P38 decisions awaiting approval.
+- Compass sections updated: published baseline/current phase, DEC-024, P37/P38 narrative, INTENT-048 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: a persisted AAPL `DOWN` stream could later be mistaken for a sell instruction or a validated reversal. P38 explicitly forbids both interpretations and requires separate approval for any consumer or newer source.
+- Bug discovery: no new credible Bug or current Known Issue was found; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+## EDIT-20260814-004 — Complete approved P38 AAPL mathematical-cycle initialization/replay validation
+
+### Authorization and task mode
+
+- User explicitly approved `PROPOSAL-038` and P38-D1–D10 for the bounded AAPL P37 mathematical-cycle initialization/replay validation.
+- Task mode: `DEEP` because the task created durable real-symbol state and Run evidence in the active central SQLite, while keeping Schema/public contracts and all trading authority unchanged.
+- Primary owner: existing `asset_state` P23-2B. Supporting owners: Orchestration exact P28 query, Persistence, Run History and the existing read-only Algorithm Control inspector.
+- Excluded: Market Data refresh, P28 extension, real reversal manufacture, default/primary selection, P29–P35 consumer, numerical Risk, daily count, cash, simulation, Accounting, broker, Paper/Live, order, fill and execution behavior.
+
+### Pre-write evidence and backup
+
+- Confirmed `HEAD` and `origin/main` at published P37 commit `86c69d48276c626bc77c33dffcbf5c54516e91b6`; no Python/QuantTrade writer was active.
+- Read-only preflight required active Schema v22/137, 137 logical tables, `integrity_check=ok`, zero foreign-key violations, Run/stage/symbol/binding/message `64/120/62/286/292` and all seven P37 tables zero.
+- Reloaded only exact AAPL P28 Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` / Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`: `VALID_NO_REVERSAL`, initial/final `DOWN`, seed/reference 2026-08-05 at `310.94`, sessions 2026-08-06/07/10, final extreme `308.17`, zero candidate/cancellation/confirmation/activation events, exact local-only warning and execution/live false.
+- Created ignored online backup `runtime/data/backups/market_history.before-p38-validation.20260814T222041041676Z.sqlite3`, 100,913,152 bytes, SHA-256 `F10B729579A7455CDEE91D2CEE700AE8B43ABCD2F14C7A0CE66E13992C1AE6CC`. Its Schema, all 137 logical-table counts, integrity and foreign keys match the active baseline.
+
+### Accepted P38 evidence
+
+- Session: `P38-AAPL-P37-INITIALIZATION-VALIDATION-20260814`; deterministic UUID namespace `4bc8beb9-38a4-5299-b6f3-2410e6bcbcb0`.
+- Disabled definition `058e1979-fafa-5d1e-8dbc-b3eed1579b11@1` was accepted by operation `3e7e78b2-8fc6-5017-9060-476cbd431237`, attempt `1a00b0b2-6792-5bf5-a76d-502b218e8b8a`, Run `7f4431ec-044b-4c4c-9bc2-1fec6ccd4b51`. It has no predecessor and preserves all fixed P37 policies.
+- Named non-default stream `f0bccf2c-ab66-5fc0-8427-27c1e344a5d2` (`AAPL P23-2B research stream v1`) was accepted by operation `a934a4df-8869-54a6-8d54-eaa8a85046f9`, attempt `4d637acb-0150-5731-a3dc-e1c1a86326ed`, Run `f1981c65-1fe7-45af-abab-9c1256e6cbec` with the exact local-only warning.
+- Fresh-process replay proves one open `DOWN` cycle, three chronological snapshots/source links, zero transitions and final extreme `308.17`. This initializes state only; it does not prove a real AAPL reversal or produce a sell instruction.
+- The read-only GUI loaded one stream, two operations and three timeline rows, and Open Run emitted both exact Run IDs. Both deterministic retries returned their accepted operations without allocating IDs or changing any table.
+
+### Bug discovery and correction
+
+- `BUG-20260814-002` was confirmed: the P37 operation stored the source warning and the Run completed with warnings, but the application service omitted the stage-scoped Run message, leaving the approved message delta at zero.
+- Added the missing public Run History message call and regression coverage. The already accepted promotion Run received exactly one matching warning message `79f7330b-ca55-54dd-88ef-419946dbd430`; no definition, stream, cycle, snapshot, transition or source link was recreated or rewritten.
+- `KNOWN_ISSUES.md` remains unchanged because the defect was fixed before handoff.
+
+### Final database and verification
+
+- Exact nonzero deltas versus the verified backup: Runs `+2`, stages `+2`, symbols `+1`, bindings `+3`, messages `+1`, P37 definitions `+1`, operations `+2`, streams `+1`, cycles `+1`, snapshots `+3`, source links `+3`; transitions remain zero. Every unrelated logical-table count is unchanged.
+- Final counts: Run/stage/symbol/binding/message `66/122/63/289/293`; P37 definition/operation/stream/cycle/snapshot/transition/source-link `1/2/1/1/3/0/3`.
+- Final active file: 100,921,344 bytes, SHA-256 `CEC2693040DE57EEEC2970250095425A82E81480A48668CC3FEACDA4ED326030`, Schema v22/137, integrity `ok`, zero foreign-key violations.
+- Focused P37 domain/SQLite/GUI plus full architecture verification passed **128 tests**. The complete repository passed **658 tests** after explicitly adding the repository root to the local pytest search path; the first wrapper-only collection attempt lacked that path and made no test or product change. Compileall, dependency consistency and `git diff --check` passed. The only warning is the pre-existing third-party `websockets.legacy` deprecation.
+
+### Changed files
+
+- Runtime/business and regression: `src/quant_trading/asset_state/mathematical_cycle_service.py`, `tests/unit/asset_state/test_sqlite_mathematical_cycle_state.py`.
+- Proposal/governance: `docs/proposals/PROPOSAL-038-aapl-p37-mathematical-cycle-initialization-validation.md`, `docs/proposals/README.md`, `docs/INDEX.md`, `PROJECT_COMPASS.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/project/VERSION_HISTORY.md`, `tests/architecture/test_governance_document_integrity.py`.
+- Module/release/history: `docs/modules/asset-state.md`, `docs/modules/run-history.md`, `docs/modules/central-persistence.md`, `CHANGELOG.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- Runtime evidence and backup remain ignored under `runtime/data/`; `KNOWN_ISSUES.md`, Schema, configuration, dependencies and GUI source are unchanged.
+
+### Change Impact Report and rollback
+
+- Primary: Asset State P23-2B. Secondary: Orchestration, Persistence, Run History and read-only Algorithm Control inspection. Public contracts/configuration/Schema/GUI/dependencies: unchanged. Database: exact approved append-only evidence only. Trading semantics: mathematical `DOWN` state only, no advice/action/approval. Permissions: local SQLite only. Blast radius: `LIMITED` runtime evidence plus a local observability bug fix.
+- Accepted P38 rows and the warning message are immutable audit evidence and must not be deleted as ordinary rollback. Future selection/consumption remains disabled. The verified backup is reserved for proven corruption recovery under separate control. The code/document changes can be normally reverted without Git history rewrite, but such a revert would reintroduce incomplete warning observability.
+
+### Post-Implementation Compass and Bug audit
+
+- Intent alignment: exact P38-D1–D10 initialization/replay goal completed; no reversal or consumer was inferred.
+- Architecture alignment: Asset State owns mathematical state, Orchestration resolved one exact public P28 source, Persistence stored facts and GUI remained query-only.
+- Safety alignment: disabled definition, explicitly named non-default stream, `NO_EXECUTION`, execution/live false and no downstream import/call.
+- Unapproved behavior added: none.
+- Assumptions introduced: deterministic identifiers and the approved stream name only, both recorded before writes; no financial parameter/default was introduced.
+- Compass sections updated: metadata/current phase, P23-2B capability, DEC-024, implementation narrative, INTENT-047/048 and Next Approved Direction. Stable Core and architecture invariants are unchanged.
+- Remaining drift risk: future code could mistake the AAPL `DOWN` initialization stream for a real reversal, sell instruction or default state. Current contracts, GUI text and governance require an explicit stream ID and separate approval for every extension/consumer.
+- Bug discovery: `BUG-20260814-002` fixed with regression coverage; no deferred P38 Bug or new Known Issue remains.

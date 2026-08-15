@@ -526,3 +526,68 @@ P23-2B remains `IMPLEMENTED_VERIFIED_DISABLED`, `execution_allowed=false` and `l
 ### Rollback
 
 Before commit, revert only the P37 working-tree source/document/test edits while preserving the ignored active v22 database and backup for audit. After a future commit, use normal Git revert without rewriting history. Physical downgrade requires stopping all writers, preserving v22, restoring the verified v21 backup and running matching v21 code; never delete immutable P36 evidence as ordinary rollback.
+
+## CHECKPOINT-20260814-011
+
+### Identity
+
+- Recorded at: 2026-08-14T21:29:43Z
+- Branch: `main`
+- Previous published commit: `a8f00c5`
+- Published P37 feature commit: `86c69d48276c626bc77c33dffcbf5c54516e91b6`
+- Remote target: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v22, 137 logical tables
+- Governance versions in published feature: PROJECT_COMPASS v98; canonical architecture v41; ADR-0038
+- Purpose: publish the approved verified-disabled PROPOSAL-037 implementation, then record authorization for proposal-only PROPOSAL-038 without creating runtime state.
+
+### Published P37 evidence
+
+- Commit `86c69d4` contains the separate P23-2B Asset-State domain/service/replay, exact cumulative P28 orchestration, seven-table v22 persistence, two Run types, read-only existing-page inspection, ADR/module/governance records and regression coverage.
+- All **657** collected repository tests passed in exhaustive non-overlapping shards before publication. Compileall, dependency, diff, execution-boundary and downstream-consumer checks passed.
+- Verified v21→v22 backup/hash, active v22 integrity/foreign-key/count evidence and `BUG-20260814-001` fix are preserved in the published records.
+- Push `a8f00c5..86c69d4` to `origin/main` succeeded. No force, rebase, merge or history rewrite occurred.
+
+### Proposal-only P38 state
+
+- After publication the user selected option A, authorizing creation of PROPOSAL-038 but not its runtime execution.
+- Read-only active SQLite inspection confirms exactly one AAPL P28 result: `4447da24-2d25-5fbd-a7fd-fb0c3e501249`, Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`, `VALID_NO_REVERSAL`, initial/final `DOWN`, sessions 2026-08-06/07/10, seed/reference `310.94`, final running extreme `308.17` and zero candidate/cancellation/confirmation/activation events.
+- Active SQLite remains v22/137 with SHA-256 `7344BD0C70DDBF62396BF0F9F5D93078DDF2F26ACCBC5C02BDFCEE04386818C2`; all seven P37 tables remain zero and Run/P35 counts remain unchanged.
+- P38 recommends one disabled definition and one explicitly named non-default AAPL stream, expected to materialize one open `DOWN` cycle, three snapshots/source links and zero transitions. It explicitly cannot claim a real AAPL reversal.
+- No backup, definition, stream, Run, state row, data refresh, network request, consumer or trading authority was created by proposal planning.
+
+### Current focus and approval boundary
+
+The next possible bounded action is P38-D1–D10 runtime validation, but it requires the exact approval phrase recorded in PROPOSAL-038. Any P28 extension, actual real-data reversal validation, second promotion, P29–P35 consumer, daily count, numerical Risk, cash, simulation, Accounting, Paper/Live or order behavior remains separately unapproved.
+
+### Rollback
+
+Use a normal Git revert of `86c69d4` only if the published P37 feature itself must be removed; do not rewrite history. Proposal-only P38 can be reverted independently from the current working tree. Preserve the ignored v22 active database and verified v21 backup for audit; no P38 runtime evidence exists to undo.
+
+## VALIDATION-20260814-012
+
+### Identity and authorization
+
+- Date: 2026-08-14
+- Published code identity used for runtime state: commit `86c69d48276c626bc77c33dffcbf5c54516e91b6`, package `0.1.0`, worktree recorded truthfully as dirty because the approved P38 governance files were uncommitted.
+- User authorization: explicit approval of PROPOSAL-038 and P38-D1–D10 for the bounded AAPL P37 initialization/replay validation.
+- Session: `P38-AAPL-P37-INITIALIZATION-VALIDATION-20260814`; no network, Market Data refresh, P28 extension, P29–P35 consumer or execution path was used.
+
+### Backup and exact runtime evidence
+
+- Pre-write backup: `market_history.before-p38-validation.20260814T222041041676Z.sqlite3`, 100,913,152 bytes, SHA-256 `F10B729579A7455CDEE91D2CEE700AE8B43ABCD2F14C7A0CE66E13992C1AE6CC`, Schema v22/137, integrity `ok`, zero foreign-key violations and all 137 logical-table counts equal to the active baseline.
+- Definition `058e1979-fafa-5d1e-8dbc-b3eed1579b11@1` is disabled, has no predecessor and was accepted by operation `3e7e78b2-8fc6-5017-9060-476cbd431237`, Run `7f4431ec-044b-4c4c-9bc2-1fec6ccd4b51`.
+- Stream `f0bccf2c-ab66-5fc0-8427-27c1e344a5d2` is named `AAPL P23-2B research stream v1`, is non-default, and was accepted by operation `a934a4df-8869-54a6-8d54-eaa8a85046f9`, Run `f1981c65-1fe7-45af-abab-9c1256e6cbec`.
+- Fresh-process replay produced one open `DOWN` cycle, three snapshots/source links for 2026-08-06/07/10, zero transitions and final extreme `308.17`. Both deterministic operation retries produced zero rows; the read-only GUI loaded one stream, two operations, three timeline rows and opened both Runs.
+- Exact final Run/stage/symbol/binding/message counts are `66/122/63/289/293`; P37 definition/operation/stream/cycle/snapshot/transition/source-link counts are `1/2/1/1/3/0/3`. Every unrelated table count is unchanged.
+- Final active v22/137 file is 100,921,344 bytes with SHA-256 `CEC2693040DE57EEEC2970250095425A82E81480A48668CC3FEACDA4ED326030`, integrity `ok` and zero foreign-key violations.
+- All **658** repository tests passed, including **128** focused P37/domain/SQLite/GUI plus architecture checks. Compileall, dependency consistency and diff hygiene passed; only the pre-existing third-party `websockets.legacy` deprecation warning remains.
+
+### Bug and boundary
+
+- `BUG-20260814-002` was discovered and fixed: P37 source warnings now create stage-scoped Run History messages. The already accepted P38 promotion Run received exactly one matching message `79f7330b-ca55-54dd-88ef-419946dbd430`; no mathematical-state fact was recreated or rewritten.
+- P38 validates initialization only. Its exact P28 source is `VALID_NO_REVERSAL`; `DOWN` is a mathematical state, not a sell/short instruction. No real AAPL reversal, primary/default stream, numerical Risk, cash, trade, order, Paper or Live authority exists.
+
+### Next boundary and rollback
+
+No next implementation or validation slice is approved. Any P28 extension, actual real-data reversal validation, second promotion, stream selection or downstream consumer needs a separate proposal and explicit approval. Preserve accepted P38 append-only evidence. The verified backup is for proven corruption recovery only, not ordinary rollback or history hiding.

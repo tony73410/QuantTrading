@@ -5447,3 +5447,33 @@ Removed foreign keys only from the requested-source fields on `mathematical_cycl
 ### Known Issues disposition and rollback
 
 Not added to `KNOWN_ISSUES.md` because the defect was found and fixed before P37 handoff and never affected the active database: all seven P37 tables remain empty. A normal code/schema-definition revert of the uncommitted P37 implementation is sufficient; do not restore or discard existing P36 evidence.
+
+## BUG-20260814-002
+
+### Title
+P37 promotion source warning was absent from Run History messages
+
+### Status
+Confirmed during approved PROPOSAL-038 runtime validation; local fix in progress
+
+### Severity
+Medium
+
+### Area
+P23-2B mathematical-cycle application service / Run History observability
+
+### Reproduction and cause
+
+Promote the exact persisted AAPL P28 Result/Run containing the approved `LOCAL_ONLY` warning. The P37 operation correctly stores the warning and its stage/Run correctly finish `COMPLETED_WITH_WARNINGS`, but `MathematicalCycleStateService.promote` did not call the public Run History message API. The resulting Run therefore reported `warning_count=0`, and the approved P38 `algorithm_run_messages +1` delta did not hold. P28 already records the same class of warning through the public API; the omission is local to P37.
+
+### Required resolution and safety boundary
+
+Record every accepted P37 source warning as a stage-scoped Run warning before Run completion, add a regression assertion, and append exactly one matching warning to the already accepted P38 promotion Run through the public Run History service. Do not recreate the definition or stream, alter mathematical snapshots, change direction, select a default stream, or invoke any downstream/trading capability.
+
+### Resolution update
+
+Status: Fixed during PROPOSAL-038 validation.
+
+`MathematicalCycleStateService.promote` now records each accepted source warning through `AlgorithmRunService.record_message` with code `QT-MATHEMATICAL-CYCLE-SOURCE-WARNING` before completing the Run. The regression fixture supplies the local-only warning and proves operation warning, Run status, one stage-scoped message and deterministic retry agree. The already accepted P38 promotion Run `f1981c65-1fe7-45af-abab-9c1256e6cbec` received exactly one matching public Run message `79f7330b-ca55-54dd-88ef-419946dbd430`; exact database deltas then matched the approved P38 table and no mathematical-state row changed.
+
+Focused P37/GUI/architecture verification passed 128 tests, and the complete repository passed 658 tests. Not added to `KNOWN_ISSUES.md` because the defect was fixed before handoff. Rollback is a normal code revert only if warning observability must be removed; preserve the accepted append-only Run message and all P38 state evidence.

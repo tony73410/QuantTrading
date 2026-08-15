@@ -13,6 +13,7 @@ from quant_trading.run_history import (
     AlgorithmRunService,
     AlgorithmRunType,
     RunBindingType,
+    RunMessageSeverity,
     RunStageName,
     SoftwareIdentity,
     StartRunRequest,
@@ -171,6 +172,14 @@ class MathematicalCycleStateService:
             self._runs.bind(run.run_id, RunBindingType.CONFIGURATION, str(definition.definition_id), str(definition.definition_version), source_reference=MATHEMATICAL_CYCLE_COMPONENT_ID)
             self._runs.bind(run.run_id, RunBindingType.STRATEGY_VERSION, str(source.result_id), str(source.definition_version), source_reference=str(source.run_id))
             self._runs.complete_stage(stage, result_type="mathematical_cycle_state_operation", result_id=str(operation.attempt_id), with_warnings=bool(source.warnings))
+            for warning in source.warnings:
+                self._runs.record_message(
+                    run.run_id,
+                    RunMessageSeverity.WARNING,
+                    "QT-MATHEMATICAL-CYCLE-SOURCE-WARNING",
+                    warning,
+                    stage_id=stage.stage_id,
+                )
             self._runs.complete_run(run.run_id, with_warnings=bool(source.warnings))
             return operation
         except Exception as exc:
