@@ -7759,3 +7759,33 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 ### Suggested commit message
 
 `feat: link mathematical cycle state to target preview`
+
+## EDIT-20260816-001 — Publish approved P39 implementation and record exact checkpoint
+
+### Authorization and scope
+
+- User explicitly requested `push + commit` after the complete P39 implementation handoff.
+- Task mode: `FAST`; Git publication and exact version-record synchronization only. No algorithm, Schema, database row, GUI behavior, configuration or trading meaning changed.
+
+### Publication
+
+- Reviewed a 63-file staged set containing only the approved P39 source, migration, tests, proposal/ADR/module/governance records and the implementation's Bug/Edit entries.
+- `git diff --cached --check` passed. No credential/private-key file was staged; runtime SQLite and backups remained ignored.
+- Created feature commit `7d30a584541dc3e95db49f2bccdae8e644a25e93` with message `feat: link mathematical cycle state to target preview`.
+- Pushed `47a8e27..7d30a58` to `origin/main` successfully without force, merge, rebase or history rewrite.
+
+### Records and safety
+
+- Updated `PROJECT_COMPASS.md`, `docs/project/PROJECT_STATE.md`, `docs/project/VERSION_HISTORY.md`, `docs/proposals/README.md` and `docs/proposals/PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md` with the exact published identity.
+- Published evidence remains disabled/non-executable. Active v23/139 SQLite is not committed; P39 remains `0/0`, and no real-data validation or external/trading path was used.
+- Bug audit: no new bug was discovered during publication. `KNOWN_ISSUES.md` remains unchanged.
+
+### Rollback
+
+- Use a normal Git revert of `7d30a58`; never force-push or delete accepted audit history. Preserve the v23 database and migration backup unless a separately controlled corruption recovery is required.
+
+### Compass audit
+
+- Intent, architecture and safety alignment are unchanged from EDIT-20260815-001.
+- Unapproved behavior added: none. Assumptions introduced: none.
+- Compass metadata/current phase and Evolving Project State now name the exact published commit; Stable Core is unchanged.

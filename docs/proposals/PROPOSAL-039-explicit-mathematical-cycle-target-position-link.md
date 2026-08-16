@@ -7,6 +7,7 @@
 - Date: 2026-08-15
 - Author: Codex
 - User authorization: the user explicitly approved `PROPOSAL-039` and P39-D1–D12 on 2026-08-15. This authorizes the disabled implementation and v22→v23 migration; D12 still requires separate approval before any real-data P39 validation Run.
+- Published implementation: main/origin commit `7d30a584541dc3e95db49f2bccdae8e644a25e93` (`feat: link mathematical cycle state to target preview`) on 2026-08-16.
 - Related work: PROPOSAL-016, PROPOSAL-028, PROPOSAL-029, PROPOSAL-030, PROPOSAL-037, PROPOSAL-038, ADR-0023, ADR-0033, ADR-0034, ADR-0038, ADR-0039, DEC-010, DEC-023, DEC-024, DEC-025, INTENT-039, INTENT-047, INTENT-048 and INTENT-049
 
 This proposal describes the smallest disabled bridge by which one explicitly selected, persisted P37 mathematical-cycle state may drive one existing P29 Target Position preview. It does not replace P29, add a formula, choose a stream automatically, create a Decision/Risk result or authorize trading.

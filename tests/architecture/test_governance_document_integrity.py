@@ -80,8 +80,8 @@ def test_compass_verification_metadata_preserves_history_and_records_p36() -> No
     assert "both P39 tables zero" in metadata
     assert "market_history.before-p36-validation.20260814T062213721771Z.sqlite3" in metadata
     assert "edc6ee3e-8d73-4606-8bf3-0643d8c024b3" in metadata
-    assert "47a8e27cef8af5c3105ebde2469c78f19a0a3b12" in metadata
-    assert "implements user-approved PROPOSAL-039" in metadata
+    assert "7d30a584541dc3e95db49f2bccdae8e644a25e93" in metadata
+    assert "publishes approved disabled PROPOSAL-039" in metadata
     assert "schema_v23_migration_checkpoint" in metadata
     assert "market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3" in metadata
     assert "one separately approved AAPL validation exists" in compass
@@ -498,7 +498,7 @@ def test_proposal_037_records_implemented_disabled_formal_mathematical_cycle_sta
     assert "v22/137" in persistence and "all seven P37 tables empty" in persistence
     assert "DEC-023" in compass and "INTENT-047" in compass
     assert "Main/origin commit `86c69d4` now publishes" in compass
-    assert "Published `main`/`origin/main` remains commit `47a8e27`" in project_state
+    assert "`main`/`origin/main` commit `7d30a584541dc3e95db49f2bccdae8e644a25e93`" in project_state
     assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
 
 
@@ -532,7 +532,7 @@ def test_proposal_038_records_completed_bounded_aapl_p37_initialization() -> Non
     assert "PROPOSAL-038" in proposal_index and "approved and completed bounded local `DRY_RUN`" in proposal_index
     assert "PROPOSAL-038-aapl-p37-mathematical-cycle-initialization-validation.md" in docs_index
     assert "DEC-024" in compass and "INTENT-048" in compass
-    assert "published P38 checkpoint" in compass
+    assert "After P38 was published at main/origin commit `47a8e27`" in compass
     assert "Approved PROPOSAL-038 P38-D1–D10 completed" in project_state
     assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
 
@@ -567,8 +567,8 @@ def test_proposal_039_records_implemented_disabled_explicit_p37_to_p29_link() ->
     assert "PROPOSAL-006-historical-backtesting.md" in proposal_index
     assert "PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md" in docs_index
     assert "DEC-025" in compass and "INTENT-049" in compass
-    assert "main/origin commit 47a8e27" in compass
-    assert "implements user-approved PROPOSAL-039 P39-D1–D12" in project_state
+    assert "main/origin commit 7d30a584541dc3e95db49f2bccdae8e644a25e93" in compass
+    assert "publishes user-approved PROPOSAL-039 P39-D1–D12" in project_state
     assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
     assert "CHECKPOINT-20260814-013" in version_history
     assert "BUG-20260814-003" in bug_log

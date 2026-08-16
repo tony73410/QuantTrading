@@ -1,6 +1,6 @@
 # Change Proposals
 
-Current status (2026-08-15): main/origin commit `47a8e27` remains the published P38 checkpoint; the current working tree implements user-approved `PROPOSAL-039` P39-D1–D12 as a disabled P23-3B link. Central SQLite is v23/139 after a verified additive migration; all 136 prior business-table counts are unchanged and both P39 tables remain empty. P39 adds no formula, default selection, Decision/Risk consumer or execution authority. Real-data P39 validation and P23-4C2 daily-opportunity counting remain separately unapproved.
+Current status (2026-08-16): main/origin commit `7d30a584541dc3e95db49f2bccdae8e644a25e93` publishes user-approved `PROPOSAL-039` P39-D1–D12 as a disabled P23-3B link. Central SQLite is v23/139 after a verified additive migration; all 136 prior business-table counts are unchanged and both P39 tables remain empty. P39 adds no formula, default selection, Decision/Risk consumer or execution authority. Real-data P39 validation and P23-4C2 daily-opportunity counting remain separately unapproved.
 
 `PROPOSAL-023` planning revision `1.24` adopts the complete `P23-1-R1` mathematical/data recommendation as a user-approved design baseline. Bounded AAPL P26/P27/P28/P29/P31 validations remain immutable, explicit, disabled evidence. P31 is the only approved P29 Decision consumer and still requires explicit source IDs; no default selection or Risk/trading authority exists. P32 used all three frozen P30/P29 sources only after all three passed no-write preflight and added no code, schema or authority.
 

@@ -660,3 +660,26 @@ P39 implementation requires the explicit approval phrase recorded in PROPOSAL-03
 - Focused P39 tests cover valid linkage, restart/reload, Run relationships/artifacts, deterministic retry/conflict, exact semantic mismatch, P29-success/P39-storage-failure recovery, v22→v23 backup/rollback and GUI behavior. All **668 repository tests**, including all **126 architecture/governance tests**, passed with only the pre-existing third-party `websockets.legacy` warning. Compileall and diff hygiene passed.
 - No active-database P39 operation, accepted link or P29 child result was created. No Market Data refresh, Trading client, account, position, cash, numerical Risk, daily counter, full-chain simulation, Accounting, broker, Paper/Live, order or fill path was used.
 - Ordinary rollback disables/removes the P39 composition and sibling UI while preserving additive v23 tables. Proven migration corruption rollback requires writers stopped and the verified v22 backup restored with v22-compatible code; append-only evidence must never be silently deleted.
+
+## CHECKPOINT-20260816-015
+
+### Identity and publication
+
+- Date: 2026-08-16.
+- Branch: `main`.
+- Published feature commit: `7d30a584541dc3e95db49f2bccdae8e644a25e93`.
+- Commit message: `feat: link mathematical cycle state to target preview`.
+- Push: `47a8e27..7d30a58` to `origin/main`, completed without force, merge, rebase or history rewrite.
+- Package version: `0.1.0` (unchanged).
+- Central database contract: Schema v23/139; runtime SQLite and verified migration backup remain Git-ignored.
+
+### Published state and evidence
+
+- The commit publishes the complete approved disabled PROPOSAL-039 P39-D1–D12 implementation, ADR-0039, Schema-v23 migration code, Target Position link contracts/store/coordinator, Run History evidence, existing-page GUI, regression coverage and synchronized governance records.
+- Verification before publication: 668 repository tests, including 126 architecture/governance tests, passed; compileall and diff hygiene passed with only the pre-existing third-party `websockets.legacy` warning.
+- Active database remains SHA-256 `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`, integrity `ok`, zero foreign-key violations, Run/P37 counts unchanged and P39 operation/link `0/0`.
+- Publication adds no real-data P39 run, formula/default, Decision/Risk consumer, execution authority, secret or runtime database file.
+
+### Rollback and next boundary
+
+Use a normal Git revert of `7d30a58` if the published P39 feature must be removed; do not rewrite history. Preserve the ignored v23 database and verified v22 backup. First real-data P39 validation, automatic selection, P31/Risk consumption, P23-4C2 and every execution-related capability remain separately approval-gated.
