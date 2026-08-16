@@ -118,6 +118,11 @@ class SQLiteCycleTargetPositionStore(CycleTargetPositionStore):
             ).fetchone()
         return self.get_operation(UUID(row["attempt_id"])) if row else None
 
+    def get_operation_by_operation_id(self, operation_id: UUID):
+        """Reload one exact operation through the read-only query boundary."""
+
+        return self.get_first_operation(operation_id)
+
     def get_operation(self, attempt_id: UUID):
         with closing(self._database.connect()) as connection:
             row = connection.execute(

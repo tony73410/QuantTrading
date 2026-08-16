@@ -142,9 +142,9 @@ def test_v9_to_current_migration_backs_up_preserves_and_has_zero_phase6a_backfil
 
     CentralSQLiteDatabase(path, backup_directory=backups).initialize()
 
-    backup = next(backups.glob("*.sqlite3")); assert ".schema-v9-to-v22." in backup.name
+    backup = next(backups.glob("*.sqlite3")); assert ".schema-v9-to-v23." in backup.name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in ("target_adjustment_risk_operations", "target_adjustment_risk_review_results", "target_adjustment_risk_rule_results", "target_adjustment_risk_source_links"):
             assert connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0

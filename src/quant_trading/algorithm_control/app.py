@@ -38,6 +38,7 @@ from quant_trading.persistence import (
     SQLiteAssetTradingControlStore,
     SQLiteCycleTargetAssetAdmissionStore,
     SQLiteMathematicalCycleStateStore,
+    SQLiteMathematicalCycleTargetLinkStore,
 )
 from quant_trading.run_history import AlgorithmRunService, detect_software_identity
 from quant_trading.capital_allocation import CapitalAllocationService
@@ -93,6 +94,7 @@ from quant_trading.orchestration import (
     SpectralHistoricalStudyCoordinator,
     ReversalObservationResearchCoordinator,
     CycleTargetPositionResearchCoordinator,
+    MathematicalCycleTargetPositionLinkCoordinator,
     CycleTargetAdjustmentDecisionPreviewCoordinator,
 )
 
@@ -317,6 +319,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     cycle_target_position_runner = CycleTargetPositionResearchCoordinator(
         reversal_observation_store,
         cycle_target_position_service,
+    )
+    mathematical_cycle_target_store = SQLiteMathematicalCycleTargetLinkStore(
+        root / "runtime" / "data" / "market_history.sqlite3"
+    )
+    mathematical_cycle_target_store.initialize()
+    mathematical_cycle_target_runner = MathematicalCycleTargetPositionLinkCoordinator(
+        mathematical_cycle_store,
+        cycle_target_position_store,
+        cycle_target_position_runner,
+        mathematical_cycle_target_store,
+        AlgorithmRunService(run_history_queries),
+        software,
     )
     cycle_target_adjustment_store = SQLiteCycleTargetAdjustmentDecisionStore(
         root / "runtime" / "data" / "market_history.sqlite3"
@@ -584,6 +598,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         cycle_target_asset_admission_review=cycle_target_asset_admission_review,
         cycle_target_asset_admission_queries=cycle_target_asset_admission_store,
         mathematical_cycle_queries=mathematical_cycle_store,
+        mathematical_cycle_target_runner=mathematical_cycle_target_runner,
+        mathematical_cycle_target_queries=mathematical_cycle_target_store,
         linked_target_position_preview=linked_target_position_preview,
         target_adjustment_decision_preview=target_adjustment_preview,
         target_adjustment_decision_queries=target_adjustment_store,

@@ -41,6 +41,7 @@ class CycleTargetPositionQueryService(Protocol):
         self, query: CycleTargetQuery = CycleTargetQuery()
     ) -> tuple[AssetCycleTargetConfiguration, ...]: ...
     def get_operation(self, attempt_id: UUID) -> CycleTargetOperation | None: ...
+    def get_operation_by_operation_id(self, operation_id: UUID) -> CycleTargetOperation | None: ...
     def list_operations(
         self, query: CycleTargetQuery = CycleTargetQuery()
     ) -> tuple[CycleTargetOperation, ...]: ...
@@ -64,6 +65,9 @@ class EmptyCycleTargetPositionQueryService:
         return ()
 
     def get_operation(self, attempt_id):
+        return None
+
+    def get_operation_by_operation_id(self, operation_id):
         return None
 
     def list_operations(self, query=CycleTargetQuery()):

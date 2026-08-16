@@ -67,6 +67,11 @@ class SQLiteMathematicalCycleStateStore(MathematicalCycleStateStore):
             row = connection.execute("SELECT * FROM mathematical_cycle_state_operations WHERE operation_id=? ORDER BY requested_at_utc,attempt_id LIMIT 1", (str(operation_id),)).fetchone()
         return self._load_operation(row) if row else None
 
+    def get_operation_by_operation_id(self, operation_id: UUID):
+        """Reload one exact accepted operation through the read-only query boundary."""
+
+        return self.get_first_operation(operation_id)
+
     def get_stream(self, stream_id: UUID):
         with closing(self._database.connect()) as connection:
             row = connection.execute("SELECT * FROM mathematical_cycle_streams WHERE stream_id=?", (str(stream_id),)).fetchone()

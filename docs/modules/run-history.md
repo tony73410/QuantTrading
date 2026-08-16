@@ -6,7 +6,7 @@
 
 ## Purpose
 
-Provide one durable, searchable identity and ordered evidence chain for current Factor Preview, Decision Preview, full Factor → Decision → Risk Dry Run, Capital Allocation, manual/P23-2 Asset State, finite-knot/linked/P23-3A Target Position, standardized-state, Phase-5D/P23-4A target-to-Decision and specialized Phase 6A→6B→6C→6D Risk operations. The module records what ran and links domain-owned results; it does not calculate algorithms, capital, state transitions, targets, standardized state, Decision amounts or Risk formulas.
+Provide one durable, searchable identity and ordered evidence chain for current Factor Preview, Decision Preview, full Factor → Decision → Risk Dry Run, Capital Allocation, manual/P23-2 Asset State, finite-knot/linked/P23-3A/P23-3B Target Position, standardized-state, Phase-5D/P23-4A target-to-Decision and specialized Phase 6A→6B→6C→6D Risk operations. The module records what ran and links domain-owned results; it does not calculate algorithms, capital, state transitions, targets, standardized state, Decision amounts or Risk formulas.
 
 ## Responsibilities
 
@@ -68,6 +68,7 @@ Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence 
 - P23-2 definition/preview: one `REVERSAL_OBSERVATION_RESEARCH` Run records an ordered `STATE` stage. Preview Runs parent to the exact P27 Run, retain the P26 parent as a source relationship and expose normalized candidate/confirmation/activation event children. Definition-save Runs expose the new immutable disabled definition. Run History renders stored evidence only and never changes formal Asset State or recalculates the algorithm.
 - P23-2B definition: one `MATHEMATICAL_CYCLE_STATE_DEFINITION` Run records a disabled immutable definition. Promotion: one `MATHEMATICAL_CYCLE_STATE_PROMOTION` Run parents to the exact accepted P28 Run, records one `STATE` stage and exposes stream/source/transition evidence. Failed missing sources remain parentless durable invalid Runs. Run History never selects a stream or changes state.
 - P23-3A definition/configuration saves: one `CYCLE_TARGET_POSITION_RESEARCH` Run records one `TARGET_POSITION` stage and exact immutable bindings. Preview Runs parent to the exact P28 Run, record ordered `STATE` then `TARGET_POSITION` stages, expose P28/P27/P26 source relationships and render source links, region predicates, solver evidence, target/difference and disabled safety metadata. Run History never calculates or repairs P29.
+- P23-3B bridge: one `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK` Run parents to the explicitly selected P37 Run, records `STATE` then `TARGET_POSITION`, and exposes P29/P28 sources through the immutable accepted link. P29 keeps its existing P28 parent. Operation artifacts show requested/accepted identities, hypothetical USD context, errors and nested accepted-link evidence without recalculation.
 - P23-4A preview: one `CYCLE_TARGET_DECISION_PREVIEW` Run parents to the exact P29 Run, records ordered `TARGET_POSITION` then `DECISION` stages and exposes exact P29/P28 relationships. Its operation artifact owns an accepted result child, one immutable source-link child and zero-or-one type-distinct intent child. Run History displays copied current/target/difference and policy/safety evidence but never calculates the action or implies Risk review.
 - P23-4B review: one `CYCLE_TARGET_RISK_REVIEW` Run parents to the exact P31 Run, records ordered `DECISION` then `RISK` stages and exposes exact P31/P29/P28 relationships. Its operation artifact owns an accepted manual-review/blocked result, exact source link and two or three locked rule children. Run History displays the unchanged requested notional and permanent absence of approved output; it never recalculates or implies numerical approval.
 - P23-4C1 control change: one `ASSET_TRADING_CONTROL_CHANGE` Run records one `STATE` stage and renders immutable predecessor/status/effective-session/calendar/reason evidence. It never changes Risk or creates a trade.
@@ -89,7 +90,7 @@ The Risk stage has three ordered approved-for-research numerical preview rules, 
 
 ## Migration and rollback
 
-The current additive migration chain is v1→v22. Each step preserves earlier meaning; P23-1 adds v14, P26 v15, P23-1F v16, P23-2 v17, P23-3A v18, P23-4A v19, P23-4B v20, P23-4C1 v21 and disabled P23-2B mathematical-cycle evidence v22.
+The current additive migration chain is v1→v23. Each step preserves earlier meaning; P23-1 adds v14, P26 v15, P23-1F v16, P23-2 v17, P23-3A v18, P23-4A v19, P23-4B v20, P23-4C1 v21, disabled P23-2B mathematical-cycle evidence v22 and explicit P23-3B target-link evidence v23.
 
 Schema v1→v2, v2→v3, v3→v4 and v4→v5 are additive. Before migration, `CentralSQLiteDatabase` creates a consistent backup under `runtime/data/backups/`, applies each version in a transaction, and verifies prior table row counts, foreign keys, and `PRAGMA integrity_check`. Failure rolls the transaction back. Rollback after a successful migration requires stopping writers, preserving the newer database and restoring the matching verified backup; the application does not pretend code rollback alone can downgrade the database.
 
@@ -140,6 +141,7 @@ Algorithm Control contains a read-only `Run History` page and the Main Launcher 
 - P23-1F profile attempts/results, complete daily MAD trace, exact P26 parent plus every source child Run, definition/study fingerprints, warnings and durable failures under `VOLATILITY_PROFILE_RESEARCH`.
 - P23-2 definition/preview attempts, exact P27/P26/local-market source identities, daily/event counts, initial/final research direction, warnings and durable failures under `REVERSAL_OBSERVATION_RESEARCH`.
 - P23-3A formula/configuration/preview attempts, exact P28 Result/Run/Step and P27/P26 lineage, `P/R/k/x`, linear gates, region, beta solver, target/difference, source-link children and durable failures under `CYCLE_TARGET_POSITION_RESEARCH`.
+- P23-3B bridge attempts and accepted links, exact P37 operation/Run/stream/snapshot, P28 Result/Run/Step, P29 operation/result/Run/configuration, target summary, durable failures and clickable P37/P29/P28 relationships under `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK`.
 - P23-4A attempts/results, exact P29 Result/Run/formula/configuration and P28 Result/Run/Step lineage, current/target/signed-difference/action, zero-or-one P31 intent, source-link children and durable failures under `CYCLE_TARGET_DECISION_PREVIEW`.
 
 Completed previews automatically open their Run detail. GUI code consumes only `RunHistoryQueryService` and contains no SQL or business calculation.
@@ -158,6 +160,6 @@ Completed previews automatically open their Run detail. GUI code consumes only `
 - Phase 4A symbolic state remains disabled. P23-4C1 trading control is a separate explicit authority consumed only by the disabled P35 gate. Phase 5C has the approved Phase 5D Decision consumer; P23-3A has P23-4A; P23-4A has P23-4B; and P23-4B can enter P35 only by explicit exact selection. None reaches complete Risk approval, daily counting, Backtesting, Accounting or Execution.
 
 - Backtesting remains in its existing immutable JSON repository; Phase 1 does not duplicate large daily artifacts into SQLite or register historical backtests retroactively.
-- Run History Explorer itself performs view replay only. P23-2 and P23-3A owning services provide exact isolated recalculation replay from normalized stored inputs; divergence is visible and history is never repaired.
+- Run History Explorer itself performs view replay only. P23-2 and P23-3A owning services provide exact isolated recalculation replay from normalized stored inputs; P23-3B reuses P29 idempotency and records linkage rather than introducing a second replay formula. Divergence is visible and history is never repaired.
 - Retention, archive, algorithm recomputation replay, automatic state evaluation, Reconciliation, Paper and Live records remain later phases. Phase 4A adds manual state-history/replay artifacts only; no downstream consumer exists.
 - No Portfolio Accounting snapshot is fabricated for current previews; empty references remain explicit.

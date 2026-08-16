@@ -4,6 +4,8 @@ P23-4C1 adds sibling inspectors inside the existing Asset State and Risk pages. 
 
 P23-2B adds a read-only `Mathematical Cycles` sibling inside the existing Asset State page. It lists explicitly named disabled streams, current operational direction, exact definition/P28 identity, immutable snapshots/transitions and operation Runs. It has no Create/Promote/Active control and does not calculate state, select latest evidence or add a Launcher entry.
 
+P23-3B adds a `Mathematical Cycle Link` sibling inside the existing Target Position page. Both P37-operation and P29-configuration selectors are blank by default. A no-write preflight displays exact P37/P28/P29 identities before the manual disabled preview is enabled; persisted history exposes structured state/source/target evidence and Open Run actions for P39/P37/P29/P28. The widget contains no formula, SQL, default selection, Decision/Risk or execution logic and adds no Launcher entry.
+
 Approved PROPOSAL-036 verified these existing GUI surfaces against real local evidence after restart: Trading Control showed one AAPL `ELIGIBLE` event and one operation; Cycle Target Asset Admission showed three results, three operations and nine rules. Every available control/P35/P33/P31/P29/P28 Open Run target was enabled and resolved. Inspection created no database write and exposed no approval or execution control.
 
 ## Purpose
@@ -37,6 +39,7 @@ Provide a separate PySide6 management application for registered Factor, Trading
 - Provide a Target Position owner page over injected typed services: explicit finite-knot definition creation, explicit manual scalar/USD preview inputs, immutable result/trace history, exact persisted curve chart and `Open Run` navigation.
 - In a visually separate linked Target Position mode, require explicit persisted Standardized State and exact curve selections, display immutable source evidence, collect only the two manual USD values/reason, and show linked history with source/parent/child `Open Run` navigation.
 - In a sibling `P23-3 周期目标仓位` mode, create immutable disabled formula and per-symbol parameter versions through typed services; require an explicit successful P28 Result/Run and exact Daily Step plus hypothetical USD basis/current values; show `P/R/k/x`, candidate/linear gates, region/solver/target evidence; replay/compare/export history and open P29/P28/P27/P26 Runs. Composition creates no default; P30 data remains explicitly approved disabled validation evidence only.
+- In a sibling `Mathematical Cycle Link` mode, require one exact successful P37 terminal operation and exact P29 configuration plus explicit hypothetical USD values/reason; run no-write cross-source preflight, delegate the typed P39 runner only on a manual click, filter durable attempts and open P39/P37/P29/P28 Runs. No item is auto-selected and no business calculation exists in the panel.
 - In a sibling `Cycle Target Decision` mode inside the existing Decision page, require one explicit accepted P29 Result/Run and a reason; perform no-write exact-source preflight; delegate P23-4A preview; filter/show current/target/signed difference/action/zero-or-one intent and exact policy/source versions; compare/export results and open P31/P29/P28 Runs. The panel contains no sign math, SQL, Risk, cash or order logic.
 - In a separate Decision Inspector mode, require explicit selection of one completed Phase 5C link, display copied target/source evidence, collect only a reason, delegate the target-adjustment preview and show accepted/invalid/failed history with four-way `Open Run` navigation.
 - In a separate Risk-page subtab, require explicit selection of one completed nonzero Phase 5D intent, display immutable unapproved amounts/source/safety evidence, collect only a reason, delegate the structural manual-review gate, and show accepted/blocked/invalid/failed history, locked rules and related Runs.
@@ -70,7 +73,7 @@ Qt按钮signal通过显式adapter与DecisionCondition等业务对象参数隔离
 
 ## Public interfaces
 
-The public presentation surface additionally includes `MathematicalCyclePanel` as a query-only child of `AssetStateWorkspacePanel`.
+The public presentation surface additionally includes `MathematicalCyclePanel` as a query-only child of `AssetStateWorkspacePanel` and `MathematicalCycleTargetLinkPanel` as a typed child of `TargetPositionPanel`.
 
 ## Inputs
 

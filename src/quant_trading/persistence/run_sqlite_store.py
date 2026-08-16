@@ -593,6 +593,24 @@ class SQLiteRunHistoryRepository:
                 relationships.add((RunRelationshipType.CHILD, admission_id))
             elif control_id == run.run_id:
                 relationships.add((RunRelationshipType.LINKED_PREVIEW, admission_id))
+        mathematical_cycle_target_links = connection.execute(
+            """SELECT bridge_run_id, state_run_id, target_run_id, source_run_id
+               FROM mathematical_cycle_target_position_links
+               WHERE bridge_run_id=? OR state_run_id=? OR target_run_id=? OR source_run_id=?""",
+            (str(run.run_id),) * 4,
+        ).fetchall()
+        for row in mathematical_cycle_target_links:
+            bridge_id = UUID(row["bridge_run_id"])
+            source_ids = {
+                UUID(row["state_run_id"]), UUID(row["target_run_id"]),
+                UUID(row["source_run_id"]),
+            }
+            if bridge_id == run.run_id:
+                for source_id in source_ids:
+                    if source_id != run.parent_run_id:
+                        relationships.add((RunRelationshipType.SOURCE, source_id))
+            elif run.run_id in source_ids:
+                relationships.add((RunRelationshipType.LINKED_PREVIEW, bridge_id))
         return tuple(
             RunRelationship(kind, related_run_id)
             for kind, related_run_id in sorted(
@@ -2561,6 +2579,58 @@ class SQLiteRunHistoryRepository:
                     _field("stream", f"{operation['stream_name'] or '—'} / {operation['stream_id'] or '—'}"),
                     _field("P28 Result / Run", f"{operation['requested_source_result_id'] or '—'} / {operation['requested_source_run_id'] or '—'}"),
                     _field("latest sequence / snapshot", f"{operation['latest_sequence'] or '—'} / {operation['latest_snapshot_id'] or '—'}"),
+                    _field("warnings", operation["warnings_json"]),
+                    _field("error", operation["error_summary"]),
+                    _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),
+                ),
+                children,
+            ))
+        mathematical_cycle_target_operations = connection.execute(
+            """SELECT o.*, l.snapshot_sequence, l.snapshot_semantic_fingerprint,
+                      l.direction_at_open, l.direction_at_close, l.reference_session,
+                      l.reference_price_text, l.target_region, l.target_fraction_text,
+                      l.target_position_value_usd_text, l.adjustment_value_usd_text
+               FROM mathematical_cycle_target_link_operations o
+               LEFT JOIN mathematical_cycle_target_position_links l ON l.link_id=o.link_id
+               WHERE o.bridge_run_id=? ORDER BY o.completed_at_utc, o.attempt_id""",
+            (str(run_id),),
+        ).fetchall()
+        for operation in mathematical_cycle_target_operations:
+            children: tuple[RunArtifactView, ...] = ()
+            if operation["link_id"]:
+                children = (
+                    RunArtifactView(
+                        "mathematical_cycle_target_position_link", operation["link_id"],
+                        RunStageName.TARGET_POSITION.value, operation["resolved_symbol"],
+                        "immutable_source_link",
+                        "Exact P37 terminal state delegated to unchanged P29 target math",
+                        _datetime(operation["completed_at_utc"]),
+                        (
+                            _field("P37 operation / Run", f"{operation['requested_state_operation_id']} / {operation['requested_state_run_id']}"),
+                            _field("P37 stream / snapshot / sequence", f"{operation['requested_stream_id']} / {operation['requested_latest_snapshot_id']} / {operation['snapshot_sequence']}"),
+                            _field("P37 direction / reference", f"{operation['direction_at_open']} -> {operation['direction_at_close']} / {operation['reference_session']} @ {operation['reference_price_text']}"),
+                            _field("P37 semantic fingerprint", operation["snapshot_semantic_fingerprint"]),
+                            _field("P28 Result / Run / Step", f"{operation['resolved_source_result_id']} / {operation['resolved_source_run_id']} / {operation['resolved_source_step_id']}"),
+                            _field("P29 operation / result / Run", f"{operation['target_operation_id']} / {operation['resolved_target_result_id']} / {operation['resolved_target_run_id']}"),
+                            _field("P29 configuration", f"{operation['requested_configuration_id']}@{operation['requested_configuration_version']}"),
+                            _field("target region / fraction", f"{operation['target_region']} / {operation['target_fraction_text']}"),
+                            _field("target / adjustment USD", f"{operation['target_position_value_usd_text']} / {operation['adjustment_value_usd_text']}"),
+                        ),
+                    ),
+                )
+            artifacts.append(RunArtifactView(
+                "mathematical_cycle_target_link_operation", operation["attempt_id"],
+                RunStageName.TARGET_POSITION.value, operation["resolved_symbol"],
+                operation["status"],
+                "P23-3B explicit P37-to-P29 bridge; DISABLED / NO EXECUTION",
+                _datetime(operation["completed_at_utc"]),
+                (
+                    _field("bridge / target operation", f"{operation['operation_id']} / {operation['target_operation_id']}"),
+                    _field("requested P37 operation / Run", f"{operation['requested_state_operation_id']} / {operation['requested_state_run_id']}"),
+                    _field("requested stream / snapshot", f"{operation['requested_stream_id']} / {operation['requested_latest_snapshot_id']}"),
+                    _field("requested P29 configuration", f"{operation['requested_configuration_id']}@{operation['requested_configuration_version']}"),
+                    _field("hypothetical basis / current USD", f"{operation['research_capital_basis_usd_text']} / {operation['current_position_value_usd_text']}"),
+                    _field("accepted link", operation["link_id"] or "none"),
                     _field("warnings", operation["warnings_json"]),
                     _field("error", operation["error_summary"]),
                     _field("execution / live", f"{bool(operation['execution_allowed'])} / {bool(operation['live_allowed'])}"),

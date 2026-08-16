@@ -112,6 +112,7 @@ from quant_trading.asset_state import (
 from quant_trading.target_position import (
     CycleTargetPositionQueryService,
     CycleTargetPositionService,
+    MathematicalCycleTargetLinkQueryService,
     EmptyTargetPositionQueryService,
     TargetPositionQueryService,
     TargetPositionService,
@@ -126,6 +127,7 @@ from quant_trading.orchestration import (
     AssetTradingControlCoordinator,
     CycleTargetAssetAdmissionCoordinator,
     CycleTargetPositionResearchRunner,
+    MathematicalCycleTargetLinkRunner,
     CycleTargetAdjustmentDecisionPreviewCoordinator,
     StandardizedStateTargetPositionPreviewCoordinator,
     TargetAdjustmentDecisionPreviewCoordinator,
@@ -223,6 +225,8 @@ class AlgorithmControlPanel(QMainWindow):
         cycle_target_asset_admission_review: CycleTargetAssetAdmissionCoordinator | None = None,
         cycle_target_asset_admission_queries: CycleTargetAssetAdmissionQueryService | None = None,
         mathematical_cycle_queries: MathematicalCycleStateQueryService | None = None,
+        mathematical_cycle_target_runner: MathematicalCycleTargetLinkRunner | None = None,
+        mathematical_cycle_target_queries: MathematicalCycleTargetLinkQueryService | None = None,
     ) -> None:
         super().__init__()
         self.controller = controller
@@ -372,6 +376,9 @@ class AlgorithmControlPanel(QMainWindow):
             cycle_target_queries=cycle_target_position_queries,
             reversal_observation_queries=reversal_observation_queries,
             cycle_target_runner=cycle_target_position_runner,
+            mathematical_cycle_target_runner=mathematical_cycle_target_runner,
+            mathematical_cycle_target_queries=mathematical_cycle_target_queries,
+            mathematical_cycle_queries=mathematical_cycle_queries,
         )
         self.simulation_strategy_page = SimulationStrategyPanel(controller)
         self.pipeline = self._pipeline_page()

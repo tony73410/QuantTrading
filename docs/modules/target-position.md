@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified through disabled P23-3A research.** Phase 5A manual preview and Phase 5C exact linkage remain unchanged. P23-3A is a separately versioned exact-P28-step linear/finite-exponential family; its only approved downstream consumer is the explicit disabled P23-4A Decision adapter. Target Position itself creates no action, intent, Risk approval, order, fill, cash movement or account mutation.
+**Implemented and verified through disabled P23-3B research.** Phase 5A manual preview and Phase 5C exact linkage remain unchanged. P23-3A is a separately versioned exact-P28-step linear/finite-exponential family; P23-3B explicitly links one exact saved P37 terminal state to that unchanged P29 calculation. P31 remains the only approved explicit P29 Decision adapter and is never called automatically by P39. Target Position creates no action, intent, Risk approval, order, fill, cash movement or account mutation.
 
 ## Purpose
 
@@ -20,6 +20,8 @@ Own one explicit, bounded desired-holding calculation between future research ev
 - Define a source-neutral schema-v1 standardized-state target input plus immutable linked-operation/result provenance contracts without importing the Factor owner.
 - Delegate linked inputs to the unchanged curve engine, preserve exact source scalar/symbol/time/version/Run identity, and reject cross-object mismatches transactionally through the injected Store.
 - Save immutable disabled P23-3A formula definitions separately from immutable per-symbol `P_min/P_neutral/P_max/s/A/B` configurations; create no default or Active version.
+- Accept one explicit P39 command naming exact P37 operation/Run/stream/terminal snapshot IDs, exact P29 configuration/version, distinct bridge/target operation IDs and explicit hypothetical USD values; fail closed on any source/semantic mismatch.
+- Delegate the existing P29 command and engine unchanged, then persist one searchable bridge attempt and one success-only immutable P37/P28/P29 link.
 - Evaluate one source-neutral exact P28 Daily Step as `x=ln(P/R)/k`, choose exactly one linear/linear-clamped/accelerating/saturated region and preserve binary64 decimal/IEEE evidence plus exact Decimal hypothetical-USD results.
 - Keep reversal candidate/confirmation and counter-move observations linear; use a derivative-matched finite exponential only for same-direction operational movement in `A<|x|<B`, with hard long-only saturation at `B`.
 - Preserve P29 source/result/trace/operation evidence, deterministic recalculation replay, exact comparison/export and P28/P27/P26 Run navigation.
@@ -46,7 +48,7 @@ Reference-state/risk-scale calculation outside the approved P29 mapping, automat
 
 ## Inputs
 
-Manual mode accepts an explicit immutable curve definition and manual scalar/USD context. Linked mode accepts one source-neutral exact standardized-state calculation plus the same two manual USD values and exact curve ID. P23-3A accepts one exact disabled formula/configuration version, exact successful P28 Result/Run/Daily Step and explicit hypothetical non-negative USD values. Application orchestration copies `P/R/k`, operational direction, candidate state, event and P28/P27/P26/Market lineage; it never selects latest evidence or fetches a Provider.
+Manual mode accepts an explicit immutable curve definition and manual scalar/USD context. Linked mode accepts one source-neutral exact standardized-state calculation plus the same two manual USD values and exact curve ID. P23-3A accepts one exact disabled formula/configuration version, exact successful P28 Result/Run/Daily Step and explicit hypothetical non-negative USD values. P23-3B additionally accepts exact P37 operation/Run/stream/snapshot identities and a separate deterministic target operation ID. Application orchestration reloads P37/P28 public evidence, compares exact P29-consumed semantics and delegates P29; it never selects latest evidence or fetches a Provider.
 
 ## Outputs
 
@@ -58,7 +60,7 @@ The domain uses Python standard library, centralized error-code identity and neu
 
 ## Side effects
 
-None in engines/models. Injected Stores write manual Schema-v6 evidence, linked Schema-v8 provenance and P23-3A Schema-v18 formula/configuration/attempt/result/trace/source evidence. P29 uses `CYCLE_TARGET_POSITION_RESEARCH / NO_EXECUTION`, a `STATE` source stage followed by `TARGET_POSITION`, and parents to the exact P28 Run. The migration backfilled no P29 row; approved PROPOSAL-030 later appended one disabled formula, one disabled AAPL test configuration, five attempts/Runs, three results/traces and eighteen source links without changing Schema.
+None in engines/models. Injected Stores write manual Schema-v6 evidence, linked Schema-v8 provenance, P23-3A Schema-v18 evidence and P23-3B Schema-v23 attempts/accepted links. P29 uses `CYCLE_TARGET_POSITION_RESEARCH / NO_EXECUTION` parented to P28. P39 uses a separate `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK / NO_EXECUTION` Run parented to P37 with `STATE` then `TARGET_POSITION`; the immutable link exposes P37/P39/P29/P28 without rewriting parentage. Active v23 has zero P39 operation/link rows.
 
 ## Failure modes
 
@@ -78,7 +80,7 @@ No environment or configuration-file settings and no Active definition. Definiti
 
 ## Known limitations
 
-Manual and linked modes remain unchanged. P23-3A supplies exact P28/P27 cycle evidence and keeps capital/current values hypothetical. P23-4A may consume only an explicitly selected accepted P29 Result/Run through public query contracts; Phase 5D still reads only the old Phase 5C link. There is no latest/default selection, factual account adapter, winner ranking, archive UI, numerical Risk approval, simulation consumer or execution authority. PROPOSAL-030 added one explicit disabled AAPL validation formula/configuration and three linear results only; they are not defaults or a portfolio state. Physical-display visual QA remains pending; offscreen regression is automated.
+Manual and linked modes remain unchanged. P23-3A supplies exact P28/P27 cycle evidence and keeps capital/current values hypothetical. P23-3B proves that a manually selected persisted P37 state controlled one P29 invocation, but does not reinterpret direction or feed P31. P23-4A may consume only an explicitly selected accepted P29 Result/Run through its own public contract; Phase 5D still reads only the old Phase 5C link. There is no latest/default selection, factual account adapter, winner ranking, numerical Risk approval, simulation consumer or execution authority. A real-data P39 validation remains separately approval-gated. Physical-display visual QA remains pending; offscreen regression is automated.
 
 ## Controlled AAPL validation evidence
 

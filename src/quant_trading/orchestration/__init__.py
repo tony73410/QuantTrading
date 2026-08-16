@@ -72,6 +72,11 @@ from .mathematical_cycle_state_promotion import (
     MathematicalCyclePromotionPreflight,
     MathematicalCyclePromotionRunner,
 )
+from .mathematical_cycle_target_position_link import (
+    MathematicalCycleTargetLinkPreflight,
+    MathematicalCycleTargetLinkRunner,
+    MathematicalCycleTargetPositionLinkCoordinator,
+)
 
 __all__ = [
     "AnalysisDecisionPipeline",
@@ -114,4 +119,7 @@ __all__ = [
     "MathematicalCyclePromotionCoordinator",
     "MathematicalCyclePromotionPreflight",
     "MathematicalCyclePromotionRunner",
+    "MathematicalCycleTargetLinkPreflight",
+    "MathematicalCycleTargetLinkRunner",
+    "MathematicalCycleTargetPositionLinkCoordinator",
 ]

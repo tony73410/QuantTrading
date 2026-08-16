@@ -162,7 +162,7 @@ def test_p31_persists_exact_intent_chain_reload_export_and_run_history(tmp_path:
     assert replay.recalculate(result.decision_result_id) == result
     assert replay.verify(result.decision_result_id).matched is True
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM cycle_target_decision_results").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM cycle_target_decision_trade_intents").fetchone()[0] == 1
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
@@ -254,9 +254,9 @@ def test_v18_to_v19_migration_is_backed_up_additive_and_zero_backfill(tmp_path: 
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
     assert len(backups) == 1
-    assert ".schema-v18-to-v22." in backups[0].name
+    assert ".schema-v18-to-v23." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "cycle_target_decision_operation_attempts",
@@ -265,7 +265,7 @@ def test_v18_to_v19_migration_is_backed_up_additive_and_zero_backfill(tmp_path: 
             "cycle_target_decision_source_links",
         ):
             assert connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0
-        assert len(sqlite_database.expected_schema_tables()) == 137
+        assert len(sqlite_database.expected_schema_tables()) == 139
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 

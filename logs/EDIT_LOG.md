@@ -7602,4 +7602,160 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 - Assumptions introduced: deterministic identifiers and the approved stream name only, both recorded before writes; no financial parameter/default was introduced.
 - Compass sections updated: metadata/current phase, P23-2B capability, DEC-024, implementation narrative, INTENT-047/048 and Next Approved Direction. Stable Core and architecture invariants are unchanged.
 - Remaining drift risk: future code could mistake the AAPL `DOWN` initialization stream for a real reversal, sell instruction or default state. Current contracts, GUI text and governance require an explicit stream ID and separate approval for every extension/consumer.
+
+## EDIT-20260814-005 — Publish P38 and create proposal-only P39 with record-integrity audit
+
+### Authorization and task mode
+
+- User selected option A: publish the completed P38 checkpoint, then create the next proposal while preserving complete proposal and development records.
+- Publication portion: `FAST`, version-record/Git only.
+- Proposal portion: `STANDARD`, documentation/governance/test only because it designs an additive cross-module public contract and future migration but does not implement either.
+- Primary future owner: Target Position. Read-only upstream owners: P37 Asset State and P28. Secondary future owners: Orchestration, Persistence, Run History and Algorithm Control.
+- Explicit exclusions: no source implementation, public runtime contract, SQLite migration, GUI behavior, active-database write, new target formula, automatic source/configuration selection, Decision, Risk, cash, Backtesting, Accounting, Paper, Live, order or execution behavior.
+
+### Published checkpoint
+
+- Staged only the 16 completed P38 files after reviewing the staged diff and preserving ignored active SQLite/backup evidence.
+- Created commit `47a8e27cef8af5c3105ebde2469c78f19a0a3b12` with message `validate: initialize AAPL mathematical cycle state`.
+- Pushed `86c69d4..47a8e27` successfully to `origin/main`; no force, merge, rebase or history rewrite occurred.
+- The published checkpoint contains the approved P38 AAPL initialization/replay evidence, `BUG-20260814-002` correction, 658-test result and synchronized state/version records.
+
+### Existing-work, Compass and architecture audit
+
+- P29 already owns the sole approved cycle-aware target formula, immutable formula/configuration/result evidence and explicit P28 source semantics.
+- P37 already owns restart-safe named mathematical-cycle streams/snapshots and exact P28 source links.
+- Phase 5C supplies the compatible precedent: resolve one exact upstream result, delegate unchanged Target Position math and preserve a typed link.
+- Therefore P39 must be a type-distinct Target-Position-owned linkage/orchestration slice rather than a second formula, P29 replacement or default P37 stream.
+- The proposal adds no top-level module or current dependency. Future implementation is `MULTI_MODULE` and must remain disabled, with public P37/P28 queries only and no private/SQLite cross-import.
+
+### Proposal created
+
+- Added `PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md` with recommended P39-D1–D12.
+- The command explicitly selects one successful P37 operation/Run/stream/terminal latest snapshot, one exact P29 configuration/version and two hypothetical USD values.
+- Preflight must reload and semantically cross-check the snapshot's exact P28 Result/Run/Step before delegating to the unchanged P29 service.
+- Separate deterministic bridge and P29 child operation IDs make retries idempotent and allow recovery if P29 succeeds before link persistence.
+- Future migration is proposed as additive v22/137→v23/139 with two zero-backfill bridge tables and durable invalid/failed attempts. No migration has run.
+- Future GUI is one blank-by-default sibling inspector inside the existing Target Position page; no Launcher entry or widget business logic is proposed.
+- User authorization covers proposal creation only. Implementation, migration, GUI and any runtime validation require the explicit approval phrase in the proposal.
+
+### Record-integrity audit and bug
+
+- Before P39, all 38 proposal files `PROPOSAL-001..038` existed exactly once with no missing ID. P39 extends the continuous set to 39 files `001..039`.
+- The canonical proposal index omitted the existing PROPOSAL-006 historical-backtesting entry. Recorded and fixed `BUG-20260814-003` by restoring its index link without editing the proposal.
+- Before this edit, Edit Log contained 148 unique IDs and Bug Log contained 122 unique IDs. The new records preserve append-only history and unique numbering.
+- Added an architecture/governance regression that enumerates proposal filenames, requires continuous unique IDs and requires every proposal to appear in the canonical index.
+
+### Changed files
+
+- `docs/proposals/PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md`
+- `docs/proposals/README.md`
+- `docs/INDEX.md`
+- `PROJECT_COMPASS.md`
+- `docs/project/PROJECT_STATE.md`
+- `docs/project/ROADMAP.md`
+- `docs/project/VERSION_HISTORY.md`
+- `logs/BUG_LOG.md`
+- `tests/architecture/test_governance_document_integrity.py`
+- `logs/EDIT_LOG.md`
+
+### Verification
+
+- Initial `python -m pytest ...` probe used system Python 3.14 and reported that pytest was not installed; no project test executed under that interpreter.
+- Repository virtual environment: `21 passed` for `tests/architecture/test_governance_document_integrity.py`.
+- Complete architecture suite: `123 passed` for `tests/architecture`.
+- Post-edit record audit: 39 unique continuous proposal files, minimum 001, maximum 039, zero proposal-index omissions; 123 Bug Log records before this Edit entry and no duplicate proposal ID.
+- `git diff --check` passed; line-ending conversion warnings are repository/worktree policy warnings, not whitespace errors.
+
+### Change Impact Report and rollback
+
+- Current blast radius: `LOCAL` proposal/governance/test documentation only. Configuration, central SQLite v22/137, active runtime rows, GUI behavior, external permissions and financial meaning are unchanged.
+- Future proposed blast radius: `MULTI_MODULE`, additive public P37 exact-operation query, Target Position link contracts/service, Orchestration, Persistence v23, Run History and existing-page GUI. It cannot begin without explicit approval.
+- Rollback of current proposal work is a normal revert of the ten listed documentation/test files. It does not require database restoration. Published P38 rollback, if ever required, must use normal Git revert and preserve accepted append-only runtime evidence/backups.
+
+### Post-Implementation Compass and Bug audit
+
+- Intent alignment: records the user's selected next direction while preserving P29 as the mathematical owner and P37 as the state owner.
+- Architecture alignment: no new module or runtime dependency exists; future boundaries and exact public-query requirements are explicit.
+- Safety alignment: P39 is proposed-only, `DISABLED`, `NO_EXECUTION`, `execution_allowed=false`, `live_allowed=false`, and stops before Decision.
+- Unapproved behavior added: none.
+- Assumptions introduced: recommended P39-D1–D12 are proposal choices, visibly unapproved rather than user decisions.
+- Compass sections updated: metadata, DEC-025, decision narrative, INTENT-049 and Next Approved Direction; Stable Core unchanged.
+- Bug audit: `BUG-20260814-003` discovered and fixed with regression coverage; no unresolved new bug, so `KNOWN_ISSUES.md` is unchanged.
+- Remaining drift risk: a future implementation could accidentally treat P37 as the numerical formula source, auto-select a stream/configuration or feed P31 automatically. P39 explicitly forbids all three and requires exact IDs plus P37/P28 semantic equality.
+
+### Suggested commit message
+
+`docs: propose explicit mathematical cycle target link`
 - Bug discovery: `BUG-20260814-002` fixed with regression coverage; no deferred P38 Bug or new Known Issue remains.
+
+## EDIT-20260815-001 — Implement approved disabled P39 mathematical-cycle-to-target link and Schema v23
+
+### Authorization and task mode
+
+- User explicitly approved `PROPOSAL-039` and P39-D1–D12 for a disabled explicit P37 mathematical-cycle-state to unchanged P29 Target Position connection.
+- Task mode: `DEEP`, because the approved slice changes public read-only query contracts, adds a cross-owner orchestration path, migrates the central SQLite schema and extends Run/GUI observability.
+- Primary owner: `quant_trading.target_position`. Secondary owners: Asset State public query, Orchestration, Persistence, Run History and Algorithm Control.
+- Explicit exclusions honored: no new target formula or parameter/default, no automatic source/configuration selection, no Decision/Risk/cash/daily counter/full-chain simulation/Portfolio Accounting/Paper/Live/order/fill/execution behavior, and no real-data P39 validation row.
+
+### Pre-implementation Compass and architecture audit
+
+- P37 already owned persistent mathematical cycle state and exact P28 source links; P29 already owned the sole approved linear/finite-exponential/saturated target formula. The smallest compatible path was a type-distinct Target-Position-owned link rather than a second formula or reinterpretation of P37 direction.
+- Asset State exposes only exact read-only operation/state evidence. Orchestration resolves and cross-checks P37/P28/P29 public contracts. P29 remains parented to P28 and computes unchanged. P39 receives a separate parent-to-P37 Run and immutable link graph.
+- Blast radius: `MULTI_MODULE`, additive and disabled. Safety state remains `NO_EXECUTION`, `DISABLED`, `execution_allowed=false`, `live_allowed=false`.
+
+### Implementation
+
+- Added component `target_position.mathematical_cycle_link.p23_3b.v1@1.0.0` with immutable command, operation, accepted-link, status, query and Store/query contracts.
+- Added exact P37 and P29 operation-ID public lookups to their existing query protocols/adapters.
+- Added `MathematicalCycleTargetLinkRunner`: it reloads the exact successful P37 operation/Run/stream/latest terminal snapshot, definition/cycle/source link and exact P29 configuration; asks the existing P29 runner to prepare the backing P28 calculation; then compares identifiers plus every consumed symbol/session/direction/candidate/attribution/reference semantic before any target write.
+- P39 and P29 operation IDs are distinct and fingerprinted. Exact retry is idempotent; conflicting reuse fails before P29. An injected P29-success/P39-link-write failure leaves a durable P39 failure, and exact retry reuses the one fixed P29 terminal result before appending the missing link.
+- Added Run type `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK`, ordered `STATE`/`TARGET_POSITION` stages, typed P39 artifacts and P39/P37/P29/P28 relationships.
+- Added a blank-by-default `Mathematical Cycle Link` sibling inspector inside the existing Target Position page with no-write preflight, explicit hypothetical USD inputs/reason, manual preview, bounded history/detail and Open Run navigation. No Launcher entry was needed because no independently opened GUI was added.
+
+### Central SQLite v22→v23 migration
+
+- Schema advanced from v22/137 to v23/139 with exactly two additive tables: `mathematical_cycle_target_link_operations` and `mathematical_cycle_target_position_links`. No backfill occurred.
+- Verified backup `runtime/data/backups/market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3`: 100,921,344 bytes, SHA-256 `B655175AD146A16AF19640531240B11C664A973D93BAF7B089CD01E13175C796`, v22/137, integrity `ok`, zero foreign-key violations.
+- Active database: 100,982,784 bytes, SHA-256 `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`, v23/139, integrity `ok`, zero foreign-key violations.
+- All 136 prior business-table counts are identical; only the migration ledger increased by one. Run/stage/symbol/binding/message remains `66/122/63/289/293`; P37 remains `1/2/1/1/3/0/3`; P39 remains `0/0`.
+
+### Bug discovery and resolution
+
+- Recorded and fixed `BUG-20260815-001`: the generic Target Position parent panel imported Asset State solely for a P39 type annotation. The parent now treats the dependency as an opaque pass-through; only the dedicated P39 child panel depends on the public read-only P37 query contract.
+- No unresolved new bug or current user-impacting issue remains, so `KNOWN_ISSUES.md` is unchanged.
+
+### Changed files
+
+- Governance/version: `CHANGELOG.md`, `PROJECT_COMPASS.md`, `docs/INDEX.md`, `docs/architecture/OVERVIEW.md`, `docs/decisions/README.md`, `docs/decisions/ADR-0039-explicit-mathematical-cycle-target-link.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/project/VERSION_HISTORY.md`, `docs/proposals/README.md`, `docs/proposals/PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md`, `logs/BUG_LOG.md`, `logs/EDIT_LOG.md`.
+- Module documentation: `docs/modules/algorithm-control-gui.md`, `docs/modules/analysis-decision-pipeline.md`, `docs/modules/asset-state.md`, `docs/modules/central-persistence.md`, `docs/modules/run-history.md`, `docs/modules/target-position.md`.
+- Source: `src/quant_trading/algorithm_control/app.py`, `src/quant_trading/algorithm_control/ui/main_panel.py`, `src/quant_trading/algorithm_control/ui/target_position_panel.py`, `src/quant_trading/algorithm_control/ui/mathematical_cycle_target_link_panel.py`, `src/quant_trading/asset_state/mathematical_cycle_interfaces.py`, `src/quant_trading/error_codes.py`, `src/quant_trading/orchestration/__init__.py`, `src/quant_trading/orchestration/mathematical_cycle_target_position_link.py`, `src/quant_trading/persistence/__init__.py`, `src/quant_trading/persistence/cycle_target_position_sqlite_store.py`, `src/quant_trading/persistence/mathematical_cycle_state_sqlite_store.py`, `src/quant_trading/persistence/mathematical_cycle_target_link_sqlite_store.py`, `src/quant_trading/persistence/run_sqlite_store.py`, `src/quant_trading/persistence/sqlite_database.py`, `src/quant_trading/run_history/models.py`, `src/quant_trading/target_position/__init__.py`, `src/quant_trading/target_position/cycle_interfaces.py`, `src/quant_trading/target_position/mathematical_cycle_link_interfaces.py`, `src/quant_trading/target_position/mathematical_cycle_link_models.py`.
+- New P39 tests: `tests/architecture/test_mathematical_cycle_target_link_boundaries.py`, `tests/unit/algorithm_control/test_mathematical_cycle_target_link_panel.py`, `tests/unit/asset_state/test_sqlite_mathematical_cycle_target_link.py`.
+- Updated governance/schema regression tests: `tests/architecture/test_governance_document_integrity.py`, `tests/unit/asset_state/test_sqlite_asset_state.py`, `tests/unit/asset_state/test_sqlite_asset_trading_control_and_admission.py`, `tests/unit/asset_state/test_sqlite_cycle_target_adjustment_decision.py`, `tests/unit/asset_state/test_sqlite_cycle_target_position.py`, `tests/unit/asset_state/test_sqlite_cycle_target_risk.py`, `tests/unit/asset_state/test_sqlite_mathematical_cycle_state.py`, `tests/unit/asset_state/test_sqlite_reversal_observation.py`, `tests/unit/capital_allocation/test_sqlite_capital_allocation.py`, `tests/unit/decision/test_sqlite_target_adjustment_decision.py`, `tests/unit/factors/test_daily_volatility_profile.py`, `tests/unit/factors/test_spectral_history_research.py`, `tests/unit/factors/test_sqlite_spectral_volatility.py`, `tests/unit/factors/test_sqlite_standardized_state.py`, `tests/unit/risk/test_sqlite_exposure_cap.py`, `tests/unit/risk/test_sqlite_research_asset_cash.py`, `tests/unit/risk/test_sqlite_research_cash_floor.py`, `tests/unit/risk/test_sqlite_target_adjustment_risk.py`, `tests/unit/run_history/test_research_history.py`, `tests/unit/run_history/test_sqlite_run_history.py`, `tests/unit/target_position/test_linked_target_position.py`, `tests/unit/target_position/test_sqlite_target_position.py`.
+
+### Verification
+
+- Full repository: **668 passed**, one pre-existing third-party `websockets.legacy` deprecation warning, 455.34 seconds.
+- Architecture/governance: **126 passed**.
+- Python `compileall` over `src` and `tests`: passed.
+- `git diff --check`: passed; only repository line-ending conversion notices were emitted.
+- Forbidden-consumer scan across P39 domain/orchestration/GUI found no Decision, Risk, Execution, Alpaca or order-submission reference.
+- Final read-only active SQLite inspection reconfirmed Schema v23/139, integrity `ok`, zero foreign-key violations and exact `66/122/63/289/293`, `1/2/1/1/3/0/3`, `0/0` counts.
+
+### Change Impact Report and rollback
+
+- Public contracts: additive exact-operation query and P39 typed contracts only. Configuration: no default or activation. Database: additive v23 two-table migration with verified backup. GUI: existing page only. Permissions: local SQLite only. Trading semantics and safety: unchanged P29 math, no action/advice/approval/execution. Blast radius: `MULTI_MODULE`, bounded by explicit manual IDs and disabled composition.
+- Ordinary code rollback removes/disables P39 composition and its sibling inspector while leaving additive empty v23 tables harmlessly present. Migration rollback requires stopping writers, preserving the v23 file and restoring the verified v22 backup with v22-compatible code; never delete accepted append-only evidence to simulate rollback.
+
+### Post-Implementation Compass audit
+
+- Intent alignment: implements exactly the approved explicit P37-state-to-unchanged-P29 evidence connection.
+- Architecture alignment: P37 remains Asset State-owned, P29/P39 remain Target Position-owned, Orchestration owns call order, Persistence owns SQL, Run History owns neutral lineage and GUI remains service/query-only.
+- Safety alignment: all P39/P29 evidence is disabled/non-executable; no Decision/Risk/execution call or real-data row exists.
+- Unapproved behavior added: none.
+- Assumptions introduced: deterministic ID/fingerprint and recovery mechanics only; no financial assumption, formula, value or default.
+- Compass sections updated: metadata/current phase, capability/architecture tables, DEC-025, implementation narrative, INTENT-049 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: future work could incorrectly treat P37 `UP/DOWN` as an order direction, auto-select a stream/configuration, or automatically feed P31. Public contracts, GUI defaults, tests and governance explicitly forbid all three; first real-data P39 validation and every consumer require separate approval.
+
+### Suggested commit message
+
+`feat: link mathematical cycle state to target preview`

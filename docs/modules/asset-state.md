@@ -44,6 +44,7 @@ Built-in manual state names; P27/P28 calculation; multiplier selection/default; 
 - `AssetTradingControlChangeCommand`, immutable Event/Operation/Calendar Evidence/Query contracts and `AssetTradingControlStatus`
 - `MathematicalCycleStateService`, `MathematicalCycleEngine`, `MathematicalCycleStateStore`, `MathematicalCycleStateQueryService`
 - immutable mathematical definition/promotion/source/stream/cycle/snapshot/transition/operation contracts plus `MathematicalCycleReplayService`
+- exact read-only `get_operation_by_operation_id()` lookup used by the independently owned P23-3B bridge; the bridge cannot mutate a P37 stream, cycle or snapshot
 
 All contracts are schema version 1 and use explicit UUID identity/timezone-aware UTC. Manual-state contracts retain symbolic, non-financial values. P23-2 additionally preserves positive price text plus float64/IEEE-hex mathematical evidence; those research values do not authorize or imply a position.
 
@@ -65,7 +66,7 @@ The domain depends only on Python stdlib, centralized error codes and neutral Ru
 
 ## Side effects
 
-The domain has none outside injected ports. SQLite adapters append Schema-v5 manual-state, Schema-v17 P23-2, Schema-v21 P23-4C1 control and Schema-v22 P23-2B mathematical-cycle evidence. The P23-2B GUI is read-only and displays streams, snapshots, transitions, exact P28 provenance and Open Run without creating or selecting an active stream.
+The domain has none outside injected ports. SQLite adapters append Schema-v5 manual-state, Schema-v17 P23-2, Schema-v21 P23-4C1 control and Schema-v22 P23-2B mathematical-cycle evidence. The P23-2B GUI is read-only and displays streams, snapshots, transitions, exact P28 provenance and Open Run without creating or selecting an active stream. P23-3B only reads exact P37 evidence through the public query contract; Target Position owns the link and the unchanged P29 result.
 
 ## Failure modes
 

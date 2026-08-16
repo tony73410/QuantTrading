@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v22/137 adds seven disabled P23-2B mathematical-cycle tables to v21/130 with zero backfill. Every prior table count is preserved; existing P35 counts remain `1/1/3/3/9/3`. No mathematical-cycle definition/stream, daily counter, numerical Risk approval, production algorithm or execution path is active.
+**Implemented and verified.** Central Schema v23/139 adds two disabled P23-3B bridge tables to v22/137 with zero backfill. All 136 prior business-table counts are preserved; P37 remains `1/2/1/1/3/0/3`, Run/stage/symbol/binding/message remains `66/122/63/289/293`, and both P39 tables are empty. No real-data P39 Run, daily counter, numerical Risk approval, production algorithm or execution path is active.
 
 ## Purpose
 
@@ -29,6 +29,7 @@ Use one local SQLite file for Market History and durable algorithm research evid
 - Revalidate completed Asset State definition/transition/cycle inputs, exact predecessor/edge relationships, idempotent operation identity and optional local Run/Factor evidence in the same transaction.
 - Persist immutable standardized-state definitions, raw successful/invalid/failed operations, exact positive manual USD inputs, deviation/state traces and optional evidence while revalidating definition/result/Run/stage provenance transactionally.
 - Persist P23-3A immutable formula definitions, explicit per-symbol configurations, every operation attempt, accepted bounded result, binary64/IEEE/Decimal calculation trace and exact P28/P27/P26/Market source links while revalidating configuration/source/Run/stage identity transactionally.
+- Persist every P23-3B bridge attempt, including invalid/failed requested IDs, and one success-only immutable P37/P28/P29 link with accepted-source foreign keys and dual-operation idempotency evidence.
 - Persist every P23-4A attempt plus accepted result, zero-or-one type-distinct intent and exact P29/P28 source link; revalidate copied arithmetic, immutable versions, safety, Run/stages and object cardinality transactionally.
 - Persist every P23-4B attempt plus accepted manual-review/blocked result, ordered structural rules and exact P31/P29/P28 source link; revalidate copied arithmetic, source safety, Run/stages, cardinality and permanent absence of approved output transactionally.
 - Persist P23-4C1 control operations and append-only events with exact predecessor, explicit v1 symbol/XNYS mapping, frozen calendar evidence and effective time; enforce transaction-time predecessor/current-state integrity.
@@ -70,7 +71,7 @@ No Market Data download, Factor formula, `available_at_utc` policy, Decision/Ris
 
 ## Inputs
 
-Validated public Run History, Factor, Decision including type-distinct P23-4A, specialized target-adjustment Decision, generic/specialized Risk including P23-4B/P23-4C1, exposure-cap, research-cash-floor and research-asset-cash, Capital Allocation, Asset State including trading-control contracts, Target Position including P23-3A, standardized-state and linked provenance contracts. Factor calculation attempts may carry optional top-level Run/Stage IDs.
+Validated public Run History, Factor, Decision including type-distinct P23-4A, specialized target-adjustment Decision, generic/specialized Risk including P23-4B/P23-4C1, exposure-cap, research-cash-floor and research-asset-cash, Capital Allocation, Asset State including trading-control contracts, Target Position including P23-3A/P23-3B, standardized-state and linked provenance contracts. Factor calculation attempts may carry optional top-level Run/Stage IDs.
 
 ## Outputs
 
@@ -82,7 +83,7 @@ Python standard library `sqlite3`, neutral Run History contracts, and public Fac
 
 ## Side effects
 
-Creates additive Schema v22 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision/Risk rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2, v18 P23-3A, v19 P23-4A, v20 P23-4B, v21 P23-4C1 and v22 P23-2B formal mathematical-cycle evidence. No migration backfilled a historical algorithm claim.
+Creates additive Schema v23 tables/indexes in `runtime/data/market_history.sqlite3`, which remains Git-ignored. Existing Market/Run/result/capital/state/target/Decision/Risk rows are not moved, rewritten or deleted. A verified pre-migration backup is written under `runtime/data/backups/`. Schema v14 added P23-1, v15 P26, v16 P23-1F, v17 P23-2, v18 P23-3A, v19 P23-4A, v20 P23-4B, v21 P23-4C1, v22 P23-2B and v23 P23-3B explicit mathematical-cycle target links. No migration backfilled a historical algorithm claim.
 
 The verified real v6→v7 migration created `market_history.schema-v6-to-v7.20260720T230549460397Z.sqlite3`, preserved all 44 pre-existing business-table counts including 215,340 Market Bars and 365 Fetch History rows, and left all five new tables empty. Backup and active copies returned `integrity_check=ok` and zero foreign-key violations.
 
@@ -142,6 +143,8 @@ Schema v22 adds exactly seven normalized tables: `mathematical_cycle_state_defin
 
 Before approved PROPOSAL-038 writes, active v22/137 was copied to verified 100,913,152-byte backup `market_history.before-p38-validation.20260814T222041041676Z.sqlite3` (SHA-256 `F10B729579A7455CDEE91D2CEE700AE8B43ABCD2F14C7A0CE66E13992C1AE6CC`). Exact nonzero deltas are Runs `+2`, stages `+2`, symbols `+1`, bindings `+3`, messages `+1`, and P37 definition/operation/stream/cycle/snapshot/source-link `+1/+2/+1/+1/+3/+3`; transitions remain zero. Final Run/stage/symbol/binding/message counts are `66/122/63/289/293`, and P37 counts are `1/2/1/1/3/0/3`. The 100,921,344-byte active file has SHA-256 `CEC2693040DE57EEEC2970250095425A82E81480A48668CC3FEACDA4ED326030`; active and backup remain v22/137 with integrity `ok` and zero foreign-key violations.
 
+Schema v23 adds exactly `mathematical_cycle_target_link_operations` and `mathematical_cycle_target_position_links`. Automatic migration created verified 100,921,344-byte v22/137 backup `market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3` (SHA-256 `B655175AD146A16AF19640531240B11C664A973D93BAF7B089CD01E13175C796`). Active v23/139 is 100,982,784 bytes with SHA-256 `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`. All 136 pre-existing business-table counts match the backup, only `schema_migrations` increased by one, both new tables are zero, Run and P37 counts are unchanged, and backup/active report `integrity_check=ok` with zero foreign-key violations. Temporary migration and injected-failure tests prove zero backfill and rollback to intact v22.
+
 Before approved PROPOSAL-030 writes, the active database was copied to `market_history.before-p30-validation.20260811T0428081654404Z.sqlite3`. The active six-table counts are now `1/1/5/3/3/18` for formula/configuration/attempt/result/trace/source link. Compared with that backup, only those six tables plus `algorithm_runs`, `algorithm_run_stages`, `algorithm_run_symbols` and `algorithm_run_bindings` changed; every other table retained its row count. Active integrity is `ok` with zero foreign-key violations. The stored formula/configuration remain disabled and all three result Runs are `NO_EXECUTION`.
 
 Schema v15 adds five normalized P26 tables: `spectral_historical_evidence_sets`, `spectral_historical_evidence_observations`, `spectral_historical_studies`, `spectral_historical_study_definitions` and `spectral_historical_study_points`. `SQLiteSpectralHistoricalStudyStore` persists one shared source set, the exact ordered definition list and every requested point membership while referencing existing operation attempts for numerical detail. Exact local lookup never promotes generic Bars or unrelated P25 operations. The v14→v15 migration creates a v14 backup, preserves all prior row counts, expands 94→99 required logical tables, performs no study backfill and must pass foreign-key/integrity checks.
@@ -169,7 +172,7 @@ Target Position and standardized-state persistence stores research evidence only
 - No production Factor exists. Current stored algorithm results come only from explicit local previews/Dry Runs.
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
-- Current Schema v22 rollback requires stopping writers, preserving the v22 file and restoring verified `market_history.schema-v21-to-v22.20260814T192644633800Z.sqlite3` with matching v21 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
+- Current Schema v23 rollback requires stopping writers, preserving the v23 file and restoring verified `market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3` with matching v22 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.

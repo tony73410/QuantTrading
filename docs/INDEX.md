@@ -5,7 +5,7 @@
 - [Historical Backtesting and Simulation](modules/backtesting.md)
 - [Market Factor Layer](modules/market-factors.md)
 
-- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v22 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2A/P23-2B/P23-3A/P23-4A/P23-4B/P23-4C1/Decision/Risk/Capital/State/Target evidence.
+- [Central SQLite persistence](modules/central-persistence.md) — shared physical Schema v23 database, independent Store contracts, migrations and immutable generic/specialized P23-1/P26/P23-1F/P23-2A/P23-2B/P23-3A/P23-3B/P23-4A/P23-4B/P23-4C1/Decision/Risk/Capital/State/Target evidence.
 - [Unified Algorithm Run History](modules/run-history.md) — durable NO EXECUTION Run/Stage/binding/message/relationship contracts and Run History Explorer.
 - [Research Capital Allocation](modules/capital-allocation.md) — explicit USD research cash basis, protected reserves, exact asset-cash conservation, Schema v4 history and NO EXECUTION management GUI.
 - [Asset State](modules/asset-state.md) — user-defined symbolic graphs, one open cycle per symbol, manual transitions, deterministic replay and Schema v5 history; no automatic financial meaning.
@@ -38,6 +38,7 @@
 | AAPL P35 eligible-path validation | `proposals/PROPOSAL-036-aapl-p35-eligible-path-controlled-local-validation.md` | 已批准并完成DRY_RUN：一条明确AAPL ELIGIBLE首事件加三条精确P34/P33→P35本地人工审查结果；重载/重放/导出/GUI/Run导航/幂等与精确增量通过，不改代码/Schema、不产生交易权限 |
 | P23-2B mathematical cycle state | `proposals/PROPOSAL-037-versioned-mathematical-cycle-state-promotion.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：Asset State内的独立、版本化、可重放多命名数学周期流，只晋升显式精确累计P28证据；Schema v22七表零回填、Run与既有页只读检查已完成；不改人工状态/P35控制/P29–P35历史，未创建真实股票流或交易权限 |
 | AAPL P37 initialization/replay validation | `proposals/PROPOSAL-038-aapl-p37-mathematical-cycle-initialization-validation.md` | 已批准并完成`DRY_RUN`：精确AAPL P28来源创建一个禁用定义和一个无默认命名流；一个开放`DOWN`周期、三个快照/来源链、零转换、重启重放、GUI/Run、幂等和精确增量均通过；不代表真实AAPL反转或交易授权 |
+| Explicit P37 → P29 target link | `proposals/PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md` | 已批准并`IMPLEMENTED_VERIFIED_DISABLED`：显式成功P37 operation/Run/stream/terminal snapshot经精确P28语义交叉核对后调用不变P29，保存双操作ID、类型独立连接、Run关系/工件；Schema v23两表仍为空，不新增公式、默认选择、Decision/Risk消费者或执行权限 |
 | P23-2A architecture decision | `decisions/ADR-0033-symmetric-reversal-observation-laboratory.md` | 记录同倍数、前向冻结、确认/生效分离、六表持久化及严格无交易消费者边界 |
 | P23-1F daily volatility profile | `proposals/PROPOSAL-027-per-stock-daily-volatility-profile.md` | 已批准的完整P26/R1 v1.0.0日常波动档案公式、Schema v16、GUI、验证与严格非交易边界 |
 | Modules | `modules/README.md` | 新模块审批和文档模板 |

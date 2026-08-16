@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+- `ADR-0039-explicit-mathematical-cycle-target-link.md`: accepted one explicit Target-Position-owned P37/P28/P29 bridge, unchanged P29 math, dual operation IDs, additive Schema v23 and permanent absence of automatic Decision/execution consumption.
+
 - `ADR-0036-cycle-target-risk-manual-review-gate.md`: accepted a type-distinct P31 structural Risk sibling, one private shared structural kernel, exact P31/P29/P28 provenance, additive Schema v20 and permanent absence of approved output.
 - `ADR-0035-cycle-target-decision-preview.md`: accepted one shared exact-difference Decision kernel, explicit P29 Result/Run provenance, type-distinct non-executable P31 intent, additive Schema v19 and no Risk/downstream consumer.
 - `ADR-0034-cycle-aware-bounded-target-position.md`: accepted the explicit exact-P28-step adapter, contrarian bounded linear/derivative-matched finite-exponential Target Position family, immutable per-symbol versions and additive Schema v18; later ADR-0035 adds only the explicit disabled P23-4A Decision consumer.
@@ -45,6 +47,8 @@ ADR 只用于影响项目长期结构的重要决定，不用于普通小改动�
 `Status`、`Context`、`Options considered`、`Decision`、`Rationale`、`Consequences`、`Reversal`。
 
 ## Index
+
+- [ADR-0039: Link Explicit Mathematical Cycle State to Existing Target Math](ADR-0039-explicit-mathematical-cycle-target-link.md) — exact P37 terminal-state selection, exact P28 semantic validation, unchanged P29 delegation, recoverable dual operation IDs and Schema v23 zero backfill.
 
 - [ADR-0038: Separate Mathematical Cycle State from Observation and Manual Labels](ADR-0038-separate-mathematical-cycle-state.md) — exact cumulative P28 promotion into a disabled Asset-State-owned cycle stream, day-3 activation, append-only attribution resolution and Schema v22 zero backfill.
 - [ADR-0037: Separate Persistent Strategy Freeze from Transient Risk Pause](ADR-0037-versioned-frozen-asset-admission.md) — Asset-State-owned append-only `ELIGIBLE/FROZEN` events, exact P33/control Risk admission, Schema v21 and explicit P23-4C2 deferral.

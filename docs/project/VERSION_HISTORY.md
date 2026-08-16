@@ -591,3 +591,72 @@ Use a normal Git revert of `86c69d4` only if the published P37 feature itself mu
 ### Next boundary and rollback
 
 No next implementation or validation slice is approved. Any P28 extension, actual real-data reversal validation, second promotion, stream selection or downstream consumer needs a separate proposal and explicit approval. Preserve accepted P38 append-only evidence. The verified backup is for proven corruption recovery only, not ordinary rollback or history hiding.
+
+## CHECKPOINT-20260814-013
+
+### Identity
+
+- Recorded at: 2026-08-15T03:24:48Z
+- Branch: `main`
+- Published commit: `47a8e27cef8af5c3105ebde2469c78f19a0a3b12`
+- Commit message: `validate: initialize AAPL mathematical cycle state`
+- Remote: `origin` → `https://github.com/tony73410/QuantTrading.git`
+- Package version: `0.1.0` (unchanged)
+- Central database contract: Schema v22, 137 logical tables (unchanged)
+- Governance version after proposal recording: PROJECT_COMPASS v101; canonical architecture v41
+- Purpose: publish the completed P38 validation and then record proposal-only PROPOSAL-039 without implementation or runtime mutation.
+
+### Published P38 state
+
+- Commit `47a8e27` contains the approved P38 AAPL P37 initialization/replay evidence, the `BUG-20260814-002` Run-warning observability fix, regression coverage and synchronized proposal/module/governance/version records.
+- Push `86c69d4..47a8e27` to `origin/main` succeeded without force, merge, rebase or history rewrite.
+- Published evidence remains central SQLite v22/137 with active SHA-256 `CEC2693040DE57EEEC2970250095425A82E81480A48668CC3FEACDA4ED326030`, integrity `ok`, zero foreign-key violations, Run/stage/symbol/binding/message `66/122/63/289/293` and P37 counts `1/2/1/1/3/0/3`.
+- All 658 repository tests, compileall, dependency consistency and diff hygiene passed before publication. The only warning was the pre-existing third-party `websockets.legacy` deprecation.
+
+### Proposal-only P39 state
+
+- After publication the user selected option A and reiterated that proposal and development records must remain complete.
+- Added PROPOSAL-039 P39-D1–D12 as a proposed, unapproved explicit bridge from one exact successful P37 operation/Run/stream/terminal snapshot to the unchanged P29 Target Position service.
+- The proposal requires exact P37/P28 semantic cross-checking, exact P29 configuration and hypothetical USD inputs, separate deterministic bridge/target operation IDs, durable failed attempts, crash-window recovery and no latest/default selection.
+- Future implementation recommends additive v22/137→v23/139 with two zero-backfill link tables and one sibling inspector in the existing Target Position page. Those changes are not yet authorized.
+- No source code, public runtime contract, SQLite schema, active-database row, GUI behavior, network call, formula, Decision/Risk consumer, order or execution authority was created.
+
+### Record-integrity audit
+
+- Proposal files `PROPOSAL-001` through `PROPOSAL-038` existed with no missing or duplicate ID before P39 creation; P39 extends the continuous range to `001..039`.
+- The canonical proposal index omitted the existing PROPOSAL-006 historical-backtesting entry. `BUG-20260814-003` records the confirmed documentation defect; the index is repaired without changing the proposal itself.
+- Before this edit, Edit Log contained 148 unique records and Bug Log contained 122 unique records. This checkpoint adds one new Edit record and one new Bug record without rewriting earlier entries.
+
+### Approval boundary and rollback
+
+P39 implementation requires the explicit approval phrase recorded in PROPOSAL-039. Until then, DEC-025 and INTENT-049 remain proposed. No P37 stream is primary, and no P39 result may be inferred from the P38 AAPL state. Revert only the current proposal/governance/test documentation to remove proposal planning; use a normal Git revert for published commit `47a8e27` only if the completed P38 checkpoint itself must be reversed. Preserve immutable runtime evidence and backups.
+
+## IMPLEMENTATION-20260815-014
+
+### Identity and authorization
+
+- Date: 2026-08-15.
+- Published Git identity remains main/origin commit `47a8e27cef8af5c3105ebde2469c78f19a0a3b12`; this P39 implementation is an uncommitted working-tree state.
+- User authorization: explicit approval of PROPOSAL-039 and P39-D1–D12 for disabled implementation only.
+- Package version: `0.1.0` (unchanged).
+- Central database contract: Schema v23, 139 logical tables.
+
+### Implemented P23-3B state-to-target link
+
+- Target Position owns component `target_position.mathematical_cycle_link.p23_3b.v1@1.0.0`, immutable commands/operations/accepted links and public Store/query contracts. Every safety flag remains `DISABLED`, `execution_allowed=false`, `live_allowed=false`.
+- Orchestration reloads one exact successful P37 operation/Run/stream/latest terminal snapshot and its definition/cycle/source link, reloads the exact P29 configuration, then asks the unchanged P29 runner to prepare the exact P28-backed calculation.
+- Admission compares P37/P28 identifiers and every P29-consumed symbol/session/direction/candidate/attribution/reference semantic before any P29 write. It never chooses a latest stream or configuration automatically and never duplicates the P29 formula.
+- Separate deterministic P39 and P29 operation identities make exact retries idempotent. If P29 succeeds but P39 link persistence fails, the failed P39 attempt remains durable and an exact retry reuses the same P29 result before appending the missing link.
+- Run History exposes P39 attempt artifacts and P39/P37/P29/P28 relationships. The existing Target Position page adds a blank-by-default, manual-only sibling inspector with preflight, history, detail and Open Run navigation.
+
+### Additive v22→v23 migration evidence
+
+- Verified backup: `market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3`, 100,921,344 bytes, Schema v22/137, SHA-256 `B655175AD146A16AF19640531240B11C664A973D93BAF7B089CD01E13175C796`, integrity `ok`, zero foreign-key violations.
+- Active database: 100,982,784 bytes, Schema v23/139, SHA-256 `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`, integrity `ok`, zero foreign-key violations.
+- All 136 prior business-table counts are identical before and after migration; only the schema-migration ledger gained one row. Run/stage/symbol/binding/message remains `66/122/63/289/293`, P37 remains `1/2/1/1/3/0/3`, and P39 operation/link is `0/0`.
+
+### Verification and boundary
+
+- Focused P39 tests cover valid linkage, restart/reload, Run relationships/artifacts, deterministic retry/conflict, exact semantic mismatch, P29-success/P39-storage-failure recovery, v22→v23 backup/rollback and GUI behavior. All **668 repository tests**, including all **126 architecture/governance tests**, passed with only the pre-existing third-party `websockets.legacy` warning. Compileall and diff hygiene passed.
+- No active-database P39 operation, accepted link or P29 child result was created. No Market Data refresh, Trading client, account, position, cash, numerical Risk, daily counter, full-chain simulation, Accounting, broker, Paper/Live, order or fill path was used.
+- Ordinary rollback disables/removes the P39 composition and sibling UI while preserving additive v23 tables. Proven migration corruption rollback requires writers stopped and the verified v22 backup restored with v22-compatible code; append-only evidence must never be silently deleted.

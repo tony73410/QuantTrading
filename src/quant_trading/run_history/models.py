@@ -46,6 +46,7 @@ class AlgorithmRunType(StrEnum):
     CYCLE_TARGET_ASSET_ADMISSION_REVIEW = "cycle_target_asset_admission_review"
     MATHEMATICAL_CYCLE_STATE_DEFINITION = "mathematical_cycle_state_definition"
     MATHEMATICAL_CYCLE_STATE_PROMOTION = "mathematical_cycle_state_promotion"
+    MATHEMATICAL_CYCLE_TARGET_POSITION_LINK = "mathematical_cycle_target_position_link"
 
 
 class AlgorithmRunStatus(StrEnum):

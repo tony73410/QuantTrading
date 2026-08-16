@@ -102,7 +102,7 @@ def test_p33_preflight_review_reload_replay_export_and_run_history(tmp_path: Pat
     assert {p31.run_id, p29.run_id, p28.run_id} <= related
     assert any(item.artifact_type == "cycle_target_risk_operation" and item.children for item in detail.artifacts)
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM cycle_target_risk_review_results").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM cycle_target_risk_rule_results").fetchone()[0] == 3
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
@@ -176,9 +176,9 @@ def test_v20_to_current_migration_is_backed_up_additive_and_zero_backfill(tmp_pa
         connection.commit()
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
-    assert len(backups) == 1 and ".schema-v20-to-v22." in backups[0].name
+    assert len(backups) == 1 and ".schema-v20-to-v23." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "cycle_target_risk_operation_attempts", "cycle_target_risk_review_results",
@@ -188,7 +188,7 @@ def test_v20_to_current_migration_is_backed_up_additive_and_zero_backfill(tmp_pa
             "cycle_target_asset_admission_rules", "cycle_target_asset_admission_source_links",
         ):
             assert connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0
-        assert len(sqlite_database.expected_schema_tables()) == 137
+        assert len(sqlite_database.expected_schema_tables()) == 139
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 

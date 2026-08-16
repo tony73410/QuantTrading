@@ -48,6 +48,7 @@ QuantTrade currently implements and verifies a local-first desktop browser for h
 - a locked disabled P23-1F daily-volatility-profile path owned by Factors: one explicit complete 20–250-session P26 study, exact prior-session R1 v1.0.0 W60/W120/W250 trend-standardized MAD, robust daily/history medians, temporal MAD and explanatory exponential price fractions; exact Schema-v16 attempts/results/source lineage and existing-Factor-page inspection/export remain unconsumed and create no reversal, state, target, Decision, Risk, cash, accounting or execution authority;
 - a disabled P23-2A reversal-observation path owned by Asset State but isolated from its formal manual ledger: one explicit versioned shared multiplier and exact positive P27 scale, forward-only local Raw/Split/XNYS/corporate-action evidence, inclusive symmetric log threshold, two-session confirmation, next-session activation, immutable Schema-v17 steps/events/source links, recalculation replay/export/comparison and an existing-page subtab; it creates no formal transition, target, Decision, Risk, cash, accounting or execution authority;
 - a disabled P23-3A cycle-aware bounded Target Position path under the existing Target Position owner: one explicit successful P28 Result/Run/Daily Step, exact inherited P27 scale, `ln(P/R)/k`, contrarian linear/linear-clamped/derivative-matched finite-exponential/saturated regions, immutable formula and per-symbol configurations, Schema-v18 attempts/results/traces/source links, replay/export/comparison and an existing-page sibling subtab; its only approved downstream consumer is the explicit disabled P23-4A Decision preview;
+- a disabled P23-3B explicit mathematical-cycle target link under the existing Target Position owner: one exact successful P37 operation/Run/stream/terminal snapshot is cross-checked against its exact P28 Result/Run/Step, delegated to unchanged P29 with a separate target operation ID, persisted in two zero-backfill Schema-v23 tables and inspected through a blank-by-default existing-page sibling; it does not feed P31 automatically;
 - a disabled P23-4A Decision path under the existing Decision owner: read-only preflight and preview over one explicit accepted P29 Result/Run, a shared exact signed-difference kernel preserving old Phase 5D meaning, type-distinct result/zero-or-one intent/source evidence, Schema-v19 persistence, Run History/export and a sibling existing-Decision-page inspector; it has no Risk, cash, Backtesting, Accounting or execution consumer;
 - a disabled P23-4B structural Risk path under the existing Risk owner: no-write preflight and manual-review gate over one explicit P31 Intent/Result/Run, one private structural kernel shared with old Phase 6A, type-distinct P31/P29/P28 evidence, Schema-v20 persistence, replay/export/Run navigation and a sibling existing-Risk-page inspector; it has no approved output, numerical Risk, count/freeze, cash, Backtesting, Accounting or execution consumer;
 - a shared validation-result and fail-closed system-health foundation; business validation rules remain owned by their modules.
@@ -357,9 +358,9 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.persistence` / `src/quant_trading/persistence/` |
-| Status | Implemented and verified with central Schema v22/137 plus additive v1→v22 migration evidence |
+| Status | Implemented and verified with central Schema v23/139 plus additive v1→v23 migration evidence |
 | Purpose | Share one physical local SQLite database while keeping Market, Run History, Factor/P23-1, generic/specialized Decision, Risk, Capital Allocation, Asset State, Target Position, standardized-state and linked provenance ownership/contracts independent. |
-| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, P23-1/P26/P23-1F/P23-2/P23-3A/P23-4A/P23-4B/P23-4C1 stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
+| Responsibilities | Connections, versioned additive migration, pre-migration backup, logical-schema completeness and row-count/FK/integrity validation; concrete Run History, generic Factor, P23-1/P26/P23-1F/P23-2/P23-3A/P23-3B/P23-4A/P23-4B/P23-4C1 stores; immutable Decision/Risk/Capital/State/Target/standardized/link evidence adapters; and typed research read views. |
 | Non-responsibilities | Market Data download, algorithm calculation, availability semantics, GUI, cleanup deletion, broker, accounting or execution. |
 | Public interfaces | `CentralSQLiteDatabase`, schema inspection helpers, `SQLiteRunHistoryRepository`, Factor/P23-1/P26/P23-1F stores, `SQLiteReversalObservationStore`, `SQLiteCycleTargetPositionStore`, `SQLiteCycleTargetAdjustmentDecisionStore`, generic result/research-history stores and Capital/State/Target/Decision/Risk stores; implements public Store/query Protocols. |
 | Inputs / outputs | database path plus neutral Run History and public domain result contracts / durable Market tables and linked research evidence. |
@@ -443,6 +444,21 @@ Status labels follow `PROJECT_COMPASS.md`: **Implemented and verified**, **Imple
 | Forbidden dependencies | Domain to Asset State/Factor/Market/Persistence/GUI or any downstream financial/execution owner; GUI to formula/SQL/Provider; any consumer other than the exact public P23-4A orchestration adapter without separate approval. |
 | Side effects / configuration | Explicit local Run/Store writes and user export paths only. No Provider/network route, automatic/default formula/config/source or schedule. Active data contains only the approved P30 disabled local validation formula/configuration and three results; P23-4A can consume one only after explicit user selection and creates no automatic row. All evidence remains `execution_allowed=false`, `live_allowed=false`. |
 | Tests / documentation | domain/constraint/region/repository/migration/Run/GUI/orchestration/replay/architecture tests; [`target-position.md`](../modules/target-position.md), ADR-0034. |
+
+### P23-3B explicit mathematical-cycle Target Position link
+
+| Field | Definition |
+|---|---|
+| Module / path | contracts in `quant_trading.target_position`; exact P37/P28/P29 resolution in `quant_trading.orchestration`; storage in `quant_trading.persistence`; presentation in `quant_trading.algorithm_control` |
+| Status | Implemented, verified, versioned and disabled; active Schema-v23 tables are empty and real-data validation remains separately approval-gated |
+| Purpose | Prove that one explicitly selected persisted P37 terminal state controlled one unchanged P29 target preview without adding a formula or action. |
+| Responsibilities | Require exact successful P37 operation/Run/stream/terminal snapshot, exact P29 configuration/version, distinct bridge/target operation IDs and explicit hypothetical USD values; reload public P37/P28 evidence; compare all P29-consumed state semantics; delegate unchanged P29; persist every attempt and one success-only immutable link. |
+| Non-responsibilities | New target formula, P37 mutation, direction-to-action interpretation, latest/default selection, P31 admission, numerical Risk, factual cash/position, Backtesting, Accounting, Paper/Live or execution. |
+| Public interfaces | `MathematicalCycleTargetPreviewCommand`, `MathematicalCycleTargetLinkOperation`, `MathematicalCycleTargetPositionLink`, query/store ports and `MathematicalCycleTargetPositionLinkCoordinator`; additive exact P37/P29 operation-ID query methods. |
+| Run / recovery | Separate `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK / NO_EXECUTION` Run parented to P37 with `STATE` then `TARGET_POSITION`; P29 remains parented to P28. Dual operation IDs prevent duplicate P29 results and permit recovery of an injected missing-link failure. |
+| Dependencies | Target Position domain: stdlib/contracts only. Orchestration: public P37/P29 queries/runners, Run History and P39 Store port. Persistence/GUI retain established outward dependency direction. |
+| Side effects / configuration | Explicit local Run/Store writes only after manual preflight. Schema v23 attempts/links; no Provider/network, default selection, automatic consumer or runtime row. All evidence remains `execution_allowed=false`, `live_allowed=false`. |
+| Tests / documentation | command/idempotency/source mismatch/crash recovery/restart/migration/Run/GUI/architecture tests; [`target-position.md`](../modules/target-position.md), ADR-0039. |
 
 ### Trading Decision layer
 
@@ -560,16 +576,16 @@ The Ledger is the source of recorded facts; accounting state is derived; broker 
 | Field | Definition |
 |---|---|
 | Module / path | `quant_trading.target_position` / `src/quant_trading/target_position/` |
-| Status | Implemented and verified through disabled/unconsumed P23-3A research; no trading or execution authority |
+| Status | Implemented and verified through disabled P23-3B research; no trading or execution authority |
 | Purpose | Own one explicit bounded desired-holding calculation and source-neutral accepted-input provenance without fabricating upstream authority or downstream action. |
-| Responsibilities | Existing immutable finite-knot/manual/linked behavior plus P23-3A immutable formula/per-symbol configurations, exact P28-step normalization, bounded linear/finite-exponential/saturation calculation, complete numeric/source trace, typed Store/query/replay ports and Target Position Run coordination. |
+| Responsibilities | Existing immutable finite-knot/manual/linked behavior plus P23-3A immutable formula/per-symbol configurations, exact P28-step normalization, bounded linear/finite-exponential/saturation calculation, complete numeric/source trace, and P23-3B explicit P37/P28/P29 bridge evidence with typed Store/query/replay ports and Target Position Run coordination. |
 | Non-responsibilities | P27/P28 calculation, automatic/latest source selection, formal Asset State mutation, factual Capital/Accounting adapter, TradeIntent, Decision/P23-4, Risk, Backtesting, broker, orders, Paper or Live. |
-| Public interfaces | Existing Target/linked services/contracts plus `CycleTargetPositionService`, engine/replay, Store/query ports and formula/configuration/source/command/result/trace/operation/query contracts. |
+| Public interfaces | Existing Target/linked services/contracts plus `CycleTargetPositionService`, P23-3B mathematical-cycle link command/operation/link/query/Store contracts, engine/replay and formula/configuration/source/result/trace contracts. |
 | Inputs / outputs | explicit finite-knot inputs, exact linked standardized scalar or exact source-neutral P28 step plus non-negative hypothetical USD basis/current value and Run identity / immutable bounded target research evidence and terminal `NO_EXECUTION` Run. |
 | Allowed dependencies | stdlib, centralized errors and neutral Run History contracts. |
 | Forbidden dependencies | Persistence/SQLite, PySide6, Market/Factor/Asset State/Capital Allocation/Portfolio Accounting/Decision/Risk/Backtesting, Alpaca and Execution. |
-| Side effects / configuration | None in the domain; injected Stores own Schema-v6 manual, Schema-v8 linked and Schema-v18 P23-3A writes. No default curve/value/source, Active definition, real P29 row, runtime consumer, credential or execution path. |
-| Tests / documentation | domain/repository/migration/Run/GUI/chart/provenance/replay/architecture tests; [`target-position.md`](../modules/target-position.md), ADR-0021/0023/0034. |
+| Side effects / configuration | None in the domain; injected Stores own Schema-v6 manual, Schema-v8 linked, Schema-v18 P23-3A and Schema-v23 P23-3B writes. No default curve/value/source, Active definition, real P39 row, automatic consumer, credential or execution path. |
+| Tests / documentation | domain/repository/migration/Run/GUI/chart/provenance/replay/crash-recovery/architecture tests; [`target-position.md`](../modules/target-position.md), ADR-0021/0023/0034/0039. |
 
 ### Manual Standardized Price State Research
 
@@ -663,6 +679,8 @@ Exact accepted standardized-state result -> Phase 5C orchestration -> source-neu
 Linked Target Position Store/query -> immutable operation/link + source/parent/child Runs -> Algorithm Control GUI
 Exact successful P28 Result + Run + Daily Step -> P23-3 orchestration -> source-neutral P/R/k/state evidence
 P23-3 Target Position service -> bounded result/trace/source links -> Run History + existing Target Position GUI
+Exact P37 terminal operation/snapshot -> P23-3B orchestration -> exact backing P28 validation -> unchanged P29
+P23-3B Store/query -> immutable attempt/link + P37/P39/P29/P28 Run graph -> existing Target Position GUI
 Exact accepted P29 Result + Run -> P23-4A read-only preflight -> source-neutral target/current/difference evidence
 P23-4A Decision service -> exact action + zero-or-one type-distinct intent -> Run History + existing Decision GUI
 Exact accepted Phase 5C link -> Phase 5D orchestration -> specialized Target Adjustment Decision service
@@ -678,7 +696,7 @@ Target Adjustment Decision Store/query -> immutable result/zero-or-one specializ
 | Alpaca Market Data Provider | Alpaca data SDK, models/errors | Alpaca Trading SDK, GUI, SQLite Store |
 | SQLite Store | `sqlite3`, models/errors | GUI, Alpaca SDK/Provider, Chart Builder |
 | Run History | stdlib and its own neutral contracts | SQL/Persistence, GUI, Factor, Decision, Risk, Accounting, Backtesting, Alpaca, Execution |
-| Central persistence | `sqlite3`, neutral Run History contracts, public Market/Factor/Decision including P23-4A/Risk/Capital Allocation/Asset State/Target Position including P23-3A/standardized-state/link/target-adjustment models and Store/query Protocols | GUI, Provider, algorithm implementations/rules, Orchestration, Alpaca, execution |
+| Central persistence | `sqlite3`, neutral Run History contracts, public Market/Factor/Decision including P23-4A/Risk/Capital Allocation/Asset State/Target Position including P23-3A/P23-3B/standardized-state/link/target-adjustment models and Store/query Protocols | GUI, Provider, algorithm implementations/rules, Orchestration, Alpaca, execution |
 | Chart Builder | models, pandas, Plotly | API, database, UI widgets, execution |
 | Shared visualization | stdlib, Plotly, PySide6 and shared infrastructure error | every Market/Factor/Decision/Risk/Persistence/Accounting/Orchestration/Execution module |
 | Settings | standard library and typed config models | business logic, network clients, database mutation |
@@ -1075,7 +1093,7 @@ Every application start has a Session ID; each load/refresh has a Request ID. Ru
 | Alpaca Paper Trading | Empty namespace only; default target label, not connected | configuration/status description | claiming connection or submitting orders |
 | Alpaca Live Trading | Empty namespace only; disabled and not connected | preserve a future isolated boundary | connection, credential use, order submission or activation |
 | Fidelity | Optional compatibility label, not active | manual use outside this application | credentials, login automation, scraping, synchronization, orders |
-| SQLite | Implemented central local persistence, Schema v22/137 | all prior evidence plus seven zero-backfill P23-2B mathematical-cycle tables and typed queries | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
+| SQLite | Implemented central local persistence, Schema v23/139 | all prior evidence plus two zero-backfill P23-3B bridge tables and typed queries; P39 tables remain empty | formulas, Decision/Risk/capital/state/target meaning, GUI SQL, historical repair, external-service access or orders |
 
 Market Data availability, Paper authorization, and Live authorization are three different states. A Key existing never grants order permission.
 
@@ -1117,7 +1135,7 @@ Public fields, parameter meaning, return structures, and exception contracts mus
 
 `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are read as Alpaca Market Data credentials by the current app. They must never be logged, committed, treated as execution permission, or relabeled as Fidelity credentials. Persistent data/schema and configuration-format changes require approval.
 
-Factor and Decision parameters remain separate immutable typed contexts. Generic and specialized algorithm evidence, including P23-2 observation, P23-2B mathematical cycle, P23-3A target, P23-4A Decision and P23-4B/P23-4C1 Risk/control histories, persists through separate public Store Protocols/adapters. Central Schema v22 is additive. Every cross-owner path consumes only explicit exact public evidence through orchestration; P23-2B has no downstream consumer and P23-4C1 stops at block/manual review. Persistence/query capability grants neither production activation nor execution authority.
+Factor and Decision parameters remain separate immutable typed contexts. Generic and specialized algorithm evidence, including P23-2 observation, P23-2B mathematical cycle, P23-3A/P23-3B target evidence, P23-4A Decision and P23-4B/P23-4C1 Risk/control histories, persists through separate public Store Protocols/adapters. Central Schema v23 is additive. Every cross-owner path consumes only explicit exact public evidence through orchestration; P23-3B is an explicit disabled consumer of P37 that stops at P29 evidence, and P23-4C1 stops at block/manual review. Persistence/query capability grants neither production activation nor execution authority.
 
 ## Testing Boundaries
 
@@ -1277,6 +1295,10 @@ Factor and Decision parameters remain separate immutable typed contexts. Generic
 138. Day 1 and day 2 remain under the old operational cycle. Confirmation closes it only after day-2 close; new direction becomes operational only at exact day-3 activation, with the prior reversal extreme as mathematical reference.
 139. P23-2B snapshots are immutable. Provisional attribution may later resolve only to committed or discarded through a new append-only `ATTRIBUTION_RESOLVED` transition; it never rewrites an earlier snapshot, Decision, Risk result or fill.
 140. Schema v22 adds exactly seven normalized P23-2B tables, expands 130→137 and performs zero backfill. The verified v21 backup and active v22 preserve every prior table count; no definition/stream/AAPL state, scheduler, downstream consumer or execution authority exists.
+141. P23-3B is a type-distinct Target-Position-owned bridge, never a second formula. It may invoke P29 only after exact explicit P37 operation/Run/stream/terminal-snapshot selection and exact P37/P28 semantic validation; it cannot select latest/default evidence or reinterpret direction as action.
+142. P39 bridge and P29 target operation IDs are distinct and fingerprinted. Conflicting reuse fails before a target call. If P29 succeeds before P39 accepted-link persistence, the failed bridge attempt remains durable and exact retry reuses the fixed P29 terminal result without recalculation.
+143. P39 uses a separate `NO_EXECUTION` Run parented to P37 with ordered `STATE` and `TARGET_POSITION` stages. P29 retains its P28 parent; the immutable P39 link, not rewritten parentage, exposes P37/P39/P29/P28.
+144. Schema v23 adds exactly two normalized P23-3B tables, expands 137→139 and performs zero backfill. All 136 earlier business-table counts, Run counts and P37 counts are preserved; both P39 tables remain empty until a separately approved real-data validation.
 
 Changing an invariant requires an impact proposal, explicit user approval, relevant ADR/docs/tests, and a rollback method.
 

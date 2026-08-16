@@ -40,6 +40,7 @@ from quant_trading.target_position import (
     TargetPositionService,
     CycleTargetPositionQueryService,
     CycleTargetPositionService,
+    MathematicalCycleTargetLinkQueryService,
 )
 from quant_trading.factors.standardized_state_interfaces import (
     EmptyStandardizedPriceStateQueryService,
@@ -51,12 +52,14 @@ from quant_trading.factors.standardized_state_models import (
 )
 from quant_trading.orchestration import (
     CycleTargetPositionResearchRunner,
+    MathematicalCycleTargetLinkRunner,
     StandardizedStateTargetPositionPreviewCoordinator,
 )
 from quant_trading.visualization import PlotlyFigureView
 
 from ..target_position_chart import TargetPositionChartBuilder
 from .cycle_target_position_panel import CycleTargetPositionPanel
+from .mathematical_cycle_target_link_panel import MathematicalCycleTargetLinkPanel
 
 
 class TargetPositionPanel(QWidget):
@@ -77,6 +80,9 @@ class TargetPositionPanel(QWidget):
         cycle_target_queries: CycleTargetPositionQueryService | None = None,
         reversal_observation_queries=None,
         cycle_target_runner: CycleTargetPositionResearchRunner | None = None,
+        mathematical_cycle_target_runner: MathematicalCycleTargetLinkRunner | None = None,
+        mathematical_cycle_target_queries: MathematicalCycleTargetLinkQueryService | None = None,
+        mathematical_cycle_queries: object | None = None,
     ) -> None:
         super().__init__()
         self._service = service
@@ -99,6 +105,9 @@ class TargetPositionPanel(QWidget):
         self._cycle_target_queries = cycle_target_queries
         self._reversal_observation_queries = reversal_observation_queries
         self._cycle_target_runner = cycle_target_runner
+        self._mathematical_cycle_target_runner = mathematical_cycle_target_runner
+        self._mathematical_cycle_target_queries = mathematical_cycle_target_queries
+        self._mathematical_cycle_queries = mathematical_cycle_queries
         self._build_ui()
         self.reload()
 
@@ -161,6 +170,20 @@ class TargetPositionPanel(QWidget):
         )
         self.cycle_target_panel.open_run_requested.connect(self.open_run_requested.emit)
         self.workspace_tabs.addTab(self.cycle_target_panel, "P23-3 周期目标仓位")
+        self.mathematical_cycle_target_panel = MathematicalCycleTargetLinkPanel(
+            self._mathematical_cycle_target_runner,
+            self._mathematical_cycle_target_queries,
+            self._mathematical_cycle_queries,
+            self._cycle_target_queries,
+            session_id=self._session_id,
+            created_by=self._created_by,
+        )
+        self.mathematical_cycle_target_panel.open_run_requested.connect(
+            self.open_run_requested.emit
+        )
+        self.workspace_tabs.addTab(
+            self.mathematical_cycle_target_panel, "Mathematical Cycle Link"
+        )
         root_layout.addWidget(self.workspace_tabs)
 
     def _definition_group(self) -> QGroupBox:

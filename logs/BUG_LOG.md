@@ -5477,3 +5477,51 @@ Status: Fixed during PROPOSAL-038 validation.
 `MathematicalCycleStateService.promote` now records each accepted source warning through `AlgorithmRunService.record_message` with code `QT-MATHEMATICAL-CYCLE-SOURCE-WARNING` before completing the Run. The regression fixture supplies the local-only warning and proves operation warning, Run status, one stage-scoped message and deterministic retry agree. The already accepted P38 promotion Run `f1981c65-1fe7-45af-abab-9c1256e6cbec` received exactly one matching public Run message `79f7330b-ca55-54dd-88ef-419946dbd430`; exact database deltas then matched the approved P38 table and no mathematical-state row changed.
 
 Focused P37/GUI/architecture verification passed 128 tests, and the complete repository passed 658 tests. Not added to `KNOWN_ISSUES.md` because the defect was fixed before handoff. Rollback is a normal code revert only if warning observability must be removed; preserve the accepted append-only Run message and all P38 state evidence.
+
+## BUG-20260814-003
+
+### Title
+Canonical proposal index omitted existing PROPOSAL-006
+
+### Status
+Fixed during PROPOSAL-039 proposal-record audit
+
+### Severity
+Low
+
+### Area
+Governance documentation / proposal discoverability
+
+### Reproduction and cause
+
+Enumerate `docs/proposals/PROPOSAL-*.md` and compare the continuous proposal IDs with `docs/proposals/README.md`. All 38 pre-P39 proposal files `PROPOSAL-001` through `PROPOSAL-038` exist with no duplicate or missing file ID, but the canonical proposal index contains no `PROPOSAL-006` token or link. The historical-backtesting proposal itself is intact; only the index entry was omitted as later proposal summaries accumulated.
+
+### Resolution and regression evidence
+
+Added the existing `PROPOSAL-006-historical-backtesting.md` to the canonical proposal index without changing its content or status. The governance integrity test now enumerates proposal filenames, requires one unique file for every ID from 001 through the current maximum, and requires every discovered proposal ID to appear in the canonical index. The same audit confirmed 148 unique pre-edit Edit Log IDs and 122 unique pre-edit Bug Log IDs.
+
+Not added to `KNOWN_ISSUES.md` because the omission was confirmed and repaired in the same task. Rollback is a documentation-only revert, although doing so would restore the discoverability defect.
+
+## BUG-20260815-001
+
+### Title
+Target Position parent GUI imported Asset State directly for a P39 type annotation
+
+### Status
+Fixed during PROPOSAL-039 implementation
+
+### Severity
+Low
+
+### Area
+Algorithm Control GUI dependency boundary
+
+### Reproduction and cause
+
+Run the architecture suite after wiring the P39 sibling inspector. `test_target_position_gui_uses_typed_services_without_sql_or_financial_consumers` reported that `target_position_panel.py` imported `quant_trading.asset_state`. The import supplied only the `MathematicalCycleStateQueryService` annotation passed through to the dedicated P39 child panel; no Asset State calculation or mutation was present. Even so, it broadened the established parent Target Position GUI dependency and made the generic page appear to consume Asset State directly.
+
+### Resolution and regression evidence
+
+Removed the parent-panel Asset State import and kept its pass-through dependency opaque. The dedicated `mathematical_cycle_target_link_panel.py` continues to depend on the public read-only P37 query protocol, while composition supplies the implementation. All 126 architecture/governance tests and all 668 repository tests pass; no formula, source selection, GUI behavior, database row or trading meaning changed.
+
+Not added to `KNOWN_ISSUES.md` because the boundary defect was confirmed and fixed in the same implementation. Rollback would reintroduce the architecture violation and is not recommended.

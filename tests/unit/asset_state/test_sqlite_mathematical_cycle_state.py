@@ -133,7 +133,7 @@ def test_exact_p28_promotes_to_restart_safe_disabled_stream_and_run_artifact(tmp
     assert run_detail.messages[0].code == "QT-MATHEMATICAL-CYCLE-SOURCE-WARNING"
     assert run_detail.messages[0].message == operation.warnings[0]
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM mathematical_cycle_streams").fetchone()[0] == 1
         assert connection.execute("SELECT COUNT(*) FROM mathematical_cycle_state_operations WHERE operation_type='create_stream'").fetchone()[0] == 1
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
@@ -176,9 +176,9 @@ def test_v21_to_v22_migration_is_additive_backed_up_zero_backfill_and_rolls_back
 
     CentralSQLiteDatabase(path).initialize()
     backups = tuple((tmp_path / "backups").glob("*.sqlite3"))
-    assert len(backups) == 1 and ".schema-v21-to-v22." in backups[0].name
+    assert len(backups) == 1 and ".schema-v21-to-v23." in backups[0].name
     with sqlite3.connect(path) as connection:
-        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 22
+        assert connection.execute("SELECT MAX(version) FROM schema_migrations").fetchone()[0] == 23
         assert connection.execute("SELECT COUNT(*) FROM market_bars").fetchone()[0] == 1
         for table in (
             "mathematical_cycle_state_definitions", "mathematical_cycle_state_operations",
@@ -187,7 +187,7 @@ def test_v21_to_v22_migration_is_additive_backed_up_zero_backfill_and_rolls_back
             "mathematical_cycle_source_links",
         ):
             assert connection.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0] == 0
-        assert len(sqlite_database.expected_schema_tables()) == 137
+        assert len(sqlite_database.expected_schema_tables()) == 139
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert connection.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
 

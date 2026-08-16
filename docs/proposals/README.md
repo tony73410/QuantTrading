@@ -1,8 +1,10 @@
 # Change Proposals
 
-Current status (2026-08-14): main commit `86c69d4` publishes approved `PROPOSAL-037` as an implemented and verified disabled separate Asset-State-owned mathematical-cycle stream over explicit exact cumulative P28 evidence. Approved `PROPOSAL-038` completed one bounded AAPL initialization/replay `DRY_RUN`: central SQLite remains v22/137 and now contains one disabled definition, one explicitly named non-default stream, one open `DOWN` cycle, three snapshots/source links and zero transitions. P38 validates initialization only, not a real reversal or consumer. P23-4C2 daily-opportunity counting remains pending.
+Current status (2026-08-15): main/origin commit `47a8e27` remains the published P38 checkpoint; the current working tree implements user-approved `PROPOSAL-039` P39-D1–D12 as a disabled P23-3B link. Central SQLite is v23/139 after a verified additive migration; all 136 prior business-table counts are unchanged and both P39 tables remain empty. P39 adds no formula, default selection, Decision/Risk consumer or execution authority. Real-data P39 validation and P23-4C2 daily-opportunity counting remain separately unapproved.
 
 `PROPOSAL-023` planning revision `1.24` adopts the complete `P23-1-R1` mathematical/data recommendation as a user-approved design baseline. Bounded AAPL P26/P27/P28/P29/P31 validations remain immutable, explicit, disabled evidence. P31 is the only approved P29 Decision consumer and still requires explicit source IDs; no default selection or Risk/trading authority exists. P32 used all three frozen P30/P29 sources only after all three passed no-write preflight and added no code, schema or authority.
+
+- [`PROPOSAL-039`](PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md) — approved P39-D1–D12 and `IMPLEMENTED_VERIFIED_DISABLED`: a type-distinct Target-Position-owned bridge accepts one explicit successful P37 operation/Run/stream/terminal snapshot, cross-checks exact P28 semantics, delegates to unchanged P29, and records deterministic dual-operation/link/Run evidence on Schema v23 with an existing-page inspector. Both runtime tables remain empty; no second formula, latest/default selection, Decision/Risk consumer, real-data validation or execution authority exists.
 
 - [`PROPOSAL-037`](PROPOSAL-037-versioned-mathematical-cycle-state-promotion.md) — approved P37-D1–D12 and `IMPLEMENTED_VERIFIED_DISABLED`: exact cumulative P28 promotion into a separate named mathematical-cycle stream, day3 activation, immutable snapshots/attribution-resolution events, Schema v22 seven-table zero backfill, Run/replay and read-only existing-page inspection; no runtime stream or downstream consumer.
 
@@ -67,6 +69,8 @@ Current status (2026-08-14): main commit `86c69d4` publishes approved `PROPOSAL-
 - `PROPOSAL-007-asset-market-factor-decision-sizing.md`: approved Asset/Market Factor separation and Decision Sizing phase one.
 
 Current proposals:
+
+- [`PROPOSAL-006`](PROPOSAL-006-historical-backtesting.md) — approved and implemented research-only isolated historical Backtesting baseline; local simulated results cannot feed Paper/Live or operational accounting.
 
 - [`PROPOSAL-005`](PROPOSAL-005-portfolio-accounting-layer.md) — implemented-disabled in-memory Portfolio Accounting/Trading Ledger scaffold; no broker, persistence, execution, or production accounting activation.
 

@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-SCHEMA_VERSION = 22
+SCHEMA_VERSION = 23
 
 
 _SCHEMA_V1 = """
@@ -4287,6 +4287,134 @@ ON mathematical_cycle_state_operations(stream_id, status, completed_at_utc DESC)
 """
 
 
+_SCHEMA_V23 = """
+CREATE TABLE mathematical_cycle_target_link_operations (
+    attempt_id TEXT PRIMARY KEY,
+    operation_id TEXT NOT NULL,
+    target_operation_id TEXT NOT NULL,
+    bridge_run_id TEXT NOT NULL UNIQUE,
+    state_stage_id TEXT NOT NULL UNIQUE,
+    target_stage_id TEXT UNIQUE,
+    command_fingerprint TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'completed_with_warnings', 'invalid_input', 'failed')),
+    requested_at_utc TEXT NOT NULL,
+    completed_at_utc TEXT NOT NULL,
+    requested_state_operation_id TEXT NOT NULL,
+    requested_state_run_id TEXT NOT NULL,
+    requested_stream_id TEXT NOT NULL,
+    requested_latest_snapshot_id TEXT NOT NULL,
+    requested_configuration_id TEXT NOT NULL,
+    requested_configuration_version INTEGER NOT NULL CHECK (requested_configuration_version >= 1),
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_position_value_usd_text TEXT NOT NULL,
+    session_id TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    resolved_state_attempt_id TEXT,
+    resolved_state_definition_id TEXT,
+    resolved_state_definition_version INTEGER,
+    resolved_symbol TEXT,
+    resolved_session TEXT,
+    resolved_source_result_id TEXT,
+    resolved_source_run_id TEXT,
+    resolved_source_step_id TEXT,
+    resolved_target_attempt_id TEXT,
+    resolved_target_result_id TEXT,
+    resolved_target_run_id TEXT,
+    link_id TEXT,
+    warnings_json TEXT NOT NULL,
+    error_code TEXT,
+    error_summary TEXT,
+    software_version TEXT NOT NULL,
+    source_revision TEXT,
+    worktree_state TEXT NOT NULL CHECK (worktree_state IN ('clean', 'dirty', 'unknown')),
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (bridge_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    CHECK ((status IN ('completed', 'completed_with_warnings') AND target_stage_id IS NOT NULL AND link_id IS NOT NULL AND error_code IS NULL AND error_summary IS NULL) OR (status NOT IN ('completed', 'completed_with_warnings') AND link_id IS NULL AND error_code IS NOT NULL AND error_summary IS NOT NULL))
+);
+CREATE UNIQUE INDEX uq_mathematical_cycle_target_link_terminal_operation
+ON mathematical_cycle_target_link_operations(operation_id)
+WHERE status IN ('completed', 'completed_with_warnings');
+
+CREATE TABLE mathematical_cycle_target_position_links (
+    link_id TEXT PRIMARY KEY,
+    bridge_attempt_id TEXT NOT NULL UNIQUE,
+    bridge_operation_id TEXT NOT NULL,
+    bridge_run_id TEXT NOT NULL UNIQUE,
+    state_stage_id TEXT NOT NULL,
+    target_stage_id TEXT NOT NULL,
+    state_attempt_id TEXT NOT NULL,
+    state_operation_id TEXT NOT NULL,
+    state_run_id TEXT NOT NULL,
+    state_definition_id TEXT NOT NULL,
+    state_definition_version INTEGER NOT NULL CHECK (state_definition_version >= 1),
+    stream_id TEXT NOT NULL,
+    cycle_id TEXT NOT NULL,
+    snapshot_id TEXT NOT NULL,
+    snapshot_sequence INTEGER NOT NULL CHECK (snapshot_sequence >= 1),
+    snapshot_semantic_fingerprint TEXT NOT NULL,
+    source_result_id TEXT NOT NULL,
+    source_run_id TEXT NOT NULL,
+    source_step_id TEXT NOT NULL,
+    source_calculation_fingerprint TEXT NOT NULL,
+    target_attempt_id TEXT NOT NULL,
+    target_operation_id TEXT NOT NULL,
+    target_result_id TEXT NOT NULL UNIQUE,
+    target_run_id TEXT NOT NULL,
+    formula_definition_id TEXT NOT NULL,
+    formula_definition_version INTEGER NOT NULL CHECK (formula_definition_version >= 1),
+    configuration_id TEXT NOT NULL,
+    configuration_version INTEGER NOT NULL CHECK (configuration_version >= 1),
+    symbol TEXT NOT NULL,
+    session TEXT NOT NULL,
+    direction_at_open TEXT NOT NULL CHECK (direction_at_open IN ('up', 'down')),
+    direction_at_close TEXT NOT NULL CHECK (direction_at_close IN ('up', 'down')),
+    reference_session TEXT NOT NULL,
+    reference_price_text TEXT NOT NULL,
+    reference_price_hex TEXT NOT NULL,
+    target_region TEXT NOT NULL CHECK (target_region IN ('linear', 'linear_clamped', 'accelerating', 'saturated')),
+    target_fraction_text TEXT NOT NULL,
+    research_capital_basis_usd_text TEXT NOT NULL,
+    current_position_value_usd_text TEXT NOT NULL,
+    target_position_value_usd_text TEXT NOT NULL,
+    adjustment_value_usd_text TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    execution_allowed INTEGER NOT NULL CHECK (execution_allowed = 0),
+    live_allowed INTEGER NOT NULL CHECK (live_allowed = 0),
+    schema_version INTEGER NOT NULL CHECK (schema_version = 1),
+    FOREIGN KEY (bridge_attempt_id) REFERENCES mathematical_cycle_target_link_operations(attempt_id) ON DELETE RESTRICT,
+    FOREIGN KEY (bridge_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_stage_id) REFERENCES algorithm_run_stages(stage_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_attempt_id) REFERENCES mathematical_cycle_state_operations(attempt_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (state_definition_id) REFERENCES mathematical_cycle_state_definitions(definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (stream_id) REFERENCES mathematical_cycle_streams(stream_id) ON DELETE RESTRICT,
+    FOREIGN KEY (cycle_id) REFERENCES mathematical_trading_cycles(cycle_id) ON DELETE RESTRICT,
+    FOREIGN KEY (snapshot_id) REFERENCES mathematical_cycle_snapshots(snapshot_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_result_id) REFERENCES reversal_observation_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (source_step_id) REFERENCES reversal_observation_daily_steps(step_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_attempt_id) REFERENCES cycle_target_operation_attempts(attempt_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_result_id) REFERENCES cycle_target_results(result_id) ON DELETE RESTRICT,
+    FOREIGN KEY (target_run_id) REFERENCES algorithm_runs(run_id) ON DELETE RESTRICT,
+    FOREIGN KEY (formula_definition_id) REFERENCES cycle_target_formula_definitions(formula_definition_id) ON DELETE RESTRICT,
+    FOREIGN KEY (configuration_id) REFERENCES cycle_target_asset_configurations(configuration_id) ON DELETE RESTRICT
+);
+CREATE INDEX idx_mathematical_cycle_target_link_operations_lookup
+ON mathematical_cycle_target_link_operations(resolved_symbol, status, completed_at_utc DESC);
+CREATE INDEX idx_mathematical_cycle_target_position_links_lookup
+ON mathematical_cycle_target_position_links(symbol, stream_id, configuration_id, created_at_utc DESC);
+"""
+
+
 _MIGRATIONS = {
     1: ("central market-data and factor-history schema", _SCHEMA_V1),
     2: ("unified non-executing algorithm run history", _SCHEMA_V2),
@@ -4310,6 +4438,7 @@ _MIGRATIONS = {
     20: ("P23-4B P31 cycle-target structural Risk review evidence", _SCHEMA_V20),
     21: ("P23-4C1 versioned frozen-asset admission evidence", _SCHEMA_V21),
     22: ("P23-2B disabled versioned mathematical-cycle state", _SCHEMA_V22),
+    23: ("P23-3B explicit mathematical-cycle target-position links", _SCHEMA_V23),
 }
 
 
