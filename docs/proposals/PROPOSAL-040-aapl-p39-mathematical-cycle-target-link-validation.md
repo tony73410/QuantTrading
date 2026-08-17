@@ -6,6 +6,7 @@
 - Status: `APPROVED / COMPLETED_DRY_RUN`
 - Date: 2026-08-16
 - Author: Codex
+- Published validation commit: `007bf39cdc896f64d4dd915be00ef00523a57822` (`validate: link AAPL mathematical cycle to target preview`), pushed to `origin/main` on 2026-08-16 local / 2026-08-17 UTC.
 - User authorization: the user first selected option A for proposal creation, then explicitly approved `PROPOSAL-040` and P40-D1–D10 for the bounded local AAPL validation. Execution completed on 2026-08-17 UTC.
 - Related work: PROPOSAL-028, PROPOSAL-029, PROPOSAL-030, PROPOSAL-037, PROPOSAL-038, PROPOSAL-039, ADR-0033, ADR-0034, ADR-0038, ADR-0039, DEC-025 and INTENT-049
 

@@ -7899,3 +7899,37 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 ### Suggested commit message
 
 `validate: link AAPL mathematical cycle to target preview`
+
+## EDIT-20260816-004 — Publish completed P40 validation and record exact checkpoint
+
+### Authorization and task mode
+
+- The user explicitly requested `commit+push` and a current development-progress report after completed PROPOSAL-040.
+- Task mode: `FAST`; Git publication and exact version/checkpoint synchronization only. No algorithm, configuration, Schema, database row, GUI behavior or financial meaning changed.
+
+### Publication
+
+- Rechecked `main` and `origin/main` at `98ea64f73b869e1488ec2cf987734fbe88d341ed`; governance/document integrity passed `22/22` and diff hygiene passed.
+- Staged exactly 13 P40 proposal/governance/module/version/test files. The staged set contained `src=0`, `runtime=0` and no sensitive filename; central SQLite and backups remained ignored.
+- Created commit `007bf39cdc896f64d4dd915be00ef00523a57822` with message `validate: link AAPL mathematical cycle to target preview`.
+- Pushed `98ea64f..007bf39` to `origin/main` successfully without force, merge, rebase or history rewrite.
+
+### Records and safety
+
+- Updated `PROJECT_COMPASS.md`, `docs/project/PROJECT_STATE.md`, `docs/project/VERSION_HISTORY.md`, `docs/proposals/README.md`, PROPOSAL-040 and governance assertions with the exact published validation identity.
+- Runtime evidence is unchanged: v23/139, P39 `1/1`, active SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, integrity `ok`, zero foreign-key violations. No additional Run, result, link, network call or trading path was created by publication.
+- Bug audit: no new product Bug was discovered; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Rollback and Compass audit
+
+- Use a normal Git revert of `007bf39` for the validation publication; do not rewrite history or delete accepted SQLite audit evidence.
+- Intent alignment: publishes exactly the completed user-approved P40 slice and records its identity.
+- Architecture alignment: documentation/governance only; module ownership and dependencies are unchanged.
+- Safety alignment: all evidence remains `DISABLED`/`NO_EXECUTION`; no Risk bypass, order or account path exists.
+- Unapproved behavior added: none. Assumptions introduced: none.
+- Compass sections updated: metadata/current phase and last verified publication identity; Stable Core is unchanged.
+- Remaining drift risk: future work could treat the hypothetical P29 increase as advice or auto-select it for P31. Every consumer remains separately approval-gated.
+
+### Suggested checkpoint commit message
+
+`docs: record P40 publication checkpoint`

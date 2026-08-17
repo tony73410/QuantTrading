@@ -753,3 +753,27 @@ Execution requires the exact approval phrase recorded in PROPOSAL-040. Until the
 - No Market Data refresh, network Provider, Alpaca Trading, account, position, factual cash, P31/Decision/Risk, P35/count, Backtesting, Accounting, Paper/Live, order or fill path was used.
 - P40 is complete. Any later source extension, parameter change, P31/Decision/Risk consumer, factual-capital adapter, simulation or execution capability requires a separate proposal and explicit approval.
 - Preserve accepted append-only evidence. The backup is for proven corruption recovery only; ordinary rollback must not erase the completed validation.
+
+## CHECKPOINT-20260816-018
+
+### Identity and publication
+
+- Local date: 2026-08-16; UTC record date: 2026-08-17.
+- Branch: `main`.
+- Published validation commit: `007bf39cdc896f64d4dd915be00ef00523a57822`.
+- Commit message: `validate: link AAPL mathematical cycle to target preview`.
+- Push: `98ea64f..007bf39` to `origin/main`, completed without force, merge, rebase or history rewrite.
+- Package version: `0.1.0` (unchanged).
+
+### Published state
+
+- The commit publishes completed PROPOSAL-040 P40-D1–D10, its exact validation/backup/database evidence, synchronized Compass/Project State/Roadmap/module records and governance coverage.
+- Runtime validation remains the one accepted disabled P39 operation/link and one new P29 result already recorded by `VALIDATION-20260816-017`; publication created no additional Run or database row.
+- Active central SQLite remains v23/139 with P39 `1/1`, integrity `ok`, zero foreign-key violations and SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`. Runtime SQLite and backup files remain Git-ignored.
+- No source code, algorithm, configuration, Schema, GUI behavior, external service, account, Decision/Risk consumer or execution authority changed in the publication commit.
+
+### Verification and boundary
+
+- Publication preflight: governance/document integrity `22 passed`; staged diff hygiene passed; 13 staged files, `src=0`, `runtime=0`, sensitive filenames `0`.
+- The underlying P40 validation evidence remains: focused P39 `8 passed`, architecture `127 passed`, and all 669 collected repository tests covered by the no-failure monolithic prefix plus passing overlapping tail suite.
+- Ordinary rollback uses a normal Git revert of `007bf39`; accepted append-only SQLite evidence and the verified backup must not be deleted. P31/Decision/Risk consumption and every execution path remain separately approval-gated.
