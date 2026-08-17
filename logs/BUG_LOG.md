@@ -5525,3 +5525,27 @@ Run the architecture suite after wiring the P39 sibling inspector. `test_target_
 Removed the parent-panel Asset State import and kept its pass-through dependency opaque. The dedicated `mathematical_cycle_target_link_panel.py` continues to depend on the public read-only P37 query protocol, while composition supplies the implementation. All 126 architecture/governance tests and all 668 repository tests pass; no formula, source selection, GUI behavior, database row or trading meaning changed.
 
 Not added to `KNOWN_ISSUES.md` because the boundary defect was confirmed and fixed in the same implementation. Rollback would reintroduce the architecture violation and is not recommended.
+
+## BUG-20260816-001
+
+### Title
+Project State retained pre-P40 active SQLite identity and P39 counts
+
+### Status
+Fixed during P40 publication-progress audit
+
+### Severity
+Low
+
+### Area
+Governance documentation / current database status
+
+### Reproduction and cause
+
+Read the current-phase and central-persistence bullets in `docs/project/PROJECT_STATE.md` after completed PROPOSAL-040. The current-phase summary correctly reported P39 operation/link `1/1`, but a lower active-database bullet still reported the pre-P40 SHA-256, Run counts and P39 `0/0`. P40 synchronization updated the top-level state and owner module records but missed this duplicated current-state summary.
+
+### Resolution and regression evidence
+
+Updated the active-database bullet to SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, Run/stage/symbol/binding/message `68/126/65/294/293`, P29 `1/1/6/4/4/24`, unchanged P37 `1/2/1/1/3/0/3` and P39 `1/1`. Governance tests now require those exact current values in Project State, preventing the older checkpoint from being presented as current again.
+
+The runtime database was never wrong or modified by this repair. Not added to `KNOWN_ISSUES.md` because the documentation defect was fixed in the same publication task. Rollback of the text/test correction would restore contradictory current status and is not recommended.

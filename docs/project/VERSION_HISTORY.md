@@ -777,3 +777,11 @@ Execution requires the exact approval phrase recorded in PROPOSAL-040. Until the
 - Publication preflight: governance/document integrity `22 passed`; staged diff hygiene passed; 13 staged files, `src=0`, `runtime=0`, sensitive filenames `0`.
 - The underlying P40 validation evidence remains: focused P39 `8 passed`, architecture `127 passed`, and all 669 collected repository tests covered by the no-failure monolithic prefix plus passing overlapping tail suite.
 - Ordinary rollback uses a normal Git revert of `007bf39`; accepted append-only SQLite evidence and the verified backup must not be deleted. P31/Decision/Risk consumption and every execution path remain separately approval-gated.
+
+## CHECKPOINT-20260816-019
+
+### P40 publication-record correction
+
+- The final progress audit found `BUG-20260816-001`: Project State's top summary reported completed P40/P39 `1/1`, while one lower current-database bullet still contained the pre-P40 hash, Run counts and P39 `0/0`.
+- Corrected that bullet to active SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, Run/stage/symbol/binding/message `68/126/65/294/293`, P29 `1/1/6/4/4/24`, unchanged P37 `1/2/1/1/3/0/3` and P39 `1/1`.
+- Added exact governance assertions for the active values. Runtime SQLite, backup, source code, Schema, algorithm and trading state are unchanged.

@@ -503,7 +503,7 @@ def test_proposal_037_records_implemented_disabled_formal_mathematical_cycle_sta
     assert "v22/137" in persistence and "all seven P37 tables empty" in persistence
     assert "DEC-023" in compass and "INTENT-047" in compass
     assert "Main/origin commit `86c69d4` now publishes" in compass
-    assert "`main`/`origin/main` commit `007bf39cdc896f64d4dd915be00ef00523a57822`" in project_state
+    assert "Published validation commit `007bf39cdc896f64d4dd915be00ef00523a57822`" in project_state
     assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
@@ -572,8 +572,8 @@ def test_proposal_039_records_implemented_disabled_explicit_p37_to_p29_link() ->
     assert "PROPOSAL-006-historical-backtesting.md" in proposal_index
     assert "PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md" in docs_index
     assert "DEC-025" in compass and "INTENT-049" in compass
-    assert "main/origin commit 007bf39cdc896f64d4dd915be00ef00523a57822" in compass
-    assert "publishes completed PROPOSAL-040" in project_state
+    assert "published validation commit 007bf39cdc896f64d4dd915be00ef00523a57822" in compass
+    assert "record completed PROPOSAL-040" in project_state
     assert "P39 `1/1`" in project_state
     assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
     assert "CHECKPOINT-20260814-013" in version_history
@@ -613,7 +613,11 @@ def test_proposal_040_records_completed_bounded_aapl_p39_validation() -> None:
     assert "PROPOSAL-040-aapl-p39-mathematical-cycle-target-link-validation.md" in docs_index
     assert "DEC-026" in compass and "INTENT-050" in compass
     assert "P39 Run `710f0030-af6f-48ad-af7b-2b58cfaba51e`" in compass
-    assert "publishes completed PROPOSAL-040 and its bounded AAPL P39 local validation" in project_state
+    assert "record completed PROPOSAL-040 and its bounded AAPL P39 local validation" in project_state
+    assert "446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6" in project_state
+    assert "Run/stage/symbol/binding/message is `68/126/65/294/293`" in project_state
+    assert "P29 formula/configuration/operation/result/trace/source-link is `1/1/6/4/4/24`" in project_state
+    assert "P39 operation/link is `1/1`" in project_state
     assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
     assert "PLANNING-20260816-016" in version_history
     assert "VALIDATION-20260816-017" in version_history

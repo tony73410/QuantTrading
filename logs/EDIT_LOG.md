@@ -7933,3 +7933,28 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 ### Suggested checkpoint commit message
 
 `docs: record P40 publication checkpoint`
+
+## EDIT-20260816-005 — Correct stale pre-P40 database summary in Project State
+
+### Discovery and fix
+
+- During the user-requested final development-progress audit, confirmed `BUG-20260816-001`: Project State contained a correct P40 top summary but a stale lower active-database bullet with the pre-P40 hash, Run counts and P39 `0/0`.
+- Updated the lower current-state bullet to the accepted P40 active hash/counts and added exact governance assertions for SHA, Run, P29 and P39 values.
+- Synchronized Compass publication wording and appended CHECKPOINT-20260816-019. No runtime database, source code, configuration, algorithm, GUI behavior or trading meaning changed.
+
+### Verification, safety and rollback
+
+- Governance/document integrity passed `22/22`; diff hygiene passed with repository line-ending notices only before publication of this correction.
+- `KNOWN_ISSUES.md` remains unchanged because the documentation defect was repaired in the same task. Runtime evidence remains disabled/non-executable and no external or trading path was used.
+- Rollback is a normal Git revert of this documentation/test correction; doing so would restore contradictory current status and is not recommended.
+
+### Compass audit
+
+- Intent alignment: makes the recorded current state match the already accepted P40 evidence.
+- Architecture and safety alignment: documentation/test-only; no module, dependency, permission or financial behavior changed.
+- Unapproved behavior and assumptions added: none. Stable Core is unchanged.
+- Remaining drift risk: duplicated historical/current summaries can diverge; exact governance assertions now cover the active P40 values.
+
+### Suggested commit message
+
+`docs: correct P40 active database checkpoint`
