@@ -683,3 +683,73 @@ P39 implementation requires the explicit approval phrase recorded in PROPOSAL-03
 ### Rollback and next boundary
 
 Use a normal Git revert of `7d30a58` if the published P39 feature must be removed; do not rewrite history. Preserve the ignored v23 database and verified v22 backup. First real-data P39 validation, automatic selection, P31/Risk consumption, P23-4C2 and every execution-related capability remain separately approval-gated.
+
+## PLANNING-20260816-016
+
+### Identity and authorization
+
+- Date: 2026-08-16.
+- Branch: `main`; main/origin identity before proposal work: `98ea64f73b869e1488ec2cf987734fbe88d341ed`.
+- User authorization: option A authorizes creation of PROPOSAL-040 only; it does not authorize backup creation, runtime validation or database writes.
+- Package version: `0.1.0` (unchanged).
+- Central database contract: Schema v23/139 (unchanged).
+
+### Proposal-only P40 state
+
+- PROPOSAL-040 recommends one bounded local AAPL P39 validation over exact P37 operation `a934a4df-8869-54a6-8d54-eaa8a85046f9`, Run `f1981c65-1fe7-45af-abab-9c1256e6cbec`, stream `f0bccf2c-ab66-5fc0-8427-27c1e344a5d2`, terminal snapshot `3c2e3c34-e7f8-5179-b2fc-4282e57dfd2f` and exact backing P28 result `4447da24-2d25-5fbd-a7fd-fb0c3e501249`.
+- The recommended command uses the existing disabled P29 configuration `02ca70ac-ad8f-495d-b7d9-50f609bd91db@1`, independent hypothetical `$100,000/$50,000`, and distinct new deterministic P39/P29 operation IDs.
+- Acceptance requires exact numerical equality to terminal P30 result `eb386f12-6beb-4211-8933-ffe4b615bba6`, a verified ignored backup, fresh reload, Run/GUI navigation, deterministic retry, integrity/foreign-key checks and exact bounded deltas.
+- It stops before P31, Decision, Risk, P35/count, cash, Backtesting, Accounting, Paper/Live or execution.
+
+### Read-only baseline and boundary
+
+- Active SQLite remained 100,982,784 bytes with SHA-256 `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`, v23/139, integrity `ok` and zero foreign-key violations.
+- Run/stage/symbol/binding/message remained `66/122/63/289/293`; P29 formula/configuration/operation/result/trace/source-link remained `1/1/5/3/3/18`; P39 operation/link remained `0/0`.
+- No backup, Run, operation, result, link, network call, source refresh, Decision/Risk consumer or trading path was created. Reverting this planning slice removes only its proposal/governance/test records; no database restoration is required.
+
+### Next approval boundary
+
+Execution requires the exact approval phrase recorded in PROPOSAL-040. Until then, DEC-026 and INTENT-050 remain proposed and all active runtime evidence remains unchanged.
+
+## VALIDATION-20260816-017
+
+### Authorization and identity
+
+- Local date: 2026-08-16; completed 2026-08-17 UTC.
+- User explicitly approved `PROPOSAL-040` with P40-D1–D10 for one bounded local AAPL P39 validation.
+- Runtime code identity: exact clean local clone of main/origin `98ea64f73b869e1488ec2cf987734fbe88d341ed`; temporary clone removed after verification.
+- Package version: `0.1.0`; central Schema remains v23/139.
+
+### Preflight and backup
+
+- Public P39 `prepare()` reloaded exact P37 operation `a934a4df-8869-54a6-8d54-eaa8a85046f9`, Run `f1981c65-1fe7-45af-abab-9c1256e6cbec`, stream `f0bccf2c-ab66-5fc0-8427-27c1e344a5d2`, terminal snapshot `3c2e3c34-e7f8-5179-b2fc-4282e57dfd2f`, exact P28 Result/Run/Step and disabled P29 configuration `02ca70ac-ad8f-495d-b7d9-50f609bd91db@1`. Database SHA-256 stayed unchanged during preflight.
+- Deterministic namespace `07ae8bff-ac85-5a0f-8081-8ab3af4ff342` produced P39 operation `05c63287-61b5-5878-b27b-5ed00c326ad9` and P29 operation `5eb82710-1158-5a11-be2d-6b12637303fc`.
+- Verified pre-write backup `market_history.before-p40-validation.20260817T031119912252Z.sqlite3`: 100,982,784 bytes, SHA-256 `2056C3BBEB25F31A48C63193D804803EA18EB8C958E1679AB529CE88F7524F7D`, v23/139, all table counts identical, integrity `ok`, zero foreign-key violations.
+
+### Accepted evidence and exact numerical result
+
+- P39 attempt/Run/link: `8234b2a9-bdd8-4690-bcda-81b976894f7c` / `710f0030-af6f-48ad-af7b-2b58cfaba51e` / `af98ea54-e142-454b-a543-0c0c3bd48c5f`.
+- P29 attempt/Run/result: `780973a5-ba41-420c-adf5-7e57286d4904` / `d012243b-9be2-48ed-9e50-12b6b70097fb` / `c22ce586-76b5-4a99-836b-cdb382c800de`.
+- Status is `COMPLETED_WITH_WARNINGS` only because exact upstream evidence is locally frozen; `execution_allowed=false` and `live_allowed=false` throughout.
+- P29 result is `VALID_LINEAR`, target fraction `0.5333776295311476456362242970499210059642791748046875`, target `$53,337.76295311476456362242970`, adjustment `INCREASE $3,337.76295311476456362242970`.
+- Region, status, fraction, hypothetical basis/current value, target, adjustment and direction equal terminal P30 oracle `eb386f12-6beb-4211-8933-ffe4b615bba6` exactly; the old result is unchanged.
+
+### Replay, GUI and database evidence
+
+- Fresh repositories reloaded P39/P37/P29/P28 evidence and Run relationships/artifacts. P39 parents to P37 and relates to P29/P28; P29 remains parented to P28 and links back to P39.
+- Existing Target Position P39 inspector showed one AAPL row, rendered the full chain and opened all four Runs. Its read-only verification instance had preflight/preview writes disabled.
+- Exact P39 and P29 retries returned the original operation objects and changed none of the 139 table counts.
+- Final active database: 100,982,784 bytes, SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, v23/139, integrity `ok`, zero foreign-key violations.
+- Final Run/stage/symbol/binding/message `68/126/65/294/293`; P29 `1/1/6/4/4/24`; P39 `1/1`. Exact deltas match P40 and every excluded table is unchanged.
+
+### Repository verification
+
+- Governance/document integrity passed `22`; focused P39 persistence/GUI/architecture tests passed `8`; the complete architecture suite passed `127`.
+- The monolithic `669`-test command timed out after 900.8 seconds while test 609 was running, with tests 1–608 passing and no failure. The overlapping collected-test tail 557–669 then passed `113/113`, so every collected repository test has passing evidence across the two commands.
+- The only warning was the pre-existing third-party `websockets.legacy` deprecation warning. Diff hygiene passed with repository line-ending notices only.
+
+### Safety and next boundary
+
+- No Market Data refresh, network Provider, Alpaca Trading, account, position, factual cash, P31/Decision/Risk, P35/count, Backtesting, Accounting, Paper/Live, order or fill path was used.
+- P40 is complete. Any later source extension, parameter change, P31/Decision/Risk consumer, factual-capital adapter, simulation or execution capability requires a separate proposal and explicit approval.
+- Preserve accepted append-only evidence. The backup is for proven corruption recovery only; ordinary rollback must not erase the completed validation.

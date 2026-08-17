@@ -18,7 +18,7 @@ def test_proposal_files_are_continuous_unique_and_canonically_indexed() -> None:
         int(re.match(r"PROPOSAL-(\d{3})-", path.name).group(1))
         for path in proposal_paths
     ]
-    assert proposal_ids == list(range(1, 40))
+    assert proposal_ids == list(range(1, 41))
     assert len(proposal_ids) == len(set(proposal_ids))
     proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
     for proposal_id in proposal_ids:
@@ -61,12 +61,12 @@ def test_compass_verification_metadata_preserves_history_and_records_p36() -> No
     assert "v19/120" in metadata
     assert "market_history.schema-v18-to-v19.20260811T191208556475Z.sqlite3" in metadata
     assert "market_history.schema-v19-to-v20.20260812T015933497519Z.sqlite3" in metadata
-    assert "active SQLite is v23/139 SHA-256" in metadata
+    assert "active SQLite v23/139 SHA-256" in metadata
     assert "Run/stage/symbol/binding/message 66/122/63/289/293" in metadata
     assert "market_history.schema-v21-to-v22.20260814T192644633800Z.sqlite3" in metadata
     assert "exactly seven empty P37 tables and zero backfill" in metadata
     assert "market_history.schema-v20-to-v21.20260813T042448969415Z.sqlite3" in metadata
-    assert "P39 0/0" in metadata
+    assert "P39 1/1" in metadata
     assert "market_history.before-p32-validation.20260812T0041129668196Z.sqlite3" in metadata
     assert "54/101/52/261→57/107/55/270" in metadata
     assert "0/0/0/0→3/3/3/3" in metadata
@@ -76,12 +76,14 @@ def test_compass_verification_metadata_preserves_history_and_records_p36() -> No
     assert "market_history.before-p34-validation.20260812T073041241799Z.sqlite3" in metadata
     assert "Run/stage/symbol/binding/message 66/122/63/289/293" in metadata
     assert "market_history.before-p38-validation.20260814T222041041676Z.sqlite3" in metadata
-    assert "unchanged P37 1/2/1/1/3/0/3" in metadata
+    assert "P37 1/2/1/1/3/0/3" in metadata
     assert "both P39 tables zero" in metadata
     assert "market_history.before-p36-validation.20260814T062213721771Z.sqlite3" in metadata
     assert "edc6ee3e-8d73-4606-8bf3-0643d8c024b3" in metadata
     assert "7d30a584541dc3e95db49f2bccdae8e644a25e93" in metadata
-    assert "publishes approved disabled PROPOSAL-039" in metadata
+    assert "98ea64f73b869e1488ec2cf987734fbe88d341ed" in metadata
+    assert "p40_validation_checkpoint" in metadata
+    assert "446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6" in metadata
     assert "schema_v23_migration_checkpoint" in metadata
     assert "market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3" in metadata
     assert "one separately approved AAPL validation exists" in compass
@@ -109,7 +111,10 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     assert "PROPOSAL-036 is approved and completed as a bounded `DRY_RUN`" in next_direction
     assert "PROPOSAL-038 P38-D1–D10 is approved and completed as a bounded `DRY_RUN`" in next_direction
     assert "PROPOSAL-039 P39-D1–D12 is approved, implemented and verified disabled" in next_direction
-    assert "No real-data P39 row, default selection, Decision/Risk consumer" in next_direction
+    assert "P40 created one explicitly selected local AAPL validation row" in next_direction
+    assert "no default selection, P31/Decision/Risk consumer" in next_direction
+    assert "PROPOSAL-040 P40-D1–D10 is approved and completed" in next_direction
+    assert "P39 is now `1/1`; no P31/Decision/Risk consumer" in next_direction
     assert "P23-4C2 daily opportunity counting remains pending and unapproved" in next_direction
     assert "P33 is its sole approved structural Risk consumer" in next_direction
     assert "numerical approval and every later consumer remain unapproved" in next_direction
@@ -350,7 +355,7 @@ def test_proposal_033_is_implemented_disabled_and_preserves_risk_authority() -> 
     assert "DEC-019" in compass and "INTENT-043" in compass
     assert "PROPOSAL-033 is implemented and verified disabled" in compass
     assert "Implemented approved `PROPOSAL-033`" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
 def test_proposal_034_records_completed_bounded_p33_validation() -> None:
@@ -388,7 +393,7 @@ def test_proposal_034_records_completed_bounded_p33_validation() -> None:
     assert "DEC-020" in compass and "INTENT-044" in compass
     assert "PROPOSAL-034 is approved and completed as a bounded `DRY_RUN`" in compass
     assert "Approved P34 completed three exact local P33" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
 def test_proposal_035_records_approved_p23_4c1_and_defers_trade_count() -> None:
@@ -422,7 +427,7 @@ def test_proposal_035_records_approved_p23_4c1_and_defers_trade_count() -> None:
     assert "PROPOSAL-035-versioned-frozen-asset-admission" in docs_index
     assert "DEC-021" in compass and "INTENT-045" in compass
     assert "P23-4C1 Frozen-Asset Admission is `IMPLEMENTED_VERIFIED_DISABLED`" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
 def test_proposal_036_records_completed_bounded_p35_eligible_validation() -> None:
@@ -458,9 +463,9 @@ def test_proposal_036_records_completed_bounded_p35_eligible_validation() -> Non
     assert "4147db98-0e77-4eb0-ace6-6176df73864a" in proposal
     assert "market_history.before-p36-validation.20260814T062213721771Z.sqlite3" in proposal
     assert "64/120/62/286/292" in proposal
-    assert "P37 1/2/1/1/3/0/3 and P39 0/0" in compass
+    assert "P37 1/2/1/1/3/0/3" in compass and "P39 1/1" in compass
     assert "Completed approved `PROPOSAL-036`" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
 def test_proposal_037_records_implemented_disabled_formal_mathematical_cycle_state() -> None:
@@ -498,8 +503,8 @@ def test_proposal_037_records_implemented_disabled_formal_mathematical_cycle_sta
     assert "v22/137" in persistence and "all seven P37 tables empty" in persistence
     assert "DEC-023" in compass and "INTENT-047" in compass
     assert "Main/origin commit `86c69d4` now publishes" in compass
-    assert "`main`/`origin/main` commit `7d30a584541dc3e95db49f2bccdae8e644a25e93`" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "`main`/`origin/main` commit `98ea64f73b869e1488ec2cf987734fbe88d341ed`" in project_state
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
 def test_proposal_038_records_completed_bounded_aapl_p37_initialization() -> None:
@@ -534,7 +539,7 @@ def test_proposal_038_records_completed_bounded_aapl_p37_initialization() -> Non
     assert "DEC-024" in compass and "INTENT-048" in compass
     assert "After P38 was published at main/origin commit `47a8e27`" in compass
     assert "Approved PROPOSAL-038 P38-D1–D10 completed" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
 def test_proposal_039_records_implemented_disabled_explicit_p37_to_p29_link() -> None:
@@ -567,11 +572,59 @@ def test_proposal_039_records_implemented_disabled_explicit_p37_to_p29_link() ->
     assert "PROPOSAL-006-historical-backtesting.md" in proposal_index
     assert "PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md" in docs_index
     assert "DEC-025" in compass and "INTENT-049" in compass
-    assert "main/origin commit 7d30a584541dc3e95db49f2bccdae8e644a25e93" in compass
-    assert "publishes user-approved PROPOSAL-039 P39-D1–D12" in project_state
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "main/origin commit 98ea64f73b869e1488ec2cf987734fbe88d341ed" in compass
+    assert "publishes PROPOSAL-039 and its checkpoint" in project_state
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
     assert "CHECKPOINT-20260814-013" in version_history
     assert "BUG-20260814-003" in bug_log
+
+
+def test_proposal_040_records_completed_bounded_aapl_p39_validation() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-040-aapl-p39-mathematical-cycle-target-link-validation.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
+    version_history = Path("docs/project/VERSION_HISTORY.md").read_text(encoding="utf-8")
+    edit_log = Path("logs/EDIT_LOG.md").read_text(encoding="utf-8")
+
+    assert "- Status: `APPROVED / COMPLETED_DRY_RUN`" in proposal
+    assert "explicitly approved `PROPOSAL-040` and P40-D1–D10" in proposal
+    assert "P40-D1" in proposal and "P40-D10" in proposal
+    assert "98ea64f73b869e1488ec2cf987734fbe88d341ed" in proposal
+    assert "a934a4df-8869-54a6-8d54-eaa8a85046f9" in proposal
+    assert "f0bccf2c-ab66-5fc0-8427-27c1e344a5d2" in proposal
+    assert "3c2e3c34-e7f8-5179-b2fc-4282e57dfd2f" in proposal
+    assert "4447da24-2d25-5fbd-a7fd-fb0c3e501249" in proposal
+    assert "02ca70ac-ad8f-495d-b7d9-50f609bd91db@1" in proposal
+    assert "`$100,000` capital / `$50,000` current position" in proposal
+    assert "eb386f12-6beb-4211-8933-ffe4b615bba6" in proposal
+    assert "`66/122/63/289/293`" in proposal
+    assert "`1/1/5/3/3/18`" in proposal
+    assert "| P39 operations | 0 | 1 | +1 |" in proposal
+    assert "| P39 accepted links | 0 | 1 | +1 |" in proposal
+    assert "Stop before P31, Decision, Risk" in proposal
+    assert "批准 PROPOSAL-040，采用 P40-D1–D10" in proposal
+    assert "approved and completed bounded local `DRY_RUN`" in proposal_index
+    assert "PROPOSAL-040-aapl-p39-mathematical-cycle-target-link-validation.md" in docs_index
+    assert "DEC-026" in compass and "INTENT-050" in compass
+    assert "P39 Run `710f0030-af6f-48ad-af7b-2b58cfaba51e`" in compass
+    assert "Approved PROPOSAL-040 P40-D1–D10 completed" in project_state
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
+    assert "PLANNING-20260816-016" in version_history
+    assert "VALIDATION-20260816-017" in version_history
+    assert "EDIT-20260816-003" in edit_log
+    assert "05c63287-61b5-5878-b27b-5ed00c326ad9" in proposal
+    assert "c22ce586-76b5-4a99-836b-cdb382c800de" in proposal
+    assert "af98ea54-e142-454b-a543-0c0c3bd48c5f" in proposal
+    assert "market_history.before-p40-validation.20260817T031119912252Z.sqlite3" in proposal
+    assert "2056C3BBEB25F31A48C63193D804803EA18EB8C958E1679AB529CE88F7524F7D" in proposal
+    assert "`68/126/65/294/293`" in proposal
+    assert "`1/1/6/4/4/24`" in proposal
+    assert "Final P39 operation/link: `1/1`" in proposal
 
 
 def test_roadmap_records_completed_p26_through_p35() -> None:
@@ -587,7 +640,7 @@ def test_roadmap_records_completed_p26_through_p35() -> None:
     assert "三条结果均为`VALID_LINEAR`" in roadmap
     assert "P30测试值不是默认值或AAPL投资建议" in roadmap
     assert "当前没有下一项已批准开发或验证工作" in roadmap
-    assert "PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending" in roadmap
+    assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
     assert "`PROPOSAL-031` 已批准并按P31-D1–D10实现" in roadmap
     assert "中央SQLite v19/120已验证" in roadmap
     assert "`PROPOSAL-032` 已获批准并完成`DRY_RUN`" in roadmap

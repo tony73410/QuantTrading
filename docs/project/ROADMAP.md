@@ -27,7 +27,7 @@
 
 - 无。
 
-## Next direction — PROPOSAL-039 implemented disabled; real-data validation unapproved; P23-4C2 pending
+## Next direction — PROPOSAL-040 completed; next work unapproved; P23-4C2 pending
 
 - `PROPOSAL-027` P23-1F 已批准并完成：从一项显式、完整的P26历史研究中，只读取R1 v1.0.0在评估日前已经形成的60/120/250窗口趋势标准化MAD；先对三个窗口取中位数，再对20–250个完整评估日取中位数，形成每只股票独立的日常对数波动尺度。Schema v16、Run/结果历史、现有Factor页子页签和本地AAPL复用验证均完成，仍为禁用且无消费者。
 - `PROPOSAL-028` 已批准、实现并验证：第一版在Asset State所有者内建立独立反转观察实验室，不改正式股票状态；上涨转下跌与下跌转上涨使用同一个显式版本化正倍数。完整公式、只允许冻结后前向数据、两日确认/下一交易日生效、中央SQLite v17/110六表、Run重放/比较/导出和既有Asset State页子页签均已完成，仍为禁用且无消费者。
@@ -44,7 +44,8 @@
 - `PROPOSAL-036`已获批准并完成`DRY_RUN`：AAPL第一条P35控制事件明确为`ELIGIBLE`，三条精确P34/P33来源分别产生P35人工审查结果。Schema保持v21/130；最终Run/stage/symbol/binding/message为`64/120/62/286/292`，P35六表为`1/1/3/3/9/3`。重启重载、确定性重放、临时导出、既有GUI检查、完整Run导航、幂等重试、逐表增量、完整性与外键均通过；没有批准金额、执行权限、每日次数或交易。
 - `PROPOSAL-037` P37-D1–D12已获用户批准并实现为禁用的P23-2B：现有Asset State所有者内新增独立、多命名、无默认流的数学周期状态，只晋升显式精确累计P28证据。两日确认期保持旧轮，确认日收盘关闭旧轮，第3交易日在XNYS 09:30激活新轮；确认期归属用追加事件解析，不重写快照。中央SQLite已v21/130→v22/137，七表零回填并保持全部旧计数；Run/重放/既有Asset State页只读检查已完成。没有创建AAPL/真实股票流，不改人工Asset State、P35或P29–P35来源，不包含交易、数值Risk或每日次数。
 - `PROPOSAL-038` P38-D1–D10已获批准并完成`DRY_RUN`：只复用唯一现有AAPL P28 Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` / Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6`，创建一个禁用定义和一个命名非默认流。重启重放确认一个开放`DOWN`周期、三个快照/来源链和零转换；GUI/Run、幂等、精确增量、备份、完整性和外键均通过。`BUG-20260814-002`修复了P37来源警告未进入Run消息的问题。该验证只证明初始化/重放，不证明真实AAPL反转；没有刷新数据、连接P29–P35或增加交易权限。
-- `PROPOSAL-039` P39-D1–D12已获批准并实现为禁用的P23-3B：只接受显式选择的成功P37 operation/Run/stream/terminal snapshot，使用公共查询重载其精确P28 Result/Run/Step并核对全部P29消费语义，然后调用未修改的P29服务。独立bridge/target operation ID、失败恢复、Schema v23两表、Run关系/工件和既有Target Position页兄弟检查器已验证。活动P39两表仍为0；没有真实数据P39运行、自动来源/配置选择、Decision/Risk消费者或交易权限。首次受控P39真实数据验证必须另行批准。
+- `PROPOSAL-039` P39-D1–D12已获批准并实现为禁用的P23-3B：只接受显式选择的成功P37 operation/Run/stream/terminal snapshot，使用公共查询重载其精确P28 Result/Run/Step并核对全部P29消费语义，然后调用未修改的P29服务。独立bridge/target operation ID、失败恢复、Schema v23两表、Run关系/工件和既有Target Position页兄弟检查器已验证；迁移时两表零回填。P40后来加入一条显式受控验证连接，但仍没有自动来源/配置选择、Decision/Risk消费者或交易权限。
+- `PROPOSAL-040` P40-D1–D10已获批准并完成受控本地`DRY_RUN`：精确冻结的AAPL P37/P28证据、现有禁用P29配置和假设`$100,000/$50,000`输入创建一条P39连接与一条新P29结果。新结果与终端P30 oracle完全相等；写前备份、fresh reload、Run关系/工件、既有GUI/Open Run、P39/P29双层幂等、精确表增量、完整性和外键验证均通过。最终P39为`1/1`，仍无P31/Decision/Risk消费者或交易权限。
 
 - P26已完成一次另行批准的真实AAPL只读验证：20个XNYS评估日×2个锁定版本共40点全部保存并重启重载成功；只访问历史行情/公司行动，没有访问Trading、账户、持仓、订单或成交。该证据没有跨窗口稳定周期，不能被当成已批准的日常波动范围或交易信号。
 

@@ -60,7 +60,7 @@ The domain uses Python standard library, centralized error-code identity and neu
 
 ## Side effects
 
-None in engines/models. Injected Stores write manual Schema-v6 evidence, linked Schema-v8 provenance, P23-3A Schema-v18 evidence and P23-3B Schema-v23 attempts/accepted links. P29 uses `CYCLE_TARGET_POSITION_RESEARCH / NO_EXECUTION` parented to P28. P39 uses a separate `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK / NO_EXECUTION` Run parented to P37 with `STATE` then `TARGET_POSITION`; the immutable link exposes P37/P39/P29/P28 without rewriting parentage. Active v23 has zero P39 operation/link rows.
+None in engines/models. Injected Stores write manual Schema-v6 evidence, linked Schema-v8 provenance, P23-3A Schema-v18 evidence and P23-3B Schema-v23 attempts/accepted links. P29 uses `CYCLE_TARGET_POSITION_RESEARCH / NO_EXECUTION` parented to P28. P39 uses a separate `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK / NO_EXECUTION` Run parented to P37 with `STATE` then `TARGET_POSITION`; the immutable link exposes P37/P39/P29/P28 without rewriting parentage. Approved P40 created exactly one disabled P39 operation/link and one new exact P29 result; no consumer was activated.
 
 ## Failure modes
 
@@ -80,8 +80,10 @@ No environment or configuration-file settings and no Active definition. Definiti
 
 ## Known limitations
 
-Manual and linked modes remain unchanged. P23-3A supplies exact P28/P27 cycle evidence and keeps capital/current values hypothetical. P23-3B proves that a manually selected persisted P37 state controlled one P29 invocation, but does not reinterpret direction or feed P31. P23-4A may consume only an explicitly selected accepted P29 Result/Run through its own public contract; Phase 5D still reads only the old Phase 5C link. There is no latest/default selection, factual account adapter, winner ranking, numerical Risk approval, simulation consumer or execution authority. A real-data P39 validation remains separately approval-gated. Physical-display visual QA remains pending; offscreen regression is automated.
+Manual and linked modes remain unchanged. P23-3A supplies exact P28/P27 cycle evidence and keeps capital/current values hypothetical. P23-3B proves that a manually selected persisted P37 state controlled one P29 invocation, but does not reinterpret direction or feed P31. P23-4A may consume only an explicitly selected accepted P29 Result/Run through its own public contract; Phase 5D still reads only the old Phase 5C link. There is no latest/default selection, factual account adapter, winner ranking, numerical Risk approval, simulation consumer or execution authority. P40 validates only one exact existing AAPL P39 link; every later source, parameter or consumer remains approval-gated. Physical-display visual QA remains pending; offscreen regression is automated.
 
 ## Controlled AAPL validation evidence
 
 Approved PROPOSAL-030 reused exact P28 Result `4447da24-2d25-5fbd-a7fd-fb0c3e501249` / Run `92a38cf4-3366-496d-ab18-7c9d01dfa1b6` and its three exact daily steps with no refresh. Formula `01d365bc-32b6-4ed8-b740-eab77a18206e` and configuration `02ca70ac-ad8f-495d-b7d9-50f609bd91db` remain disabled. The three stored target fractions are approximately `0.4819299811`, `0.4719155503` and `0.5333776295`; all are `VALID_LINEAR`, use independent hypothetical `$100,000/$50,000` context and replay exactly after restart. See PROPOSAL-030 for full Run IDs, exact Decimal evidence and database counts.
+
+Approved PROPOSAL-040 then used exact P37 operation `a934a4df-8869-54a6-8d54-eaa8a85046f9` / Run `f1981c65-1fe7-45af-abab-9c1256e6cbec` / terminal snapshot `3c2e3c34-e7f8-5179-b2fc-4282e57dfd2f` to control new P39 operation `05c63287-61b5-5878-b27b-5ed00c326ad9`. Accepted link `af98ea54-e142-454b-a543-0c0c3bd48c5f` points to new P29 result `c22ce586-76b5-4a99-836b-cdb382c800de` / Run `d012243b-9be2-48ed-9e50-12b6b70097fb`. Its exact fraction, target `$53,337.76295311476456362242970` and `INCREASE $3,337.76295311476456362242970` equal terminal P30 result `eb386f12-6beb-4211-8933-ffe4b615bba6`. Fresh reload, Run graph, GUI/Open Run and P39/P29 idempotent retry passed with no P31/Decision/Risk call.

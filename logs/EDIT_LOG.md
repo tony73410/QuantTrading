@@ -7789,3 +7789,113 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 - Intent, architecture and safety alignment are unchanged from EDIT-20260815-001.
 - Unapproved behavior added: none. Assumptions introduced: none.
 - Compass metadata/current phase and Evolving Project State now name the exact published commit; Stable Core is unchanged.
+
+## EDIT-20260816-002 — Create proposal-only P40 controlled AAPL P39 validation
+
+### Authorization and task mode
+
+- The user selected option A, authorizing creation of the next proposal only.
+- Task mode: `STANDARD`, because this is a governed validation proposal over an existing multi-owner evidence chain; no implementation, migration or runtime validation is authorized.
+- Primary owner if later approved: existing Target Position P39/P29. Read-only/supporting owners: Asset State P37/P28 queries, Orchestration, Persistence, Run History and the existing Algorithm Control inspector.
+
+### Existing overlap and proposal
+
+- P39 is already implemented and published disabled; the active v23 database has P39 operation/link `0/0`. P30 already contains a same-terminal-source numerical result, but its P30 reason and Run lineage cannot truthfully stand in for a new P39-controlled invocation.
+- Created `PROPOSAL-040` with P40-D1–D10. It freezes exact P37 operation/Run/stream/terminal snapshot, exact P28 Result/Run/Step, existing disabled P29 configuration, hypothetical `$100,000/$50,000`, one named Session/Request and distinct deterministic bridge/target operation IDs.
+- The proposal requires all-source no-write preflight, a verified ignored v23 backup, exactly one manual P39 preview, exact numerical equality to terminal P30 result `eb386f12-6beb-4211-8933-ffe4b615bba6`, fresh reload, Run graph, GUI/Open Run, deterministic retry, precise database deltas, integrity and foreign-key checks.
+- The proposal stops before P31/Decision/Risk, P35/count, cash, Backtesting, Accounting, Paper/Live and execution, and forbids Market Data refresh or P28/P37 extension.
+
+### Read-only evidence and baseline
+
+- main/origin identity: `98ea64f73b869e1488ec2cf987734fbe88d341ed`; P39 feature commit: `7d30a584541dc3e95db49f2bccdae8e644a25e93`.
+- Active SQLite: 100,982,784 bytes, SHA-256 `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`, Schema v23/139, integrity `ok`, zero foreign-key violations.
+- Run/stage/symbol/binding/message: `66/122/63/289/293`; P29 formula/configuration/operation/result/trace/source-link: `1/1/5/3/3/18`; P39 operation/link: `0/0`.
+- This edit created no backup, Run, database row, network call, source refresh or trading path.
+
+### Changed records and verification
+
+- Added `docs/proposals/PROPOSAL-040-aapl-p39-mathematical-cycle-target-link-validation.md`.
+- Updated `PROJECT_COMPASS.md`, `docs/INDEX.md`, `docs/proposals/README.md`, `docs/project/PROJECT_STATE.md`, `docs/project/ROADMAP.md`, `docs/project/VERSION_HISTORY.md`, `tests/architecture/test_governance_document_integrity.py` and this append-only Edit Log.
+- Verification completed: governance/document-integrity **22 passed**; complete architecture suite **127 passed**; proposal IDs are continuous `001..040` and all 40 appear in the canonical index; `git diff --check` passed with only repository line-ending notices. The active SQLite SHA-256 remained exactly `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8`.
+- Bug audit: no bug was discovered; `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` remain unchanged.
+
+### Change Impact Report and rollback
+
+- Public contracts, code, configuration, database, GUI and trading semantics: unchanged. Documentation/governance blast radius: `LOCAL`; proposed later runtime blast radius: `LIMITED`.
+- Rollback removes only the P40 proposal and associated current-state/governance/test references. It requires no SQLite restoration and must not alter published P39 evidence.
+
+### Compass audit
+
+- Intent alignment: records the user-selected option A as a proposal, without treating it as runtime approval.
+- Architecture alignment: reuses P39/P29 and public P37/P28 queries; no new module or dependency exists.
+- Safety alignment: all proposed evidence is `DISABLED`/`NO_EXECUTION`; the proposal stops before Decision/Risk and every execution boundary.
+- Unapproved behavior added: none. Assumptions introduced: the exact P40 evidence/input/transaction package is visibly recommended and unapproved.
+- Compass sections updated: metadata/current phase, DEC-026, decision narrative, INTENT-050 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: a later operator could reuse P30 lineage, auto-select newer evidence or treat `DOWN`/`INCREASE` as advice. P40 requires new exact IDs, frozen sources and explicit non-trading labels.
+
+### Suggested commit message
+
+`docs: propose controlled AAPL P39 validation`
+
+## EDIT-20260816-003 — Execute approved P40 controlled AAPL P39 validation
+
+### Authorization and task mode
+
+- The user explicitly approved `PROPOSAL-040` and P40-D1–D10 for one bounded local AAPL P39 mathematical-cycle target-link validation.
+- Task mode: `STANDARD`; existing code, public contracts, Schema v23 and GUI were exercised without algorithm, configuration, migration or behavior changes.
+- Primary owner: Target Position P39/P29. Read-only/supporting owners: Asset State P37/P28, Orchestration, Persistence, Run History and existing Algorithm Control inspection.
+
+### Pre-implementation Compass and architecture audit
+
+- Goal: prove one exact persisted P37 terminal state can control the unchanged P29 calculation and survive restart/inspection, without progressing to Decision or Risk.
+- Existing ownership was reused exactly: P37 state, P28 observation, P29 math, P39 linkage, Run History lineage and GUI query/rendering stayed separate. No new component, interface, dependency or default was introduced.
+- The main worktree contained only the known P40 proposal/governance records. To satisfy exact clean-code identity without an unauthorized commit/stash, validation loaded `src` from a temporary ignored clean local clone of commit `98ea64f73b869e1488ec2cf987734fbe88d341ed`, explicitly targeted the central database, verified `worktree=clean`, and removed the clone afterward.
+- Blast radius: `LIMITED`, append-only local v23 evidence plus synchronized documentation. Safety remained `DISABLED`, `NO_EXECUTION`, `execution_allowed=false`, `live_allowed=false`.
+
+### No-write preflight and backup
+
+- Exact public `prepare()` passed for P37 operation/Run/stream/snapshot `a934a4df-8869-54a6-8d54-eaa8a85046f9` / `f1981c65-1fe7-45af-abab-9c1256e6cbec` / `f0bccf2c-ab66-5fc0-8427-27c1e344a5d2` / `3c2e3c34-e7f8-5179-b2fc-4282e57dfd2f`, backing P28 Result/Run/Step and P29 configuration `02ca70ac-ad8f-495d-b7d9-50f609bd91db@1`.
+- The active database SHA-256 remained `2046E7E8B07A8B9F5EAC51749A02126BF4C272A899C42BD0C8573C0E660C19B8` before/after preflight. No Python/QuantTrade writer was active.
+- Recorded namespace `07ae8bff-ac85-5a0f-8081-8ab3af4ff342`, P39 operation `05c63287-61b5-5878-b27b-5ed00c326ad9`, P29 operation `5eb82710-1158-5a11-be2d-6b12637303fc` and request time `2026-08-17T03:10:43Z`.
+- Verified backup `market_history.before-p40-validation.20260817T031119912252Z.sqlite3`: 100,982,784 bytes, SHA-256 `2056C3BBEB25F31A48C63193D804803EA18EB8C958E1679AB529CE88F7524F7D`, v23/139, all counts identical, integrity `ok`, zero foreign-key violations.
+
+### Accepted validation
+
+- P39 attempt `8234b2a9-bdd8-4690-bcda-81b976894f7c`, Run `710f0030-af6f-48ad-af7b-2b58cfaba51e`, link `af98ea54-e142-454b-a543-0c0c3bd48c5f` completed with the one expected local-only warning.
+- P29 attempt `780973a5-ba41-420c-adf5-7e57286d4904`, Run `d012243b-9be2-48ed-9e50-12b6b70097fb`, result `c22ce586-76b5-4a99-836b-cdb382c800de` is `VALID_LINEAR` with exact fraction `0.5333776295311476456362242970499210059642791748046875`, target `$53,337.76295311476456362242970` and `INCREASE $3,337.76295311476456362242970`.
+- The new result equals terminal P30 `eb386f12-6beb-4211-8933-ffe4b615bba6` for every approved comparison field. Neither old source nor oracle was rewritten.
+- Fresh reload, Run graph/artifacts, existing GUI detail, four Open Run targets, P39 retry and direct P29 retry passed. Both retries returned original operations with zero table changes.
+
+### Database and safety verification
+
+- Final active database: 100,982,784 bytes, SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, v23/139, integrity `ok`, zero foreign-key violations.
+- Exact nonzero deltas: Run/stage/symbol/binding `+2/+4/+2/+5`, messages `0`; P29 operation/result/trace/source `+1/+1/+1/+6`; P39 operation/link `+1/+1`. Every other logical table is unchanged.
+- Final counts: Run `68/126/65/294/293`; P29 `1/1/6/4/4/24`; P39 `1/1`.
+- No network, Market Data refresh, account/position/factual cash, P31/Decision/Risk, P35/count, simulation, Accounting, broker, Paper/Live, order or fill path was used.
+
+### Records, tests and Bug audit
+
+- Updated PROPOSAL-040, Compass, proposal/docs indexes, Project State, Roadmap, Version History, Target Position, Central Persistence, Run History and Algorithm Control GUI module documents, governance tests and this Edit Log.
+- Governance/document integrity passed `22`; focused P39 persistence/GUI/architecture tests passed `8`; the complete architecture suite passed `127`.
+- The monolithic `669`-test repository command reached test 608 without failure and then hit its 900.8-second limit while test 609 was running. The overlapping tail suite covering collected tests 557–669 passed `113/113`, providing passing evidence for every collected test across the two commands. The only warning was the pre-existing third-party `websockets.legacy` deprecation warning.
+- Final read-only database recheck retained SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, v23/139, integrity `ok`, zero foreign-key violations and exact final counts. `git diff --check` passed with line-ending notices only.
+- Bug audit: no product Bug was discovered. Two read-only reporting snippets initially referenced display-only field names incorrectly; database hash/count checks proved no write, and corrected queries completed. These operator-script mistakes did not affect project code or accepted evidence, so no Bug Log entry was created and `KNOWN_ISSUES.md` is unchanged.
+
+### Change Impact Report and rollback
+
+- Public contracts/code/configuration/Schema/GUI behavior: unchanged. Database: exact append-only P40 evidence only. Permissions: local ignored SQLite/backup; no external service. Trading semantics/safety: unchanged hypothetical target, not advice or approval. Blast radius: `LIMITED`.
+- Preserve the accepted P40 history. For ordinary rollback, stop future use or revert only documentation/code changes if separately requested; do not delete accepted rows. Restore the verified backup only for proven corruption with writers stopped and matching v23 code.
+
+### Post-Implementation Compass audit
+
+- Intent alignment: completed exactly one approved frozen-evidence P39 validation and stopped before P31.
+- Architecture alignment: P37/P28/P29/P39 ownership and Run parentage remain unchanged; GUI used public queries only.
+- Safety alignment: clean published code, local frozen evidence and false execution/live flags are persisted; no Risk bypass or trading path exists.
+- Unapproved behavior added: none.
+- Assumptions introduced: deterministic UUIDv5 namespace/operation derivation and temporary clean-clone execution are recorded engineering mechanics only; no financial value/default was introduced.
+- Compass sections updated: metadata/current phase/checkpoint, DEC-026, decision narrative, INTENT-050 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: future work could auto-select this result or describe `DOWN`/`INCREASE` as advice. P40 remains explicit-ID, hypothetical, disabled evidence and every consumer requires separate approval.
+
+### Suggested commit message
+
+`validate: link AAPL mathematical cycle to target preview`
