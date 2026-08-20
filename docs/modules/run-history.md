@@ -145,6 +145,8 @@ Algorithm Control contains a read-only `Run History` page and the Main Launcher 
 - P23-3B bridge attempts and accepted links, exact P37 operation/Run/stream/snapshot, P28 Result/Run/Step, P29 operation/result/Run/configuration, target summary, durable failures and clickable P37/P29/P28 relationships under `MATHEMATICAL_CYCLE_TARGET_POSITION_LINK`.
 - P23-4A attempts/results, exact P29 Result/Run/formula/configuration and P28 Result/Run/Step lineage, current/target/signed-difference/action, zero-or-one P31 intent, source-link children and durable failures under `CYCLE_TARGET_DECISION_PREVIEW`.
 
+PROPOSAL-041 validated this existing P23-4A view against exact Run `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5`: completed `TARGET_POSITION → DECISION` stages, three version bindings, the P29 parent/source, P28 source, nested P31 operation/result/intent artifact and all P31/P29/P28 Open Run targets reloaded correctly. The separate P39/P37 graph remains connected through the shared immutable P29 evidence; no new relationship type or GUI calculation was added.
+
 Completed previews automatically open their Run detail. GUI code consumes only `RunHistoryQueryService` and contains no SQL or business calculation.
 
 ## Tests

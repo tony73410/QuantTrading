@@ -785,3 +785,54 @@ Execution requires the exact approval phrase recorded in PROPOSAL-040. Until the
 - The final progress audit found `BUG-20260816-001`: Project State's top summary reported completed P40/P39 `1/1`, while one lower current-database bullet still contained the pre-P40 hash, Run counts and P39 `0/0`.
 - Corrected that bullet to active SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, Run/stage/symbol/binding/message `68/126/65/294/293`, P29 `1/1/6/4/4/24`, unchanged P37 `1/2/1/1/3/0/3` and P39 `1/1`.
 - Added exact governance assertions for the active values. Runtime SQLite, backup, source code, Schema, algorithm and trading state are unchanged.
+
+## PLANNING-20260817-020
+
+### Identity and authorization
+
+- Date: 2026-08-17.
+- Branch and main/origin identity: `main` at `40f4f59e85b61a550a5298c65bf2a2a8d0f8f5b3`.
+- Package version: `0.1.0` (unchanged).
+- User authorization: option A authorizes creation of PROPOSAL-041 and synchronized planning records only. It does not authorize backup creation, P31 runtime validation or database writes.
+
+### Proposal-only P41 state
+
+- PROPOSAL-041 recommends one bounded existing-P31 validation over exact P40 P29 Result `c22ce586-76b5-4a99-836b-cdb382c800de`, operation `5eb82710-1158-5a11-be2d-6b12637303fc` and Run `d012243b-9be2-48ed-9e50-12b6b70097fb`.
+- Complete P39/P37/P28/P29 provenance remains a read-only precondition. P31 continues to consume only P29 through its existing public contract; P39 is not added as a second Decision source.
+- The proposed deterministic namespace `d366b3cd-33fb-5288-b913-04aebd6801c7` and P31 operation `738e0757-618d-5717-961f-82cf0965fe04` would require exact `INTENT_CREATED / INCREASE / 3337.76295311476456362242970 USD` using unchanged P31 math.
+- Existing P32 result `b88b4752-cafd-47d4-ba27-1a81e1421927` is a numerical oracle only. It cannot be reused or overwritten because it has a different P29 source/Run.
+
+### Read-only baseline and safety boundary
+
+- Active SQLite remains 100,982,784 bytes, SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, v23/139, integrity `ok` and zero foreign-key violations.
+- Run/stage/symbol/binding/message remains `68/126/65/294/293`; P29 remains `1/1/6/4/4/24`; P39 remains `1/1`; P31 operation/result/intent/source remains `3/3/3/3`; the selected P40 P29 result has zero P31 consumers.
+- No source code, configuration, Schema, GUI behavior, backup, Run, Decision result, intent, Risk result, network access or trading authority changed.
+
+### Next approval boundary and rollback
+
+- Execution requires the exact approval phrase in PROPOSAL-041. Until then DEC-027 and INTENT-051 remain proposed.
+- Proposal-only rollback removes or normally reverts only the P41 planning/governance/test records. No database restoration is required.
+
+## VALIDATION-20260817-021
+
+### Approved P41 identity and result
+
+- User authorization: explicit approval of `PROPOSAL-041` P41-D1–D10 for one bounded AAPL P40→P31 local validation.
+- Clean source identity: main/origin `40f4f59e85b61a550a5298c65bf2a2a8d0f8f5b3`; package `0.1.0` unchanged; no source, configuration, public-contract, Schema or GUI change.
+- Exact P29 source Result/Run: `c22ce586-76b5-4a99-836b-cdb382c800de` / `d012243b-9be2-48ed-9e50-12b6b70097fb`.
+- Accepted P31 operation/Run/result/intent/source-link: `738e0757-618d-5717-961f-82cf0965fe04` / `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5` / `58960056-c5f7-4087-854f-27705ec39e72` / `4a348ff8-e3cd-4cb2-9da5-e49fe2bc3637` / `a2784de8-952b-46ae-b70b-077035bcc6f0`.
+- Exact output: `INTENT_CREATED / INCREASE / 3337.76295311476456362242970 USD`, with `execution_allowed=false`, `live_allowed=false` and no rounding/tolerance.
+
+### Preflight, durability and database evidence
+
+- Public no-write preflight fingerprint `1a9ede893bca171603571b7ecdf6c31fb0690a82302f1a5c3e533a9b6f9edef4` left the exact pre-P41 hash and all 139 logical counts unchanged.
+- Verified ignored backup `market_history.before-p41-validation.20260817T091810226532Z.sqlite3`: 100,982,784 bytes, SHA-256 `9E132E1606D62B1E927491FAE78EA60C2661BABC4BA483E8B8DE87C788373AF8`, v23/139, integrity `ok`, zero foreign-key violations and exact baseline counts.
+- Fresh typed reload, deterministic recalculation replay, parsed JSON/CSV export, Run History graph/artifact, existing Decision inspector/Open Run and exact retry all passed. The retry returned the original attempt/Run/result/intent with zero table changes.
+- Final active SQLite: 100,990,976 bytes, SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, v23/139, integrity `ok`, zero foreign-key violations. Run/stage/symbol/binding/message is `69/128/66/297/293`; P31 is `4/4/4/4`.
+- Exact nonzero deltas from backup: Run/stage/symbol/binding `+1/+2/+1/+3`, P31 operation/result/intent/source-link `+1/+1/+1/+1`; every other logical table is unchanged.
+
+### Boundary and rollback
+
+- No Market Data refresh, Provider, account/position/factual cash, P33/Risk, P35, P23-4C2 count, Backtesting, Accounting, broker, Paper/Live, order or fill path was used.
+- Preserve the accepted append-only evidence. Ordinary rollback stops future use or normally reverts documentation; restore the verified backup only for proven corruption with writers stopped and matching v23 code.
+- No later validation or implementation slice is approved by P41.

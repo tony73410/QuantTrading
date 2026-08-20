@@ -7958,3 +7958,117 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 ### Suggested commit message
 
 `docs: correct P40 active database checkpoint`
+
+## EDIT-20260817-001 — Create proposal-only P41 P40-to-P31 Decision validation plan
+
+### Authorization and task mode
+
+- The user asked to continue development and selected option A after being told that A would first create a proposal and records without runtime execution.
+- Task mode: `STANDARD`, proposal-only. Primary owner: existing Decision P31. Read-only/supporting owners: Target Position P29/P39, Asset State P37/P28, Orchestration, Persistence, Run History and Algorithm Control inspection.
+- Expected and actual changed scope is governance documentation plus its architecture regression assertion. No `src`, configuration, Schema, runtime database or GUI code changed.
+
+### Pre-Implementation Compass, overlap and architecture audit
+
+- Goal: plan one bounded proof that the exact P40-created P29 result can enter the already implemented disabled P31 Decision path and remain fully inspectable.
+- P31 already owns the approved exact positive/negative/zero mapping, public preflight/preview/replay/export and four-table Schema-v19 history. P32 already provides a same-value P31 oracle. Therefore P41 proposes no new Decision component, algorithm, adapter, source schema or dependency.
+- P31 remains directly parented to and sourced by exact P29 Result/Run. P39 remains separate immutable upstream provenance through the shared P29 result; it is not added as a direct P31 contract.
+- Stable Core evidence/controllability/safety rules apply. No financial meaning, value, default, Risk authority or execution permission changes. Blast radius now is `LOCAL`; if separately approved, the bounded append-only validation would be `LIMITED`.
+
+### Proposal and exact planned evidence
+
+- Added PROPOSAL-041 with proposed P41-D1–D10 and explicit approval boundary.
+- Frozen source: P40 P29 operation/Run/result `5eb82710-1158-5a11-be2d-6b12637303fc` / `d012243b-9be2-48ed-9e50-12b6b70097fb` / `c22ce586-76b5-4a99-836b-cdb382c800de`, plus its exact P39/P37/P28/formula/configuration lineage.
+- Frozen oracle: P32 P31 result `b88b4752-cafd-47d4-ba27-1a81e1421927`; proposed output is exact `INTENT_CREATED / INCREASE / 3337.76295311476456362242970 USD` without rounding or tolerance.
+- Recorded deterministic namespace `d366b3cd-33fb-5288-b913-04aebd6801c7` and proposed P31 operation `738e0757-618d-5717-961f-82cf0965fe04`.
+- Proposed successful bounded delta is Run/stage/symbol/binding `+1/+2/+1/+3`, messages `0`, and P31 operation/result/intent/source `+1/+1/+1/+1`; all upstream, Risk, Capital, Backtesting, Accounting and Market tables must stay unchanged.
+
+### Read-only baseline and no-execution evidence
+
+- Main/origin are `40f4f59e85b61a550a5298c65bf2a2a8d0f8f5b3`; package remains `0.1.0`.
+- Active SQLite remains 100,982,784 bytes, SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, v23/139, integrity `ok`, zero foreign-key violations.
+- Run/stage/symbol/binding/message remains `68/126/65/294/293`; P31 operation/result/intent/source remains `3/3/3/3`; a direct read-only query confirms zero P31 source links for the selected P40 P29 result.
+- No backup, Run, operation, Decision result, intent, Risk result, network call, account access or database write occurred. One shell quoting attempt failed before its intended read-only SQLite query; a corrected query completed, and the unchanged hash/counts prove no side effect. Default and bundled Python lacked pytest, so the repository `.venv` was used.
+
+### Documents and tests
+
+- Added `docs/proposals/PROPOSAL-041-aapl-p40-p31-decision-validation.md`.
+- Updated `PROJECT_COMPASS.md`, `docs/proposals/README.md`, `docs/INDEX.md`, `docs/project/ROADMAP.md`, `docs/project/PROJECT_STATE.md`, `docs/project/VERSION_HISTORY.md`, `tests/architecture/test_governance_document_integrity.py` and this Edit Log.
+- Governance/document integrity passed `23/23`; the complete architecture suite passed `128/128`.
+- Bug audit: no product Bug or credible unresolved defect was discovered. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+### Change Impact Report and rollback
+
+- Primary module: Decision P31 planning. Secondary modules: read-only P29/P39/P37/P28 lineage plus existing Orchestration/Persistence/Run History/GUI inspection.
+- Public contracts, configuration, database Schema/data, GUI behavior, permissions and trading semantics: unchanged.
+- Migration: none. Runtime authority remains `DISABLED`, `NO_EXECUTION`, `execution_allowed=false`, `live_allowed=false`.
+- Rollback before approval is a normal revert/removal of only these P41 proposal/governance/test records; no database restoration is required.
+
+### Post-Implementation Compass audit
+
+- Intent alignment: records exactly the user's selected next proposal and does not execute it.
+- Architecture alignment: reuses the existing Decision owner and its exact P29 contract; no duplicate owner, new dependency or schema expansion.
+- Safety alignment: no Provider, account, Risk approval, order or execution path; all proposed evidence remains hypothetical and explicit-ID-only.
+- Unapproved behavior added: none.
+- Assumptions introduced: deterministic UUIDv5 planning identities are engineering mechanics only; no financial assumption or value was added.
+- Compass sections updated: metadata/current phase, DEC-027, decision narrative, INTENT-051 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: a later implementation could auto-select a source, treat `INCREASE` as advice or combine P31 with Risk without approval. P41 therefore remains unapproved and stops before P33/Risk.
+
+### Suggested commit message
+
+`docs: propose P40-to-P31 AAPL validation`
+
+## EDIT-20260817-002 — Execute approved P41 AAPL P40-to-P31 Decision validation
+
+### Authorization and task mode
+
+- The user explicitly approved `PROPOSAL-041` and P41-D1–D10 for one bounded local AAPL P40→P31 Decision validation.
+- Task mode: `STANDARD`; primary owner is existing Decision P31. Read-only/supporting owners are Target Position P29/P39, Asset State P37/P28, Orchestration, Persistence, Run History and existing Algorithm Control inspection.
+- Scope remained one ignored backup, one append-only `NO_EXECUTION` P31 evidence set, read-only/replay/export/GUI verification and synchronized records. No `src`, configuration, public contract, Schema or GUI behavior changed.
+
+### Pre-Implementation Compass and architecture audit
+
+- Goal: prove exact persisted P40 P29 Result `c22ce586-76b5-4a99-836b-cdb382c800de` / Run `d012243b-9be2-48ed-9e50-12b6b70097fb` can enter the already implemented disabled P31 mapping without adding or changing an algorithm.
+- Existing P31 remained the sole Decision owner and continued to consume only exact P29 evidence. P39 remained separate upstream provenance through the shared immutable P29 result; no new adapter, duplicate rule, dependency or automatic selection was introduced.
+- Stable Core evidence, separation and safety rules applied. P41 could produce only a hypothetical type-distinct intent with false execution/live flags and had to stop before P33/Risk and every execution-related path.
+- Blast radius: `LIMITED`, one local append-only evidence set. Source identity was read from a temporary ignored clean clone at published main/origin commit `40f4f59e85b61a550a5298c65bf2a2a8d0f8f5b3`, package `0.1.0`, because the documentation worktree was intentionally uncommitted.
+
+### No-write preflight and backup
+
+- Exact public preflight over P39/P37/P28/P29/formula/configuration evidence passed with command fingerprint `1a9ede893bca171603571b7ecdf6c31fb0690a82302f1a5c3e533a9b6f9edef4`.
+- Before/after preflight the active database remained 100,982,784 bytes, SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, v23/139, integrity `ok`, zero foreign-key violations and identical counts. No matching active QuantTrade/Python database writer was found.
+- Verified ignored pre-write backup `market_history.before-p41-validation.20260817T091810226532Z.sqlite3`: 100,982,784 bytes, SHA-256 `9E132E1606D62B1E927491FAE78EA60C2661BABC4BA483E8B8DE87C788373AF8`, v23/139, integrity `ok`, zero foreign-key violations and every logical-table count equal.
+- A first non-escalated read-only preflight could not resolve Git identity under the sandbox ownership policy and stopped with no write. The approved clean-source preflight then passed. Separately, the first execution script used display-summary table labels instead of physical `algorithm_run_*` names and stopped on an assertion before coordinator construction. Hash/count checks proved zero side effects; the corrected script made the sole accepted preview. These were operator-environment/script issues, not product Bugs.
+
+### Accepted validation and observability
+
+- Accepted attempt / deterministic operation / Run: `b0366b04-0164-4f33-ba86-d2e2a83c1cd7` / `738e0757-618d-5717-961f-82cf0965fe04` / `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5`.
+- Target / Decision stages: `7013ac5f-5eba-46b0-b729-beae3212b0ec` / `177629b8-e25d-4eb3-9162-5b97c72e34e6`.
+- Decision result / intent / source link: `58960056-c5f7-4087-854f-27705ec39e72` / `4a348ff8-e3cd-4cb2-9da5-e49fe2bc3637` / `a2784de8-952b-46ae-b70b-077035bcc6f0`.
+- Exact output is `INTENT_CREATED / INCREASE / 3337.76295311476456362242970 USD`, from target `53337.76295311476456362242970` minus current `50000`. No rounding, tolerance, share quantity or account claim was added; result and intent remain `execution_allowed=false`, `live_allowed=false`.
+- Fresh-process typed reload and deterministic recalculation replay matched with zero differences. Temporary JSON/CSV exports parsed back exactly and were removed after validation.
+- Run History exposed completed `TARGET_POSITION → DECISION` stages, three bindings, no message, P29 parent/source and P28 source plus nested P31 evidence. The separate P39 graph continued to expose P37 and P29/P28 provenance.
+- Existing Decision GUI inspection loaded four P29 sources and four P31 results, rendered the exact result, and emitted exact P31/P29/P28 Open Run targets with its preview service disabled.
+- Exact same-command retry returned the original attempt, Run, result and intent with zero logical-table changes.
+
+### Database, tests and Bug audit
+
+- Exact nonzero deltas from backup: Run/stage/symbol/binding `+1/+2/+1/+3`; P31 operation/result/intent/source-link `+1/+1/+1/+1`. Run messages and every other one of 139 logical tables are unchanged.
+- Final active SQLite: 100,990,976 bytes, SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, v23/139, integrity `ok`, zero foreign-key violations. Final Run/stage/symbol/binding/message is `69/128/66/297/293`; P31 is `4/4/4/4`.
+- Governance/document integrity passed `23/23`; focused Decision/Persistence/Run History/GUI/architecture tests passed `27/27`; complete architecture suite passed `128/128`; `git diff --check` passed with repository line-ending notices only.
+- Bug audit: no product Bug or credible unresolved defect was discovered. `logs/BUG_LOG.md` and `KNOWN_ISSUES.md` are unchanged.
+
+### Change Impact Report, rollback and Compass audit
+
+- Primary module: existing Decision P31 runtime evidence. Secondary modules: read-only P29/P39/P37/P28, Orchestration, Persistence, Run History and existing Algorithm Control inspection.
+- Public contracts, configuration, Schema, GUI behavior, dependency direction and financial formula: unchanged. Database effect is the exact append-only set above. No external-service permission or trading authority was used.
+- Preserve accepted immutable P41 evidence. Ordinary rollback stops future use or normally reverts the documentation record; restore the verified backup only for proven corruption with writers stopped and matching v23 code.
+- Intent alignment: completed exactly one approved frozen-source P31 validation and its zero-write retry.
+- Architecture alignment: existing Decision ownership and P29 input contract were preserved; P39 stayed separate provenance and GUI stayed presentation-only.
+- Safety alignment: `DISABLED`, `NO_EXECUTION`, false execution/live flags and a strict stop before P33/Risk were verified.
+- Unapproved behavior added: none. Assumptions introduced: temporary clean-clone source identity and deterministic operation identity are recorded engineering mechanics only; no financial assumption/default was introduced.
+- Compass sections updated: metadata/current phase/P41 checkpoint, DEC-027, decision narrative, INTENT-051 and Next Approved Direction. Stable Core is unchanged.
+- Remaining drift risk: a future task could mistake hypothetical `INCREASE` for advice, auto-select this source or feed it downstream without approval. Every later source and P33/Risk/count/cash/simulation/execution consumer remains separately approval-gated.
+
+### Suggested commit message
+
+`validate: connect P40 target evidence to P31 decision preview`

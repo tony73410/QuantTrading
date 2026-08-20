@@ -18,7 +18,7 @@ def test_proposal_files_are_continuous_unique_and_canonically_indexed() -> None:
         int(re.match(r"PROPOSAL-(\d{3})-", path.name).group(1))
         for path in proposal_paths
     ]
-    assert proposal_ids == list(range(1, 41))
+    assert proposal_ids == list(range(1, 42))
     assert len(proposal_ids) == len(set(proposal_ids))
     proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
     for proposal_id in proposal_ids:
@@ -115,6 +115,8 @@ def test_compass_next_direction_names_latest_completed_proposal() -> None:
     assert "no default selection, P31/Decision/Risk consumer" in next_direction
     assert "PROPOSAL-040 P40-D1–D10 is approved and completed" in next_direction
     assert "P39 is now `1/1`; no P31/Decision/Risk consumer" in next_direction
+    assert "PROPOSAL-041 P41-D1–D10 is approved and completed" in next_direction
+    assert "P31 is `4/4/4/4` and no downstream review occurred" in next_direction
     assert "P23-4C2 daily opportunity counting remains pending and unapproved" in next_direction
     assert "P33 is its sole approved structural Risk consumer" in next_direction
     assert "numerical approval and every later consumer remain unapproved" in next_direction
@@ -317,7 +319,7 @@ def test_proposal_032_completed_the_bounded_p31_validation() -> None:
     assert "DEC-018" in compass and "INTENT-042" in compass
     assert "PROPOSAL-032 is approved and completed as a bounded `DRY_RUN`" in compass
     assert "Approved P32 created three exact independent AAPL validation results" in project_state
-    assert "P33 is their only approved Risk boundary" in project_state
+    assert "P33 remains the only approved Risk boundary" in project_state
     assert "`PROPOSAL-032` 已获批准并完成`DRY_RUN`" in roadmap
 
 
@@ -503,7 +505,7 @@ def test_proposal_037_records_implemented_disabled_formal_mathematical_cycle_sta
     assert "v22/137" in persistence and "all seven P37 tables empty" in persistence
     assert "DEC-023" in compass and "INTENT-047" in compass
     assert "Main/origin commit `86c69d4` now publishes" in compass
-    assert "Published validation commit `007bf39cdc896f64d4dd915be00ef00523a57822`" in project_state
+    assert "Published completed P40 validation commit `007bf39cdc896f64d4dd915be00ef00523a57822`" in project_state
     assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
 
 
@@ -573,7 +575,7 @@ def test_proposal_039_records_implemented_disabled_explicit_p37_to_p29_link() ->
     assert "PROPOSAL-039-explicit-mathematical-cycle-target-position-link.md" in docs_index
     assert "DEC-025" in compass and "INTENT-049" in compass
     assert "published validation commit 007bf39cdc896f64d4dd915be00ef00523a57822" in compass
-    assert "record completed PROPOSAL-040" in project_state
+    assert "Published completed P40 validation commit" in project_state
     assert "P39 `1/1`" in project_state
     assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
     assert "CHECKPOINT-20260814-013" in version_history
@@ -613,11 +615,11 @@ def test_proposal_040_records_completed_bounded_aapl_p39_validation() -> None:
     assert "PROPOSAL-040-aapl-p39-mathematical-cycle-target-link-validation.md" in docs_index
     assert "DEC-026" in compass and "INTENT-050" in compass
     assert "P39 Run `710f0030-af6f-48ad-af7b-2b58cfaba51e`" in compass
-    assert "record completed PROPOSAL-040 and its bounded AAPL P39 local validation" in project_state
-    assert "446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6" in project_state
-    assert "Run/stage/symbol/binding/message is `68/126/65/294/293`" in project_state
-    assert "P29 formula/configuration/operation/result/trace/source-link is `1/1/6/4/4/24`" in project_state
-    assert "P39 operation/link is `1/1`" in project_state
+    assert "Published completed P40 validation commit" in project_state
+    assert "2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298" in project_state
+    assert "Run/stage/symbol/binding/message is `69/128/66/297/293`" in project_state
+    assert "P29 formula/configuration/operation/result/trace/source-link remains `1/1/6/4/4/24`" in project_state
+    assert "P39 operation/link remains `1/1`" in project_state
     assert "PROPOSAL-040 completed; next work unapproved; P23-4C2 pending" in roadmap
     assert "PLANNING-20260816-016" in version_history
     assert "VALIDATION-20260816-017" in version_history
@@ -633,6 +635,56 @@ def test_proposal_040_records_completed_bounded_aapl_p39_validation() -> None:
     assert "`68/126/65/294/293`" in proposal
     assert "`1/1/6/4/4/24`" in proposal
     assert "Final P39 operation/link: `1/1`" in proposal
+
+
+def test_proposal_041_records_completed_bounded_p40_to_p31_validation() -> None:
+    proposal = Path(
+        "docs/proposals/PROPOSAL-041-aapl-p40-p31-decision-validation.md"
+    ).read_text(encoding="utf-8")
+    proposal_index = Path("docs/proposals/README.md").read_text(encoding="utf-8")
+    docs_index = Path("docs/INDEX.md").read_text(encoding="utf-8")
+    compass = Path("PROJECT_COMPASS.md").read_text(encoding="utf-8")
+    project_state = Path("docs/project/PROJECT_STATE.md").read_text(encoding="utf-8")
+    roadmap = Path("docs/project/ROADMAP.md").read_text(encoding="utf-8")
+    version_history = Path("docs/project/VERSION_HISTORY.md").read_text(encoding="utf-8")
+    edit_log = Path("logs/EDIT_LOG.md").read_text(encoding="utf-8")
+    decision_module = Path("docs/modules/trading-decision.md").read_text(encoding="utf-8")
+    persistence_module = Path("docs/modules/central-persistence.md").read_text(encoding="utf-8")
+
+    assert "- Status: `APPROVED / COMPLETED_DRY_RUN`" in proposal
+    assert "explicitly approved `PROPOSAL-041`" in proposal
+    assert "P41-D1" in proposal and "P41-D10" in proposal
+    assert "40f4f59e85b61a550a5298c65bf2a2a8d0f8f5b3" in proposal
+    assert "c22ce586-76b5-4a99-836b-cdb382c800de" in proposal
+    assert "d012243b-9be2-48ed-9e50-12b6b70097fb" in proposal
+    assert "af98ea54-e142-454b-a543-0c0c3bd48c5f" in proposal
+    assert "b88b4752-cafd-47d4-ba27-1a81e1421927" in proposal
+    assert "3337.76295311476456362242970" in proposal
+    assert "d366b3cd-33fb-5288-b913-04aebd6801c7" in proposal
+    assert "738e0757-618d-5717-961f-82cf0965fe04" in proposal
+    assert "72ebe495-f16c-4e4e-8700-7bcbce0f1ed5" in proposal
+    assert "58960056-c5f7-4087-854f-27705ec39e72" in proposal
+    assert "4a348ff8-e3cd-4cb2-9da5-e49fe2bc3637" in proposal
+    assert "a2784de8-952b-46ae-b70b-077035bcc6f0" in proposal
+    assert "2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298" in proposal
+    assert "Run/stage/symbol/binding/message is `69/128/66/297/293`" in proposal
+    assert "P31 must continue to read the exact P29 Result/Run" in proposal
+    assert "P39 link is immutable upstream provenance" in proposal
+    assert "Run/stage/symbol/binding/message: `68/126/65/294/293`" in proposal
+    assert "P31 operation/result/intent/source-link: `3/3/3/3`" in proposal
+    assert "| P31 operations | 3 | 4 | +1 |" in proposal
+    assert "Stop before P33/Risk" in proposal
+    assert "The user supplied the exact approval for P41-D1–D10" in proposal
+    assert "approved and completed bounded local `DRY_RUN`" in proposal_index
+    assert "PROPOSAL-041-aapl-p40-p31-decision-validation.md" in docs_index
+    assert "DEC-027" in compass and "INTENT-051" in compass
+    assert "P31 is `4/4/4/4`" in project_state
+    assert "PROPOSAL-041 completed; next work unapproved; P23-4C2 pending" in roadmap
+    assert "PLANNING-20260817-020" in version_history
+    assert "VALIDATION-20260817-021" in version_history
+    assert "EDIT-20260817-002" in edit_log
+    assert "fourth P23-4A result" in decision_module
+    assert "P31 is `4/4/4/4`" in persistence_module
 
 
 def test_roadmap_records_completed_p26_through_p35() -> None:

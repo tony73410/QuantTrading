@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented and verified.** Central Schema v23/139 adds two disabled P23-3B bridge tables to v22/137 with zero migration backfill. Approved P40 later appended exactly one P39 operation/link and one P29 result under immutable `NO_EXECUTION` Runs. P37 remains `1/2/1/1/3/0/3`; Run/stage/symbol/binding/message is `68/126/65/294/293`; P29 is `1/1/6/4/4/24`; P39 is `1/1`. No daily counter, numerical Risk approval, production algorithm or execution path is active.
+**Implemented and verified.** Central Schema v23/139 adds two disabled P23-3B bridge tables to v22/137 with zero migration backfill. Approved P40 appended exactly one P39 operation/link and one P29 result; approved P41 then appended one exact existing-P31 Decision set, all under immutable `NO_EXECUTION` Runs. P37 remains `1/2/1/1/3/0/3`; Run/stage/symbol/binding/message is `69/128/66/297/293`; P29 is `1/1/6/4/4/24`; P39 is `1/1`; P31 is `4/4/4/4`. No daily counter, numerical Risk approval, production algorithm or execution path is active.
 
 ## Purpose
 
@@ -175,6 +175,7 @@ Target Position and standardized-state persistence stores research evidence only
 - The physical filename remains `market_history.sqlite3` for backward compatibility.
 - No automatic retention/deletion policy is implemented.
 - Current Schema v23 rollback requires stopping writers, preserving the v23 file and restoring verified `market_history.schema-v22-to-v23.20260815T095551214859Z.sqlite3` with matching v22 code. Code rollback alone is not a database downgrade; earlier backups remain available only for separately controlled historical downgrades.
+- After approved PROPOSAL-041, active v23/139 is 100,990,976 bytes with SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, integrity `ok` and zero foreign-key violations. Run/stage/symbol/binding/message is `69/128/66/297/293`; P31 operation/result/intent/source-link is `4/4/4/4`. Verified pre-write backup `market_history.before-p41-validation.20260817T091810226532Z.sqlite3` retains the exact baseline; P41 changed only the eight approved append-only tables and performed no migration.
 - Backtesting retains its existing immutable JSON artifacts rather than duplicating high-volume daily evidence into central SQLite.
 - Schema-v2 Decision rows remain readable as `trace_not_captured`; the system does not invent a historical condition trace.
 - Market Bar availability and point-in-time adjustment semantics remain open decisions before production Factor use.
