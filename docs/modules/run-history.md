@@ -77,6 +77,8 @@ Central Schema v14 adds specialized P23-1 evidence, v15 adds P26 study/evidence 
 
 Approved PROPOSAL-034 adds exactly three local P23-4B Run histories under Session `P34-AAPL-P33-VALIDATION-20260812`. Each has one P31 parent plus P29/P28 source navigation, ordered Decision/Risk stages, three bindings, one manual-review warning and three locked rule children. Fresh-process Run detail and all four Open Run paths were verified; none contains approved or executable output.
 
+Approved PROPOSAL-042 adds exactly one local P23-4B Run `cfac4077-b603-4f1d-9086-15ab92fd7cf9` under Session `P42-AAPL-P41-P33-VALIDATION-20260819`, parented to exact P41 P31 Run `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5`. Fresh-process detail preserves ordered Decision/Risk stages, AAPL, three bindings, one warning, three locked rules and exact P31/P29/P28 Open Run paths; approved output remains absent.
+
 Approved PROPOSAL-036 adds exactly four local Runs under Session `P36-AAPL-P35-ELIGIBLE-VALIDATION-20260813`: control Run `0fc2ca64-5941-4c1d-9750-462d451c6488` and admission Runs `03d98ad0-b32a-4976-821e-be426763f664`, `f0342eca-9d69-4a8f-bc7e-6316d9b15dbe` and `9aa9b639-e0c0-4c47-a8d2-28efb0641df8`. Fresh-process details and all seven control/P35/P33/P31/P29/P28 Run targets were verified. The admission Runs complete with warnings and contain no approved or executable output.
 
 Approved PROPOSAL-030 created formula/configuration Runs `a7dfa5bf-d5ee-4a25-b92f-63a53a027559` and `7c2766a6-e5a8-4465-8380-0466612b3be1`, followed by preview Runs `0b3c8422-ac0c-4ddd-a7fe-b47c8de723ee`, `9229bb8d-be23-4707-b24c-5ab8e58a3857` and `59a6538b-2066-4e34-bde4-6dffda3d40e6`. All previews reload as `COMPLETED_WITH_WARNINGS`, preserve exact P28 parent/source relationships and have no downstream Run. The warnings state that only frozen local evidence was used.
@@ -146,6 +148,8 @@ Algorithm Control contains a read-only `Run History` page and the Main Launcher 
 - P23-4A attempts/results, exact P29 Result/Run/formula/configuration and P28 Result/Run/Step lineage, current/target/signed-difference/action, zero-or-one P31 intent, source-link children and durable failures under `CYCLE_TARGET_DECISION_PREVIEW`.
 
 PROPOSAL-041 validated this existing P23-4A view against exact Run `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5`: completed `TARGET_POSITION → DECISION` stages, three version bindings, the P29 parent/source, P28 source, nested P31 operation/result/intent artifact and all P31/P29/P28 Open Run targets reloaded correctly. The separate P39/P37 graph remains connected through the shared immutable P29 evidence; no new relationship type or GUI calculation was added.
+
+PROPOSAL-042 validated the existing P23-4B view and Run detail against exact Run `cfac4077-b603-4f1d-9086-15ab92fd7cf9`: completed-with-warnings `DECISION → RISK`, one P31 parent, P29/P28 sources, nested operation/result/source-link/three-rule artifacts and all four Open Run targets reloaded correctly. No relationship type, GUI calculation or write behavior changed.
 
 Completed previews automatically open their Run detail. GUI code consumes only `RunHistoryQueryService` and contains no SQL or business calculation.
 

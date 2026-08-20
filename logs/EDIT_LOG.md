@@ -8072,3 +8072,121 @@ Required next approval: `批准 PROPOSAL-037，采用 P37-D1–D12 实施禁用�
 ### Suggested commit message
 
 `validate: connect P40 target evidence to P31 decision preview`
+
+## EDIT-20260819-001 — Publish completed P41 validation checkpoint
+
+### Authorization and scope
+
+- The user had requested continuing development after P41 and option A explicitly included committing and pushing the completed P41 records first.
+- Task mode: `FAST`; Git publication and exact checkpoint recording only. No algorithm, configuration, Schema, runtime database, GUI or financial behavior changed.
+
+### Publication and verification
+
+- Rechecked governance/document integrity `23 passed`, complete architecture tests `128 passed`, central SQLite v23/139 integrity `ok`, zero foreign-key violations and exact Run/P31 counts.
+- Staged exactly 13 P41 proposal/governance/module/version/test files with `src=0`, `runtime=0`, sensitive filenames `0`; cached diff and key-pattern checks passed.
+- Created commit `9b7344ebe89b293ae3606dd78719ced95bc24d27` with message `validate: connect P40 target evidence to P31 decision preview` and pushed `40f4f59..9b7344e` to `origin/main` without force or history rewrite.
+- Runtime evidence remains active SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, Run `69/128/66/297/293`, P31 `4/4/4/4`, disabled and non-executable.
+
+### Audit and rollback
+
+- Bug audit: no product Bug was discovered; Bug Log and Known Issues are unchanged.
+- Intent/architecture/safety alignment: publication contains only already approved P41 evidence, preserves module ownership and grants no downstream authority. No assumptions or unapproved behavior were added; Stable Core is unchanged.
+- Use a normal Git revert for commit `9b7344e` if publication must be reversed; never delete accepted SQLite evidence.
+
+## EDIT-20260819-002 — Create proposal-only P42 P41-to-P33 structural Risk validation plan
+
+### Authorization and task mode
+
+- After P41 publication, the user selected option A. That authorizes proposal and planning records only, not a backup, P33 Run or database write.
+- Task mode: `STANDARD`, proposal-only. Primary owner is existing Risk P33; Decision P31 and P29/P39/P37/P28 are immutable read-only provenance, with existing Orchestration/Persistence/Run History/Algorithm Control support.
+
+### Pre-Implementation Compass, overlap and architecture audit
+
+- Goal: plan one bounded proof that exact P41 Intent/Result/Run can reach existing P33 and remain manual-review-only.
+- P33 already owns this exact contract and P34 already provides three runtime examples, including a same-value INCREASE oracle. P42 therefore adds no component, algorithm, rule, adapter, public interface, Schema, configuration or GUI behavior.
+- Stable Core evidence, controllability, module separation and safety rules apply. Financial meaning is unchanged: the source is hypothetical, and P33 structurally cannot emit an approved amount/intent or executable result.
+- Blast radius is `LOCAL` for planning and would be `LIMITED` for a separately approved append-only validation.
+
+### Proposal and read-only evidence
+
+- Added PROPOSAL-042 with P42-D1–D10, exact approval boundary, frozen P41/P40/P39/P37/P28 identities, exact expected three-rule outcome and exact bounded table deltas.
+- Planned deterministic namespace/operation are `0a3ea8ab-69e5-59b5-8a40-847629d866fe` / `7b7c7a3b-3d06-5ca7-9830-ce63801cb62a`; command fingerprint is `4309aefe934cb961f17ef1ae9d794e9e7c9a172025beac198510b78d0a57a104`.
+- Main/origin is `9b7344ebe89b293ae3606dd78719ced95bc24d27`. Active SQLite remains v23/139 SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, integrity `ok`, zero foreign-key violations, Run `69/128/66/297/293`, P31 `4/4/4/4`, P33 `3/3/9/3`; exact P41 P31 source P33-consumer count is zero.
+- No backup, database write, P33 Run/result, external call or trading path occurred. One exploratory read-only query used a display-name column before a corrected physical-column query; unchanged database evidence proves no side effect, and this is not a product Bug.
+
+### Documentation, testing and audit
+
+- Added the P42 proposal and updated Compass, proposal/document indexes, Project State, Roadmap, Version History, governance assertions and this Edit Log.
+- Public contracts, source/configuration/Schema/GUI and runtime data remain unchanged; no module behavior document or architecture source required an update.
+- Bug audit: no product Bug or credible unresolved defect was found; Bug Log and Known Issues remain unchanged.
+- Intent alignment: records exactly the user-selected proposal without executing it. Architecture alignment: reuses the sole P33 owner and public P31 input. Safety alignment: requires manual review and stops before numerical Risk/P35/execution.
+- Unapproved behavior added: none. Assumptions introduced: deterministic UUIDv5 planning identities are engineering mechanics only. Compass sections updated: metadata/current phase, DEC-028 narrative, INTENT-052 and Next Approved Direction; Stable Core is unchanged.
+- Remaining drift risk: a later task could mistake the hypothetical amount for approval, batch unconsumed P31 intents or continue into P35/numerical Risk. Exact IDs and a new approval gate prevent that.
+- Proposal-only rollback is a normal revert/removal of P42 planning records; no database restore is required.
+
+### Suggested commit message
+
+`docs: propose P41-to-P33 AAPL Risk validation`
+
+### Final validation addendum
+
+- Governance/document integrity passed `24/24`; complete architecture tests passed `129/129`; `git diff --check` passed with repository line-ending notices only.
+- Final read-only active-database recheck retained SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, length 100,990,976 bytes, v23/139, integrity `ok`, zero foreign-key violations, Run `69/128/66/297/293`, P31 `4/4/4/4`, P33 `3/3/9/3` and zero P33 consumer for the P41 source.
+- One final read-only reporting command initially used an incorrect P31 physical table name and stopped after the already successful schema/integrity/Run checks. The corrected query returned the exact P31/P33/consumer counts above. This operator query error made no write and is not a product Bug.
+
+## EDIT-20260819-003 — Complete approved P42 AAPL P41-to-P33 structural Risk validation
+
+### Authorization and task mode
+
+- The user explicitly approved `PROPOSAL-042` and P42-D1–D10 by stating `批准 PROPOSAL-042，采用 P42-D1–D10 执行 AAPL P41→P33 结构 Risk 本地验证。`
+- Task mode: `STANDARD`; primary owner existing Risk P33, with Orchestration/Persistence/Run History and existing GUI as unchanged supporting surfaces. Blast radius: `LIMITED` append-only local validation evidence and synchronized records.
+- Excluded: new formulas/rules, P35, P23-4C2, numerical Risk, cash, Backtesting, Portfolio Accounting persistence, broker, Paper/Live, order, fill and network access.
+
+### Pre-Implementation Compass and architecture audit
+
+- Goal: prove the exact P41 P31 intent can enter existing P33 once, preserve the entire source chain and remain visibly unapproved.
+- Existing P33 is the sole owner and P34 supplies the same-value oracle. No new component, public contract, dependency, configuration, Schema or GUI behavior was required.
+- Stable Core evidence/controllability/module separation and Risk safety invariants apply. Financial meaning is unchanged: the amount is hypothetical requested USD, not an approved amount or order.
+- One engineering assumption was used: deterministic UUIDv5 identities for retry safety. It adds no product default or trading meaning.
+
+### Preflight, backup and accepted evidence
+
+- Clean published source `9b7344ebe89b293ae3606dd78719ced95bc24d27`, package `0.1.0`, exact P41/P29/P39/P37/P28 lineage and current `ALPACA_PAPER` non-execution safety passed public no-write preflight. Fingerprint `4309aefe934cb961f17ef1ae9d794e9e7c9a172025beac198510b78d0a57a104`; active hash and all 139 counts were unchanged.
+- Verified backup `market_history.before-p42-validation.20260820T0105059391374Z.sqlite3` is 100,990,976 bytes, SHA-256 `BFEB2436A9031FF74E749E0DA44AA3DDAA333AE2FCBD86B4127E2983A82F9EA4`, v23/139, integrity `ok`, zero foreign-key violations and baseline-count equal.
+- Sole operation/attempt/Run/result/source-link are `7b7c7a3b-3d06-5ca7-9830-ce63801cb62a` / `042384a6-57ab-475b-b8dd-b524f762c6ea` / `cfac4077-b603-4f1d-9086-15ab92fd7cf9` / `f7ad301d-86f8-46df-9ad4-458c81ab1ab7` / `3f896276-d073-4cac-81d0-bebe7808f085`.
+- Result is `MANUAL_REVIEW_REQUIRED` with the exact three locked ordered rules. Source `INCREASE 3337.76295311476456362242970 USD` remains unchanged but unapproved; approved notional/intent are absent and execution/live are false.
+
+### Reload, observability, idempotency and bounded effect
+
+- Fresh-process typed reload and deterministic replay matched. P34 result `16bde342-bf0f-4850-9d61-62a3da3882c5` matched as a structural/numerical oracle while exact source/result identities remained distinct.
+- Temporary JSON 7,190-byte and CSV 1,140-byte exports parsed exactly and were removed. Run History showed parent P41, ordered Decision/Risk stages, AAPL, three bindings, one warning and P31/P29/P28 relations. Existing Risk GUI loaded four intents/operations/results, rendered three rules, opened exact P33/P31/P29/P28 Runs and kept review disabled.
+- Exact retry returned the original attempt/Run/result and changed zero rows.
+- Only Run/stage/symbol/binding/message `+1/+2/+1/+3/+1` and P33 attempt/result/rule/source-link `+1/+1/+3/+1` changed; all other 130 logical tables are unchanged. Final active SQLite is 101,003,264 bytes, SHA-256 `9FB762D9B787222983A4FEE0AAD6726DB3A0ED24E42280CAA33FB4C6605B1A92`, v23/139, integrity `ok`, zero foreign-key violations, Run `70/130/67/300/294`, P31 `4/4/4/4`, P33 `4/4/12/4`.
+
+### Tests, documentation and Bug audit
+
+- Focused P33 persistence `6`, P33 GUI `1`, P33 architecture `5`, and Run History `17` tests passed: `29/29`.
+- Updated proposal/Compass/indexes/State/Roadmap/Version/Changelog plus affected Risk/Persistence/Run History/GUI module records and governance assertions. Source/configuration/Schema/GUI code remain unchanged.
+- Operator validation scripts needed corrections for two read-only field-name assumptions, physical backup-hash equality and a restricted Windows process query. Exact read-only counts/hashes and final passing scripts prove no unintended effect; these were not product Bugs.
+- Confirmed and fixed `BUG-20260819-001`: the Project State capability table still described P39/P33 as empty after later approved validations. It is not added to Known Issues because it was repaired in this task.
+
+### Post-Implementation Compass audit and rollback
+
+- Intent alignment: exact P41 source entered unchanged P33 once and stopped at manual review.
+- Architecture alignment: Risk remains owner; only public contracts were used; GUI stayed read-only.
+- Safety alignment: approval fields absent, execution/live false, no P35/numerical/trading path.
+- Unapproved behavior added: none. Assumptions introduced: deterministic UUID mechanics only.
+- Compass sections updated: metadata/current phase, P42 checkpoint/last verification, capability summary, DEC-028, narrative, INTENT-052 and Next Approved Direction; Stable Core unchanged.
+- Remaining drift risk: future work could mistake manual review for numerical approval or automatically consume the result. Exact type/IDs, absent approval fields and the next-approval boundary remain explicit.
+- Preserve immutable P42 rows. Normal rollback stops future selection or reverts documentation; use the verified backup only for proven database corruption with writers stopped and compatible v23 code.
+
+### Suggested commit message
+
+`validate: pass P41 AAPL intent through structural Risk`
+
+### Final validation addendum
+
+- Synchronized governance/document integrity passed `24/24`; complete architecture tests passed `129/129`; `git diff --check` passed with repository line-ending notices only.
+- Final read-only active-database check retained length 101,003,264 bytes, SHA-256 `9FB762D9B787222983A4FEE0AAD6726DB3A0ED24E42280CAA33FB4C6605B1A92`, v23/139, integrity `ok`, zero foreign-key violations, Run `70/130/67/300/294`, P31 `4/4/4/4` and P33 `4/4/12/4`.
+- The first final reporting one-liner used shell-incompatible quote escaping and stopped before its read-only Python query. A corrected read-only command returned the exact evidence above; no database write or product defect occurred.
+- Temporary P42 validation scripts were removed. Repository safety policy declined recursive deletion of the ignored clean-source clone because it contains a full `.git` history; `runtime/p42-clean-source` therefore remains ignored and is not part of the publication diff.

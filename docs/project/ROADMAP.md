@@ -22,14 +22,15 @@
 - 完成阶段 6E：在既有Risk页面增加只读Consolidated Risk Chain Explorer，从Phase 6D结果通过公共查询合同精确解析Phase 6C/6B/6A结果与source links，结构门与数值规则1–3分开展示，支持含可选inclusive UTC as-of边界的有界筛选、两个显式历史链的精确A/B相等性比较及九条Open Run路径。缺失/不一致证据明确失败；Schema仍为v13，无重算、写入、审批、预留、导出、回测或执行能力。
 - 完成 `PROPOSAL-024` P23-1A–D、`PROPOSAL-025` P23-1E-A 和 `PROPOSAL-026` P23-1E-B：锁定禁用的频谱波动研究现具备精确日历/Raw+Split/公司行动证据、不可变R1 v1.0.0/v1.1.0、纯Factor计算、Schema-v15完整历史、人工最新交易日与2–250日历史运行、父子Run、后台GUI、重启重载、图表/导出与Open Run。P26没有未来收益/P&L/排名，也没有状态、仓位、Decision、Risk批准或交易消费者。
 - 完成获批 `PROPOSAL-033` P23-4B：Risk所有者只接受一个显式非零P31 Intent/Result/Run，精确重验P31/P29/P28来源和非执行安全状态，与旧Phase 6A只共享Risk私有纯结构内核。安全输入固定为`MANUAL_REVIEW_REQUIRED`，不安全状态固定为`BLOCKED`，批准金额和批准intent结构性缺失。中央SQLite v20/124、重放/导出/Run导航和既有Risk页兄弟检查器均已验证；P34随后以显式批准增加三组精确人工审查历史，没有自动来源选择或数值/交易下游。
+- 完成获批 `PROPOSAL-042` P42-D1–D10：只把P41的精确AAPL Intent/Result/Run交给未修改的既有P33一次；完整来源/安全预检、备份、三条锁定规则、`MANUAL_REVIEW_REQUIRED`、重载/重放/oracle/导出/Run/GUI/幂等/逐表增量均通过。P33现为`4/4/12/4`，批准金额/Intent仍为空，没有P35、数值Risk或交易消费者。
 
 ## Approved next
 
-- 无。`PROPOSAL-041` 已完成；任何后续验证或开发都需要新的明确批准。
+- 无。`PROPOSAL-042` 已按P42-D1–D10完成有界本地验证；任何P35使用、P23-4C2、数值Risk或后续交易链仍需新的明确批准。
 
-## Next direction — PROPOSAL-041 completed; next work unapproved; P23-4C2 pending
+## Next direction — PROPOSAL-042 completed; next work unapproved; P23-4C2 pending
 
-Previous completed-checkpoint label: `PROPOSAL-040 completed; next work unapproved; P23-4C2 pending`. Completed PROPOSAL-041 extends only the explicit disabled validation chain from P40/P29 into existing P31; it does not change completed P40 evidence or approve downstream work.
+Previous completed-checkpoint label: `PROPOSAL-041 completed; next work unapproved; P23-4C2 pending`. Completed PROPOSAL-042 extends only the explicit disabled validation chain from P41/P31 into existing P33; it does not change prior evidence or approve P35, numerical Risk or downstream work.
 
 - `PROPOSAL-027` P23-1F 已批准并完成：从一项显式、完整的P26历史研究中，只读取R1 v1.0.0在评估日前已经形成的60/120/250窗口趋势标准化MAD；先对三个窗口取中位数，再对20–250个完整评估日取中位数，形成每只股票独立的日常对数波动尺度。Schema v16、Run/结果历史、现有Factor页子页签和本地AAPL复用验证均完成，仍为禁用且无消费者。
 - `PROPOSAL-028` 已批准、实现并验证：第一版在Asset State所有者内建立独立反转观察实验室，不改正式股票状态；上涨转下跌与下跌转上涨使用同一个显式版本化正倍数。完整公式、只允许冻结后前向数据、两日确认/下一交易日生效、中央SQLite v17/110六表、Run重放/比较/导出和既有Asset State页子页签均已完成，仍为禁用且无消费者。
@@ -49,6 +50,7 @@ Previous completed-checkpoint label: `PROPOSAL-040 completed; next work unapprov
 - `PROPOSAL-039` P39-D1–D12已获批准并实现为禁用的P23-3B：只接受显式选择的成功P37 operation/Run/stream/terminal snapshot，使用公共查询重载其精确P28 Result/Run/Step并核对全部P29消费语义，然后调用未修改的P29服务。独立bridge/target operation ID、失败恢复、Schema v23两表、Run关系/工件和既有Target Position页兄弟检查器已验证；迁移时两表零回填。P40后来加入一条显式受控验证连接，但仍没有自动来源/配置选择、Decision/Risk消费者或交易权限。
 - `PROPOSAL-040` P40-D1–D10已获批准并完成受控本地`DRY_RUN`：精确冻结的AAPL P37/P28证据、现有禁用P29配置和假设`$100,000/$50,000`输入创建一条P39连接与一条新P29结果。新结果与终端P30 oracle完全相等；写前备份、fresh reload、Run关系/工件、既有GUI/Open Run、P39/P29双层幂等、精确表增量、完整性和外键验证均通过。最终P39为`1/1`，仍无P31/Decision/Risk消费者或交易权限。
 - `PROPOSAL-041` P41-D1–D10 已获批准并完成：只显式选择P40 P29 Result `c22ce586-76b5-4a99-836b-cdb382c800de` / Run `d012243b-9be2-48ed-9e50-12b6b70097fb`，交给既有P31协调器并得到精确`INTENT_CREATED / INCREASE / 3337.76295311476456362242970 USD`。预检、备份、重载、重放、导出、Run/GUI、幂等和精确增量全部通过；P31为`4/4/4/4`，止于P33/Risk之前。
+- `PROPOSAL-042` P42-D1–D10 已获批准并完成：P41 Intent `4a348ff8-e3cd-4cb2-9da5-e49fe2bc3637` / Result `58960056-c5f7-4087-854f-27705ec39e72` / Run `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5`只进入既有P33一次。新结果 `f7ad301d-86f8-46df-9ad4-458c81ab1ab7`保存三条锁定结构规则并停在`MANUAL_REVIEW_REQUIRED`；批准金额/Intent为空，重载/重放/oracle/导出/Run/GUI/幂等/增量均通过，止于P35、数值Risk和所有交易路径之前。
 
 - P26已完成一次另行批准的真实AAPL只读验证：20个XNYS评估日×2个锁定版本共40点全部保存并重启重载成功；只访问历史行情/公司行动，没有访问Trading、账户、持仓、订单或成交。该证据没有跨窗口稳定周期，不能被当成已批准的日常波动范围或交易信号。
 

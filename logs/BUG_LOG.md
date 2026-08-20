@@ -5549,3 +5549,27 @@ Read the current-phase and central-persistence bullets in `docs/project/PROJECT_
 Updated the active-database bullet to SHA-256 `446A471ABEC1857AE502BBDA461E9704B74C3F2B6AC8A3E8ABD9B0CD4150EDA6`, Run/stage/symbol/binding/message `68/126/65/294/293`, P29 `1/1/6/4/4/24`, unchanged P37 `1/2/1/1/3/0/3` and P39 `1/1`. Governance tests now require those exact current values in Project State, preventing the older checkpoint from being presented as current again.
 
 The runtime database was never wrong or modified by this repair. Not added to `KNOWN_ISSUES.md` because the documentation defect was fixed in the same publication task. Rollback of the text/test correction would restore contradictory current status and is not recommended.
+
+## BUG-20260819-001
+
+### Title
+Project State capability table retained pre-P40/P34 empty P39 and P33 summaries
+
+### Status
+Fixed during completed PROPOSAL-042 record synchronization
+
+### Severity
+Low
+
+### Area
+Governance documentation / current capability status
+
+### Reproduction and cause
+
+Read the P23-3B and P23-4B rows in the current capability table of `docs/project/PROJECT_STATE.md`. Despite completed P40 and P34/P42 evidence elsewhere in the same document, the rows still said the P39 runtime tables and all four P33 tables were empty. These were implementation-time zero-row descriptions that were not advanced when later separately approved validation rows were appended. Runtime SQLite and module behavior were never affected.
+
+### Resolution and regression evidence
+
+Updated the capability table to report one P39 operation/link, four P31 results across P32/P41, and P33 attempts/results/rules/source-links `4/4/12/4` after P34/P42. The PROPOSAL-042 governance test now asserts the current Project State contains the exact P42 P33 count and no longer presents P42 as proposed.
+
+Not added to `KNOWN_ISSUES.md` because the documentation defect was confirmed and repaired in the same task. Rollback of the correction would restore contradictory current status and is not recommended.

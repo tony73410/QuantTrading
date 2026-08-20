@@ -836,3 +836,75 @@ Execution requires the exact approval phrase recorded in PROPOSAL-040. Until the
 - No Market Data refresh, Provider, account/position/factual cash, P33/Risk, P35, P23-4C2 count, Backtesting, Accounting, broker, Paper/Live, order or fill path was used.
 - Preserve the accepted append-only evidence. Ordinary rollback stops future use or normally reverts documentation; restore the verified backup only for proven corruption with writers stopped and matching v23 code.
 - No later validation or implementation slice is approved by P41.
+
+## CHECKPOINT-20260819-022
+
+### P41 publication identity
+
+- Local date: 2026-08-19.
+- Branch: `main`.
+- Published commit: `9b7344ebe89b293ae3606dd78719ced95bc24d27`.
+- Commit message: `validate: connect P40 target evidence to P31 decision preview`.
+- Push: `40f4f59..9b7344e` to `origin/main`, completed without force, merge, rebase or history rewrite.
+- Package version: `0.1.0`; central database contract remains Schema v23/139.
+
+### Publication verification and boundary
+
+- Governance/document integrity passed `23/23`; complete architecture tests passed `128/128`; staged diff hygiene and sensitive-filename/key-pattern checks passed.
+- The 13-file publication set contained `src=0` and `runtime=0`. It records already completed P41 validation evidence and creates no additional Run or database row.
+- Active SQLite remains SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, integrity `ok`, zero foreign-key violations, Run/stage/symbol/binding/message `69/128/66/297/293` and P31 `4/4/4/4`.
+- Use a normal Git revert if the publication commit must be reversed; preserve accepted immutable SQLite evidence and its backup.
+
+## PLANNING-20260819-023
+
+### Identity and authorization
+
+- Date: 2026-08-19.
+- Branch and main/origin identity before proposal work: `main` at `9b7344ebe89b293ae3606dd78719ced95bc24d27`.
+- User authorization: option A authorizes creation of PROPOSAL-042 and synchronized planning records only. It does not authorize backup creation, P33 runtime validation or database writes.
+- Package version: `0.1.0`; central database contract remains Schema v23/139.
+
+### Proposal-only P42 state
+
+- PROPOSAL-042 recommends one bounded existing-P33 review over exact P41 Intent `4a348ff8-e3cd-4cb2-9da5-e49fe2bc3637`, Result `58960056-c5f7-4087-854f-27705ec39e72` and Run `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5`.
+- P33 remains the sole structural Risk owner. No new component, rule, adapter, schema or GUI behavior is proposed.
+- Proposed deterministic namespace/operation are `0a3ea8ab-69e5-59b5-8a40-847629d866fe` / `7b7c7a3b-3d06-5ca7-9830-ce63801cb62a`, with command fingerprint `4309aefe934cb961f17ef1ae9d794e9e7c9a172025beac198510b78d0a57a104`.
+- Acceptance requires exact complete-lineage and current-safety no-write prechecks, a verified backup, one P33 Run parented to the P41 P31 Run, three locked rules, terminal `MANUAL_REVIEW_REQUIRED`, fresh reload/replay/export/Run/GUI/idempotency and exact bounded deltas.
+- Existing P34 result `16bde342-bf0f-4850-9d61-62a3da3882c5` is a same-value oracle only; P42 must preserve distinct P41 source and new P33 result identities.
+
+### Read-only baseline and next approval boundary
+
+- Active SQLite remains SHA-256 `2EFDECE226BCE18E75B0ED1B3EF6EE03C495732F76134A565AE11285562F6298`, v23/139, integrity `ok`, zero foreign-key violations, Run `69/128/66/297/293`, P31 `4/4/4/4` and P33 `3/3/9/3`.
+- Direct read-only inspection found zero P33 consumer for the exact P41 source. No backup, Run, P33 row, network call or trading path was created.
+- Execution requires the exact approval phrase recorded in PROPOSAL-042. Until then DEC-028 and INTENT-052 remain proposed.
+- Proposal-only rollback removes or normally reverts only the P42 planning/governance/test records; no database restoration is required.
+
+## VALIDATION-20260819-024
+
+### Authorization and source identity
+
+- Local date: 2026-08-19.
+- User authorization: explicit approval of `PROPOSAL-042` and P42-D1–D10 for one bounded AAPL P41→P33 structural Risk local validation.
+- Clean validation source: published main/origin `9b7344ebe89b293ae3606dd78719ced95bc24d27`; package `0.1.0`.
+- Scope retained existing P33 unchanged. No source, configuration, public contract, Schema, GUI behavior, Provider or execution component changed.
+
+### Preflight and recovery checkpoint
+
+- Exact P41 Intent/Result/Run `4a348ff8-e3cd-4cb2-9da5-e49fe2bc3637` / `58960056-c5f7-4087-854f-27705ec39e72` / `72ebe495-f16c-4e4e-8700-7bcbce0f1ed5` and full P29/P39/P37/P28 provenance passed public no-write reload.
+- Application safety was `ALPACA_PAPER`, live=false, automatic=false, manual-confirmation=true and execution-capability=false. Command fingerprint was `4309aefe934cb961f17ef1ae9d794e9e7c9a172025beac198510b78d0a57a104`; preflight changed zero database bytes/counts.
+- Verified backup `market_history.before-p42-validation.20260820T0105059391374Z.sqlite3` is 100,990,976 bytes, SHA-256 `BFEB2436A9031FF74E749E0DA44AA3DDAA333AE2FCBD86B4127E2983A82F9EA4`, v23/139, integrity `ok`, zero foreign-key violations and exact logical-count equality with the baseline.
+
+### Accepted evidence and verification
+
+- P33 operation/attempt/Run/result/source-link: `7b7c7a3b-3d06-5ca7-9830-ce63801cb62a` / `042384a6-57ab-475b-b8dd-b524f762c6ea` / `cfac4077-b603-4f1d-9086-15ab92fd7cf9` / `f7ad301d-86f8-46df-9ad4-458c81ab1ab7` / `3f896276-d073-4cac-81d0-bebe7808f085`.
+- Result is exactly `MANUAL_REVIEW_REQUIRED` with the three locked source-integrity, non-execution-safety and numerical-policy-availability rules. `INCREASE 3337.76295311476456362242970 USD` remains requested only; approved notional/intent are absent and execution/live are false.
+- Fresh-process reload/replay, exact P34 same-value oracle comparison, temporary JSON/CSV parsing/removal, Run History, offscreen existing Risk inspector, four Open Run targets and exact retry all passed. Retry returned the original identities and added zero rows.
+- Only nine logical tables changed: Run/stage/symbol/binding/message `+1/+2/+1/+3/+1`, P33 attempt/result/rule/source-link `+1/+1/+3/+1`; the other 130 tables are unchanged.
+- Final active SQLite is 101,003,264 bytes, SHA-256 `9FB762D9B787222983A4FEE0AAD6726DB3A0ED24E42280CAA33FB4C6605B1A92`, v23/139, integrity `ok`, zero foreign-key violations, Run/stage/symbol/binding/message `70/130/67/300/294`, P31 `4/4/4/4` and P33 `4/4/12/4`.
+- Focused P33 persistence/GUI/architecture and Run History suites passed `29/29`; synchronized governance/document integrity passed `24/24`; the complete architecture suite passed `129/129`; `git diff --check` passed with line-ending notices only.
+
+### Boundary and rollback
+
+- No Market Data refresh, network, Trading client, account/position/cash, P35, daily count, numerical Risk, Backtesting, Accounting, broker, Paper/Live, order or fill path was used.
+- Preserve the accepted append-only evidence. Ordinary rollback stops future selection or reverts documentation; restore the verified backup only for proven corruption with writers stopped and compatible v23 code.
+- No later validation, numerical policy, P35 consumption or trading implementation is approved by P42.
